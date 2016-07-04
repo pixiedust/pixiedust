@@ -14,7 +14,12 @@
 # limitations under the License.
 # -------------------------------------------------------------------------------
 
-from .display import ChartDisplay
+from .barChartDisplay import BarChartDisplay
+from .lineChartDisplay import LineChartDisplay
+from .scatterPlotDisplay import ScatterPlotDisplay
+from .pieChartDisplay import PieChartDisplay
+from .mapChartDisplay import MapChartDisplay
+from .histogramDisplay import HistogramDisplay
 from ..display import *
 
 class ChartDisplayMeta(DisplayHandlerMeta):
@@ -32,7 +37,18 @@ class ChartDisplayMeta(DisplayHandlerMeta):
             ]
         else:
             return []
-    def newDisplayHandler(self,entity):
-        return ChartDisplay(entity)
+    def newDisplayHandler(self,handlerId,entity):
+        if handlerId is None or handlerId=="barChart":
+            return BarChartDisplay(entity)
+        elif handlerId=="lineChar":
+            return LineChartDisplay(entity)
+        elif handlerId=="scatterPlot":
+            return ScatterPlotDisplay(entity)
+        elif handlerId=="pieChart":
+            return PieChartDisplay(entity)
+        elif handlerId=="mapChart":
+            return MapChartDisplay(entity)
+        elif handlerId=="histogram":
+            return HistogramDisplay(entity)
 
 registerDisplayHandler(ChartDisplayMeta())

@@ -16,6 +16,7 @@
 
 from ..display import Display
 from pyspark.sql import DataFrame
+from pyspark.sql import functions as F
 import yaml
 
 class GraphDisplay(Display):
@@ -28,8 +29,8 @@ class GraphDisplay(Display):
         for r in g.vertices.map(lambda row: """"{0}":{{"id":"{0}","name":"{1}","latitude":{2},"longitude":{3}}}"""
             .format(row.id, row.name.encode("ascii","ignore"),0.0 if row.latitude is None else row.latitude,0.0 if row.longitude is None else row.longitude)).collect():
             graphNodesJson+=("," if len(graphNodesJson)>1 else "") + str(r)
-        graphNodesJson+="}"
-        #print(graphNodesJson)
+        graphNodesJson+="}"        
+        graphLinksJson=str(g.edges.select("src","dst").groupBy("src","dst").agg(F.count("src").alias("count")).toJSON().map(lambda j: yaml.safe_load(j)).collect())
         prefix=self.getPrefix()
         
         self._addHTML("""
@@ -76,7 +77,7 @@ class GraphDisplay(Display):
             <script>
                 var True=true;
                 var False=false;
-                var graph = {"nodes": """ + graphNodesJson + ""","links":"""+str(g.edges.toJSON().map(lambda j: yaml.safe_load(j)).collect())+"""};
+                var graph = {"nodes": """ + graphNodesJson + ""","links":"""+graphLinksJson+"""};
                 var prefix = '""" + prefix + """';
                 var w = 1000;
                 var h = 600;

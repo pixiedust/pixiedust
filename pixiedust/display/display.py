@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # -------------------------------------------------------------------------------
+
 from abc import ABCMeta,abstractmethod
 from IPython.display import display as ipythonDisplay, HTML, Javascript
 from .constants import *
@@ -62,7 +63,7 @@ class DisplayHandlerMeta(object):
     def getMenuInfo(self):
         pass
     @abstractmethod
-    def newDisplayHandler(self,entity):
+    def newDisplayHandler(self,handlerId,entity):
         pass
     
 class Display(object):

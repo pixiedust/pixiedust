@@ -1,9 +1,9 @@
 from setuptools import setup
 
 setup(name='pixiedust',
-      version='0.10',
+      version='0.11',
       description='Misc helpers for Spark Python Notebook',
-      url='https://github.com/ibm-cds-labs/spark.samples/tree/master/pixiedust',
+      url='https://github.com/ibm-cds-labs/pixiedust',
       install_requires=['maven-artifact'],
       author='David Taieb',
       author_email='david_taieb@us.ibm.com',

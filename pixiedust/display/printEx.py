@@ -41,7 +41,11 @@ def printEx(message, color=None):
 def display(entity, handlerId=None):
     selectedHandler=getSelectedHandler(handlerId, entity)
     
-    displayHandler = selectedHandler.newDisplayHandler(entity)
+    displayHandler = selectedHandler.newDisplayHandler(handlerId,entity)
+    if displayHandler is None:
+        printEx("Unable to obtain handler")
+        return
+        
     displayHandler.callerText = traceback.extract_stack(limit=2)[0][3]
     displayHandler.noChrome(handlerId is not None)
     displayHandler.render(handlerId)
