@@ -19,6 +19,8 @@ from table.display import *
 from graph.display import *
 import traceback
 
+__all__=['printEx','display']
+
 class PrintColors(object):
     PURPLE = '\x1b[35m'
     CYAN = '\x1b[36m'
@@ -45,7 +47,8 @@ def display(entity, handlerId=None):
     if displayHandler is None:
         printEx("Unable to obtain handler")
         return
-        
+    
+    displayHandler.handlerMetadata = selectedHandler    
     displayHandler.callerText = traceback.extract_stack(limit=2)[0][3]
     displayHandler.noChrome(handlerId is not None)
     displayHandler.render(handlerId)

@@ -15,5 +15,5 @@
 # -------------------------------------------------------------------------------
 
 from .display import Display
-from ..display import chart,graph,table
+import chart,graph,table,tests
 from pixiedust.display.printEx import *

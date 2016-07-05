@@ -14,4 +14,19 @@
 # limitations under the License.
 # -------------------------------------------------------------------------------
 
-__all__=['packageManager','display']
+from ..display import *
+from .test1 import *
+
+class TestsDisplayMeta(DisplayHandlerMeta):
+    @addId
+    def getMenuInfo(self,entity):
+        if entity=="test1":
+            return [
+                {"categoryId": "Test", "title": "Test1", "icon": "fa-bar-chart", "id": "Test1"}
+            ]
+        else:
+            return []
+    def newDisplayHandler(self,handlerId,entity):
+        return Test1Display(entity)
+
+registerDisplayHandler(TestsDisplayMeta())

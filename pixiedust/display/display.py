@@ -34,7 +34,7 @@ def getSelectedHandler(handlerId, entity):
     if handlerId is not None:
         return globalMenuInfos[handlerId]['handler']
     else:
-        if defaultHandler is not None:
+        if defaultHandler is not None and len(defaultHandler.getMenuInfo(entity))>0:
             return defaultHandler
         #get the first handler that can render this object
         for handler in handlers:
@@ -75,7 +75,18 @@ class Display(object):
         self.scripts=list()
     
     def render(self, handlerId):
-        self.doRender(handlerId)
+        if handlerId is None:
+            #get the first menuInfo for this handler and generate a js call
+            menuInfos = self.handlerMetadata.getMenuInfo(self.entity)
+            if len(menuInfos)>0:
+                self._addHTML("""
+                    <script>
+                    ({0})();
+                    </script>
+                """.format(self._getExecutePythonDisplayScript(menuInfos[0])))
+        else:
+            self.doRender(handlerId)
+            
         #generate final HTML
         ipythonDisplay(HTML(self._wrapBeforeHtml() + self.html + self._wrapAfterHtml()))
         self._addScriptElements()
@@ -201,49 +212,63 @@ class Display(object):
         if ( not hasattr(self, 'prefix') ):
             self.prefix = str(uuid.uuid4())[:8]
         return self.prefix if menuInfo is None else (self.prefix + "-" + menuInfo['id'])
+    
+    def _getExecutePythonDisplayScript(self, menuInfo):
+        return """
+            function () {{
+                //Resend the display command
+                var callbacks = {{
+                    iopub:{{
+                        output:function(msg){{
+                            var msg_type=msg.header.msg_type;
+                            var content = msg.content;
+                            if(msg_type==="stream"){{
+                                $('#wrapperHTML{0}').html(content.text);
+                            }}else if (msg_type==="display_data" || msg_type==="execute_result"){{
+                                var html=null;                                    
+                                if (!!content.data["text/html"]){{
+                                    html=content.data["text/html"];
+                                }}                                  
+                                if (!!content.data["application/javascript"]){{
+                                    $('#wrapperJS{0}').html("<script type=\\\"text/javascript\\\">"+content.data["application/javascript"]+"</s" + "cript>");
+                                }}
+                                if (!!content.data["image/png"]){{
+                                    html=html||"";
+                                    html+="<img src='data:image/png;base64," +content.data["image/png"]+"'></img>";
+                                }}
+                                if (html){{
+                                    $('#wrapperHTML{0}').html(html);
+                                }}
+                            }}else if (msg_type === "error") {{
+                                var errorHTML="<p>"+content.ename+"</p>";
+                                errorHTML+="<p>"+content.evalue+"</p>";
+                                errorHTML+="<pre>" + content.traceback+"</pre>";
+                                $('#wrapperHTML{0}').html(errorHTML);
+                            }}
+                            console.log("msg", msg);
+                        }}
+                    }}
+                }}
+                
+                console.log("Running command: {1}");
+                $('#wrapperJS{0}').html("")
+                $('#wrapperHTML{0}').html('<div style="width:100px;height:60px;left:47%;position:relative"><i class="fa fa-circle-o-notch fa-spin" style="font-size:48px"></i></div>'+
+                '<div style="text-align:center">Loading your data. Please wait...</div>');
+                IPython.notebook.session.kernel.execute("{1}", callbacks, {{silent:false, store_history:false}});
+            }}
+        """.format(self.getPrefix(), self._genDisplayScript(menuInfo))
         
     def _getMenuHandlerScript(self, menuInfo):
         return """
             <script>
-                $('#menu{0}').on('click', function () {{
-                    //Resend the display command
-                    var callbacks = {{
-                        iopub:{{
-                            output:function(msg){{
-                                var msg_type=msg.header.msg_type;
-                                var content = msg.content;
-                                if(msg_type==="stream"){{
-                                    $('#wrapperHTML{1}').html(content.text);
-                                }}else if (msg_type==="display_data" || msg_type==="execute_result"){{
-                                    if (content.data["text/html"]){{
-                                        $('#wrapperHTML{1}').html(content.data["text/html"]);
-                                    }}                                    
-                                    if (content.data["application/javascript"]){{
-                                        $('#wrapperJS{1}').html("<script type=\\\"text/javascript\\\">"+content.data["application/javascript"]+"</s" + "cript>");
-                                    }}
-                                }}else if (msg_type === "error") {{
-                                    var errorHTML="<p>"+content.ename+"</p>";
-                                    errorHTML+="<p>"+content.evalue+"</p>";
-                                    errorHTML+="<pre>" + content.traceback+"</pre>";
-                                    $('#wrapperHTML{1}').html(errorHTML);
-                                }}
-                                console.log("msg", msg);
-                            }}
-                        }}
-                    }}
-                    
-                    console.log("Running command: {2}");
-                    $('#wrapperJS{1}').html("")
-                    $('#wrapperHTML{1}').html('<div style="width:100px;height:60px;left:47%;position:relative"><i class="fa fa-circle-o-notch fa-spin" style="font-size:48px"></i></div>'+
-                    '<div style="text-align:center">Loading your data. Please wait...</div>');
-                    IPython.notebook.session.kernel.execute("{2}", callbacks, {{silent:false, store_history:false}});
-                }})
+                $('#menu{0}').on('click', {1})
             </script>
-        """.format(self.getPrefix(menuInfo), self.getPrefix(), self._genDisplayScript(menuInfo))
+        """.format(self.getPrefix(menuInfo),self._getExecutePythonDisplayScript(menuInfo))
         
     def _genDisplayScript(self, menuInfo):
         k=self.callerText.rfind(")")
-        return self.callerText[:k]+",handlerId='"+menuInfo['id'] + "'" + self.callerText[k:]
+        retScript = self.callerText[:k]+",handlerId='"+menuInfo['id'] + "'" + self.callerText[k:]
+        return retScript.replace("\"","\\\"")
         
     def getCategoryTitle(self,catId):
         if catId in ActionCategories.CAT_INFOS:
