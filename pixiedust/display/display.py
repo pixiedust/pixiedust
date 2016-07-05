@@ -232,10 +232,7 @@ class Display(object):
                                 if (!!content.data["application/javascript"]){{
                                     $('#wrapperJS{0}').html("<script type=\\\"text/javascript\\\">"+content.data["application/javascript"]+"</s" + "cript>");
                                 }}
-                                if (!!content.data["image/png"]){{
-                                    html=html||"";
-                                    html+="<img src='data:image/png;base64," +content.data["image/png"]+"'></img>";
-                                }}
+                                
                                 if (html){{
                                     $('#wrapperHTML{0}').html(html);
                                 }}

@@ -17,6 +17,12 @@
 from ..display import *
 from .test1 import *
 
+#Make sure that matplotlib is running inline
+import warnings
+with warnings.catch_warnings():
+    warnings.simplefilter("ignore")
+    get_ipython().run_line_magic("matplotlib", "inline")
+
 class TestsDisplayMeta(DisplayHandlerMeta):
     @addId
     def getMenuInfo(self,entity):
