@@ -22,6 +22,7 @@ from ..display.printEx import *
 from maven import Artifact
 from maven import downloader
 from maven import RequestException
+from pyspark import SparkContext
 
 old_gen_filename=Artifact._generate_filename
 def myGenFileName(self):
@@ -85,8 +86,9 @@ class PackageManager(object):
             print("Package already installed: {0}".format(str(artifact)))
         else:
             #download package
-            try:
-                d=downloader.Downloader(base) if base is not None else downloader.Downloader()
+            art=[artifact]
+            def _doDownload(d):
+                artifact=art[0]
                 if not artifact.version or artifact.version=='0':
                     artifact.version = d.resolver._find_latest_version_available(artifact)
                 fileLoc = artifact.get_filename(self.DOWNLOAD_DIR)
@@ -94,21 +96,32 @@ class PackageManager(object):
                     os.remove(fileLoc)
                 results = d.download(artifact,filename=self.DOWNLOAD_DIR)
                 if not results[1]:
-                    print("Error downloading package {0}".format(str(artifact)))
+                    raise Exception("Error downloading package {0}".format(str(artifact)))
                 else:
                     artifact=results[0]
                     print("Artifact downloaded successfully {0}".format(str(artifact)))
                     printEx("Please restart Kernel to complete installation of the new package",PrintColors.RED)
                 fileLoc=self.storeArtifact(artifact,base)
+                return fileLoc
+            
+            try:
+                fileLoc=_doDownload(downloader.Downloader(base) if base is not None else downloader.Downloader())
             except RequestException as e:
-                print("Unable to install artifact {0}".format(e.msg))
-                raise
+                #try another base
+                try:
+                    fileLoc=_doDownload(downloader.Downloader("http://dl.bintray.com/spark-packages/maven"))
+                except RequestException as e:
+                    print("Unable to install artifact {0}".format(e.msg))
+                    raise
             except:
                 print(str(sys.exc_info()[1]))
                 raise
+        if sc is None:
+            sc = SparkContext.getOrCreate()
+            
         if sc:
             sc.addPyFile(fileLoc)
-            print("Added Python Files")
+            
         return artifact
         
     def uninstallPackage(self, artifact):

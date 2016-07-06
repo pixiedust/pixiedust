@@ -19,7 +19,7 @@ from table.display import *
 from graph.display import *
 import traceback
 
-__all__=['printEx','display']
+__all__=['printEx','display','PrintColors']
 
 class PrintColors(object):
     PURPLE = '\x1b[35m'
