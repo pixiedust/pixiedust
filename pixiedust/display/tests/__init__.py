@@ -16,6 +16,7 @@
 
 from ..display import *
 from .test1 import *
+from .test2 import *
 
 #Make sure that matplotlib is running inline
 import warnings
@@ -30,9 +31,16 @@ class TestsDisplayMeta(DisplayHandlerMeta):
             return [
                 {"categoryId": "Test", "title": "Test1", "icon": "fa-bar-chart", "id": "Test1"}
             ]
+        elif entity=="test2":
+            return [
+                {"categoryId": "Test", "title": "Test2", "icon": "fa-bar-chart", "id": "Test2"}
+            ]
         else:
             return []
     def newDisplayHandler(self,handlerId,entity):
-        return Test1Display(entity)
+        if handlerId == "Test1":
+            return Test1Display(entity)
+        else:
+            return Test2Display(entity)
 
 registerDisplayHandler(TestsDisplayMeta())

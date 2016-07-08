@@ -146,8 +146,7 @@ class Display(object):
     
     def _wrapBeforeHtml(self):
         if self.noChrome:
-            return ""
-        
+            return ""        
         menuTree=OrderedDict()
         for catId in ActionCategories.CAT_INFOS.keys():
             menuTree[catId]=[]    
@@ -162,8 +161,9 @@ class Display(object):
                     menuTree[categoryId].append(menuInfo) 
         
         html="""
+            <script>var cellId{0} = IPython.notebook.get_selected_cell().cell_id;</script>
             <div class="btn-group" role="group" style="margin-bottom:4px">
-        """
+        """.format(self.getPrefix())
         for key, menuInfoList in menuTree.iteritems():
             if len(menuInfoList)==1:
                 html+="""
@@ -216,6 +216,9 @@ class Display(object):
     def _getExecutePythonDisplayScript(self, menuInfo):
         return """
             function () {{
+                var curCell=IPython.notebook.get_cells().filter(function(cell){{return cell.cell_id==cellId{0};}});
+                curCell=curCell.length>0?curCell[0]:null;
+                console.log("curCell",curCell);
                 //Resend the display command
                 var callbacks = {{
                     iopub:{{
@@ -228,12 +231,21 @@ class Display(object):
                                 var html=null;                                    
                                 if (!!content.data["text/html"]){{
                                     html=content.data["text/html"];
-                                }}                                  
+                                }}else if (!!content.data["image/png"]){{
+                                    html=html||"";
+                                    html+="<img src='data:image/png;base64," +content.data["image/png"]+"'></img>";
+                                }} 
+                                                               
                                 if (!!content.data["application/javascript"]){{
                                     $('#wrapperJS{0}').html("<script type=\\\"text/javascript\\\">"+content.data["application/javascript"]+"</s" + "cript>");
                                 }}
                                 
                                 if (html){{
+                                    if(curCell&&curCell.output_area&&curCell.output_area.outputs){{
+                                        var data = JSON.parse(JSON.stringify(content.data));
+                                        if(!!data["text/html"])data["text/html"]=html;
+                                        curCell.output_area.outputs.push({{"data": data,"metadata":content.metadata,"output_type":msg_type}});
+                                    }}
                                     $('#wrapperHTML{0}').html(html);
                                 }}
                             }}else if (msg_type === "error") {{
@@ -243,15 +255,19 @@ class Display(object):
                                 $('#wrapperHTML{0}').html(errorHTML);
                             }}
                             console.log("msg", msg);
+                            console.log("outputarea", IPython.notebook.get_selected_cell().cell_id);
                         }}
                     }}
                 }}
                 
-                console.log("Running command: {1}");
-                $('#wrapperJS{0}').html("")
-                $('#wrapperHTML{0}').html('<div style="width:100px;height:60px;left:47%;position:relative"><i class="fa fa-circle-o-notch fa-spin" style="font-size:48px"></i></div>'+
-                '<div style="text-align:center">Loading your data. Please wait...</div>');
-                IPython.notebook.session.kernel.execute("{1}", callbacks, {{silent:false, store_history:false}});
+                if (IPython && IPython.notebook && IPython.notebook.session && IPython.notebook.session.kernel){{
+                    console.log("Running command: {1}");
+                    if(curCell&&curCell.output_area)curCell.output_area.outputs=[];
+                    $('#wrapperJS{0}').html("")
+                    $('#wrapperHTML{0}').html('<div style="width:100px;height:60px;left:47%;position:relative"><i class="fa fa-circle-o-notch fa-spin" style="font-size:48px"></i></div>'+
+                    '<div style="text-align:center">Loading your data. Please wait...</div>');
+                    IPython.notebook.session.kernel.execute("{1}", callbacks, {{silent:false, store_history:false}});
+                }}
             }}
         """.format(self.getPrefix(), self._genDisplayScript(menuInfo))
         

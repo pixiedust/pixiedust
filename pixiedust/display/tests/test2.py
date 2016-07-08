@@ -16,9 +16,6 @@
 
 from ..display import Display
     
-class ChartDisplay(Display):
-    def doRender(self, handlerId):
-        self._addHTML("""
-            <p><b>Sorry, but this visualization is not yet implemented. Please check back often!</b></p>
-        """
-        )     
+class Test2Display(Display):
+    def doRender(self,handlerId):
+        self._addHTML("<b>Hello World!!!!!!</b>")
