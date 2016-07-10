@@ -30,7 +30,12 @@ def registerDisplayHandler(handlerMetadata, isDefault=False):
         defaultHandler=handlerMetadata        
     handlers.append(handlerMetadata)
     
-def getSelectedHandler(handlerId, entity):
+def getSelectedHandler(options, entity):
+    if "cell_id" not in options:
+        #No cellid, trigger handshake with the browser to get the cellId
+        return CellHandshakeMeta()
+        
+    handlerId=options.get("handlerId")
     if handlerId is not None:
         return globalMenuInfos[handlerId]['handler']
     else:
@@ -63,18 +68,21 @@ class DisplayHandlerMeta(object):
     def getMenuInfo(self):
         pass
     @abstractmethod
-    def newDisplayHandler(self,handlerId,entity):
+    def newDisplayHandler(self,options,entity):
         pass
     
 class Display(object):
     __metaclass__ = ABCMeta
     
-    def __init__(self, entity):
+    def __init__(self, options, entity):
         self.entity=entity
+        self.options=options
         self.html=""
         self.scripts=list()
+        self.noChrome="handlerId" in options
     
-    def render(self, handlerId):
+    def render(self):
+        handlerId=self.options.get("handlerId")
         if handlerId is None:
             #get the first menuInfo for this handler and generate a js call
             menuInfos = self.handlerMetadata.getMenuInfo(self.entity)
@@ -94,9 +102,6 @@ class Display(object):
     @abstractmethod
     def doRender(self, handlerId):
         raise Exception("doRender method not implemented")
-    
-    def noChrome(self, flag):
-        self.noChrome=flag
         
     def _addHTML(self, fragment):
         self.html+=fragment
@@ -161,9 +166,8 @@ class Display(object):
                     menuTree[categoryId].append(menuInfo) 
         
         html="""
-            <script>var cellId{0} = IPython.notebook.get_selected_cell().cell_id;</script>
             <div class="btn-group" role="group" style="margin-bottom:4px">
-        """.format(self.getPrefix())
+        """
         for key, menuInfoList in menuTree.iteritems():
             if len(menuInfoList)==1:
                 html+="""
@@ -213,16 +217,20 @@ class Display(object):
             self.prefix = str(uuid.uuid4())[:8]
         return self.prefix if menuInfo is None else (self.prefix + "-" + menuInfo['id'])
     
-    def _getExecutePythonDisplayScript(self, menuInfo):
+    def _getExecutePythonDisplayScript(self, menuInfo=None):
         return """
             function () {{
-                var curCell=IPython.notebook.get_cells().filter(function(cell){{return cell.cell_id==cellId{0};}});
+                cellId = typeof cellId === "undefined" ? "" : cellId;
+                var curCell=IPython.notebook.get_cells().filter(function(cell){{return cell.cell_id=="{2}".replace("cellId",cellId);}});
                 curCell=curCell.length>0?curCell[0]:null;
                 console.log("curCell",curCell);
                 //Resend the display command
                 var callbacks = {{
                     iopub:{{
                         output:function(msg){{
+                            if ({3}){{
+                                return curCell.output_area.handle_output.apply(curCell.output_area, arguments);
+                            }}
                             var msg_type=msg.header.msg_type;
                             var content = msg.content;
                             if(msg_type==="stream"){{
@@ -255,21 +263,21 @@ class Display(object):
                                 $('#wrapperHTML{0}').html(errorHTML);
                             }}
                             console.log("msg", msg);
-                            console.log("outputarea", IPython.notebook.get_selected_cell().cell_id);
                         }}
                     }}
                 }}
                 
                 if (IPython && IPython.notebook && IPython.notebook.session && IPython.notebook.session.kernel){{
-                    console.log("Running command: {1}");
+                    var command = "{1}".replace("cellId",cellId);
+                    console.log("Running command",command);
                     if(curCell&&curCell.output_area)curCell.output_area.outputs=[];
                     $('#wrapperJS{0}').html("")
                     $('#wrapperHTML{0}').html('<div style="width:100px;height:60px;left:47%;position:relative"><i class="fa fa-circle-o-notch fa-spin" style="font-size:48px"></i></div>'+
                     '<div style="text-align:center">Loading your data. Please wait...</div>');
-                    IPython.notebook.session.kernel.execute("{1}", callbacks, {{silent:false, store_history:false}});
+                    IPython.notebook.session.kernel.execute(command, callbacks, {{silent:false,store_history:false,stop_on_error:true}});
                 }}
             }}
-        """.format(self.getPrefix(), self._genDisplayScript(menuInfo))
+        """.format(self.getPrefix(), self._genDisplayScript(menuInfo),self.options.get("cell_id","cellId"), "false" if "cell_id" in self.options else "true")
         
     def _getMenuHandlerScript(self, menuInfo):
         return """
@@ -280,7 +288,12 @@ class Display(object):
         
     def _genDisplayScript(self, menuInfo):
         k=self.callerText.rfind(")")
-        retScript = self.callerText[:k]+",handlerId='"+menuInfo['id'] + "'" + self.callerText[k:]
+        retScript = self.callerText[:k]
+        if menuInfo:
+            retScript+= ",handlerId='"+menuInfo['id'] + "'"
+        if "cell_id" not in self.options:
+            retScript+= ",cell_id='cellId'"
+        retScript+= self.callerText[k:]
         return retScript.replace("\"","\\\"")
         
     def getCategoryTitle(self,catId):
@@ -301,7 +314,48 @@ class Display(object):
         if ( self.noChrome ):
             return ""
         return "</div>"
+
+#Special handler for fetching the id of the cell being executed 
+class CellHandshakeMeta(DisplayHandlerMeta):
+    def getMenuInfo(self,entity):
+       return []
+    def newDisplayHandler(self,options,entity):
+        return CellHandshake(options,entity)
         
+class CellHandshake(Display):
+    def render(self):
+        ipythonDisplay(HTML("""<script>
+            //Marker {0}
+            setTimeout(function(){{
+                var cells=IPython.notebook.get_cells().filter(function(cell){{
+                    if(!cell.output_area || !cell.output_area.outputs){{
+                        return false;
+                    }}
+                    return cell.output_area.outputs.filter(function(output){{
+                        if (output.output_type==="display_data"&&output.data&&output.data["text/html"]){{
+                            return output.data["text/html"].includes("//Marker {0}")
+                        }}
+                        return false;
+                    }}).length > 0;
+                }});
+                if(cells.length>0){{
+                    var cell=cells[0];
+                    var cellId=cell.cell_id;
+                    cell.output_area.clear_output(false, true);
+                    var old_msg_id = cell.last_msg_id;
+                    if (old_msg_id) {{
+                        cell.kernel.clear_callbacks_for_msg(old_msg_id);
+                    }}
+                    !{1}()
+                }}else{{
+                    alert("An error occurred, unable to access cell id");
+                }}
+            }},500);
+        </script>""".format(self.getPrefix(),self._getExecutePythonDisplayScript() )
+        ))
+        
+    def doRender(self, handlerId):
+        pass
         
 class DownloadMeta(DisplayHandlerMeta):
     @addId
@@ -315,8 +369,8 @@ class DownloadMeta(DisplayHandlerMeta):
             ]
         else:
             return []
-    def newDisplayHandler(self,entity):
-        return DownloadHandler(entity)
+    def newDisplayHandler(self,options,entity):
+        return DownloadHandler(options,entity)
 
 class DownloadHandler(Display):
     def doRender(self, handlerId):

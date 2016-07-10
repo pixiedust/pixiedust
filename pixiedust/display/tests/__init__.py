@@ -37,10 +37,11 @@ class TestsDisplayMeta(DisplayHandlerMeta):
             ]
         else:
             return []
-    def newDisplayHandler(self,handlerId,entity):
+    def newDisplayHandler(self,options,entity):
+        handlerId=options.get("handlerId")
         if handlerId == "Test1":
-            return Test1Display(entity)
+            return Test1Display(options,entity)
         else:
-            return Test2Display(entity)
+            return Test2Display(options,entity)
 
 registerDisplayHandler(TestsDisplayMeta())

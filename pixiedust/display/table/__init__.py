@@ -32,7 +32,7 @@ class TableDisplayMeta(DisplayHandlerMeta):
             ]
         else:
             return []
-    def newDisplayHandler(self,handlerId,entity):
-        return TableDisplay(entity)
+    def newDisplayHandler(self,options,entity):
+        return TableDisplay(options,entity)
 
 registerDisplayHandler(TableDisplayMeta(), isDefault=True)

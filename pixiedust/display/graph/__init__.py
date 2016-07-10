@@ -31,7 +31,7 @@ class GraphDisplayMeta(DisplayHandlerMeta):
         
         return []
             
-    def newDisplayHandler(self,handlerId,entity):
-        return GraphDisplay(entity)
+    def newDisplayHandler(self,options,entity):
+        return GraphDisplay(options,entity)
         
 registerDisplayHandler(GraphDisplayMeta())

@@ -37,18 +37,19 @@ class ChartDisplayMeta(DisplayHandlerMeta):
             ]
         else:
             return []
-    def newDisplayHandler(self,handlerId,entity):
+    def newDisplayHandler(self,options,entity):
+        handlerId=options.get("handlerId")
         if handlerId is None or handlerId=="barChart":
-            return BarChartDisplay(entity)
+            return BarChartDisplay(options,entity)
         elif handlerId=="lineChar":
-            return LineChartDisplay(entity)
+            return LineChartDisplay(options,entity)
         elif handlerId=="scatterPlot":
-            return ScatterPlotDisplay(entity)
+            return ScatterPlotDisplay(options,entity)
         elif handlerId=="pieChart":
-            return PieChartDisplay(entity)
+            return PieChartDisplay(options,entity)
         elif handlerId=="mapChart":
-            return MapChartDisplay(entity)
+            return MapChartDisplay(options,entity)
         elif handlerId=="histogram":
-            return HistogramDisplay(entity)
+            return HistogramDisplay(options,entity)
 
 registerDisplayHandler(ChartDisplayMeta())

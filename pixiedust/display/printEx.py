@@ -41,17 +41,16 @@ def printEx(message, color=None):
     else:
         print( color + message + PrintColors.END)
     
-def display(entity, handlerId=None):
+def display(entity, **kwargs):
     with warnings.catch_warnings():
-            warnings.simplefilter("ignore")
-            selectedHandler=getSelectedHandler(handlerId, entity)
-            
-            displayHandler = selectedHandler.newDisplayHandler(handlerId,entity)
-            if displayHandler is None:
-                printEx("Unable to obtain handler")
-                return
-            
-            displayHandler.handlerMetadata = selectedHandler    
-            displayHandler.callerText = traceback.extract_stack(limit=2)[0][3]
-            displayHandler.noChrome(handlerId is not None)
-            displayHandler.render(handlerId)
+        warnings.simplefilter("ignore")
+        selectedHandler=getSelectedHandler(kwargs, entity)
+        
+        displayHandler = selectedHandler.newDisplayHandler(kwargs,entity)
+        if displayHandler is None:
+            printEx("Unable to obtain handler")
+            return
+        
+        displayHandler.handlerMetadata = selectedHandler    
+        displayHandler.callerText = traceback.extract_stack(limit=2)[0][3]
+        displayHandler.render()
