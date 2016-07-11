@@ -22,13 +22,17 @@ import uuid
 from collections import OrderedDict
 
 handlers=[]
+systemHandlers=[]
 defaultHandler=None
 globalMenuInfos={}
-def registerDisplayHandler(handlerMetadata, isDefault=False):
+def registerDisplayHandler(handlerMetadata, isDefault=False, system=False):
     global defaultHandler
     if isDefault and defaultHandler is None:
-        defaultHandler=handlerMetadata        
-    handlers.append(handlerMetadata)
+        defaultHandler=handlerMetadata
+    if system:
+        systemHandlers.append(handlerMetadata)
+    else:
+        handlers.append(handlerMetadata)
     
 def getSelectedHandler(options, entity):
     if "cell_id" not in options:
@@ -104,7 +108,7 @@ class Display(object):
         raise Exception("doRender method not implemented")
         
     def _addHTML(self, fragment):
-        self.html+=fragment
+        self.html+=fragment        
         
     def _safeString(self, s):
         if not isinstance(s, str if sys.version >= '3' else basestring):
@@ -155,7 +159,7 @@ class Display(object):
         menuTree=OrderedDict()
         for catId in ActionCategories.CAT_INFOS.keys():
             menuTree[catId]=[]    
-        for handler in handlers+[DownloadMeta()]:
+        for handler in (handlers+systemHandlers):
             for menuInfo in handler.getMenuInfo(self.entity):
                 categoryId=menuInfo['categoryId']
                 if categoryId is None:
@@ -257,10 +261,18 @@ class Display(object):
                                     $('#wrapperHTML{0}').html(html);
                                 }}
                             }}else if (msg_type === "error") {{
-                                var errorHTML="<p>"+content.ename+"</p>";
-                                errorHTML+="<p>"+content.evalue+"</p>";
-                                errorHTML+="<pre>" + content.traceback+"</pre>";
-                                $('#wrapperHTML{0}').html(errorHTML);
+                                require(['base/js/utils'], function(utils) {{
+                                    var tb = content.traceback;
+                                    console.log("tb",tb);
+                                    if (tb && tb.length>0){{
+                                        var data = tb.reduce(function(res, frame){{return res+frame+'\\n';}},"");
+                                        console.log("data",data);
+                                        data = utils.fixConsole(data);
+                                        data = utils.fixCarriageReturn(data);
+                                        data = utils.autoLinkUrls(data);
+                                        $('#wrapperHTML{0}').html("<pre>" + data +"</pre>");
+                                    }}
+                                }});
                             }}
                             console.log("msg", msg);
                         }}
@@ -286,13 +298,15 @@ class Display(object):
             </script>
         """.format(self.getPrefix(menuInfo),self._getExecutePythonDisplayScript(menuInfo))
         
-    def _genDisplayScript(self, menuInfo):
+    def _genDisplayScript(self, menuInfo=None,addOptionDict={}):
         k=self.callerText.rfind(")")
         retScript = self.callerText[:k]
         if menuInfo:
             retScript+= ",handlerId='"+menuInfo['id'] + "'"
         if "cell_id" not in self.options:
             retScript+= ",cell_id='cellId'"
+        for key,value in addOptionDict.iteritems():
+            retScript+=","+key+"='"+value+"'"
         retScript+= self.callerText[k:]
         return retScript.replace("\"","\\\"")
         
@@ -356,27 +370,3 @@ class CellHandshake(Display):
         
     def doRender(self, handlerId):
         pass
-        
-class DownloadMeta(DisplayHandlerMeta):
-    @addId
-    def getMenuInfo(self,entity):
-        clazz = entity.__class__.__name__
-        if clazz == "DataFrame":
-            return [
-                {"categoryId": "Download", "title": "Download as CSV", "icon": "fa-download", "id": "downloadCSV"},
-                {"categoryId": "Download", "title": "Stash to Cloudant", "icon": "fa-cloud", "id": "downloadCloudant"},
-                {"categoryId": "Download", "title": "Stash to Object Storage", "icon": "fa-suitcase", "id": "downloadSwift"}
-            ]
-        else:
-            return []
-    def newDisplayHandler(self,options,entity):
-        return DownloadHandler(options,entity)
-
-class DownloadHandler(Display):
-    def doRender(self, handlerId):
-        entity=self.entity
-            
-        self._addHTML("""
-            <p><b>Sorry, but download is not yet implemented. Please check back often!</b></p>
-        """
-        )

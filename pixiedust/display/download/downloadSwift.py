@@ -14,6 +14,13 @@
 # limitations under the License.
 # -------------------------------------------------------------------------------
 
-from .display import Display
-import chart,graph,table,tests,download
-from pixiedust.display.printEx import *
+from ..display import Display
+
+class DownloadSwiftHandler(Display):
+    def doRender(self, handlerId):
+        entity=self.entity
+            
+        self._addHTML("""
+            <p><b>Sorry, but download is not yet implemented. Please check back often!</b></p>
+        """
+        )
