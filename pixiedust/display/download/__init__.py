@@ -36,7 +36,7 @@ class DownloadMeta(DisplayHandlerMeta):
         if handlerId=="downloadCSV":
             return DownloadCSVHandler(options, entity)
         elif handlerId=="downloadCloudant":
-            return DownloadCloudantHandler(option, entity)
+            return DownloadCloudantHandler(options, entity)
         else:
             return DownloadSwiftHandler(options,entity)
         

@@ -212,7 +212,7 @@ class Display(object):
         html+="""
             </div>
             <div id="wrapperJS{0}"></div>
-            <div id="wrapperHTML{0}">
+            <div id="wrapperHTML{0}" style="min-height:100px">
         """.format(self.getPrefix())
         return html
     
