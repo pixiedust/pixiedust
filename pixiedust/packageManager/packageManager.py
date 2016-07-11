@@ -17,6 +17,8 @@
 from __future__ import print_function
 import sqlite3
 import sys
+import platform
+import urllib
 import os
 from ..display.printEx import *
 from maven import Artifact
@@ -120,6 +122,9 @@ class PackageManager(object):
             sc = SparkContext.getOrCreate()
             
         if sc:
+            #convert to file uri for windows platform
+            if platform.system()=='Windows':
+                fileLoc="file://" + urllib.pathname2url(fileLoc)
             sc.addPyFile(fileLoc)
             
         return artifact
