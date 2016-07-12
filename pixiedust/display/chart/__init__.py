@@ -41,7 +41,7 @@ class ChartDisplayMeta(DisplayHandlerMeta):
         handlerId=options.get("handlerId")
         if handlerId is None or handlerId=="barChart":
             return BarChartDisplay(options,entity)
-        elif handlerId=="lineChar":
+        elif handlerId=="lineChart":
             return LineChartDisplay(options,entity)
         elif handlerId=="scatterPlot":
             return ScatterPlotDisplay(options,entity)
