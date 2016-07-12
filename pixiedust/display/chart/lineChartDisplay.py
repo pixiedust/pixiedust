@@ -44,7 +44,6 @@ class LineChartDisplay(ChartDisplay):
         # display
         ax.grid(color='lightgray', alpha=0.7)
         ax.legend()
-        mpld3.display(fig)
         
     def getNumericalFieldNames(self):
         schema = self.entity.schema
