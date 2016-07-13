@@ -218,7 +218,9 @@ class Display(object):
     
     def getPrefix(self, menuInfo=None):
         if ( not hasattr(self, 'prefix') ):
-            self.prefix = str(uuid.uuid4())[:8]
+            self.prefix = self.options.get("prefix")
+            if (self.prefix is None):
+                self.prefix = str(uuid.uuid4())[:8]
         return self.prefix if menuInfo is None else (self.prefix + "-" + menuInfo['id'])
     
     def _getExecutePythonDisplayScript(self, menuInfo=None):
@@ -281,6 +283,23 @@ class Display(object):
                 
                 if (IPython && IPython.notebook && IPython.notebook.session && IPython.notebook.session.kernel){{
                     var command = "{1}".replace("cellId",cellId);
+                    // get the selected column from the modal
+                    // this is a test and needs to be more generic (load options from DisplayHandler, etc)
+                    var colSelect = document.getElementById("column{0}");
+                    if (colSelect) {{
+                        var startIndex, endIndex;
+                        startIndex = command.indexOf(",col='");
+                        if (startIndex >= 0) {{
+                            endIndex = command.indexOf("'", startIndex+1);
+                            endIndex = command.indexOf("'", endIndex+1) + 1;
+                        }}
+                        else {{
+                            startIndex = endIndex = command.lastIndexOf(")");
+                        }}
+                        var start = command.substring(0,startIndex);
+                        var end = command.substring(endIndex);
+                        command = start + ",col='" + colSelect.options[colSelect.selectedIndex].value + "'" + end;
+                    }}
                     console.log("Running command",command);
                     if(curCell&&curCell.output_area)curCell.output_area.outputs=[];
                     $('#wrapperJS{0}').html("")
@@ -303,6 +322,7 @@ class Display(object):
         retScript = self.callerText[:k]
         if menuInfo:
             retScript+= ",handlerId='"+menuInfo['id'] + "'"
+            retScript+= ",prefix='" + self.getPrefix() + "'"
         if "cell_id" not in self.options:
             retScript+= ",cell_id='cellId'"
         for key,value in addOptionDict.iteritems():
