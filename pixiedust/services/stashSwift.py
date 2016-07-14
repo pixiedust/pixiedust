@@ -14,9 +14,9 @@
 # limitations under the License.
 # -------------------------------------------------------------------------------
 
-from ..display import Display
+from ..display.display import Display
 
-class DownloadSwiftHandler(Display):
+class StashSwiftHandler(Display):
     def doRender(self, handlerId):
         entity=self.entity
             

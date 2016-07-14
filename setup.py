@@ -9,5 +9,6 @@ setup(name='pixiedust',
       author_email='david_taieb@us.ibm.com',
       license='Apache 2.0',
       packages=['pixiedust','pixiedust.packageManager','pixiedust.display',
-            'pixiedust.display.table','pixiedust.display.graph','pixiedust.display.chart','pixiedust.display.tests'],
+            'pixiedust.display.table','pixiedust.display.graph','pixiedust.display.chart','pixiedust.display.tests',
+            'pixiedust.services'],
       zip_safe=False)

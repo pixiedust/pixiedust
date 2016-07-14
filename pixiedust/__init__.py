@@ -14,4 +14,8 @@
 # limitations under the License.
 # -------------------------------------------------------------------------------
 
-__all__=['packageManager','display']
+__all__=['packageManager','display','services']
+
+import packageManager
+import display
+import services

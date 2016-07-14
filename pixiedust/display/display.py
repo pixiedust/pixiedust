@@ -120,8 +120,8 @@ class Display(object):
     #    print("Adding d3")
     #    self._addScriptElement("//cdnjs.cloudflare.com/ajax/libs/d3/3.4.8/d3.min")
         
-    def _addScriptElement(self, script):
-        self.scripts.append(script)
+    def _addScriptElement(self, script,checkJSVar=None, callback=None):
+        self.scripts.append((script,checkJSVar,callback))
         
     def _addScriptElements(self):
         if len(self.scripts)==0:
@@ -137,19 +137,29 @@ class Display(object):
                         }
                     }
                     return false;
-                }                
+                }
+                var callback;               
         """
-        for script in self.scripts:
+        for t in self.scripts:
+            script=t[0]
+            var=t[1]
+            callback=t[2]
             code+="""
-            if (!hasScriptElement('{0}')){{
+            callback = function(){{
+                {2}
+            }};
+            if ({1} && !hasScriptElement('{0}')){{
                 g=document.createElement('script');
                 g.type='text/javascript';
                 g.defer=false; 
                 g.async=false; 
                 g.src='{0}';
+                g.onload = g.onreadystatechange = callback;
                 s=s.parentNode.insertBefore(g,s).nextSibling;
+            }}else{{
+                callback();
             }}
-            """.format(script)
+            """.format(script, "true" if var is None else ("typeof "+var + "=='undefined'"), callback or "")
         code+="})();"
         ipythonDisplay(Javascript(code))
     

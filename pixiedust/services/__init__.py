@@ -14,20 +14,27 @@
 # limitations under the License.
 # -------------------------------------------------------------------------------
 
-from ..display import DisplayHandlerMeta,registerDisplayHandler,addId
-from .downloadCSV import DownloadCSVHandler
+from ..display.display import DisplayHandlerMeta,registerDisplayHandler,addId
 
-class DownloadMeta(DisplayHandlerMeta):
+from .stashCloudant import StashCloudantHandler
+from .stashSwift import StashSwiftHandler
+
+class StashMeta(DisplayHandlerMeta):
     @addId
     def getMenuInfo(self,entity):
         clazz = entity.__class__.__name__
         if clazz == "DataFrame":
             return [
-                {"categoryId": "Download", "title": "Download as CSV", "icon": "fa-download", "id": "downloadCSV"}
+                {"categoryId": "Download", "title": "Stash to Cloudant", "icon": "fa-cloud", "id": "stashCloudant"},
+                {"categoryId": "Download", "title": "Stash to Object Storage", "icon": "fa-suitcase", "id": "stashSwift"}
             ]
         else:
             return []
     def newDisplayHandler(self,options,entity):
-        return DownloadCSVHandler(options, entity)
+        handlerId = options.get("handlerId")
+        if handlerId=="stashCloudant":
+            return StashCloudantHandler(options, entity)
+        else:
+            return StashSwiftHandler(options,entity)
         
-registerDisplayHandler(DownloadMeta(), system=True)
+registerDisplayHandler(StashMeta(), system=True)
