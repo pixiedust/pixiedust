@@ -15,35 +15,50 @@
 # -------------------------------------------------------------------------------
 
 from .display import ChartDisplay
+from .plugins.dialog import DialogPlugin
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import mpld3
+import mpld3.plugins as plugins
+from random import randint
 
 class LineChartDisplay(ChartDisplay):
 
+    def getDialogOptions(self, handlerId):
+        return list('1','2','3')
+
     def doRender(self, handlerId):
-        colNames = self.getNumericalFieldNames()
-        if len(colNames) == 0:
+        allNumericCols = self.getNumericalFieldNames()
+        if len(allNumericCols) == 0:
             self._addHTML("Unable to find a numerical column in the dataframe")
             return
 
         # init
         mpld3.enable_notebook()
         fig, ax = plt.subplots()
+        plugins.connect(fig, DialogPlugin(handlerId, self.getPrefix(), self._getExecutePythonDisplayScript(), allNumericCols, self.options))
+        
+        #
+        displayCols = []
+        selectedCol = self.options.get("col")
+        if (selectedCol and selectedCol is not "ALL"):
+            displayCols.append(selectedCol)
+        else:
+            displayCols = allNumericCols
 
         # plot
         MAX_ROWS = 100
         numRows = min(MAX_ROWS,self.entity.count())
-        numCols = len(colNames)
+        numCols = len(displayCols)
         pdf = self.entity.toPandas()
-        for i, colName in enumerate(colNames):
+        for i, displayCol in enumerate(displayCols):
             xs = list(range(0, numRows))
-            ys = pdf[colName].tolist()
-            ax.plot(xs, ys, label=colName)
+            ys = pdf[displayCol].tolist()
+            ax.plot(xs, ys, label=displayCol)
 
         # display
         ax.grid(color='lightgray', alpha=0.7)
-        ax.legend()
+        ax.legend(title='')        
         
     def getNumericalFieldNames(self):
         schema = self.entity.schema
