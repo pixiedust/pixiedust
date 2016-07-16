@@ -16,6 +16,7 @@
 
 from abc import ABCMeta,abstractmethod
 from IPython.display import display as ipythonDisplay, HTML, Javascript
+from ..utils.template import *
 from .constants import *
 import sys
 import uuid
@@ -77,6 +78,9 @@ class DisplayHandlerMeta(object):
     
 class Display(object):
     __metaclass__ = ABCMeta
+
+    #global jinja2 Environment
+    env = PixiedustTemplateEnvironment()
     
     def __init__(self, options, entity):
         self.entity=entity
@@ -84,6 +88,14 @@ class Display(object):
         self.html=""
         self.scripts=list()
         self.noChrome="handlerId" in options
+
+    def renderTemplate(self, templateName, **kwargs):
+        args = {
+            "this":self, "entity":self.entity, "prefix":self.getPrefix()
+        }
+        if kwargs:
+            args.update(kwargs)
+        return self.env.getTemplate(templateName).render(args)
     
     def render(self):
         handlerId=self.options.get("handlerId")
@@ -108,7 +120,10 @@ class Display(object):
         raise Exception("doRender method not implemented")
         
     def _addHTML(self, fragment):
-        self.html+=fragment        
+        self.html+=fragment
+
+    def _addHTMLTemplate(self, templateName, **kwargs):
+        self._addHTML(self.renderTemplate(templateName, **kwargs))
         
     def _safeString(self, s):
         if not isinstance(s, str if sys.version >= '3' else basestring):
@@ -126,42 +141,7 @@ class Display(object):
     def _addScriptElements(self):
         if len(self.scripts)==0:
             return
-        code="""
-            (function(){
-                var g,s=document.getElementsByTagName('script')[0];
-                function hasScriptElement(script){
-                    var scripts = document.getElementsByTagName('script');
-                    for (var i=0;i<scripts.length;i++){
-                        if(scripts[i].src===script){
-                            return true;
-                        }
-                    }
-                    return false;
-                }
-                var callback;               
-        """
-        for t in self.scripts:
-            script=t[0]
-            var=t[1]
-            callback=t[2]
-            code+="""
-            callback = function(){{
-                {2}
-            }};
-            if ({1} && !hasScriptElement('{0}')){{
-                g=document.createElement('script');
-                g.type='text/javascript';
-                g.defer=false; 
-                g.async=false; 
-                g.src='{0}';
-                g.onload = g.onreadystatechange = callback;
-                s=s.parentNode.insertBefore(g,s).nextSibling;
-            }}else{{
-                callback();
-            }}
-            """.format(script, "true" if var is None else ("typeof "+var + "=='undefined'"), callback or "")
-        code+="})();"
-        ipythonDisplay(Javascript(code))
+        ipythonDisplay(Javascript(self.renderTemplate('addScriptElements.js')))
     
     def _wrapBeforeHtml(self):
         if self.noChrome:
@@ -179,52 +159,9 @@ class Display(object):
                 else:
                     menuTree[categoryId].append(menuInfo) 
         
-        html="""
-            <div class="btn-group" role="group" style="margin-bottom:4px">
-        """
-        for key, menuInfoList in menuTree.iteritems():
-            if len(menuInfoList)==1:
-                html+="""
-                    <a class="btn btn-small btn-default display-type-button" id="menu{0}" title="{1}">
-                        <i class="fa {2}"></i>
-                    </a>
-                    {3}
-                """.format(self.getPrefix(menuInfoList[0]), menuInfoList[0]['title'], menuInfoList[0]['icon'], self._getMenuHandlerScript(menuInfoList[0]))
-            elif len(menuInfoList)>1:
-                html+="""
-                    <div class="btn-group btn-small" style="padding-left: 4px; padding-right: 4px;">
-                        <a class="btn btn-small display-type-button btn-default" title="{0}" style="text-decoration:none">
-                            <i class="fa {1}"></i>
-                        </a>
-                        <a class="btn btn-small dropdown-toggle btn-default" data-toggle="dropdown">
-                            <b class="caret"></b>
-                        </a>
-                        <div class="dropdown-menu" role="menu">
-                            <div class="row-fluid" style="width: 220px;">
-                                <ul class="span6 multicol-menu">
-                """.format(self.getCategoryTitle(key), self.getCategoryIconClass(key))
-                for menuInfo in menuInfoList:                    
-                    html+="""
-                                    <li>
-                                        <a href="#" class="display-type-button" id="menu{0}" style="text-decoration:none">
-                                            <i class="fa {1}"></i>
-                                            {2}
-                                        </a>
-                                        {3}
-                                    </li>
-                    """.format(self.getPrefix(menuInfo), menuInfo['icon'],menuInfo['title'], self._getMenuHandlerScript(menuInfo))
-                html+="""
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                """
-        html+="""
-            </div>
-            <div id="wrapperJS{0}"></div>
-            <div id="wrapperHTML{0}" style="min-height:100px">
-        """.format(self.getPrefix())
-        return html
+        #template = self.env.getTemplate('cellOutput.html')
+        #return template.render(this=self, menuTree=menuTree)
+        return self.renderTemplate('cellOutput.html', menuTree=menuTree)
     
     def getPrefix(self, menuInfo=None):
         if ( not hasattr(self, 'prefix') ):

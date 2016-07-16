@@ -1,0 +1,41 @@
+<style type="text/css">
+    #states path {
+        fill: #ccc;
+        stroke: #fff;
+    }
+
+    path.arc {
+        pointer-events: none;
+        fill: none;
+        stroke: #000;
+        display: none;
+    }
+
+    path.cell {
+        fill: none;
+        pointer-events: all;
+    }
+
+    circle {
+        fill: steelblue;
+        fill-opacity: .8;
+        stroke: #fff;
+    }
+    
+    .origin {
+        fill: green;
+        fill-opacity: .8;
+        stroke: #fff;
+    }
+
+    #cells.voronoi path.cell {
+        stroke: brown;
+    }
+
+    #cells g:hover path.arc {
+        display: inherit;
+    }
+</style>
+
+<div id="airport{{prefix}}"/>
+<div id="map{{prefix}}"/>

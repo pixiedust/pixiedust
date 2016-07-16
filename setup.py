@@ -10,5 +10,6 @@ setup(name='pixiedust',
       license='Apache 2.0',
       packages=['pixiedust','pixiedust.packageManager','pixiedust.display',
             'pixiedust.display.table','pixiedust.display.graph','pixiedust.display.chart','pixiedust.display.tests','pixiedust.display.download',
-            'pixiedust.services'],
+            'pixiedust.services',
+            'utils'],
       zip_safe=False)

@@ -27,27 +27,10 @@ class TableDisplay(Display):
             else:
                 entity=entity.vertices
         if isinstance(entity, DataFrame):
-            self.renderDataFrame(entity)
+            self._addHTMLTemplate('dataframeTable.html', entity=entity)
             return
             
         self._addHTML("""
             <b>Unable to display object</b>
         """
         )
-        
-    def renderDataFrame(self,entity):
-        schema = entity.schema
-        self._addHTML("""<table class="table table-striped"><thead>""")                   
-        for field in schema.fields:
-            self._addHTML("<th>" + field.name + "</th>")
-        self._addHTML("</thead>")
-        self._addHTML("<tbody>")
-        for row in entity.take(100):
-            self._addHTML("<tr>")
-            for field in schema.fields:
-                self._addHTML("<td>" + self._safeString(row[field.name]) + "</td>")
-            self._addHTML("</tr>")
-        self._addHTML("</tbody>")
-        self._addHTML("</table>")
-        
-        
