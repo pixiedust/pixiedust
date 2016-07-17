@@ -158,9 +158,7 @@ class Display(object):
                     menuTree[categoryId]=[menuInfo]
                 else:
                     menuTree[categoryId].append(menuInfo) 
-        
-        #template = self.env.getTemplate('cellOutput.html')
-        #return template.render(this=self, menuTree=menuTree)
+
         return self.renderTemplate('cellOutput.html', menuTree=menuTree)
     
     def getPrefix(self, menuInfo=None):
@@ -171,91 +169,7 @@ class Display(object):
         return self.prefix if menuInfo is None else (self.prefix + "-" + menuInfo['id'])
     
     def _getExecutePythonDisplayScript(self, menuInfo=None):
-        return """
-            function () {{
-                cellId = typeof cellId === "undefined" ? "" : cellId;
-                var curCell=IPython.notebook.get_cells().filter(function(cell){{return cell.cell_id=="{2}".replace("cellId",cellId);}});
-                curCell=curCell.length>0?curCell[0]:null;
-                console.log("curCell",curCell);
-                //Resend the display command
-                var callbacks = {{
-                    iopub:{{
-                        output:function(msg){{
-                            if ({3}){{
-                                return curCell.output_area.handle_output.apply(curCell.output_area, arguments);
-                            }}
-                            var msg_type=msg.header.msg_type;
-                            var content = msg.content;
-                            if(msg_type==="stream"){{
-                                $('#wrapperHTML{0}').html(content.text);
-                            }}else if (msg_type==="display_data" || msg_type==="execute_result"){{
-                                var html=null;                                    
-                                if (!!content.data["text/html"]){{
-                                    html=content.data["text/html"];
-                                }}else if (!!content.data["image/png"]){{
-                                    html=html||"";
-                                    html+="<img src='data:image/png;base64," +content.data["image/png"]+"'></img>";
-                                }} 
-                                                               
-                                if (!!content.data["application/javascript"]){{
-                                    $('#wrapperJS{0}').html("<script type=\\\"text/javascript\\\">"+content.data["application/javascript"]+"</s" + "cript>");
-                                }}
-                                
-                                if (html){{
-                                    if(curCell&&curCell.output_area&&curCell.output_area.outputs){{
-                                        var data = JSON.parse(JSON.stringify(content.data));
-                                        if(!!data["text/html"])data["text/html"]=html;
-                                        curCell.output_area.outputs.push({{"data": data,"metadata":content.metadata,"output_type":msg_type}});
-                                    }}
-                                    $('#wrapperHTML{0}').html(html);
-                                }}
-                            }}else if (msg_type === "error") {{
-                                require(['base/js/utils'], function(utils) {{
-                                    var tb = content.traceback;
-                                    console.log("tb",tb);
-                                    if (tb && tb.length>0){{
-                                        var data = tb.reduce(function(res, frame){{return res+frame+'\\n';}},"");
-                                        console.log("data",data);
-                                        data = utils.fixConsole(data);
-                                        data = utils.fixCarriageReturn(data);
-                                        data = utils.autoLinkUrls(data);
-                                        $('#wrapperHTML{0}').html("<pre>" + data +"</pre>");
-                                    }}
-                                }});
-                            }}
-                            console.log("msg", msg);
-                        }}
-                    }}
-                }}
-                
-                if (IPython && IPython.notebook && IPython.notebook.session && IPython.notebook.session.kernel){{
-                    var command = "{1}".replace("cellId",cellId);
-                    // get the selected column from the modal
-                    // this is a test and needs to be more generic (load options from DisplayHandler, etc)
-                    var colSelect = document.getElementById("column{0}");
-                    if (colSelect) {{
-                        var startIndex, endIndex;
-                        startIndex = command.indexOf(",col='");
-                        if (startIndex >= 0) {{
-                            endIndex = command.indexOf("'", startIndex+1);
-                            endIndex = command.indexOf("'", endIndex+1) + 1;
-                        }}
-                        else {{
-                            startIndex = endIndex = command.lastIndexOf(")");
-                        }}
-                        var start = command.substring(0,startIndex);
-                        var end = command.substring(endIndex);
-                        command = start + ",col='" + colSelect.options[colSelect.selectedIndex].value + "'" + end;
-                    }}
-                    console.log("Running command",command);
-                    if(curCell&&curCell.output_area)curCell.output_area.outputs=[];
-                    $('#wrapperJS{0}').html("")
-                    $('#wrapperHTML{0}').html('<div style="width:100px;height:60px;left:47%;position:relative"><i class="fa fa-circle-o-notch fa-spin" style="font-size:48px"></i></div>'+
-                    '<div style="text-align:center">Loading your data. Please wait...</div>');
-                    IPython.notebook.session.kernel.execute(command, callbacks, {{silent:false,store_history:false,stop_on_error:true}});
-                }}
-            }}
-        """.format(self.getPrefix(), self._genDisplayScript(menuInfo),self.options.get("cell_id","cellId"), "false" if "cell_id" in self.options else "true")
+        return self.renderTemplate('executePythonDisplayScript.js',menuInfo=menuInfo)
         
     def _getMenuHandlerScript(self, menuInfo):
         return """
@@ -305,34 +219,8 @@ class CellHandshakeMeta(DisplayHandlerMeta):
         
 class CellHandshake(Display):
     def render(self):
-        ipythonDisplay(HTML("""<script>
-            //Marker {0}
-            setTimeout(function(){{
-                var cells=IPython.notebook.get_cells().filter(function(cell){{
-                    if(!cell.output_area || !cell.output_area.outputs){{
-                        return false;
-                    }}
-                    return cell.output_area.outputs.filter(function(output){{
-                        if (output.output_type==="display_data"&&output.data&&output.data["text/html"]){{
-                            return output.data["text/html"].includes("//Marker {0}")
-                        }}
-                        return false;
-                    }}).length > 0;
-                }});
-                if(cells.length>0){{
-                    var cell=cells[0];
-                    var cellId=cell.cell_id;
-                    cell.output_area.clear_output(false, true);
-                    var old_msg_id = cell.last_msg_id;
-                    if (old_msg_id) {{
-                        cell.kernel.clear_callbacks_for_msg(old_msg_id);
-                    }}
-                    !{1}()
-                }}else{{
-                    alert("An error occurred, unable to access cell id");
-                }}
-            }},500);
-        </script>""".format(self.getPrefix(),self._getExecutePythonDisplayScript() )
+        ipythonDisplay(HTML(
+            self.renderTemplate("handshake.html")
         ))
         
     def doRender(self, handlerId):

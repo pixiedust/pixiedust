@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # -------------------------------------------------------------------------------
-from jinja2 import BaseLoader, Environment
+from jinja2 import BaseLoader, Environment, TemplateSyntaxError, TemplateAssertionError, TemplateError
 import pkg_resources
 import inspect
 import sys
@@ -58,6 +58,8 @@ class PixiedustTemplateEnvironment(object):
                 try:
                     visited[mod.__name__]=mod
                     return self.env.get_template( mod.__name__ + ":" + name )
+                except (TemplateSyntaxError, TemplateAssertionError, TemplateError):
+                    raise
                 except:
                     pass
         
