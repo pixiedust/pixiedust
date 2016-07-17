@@ -89,13 +89,16 @@ class Display(object):
         self.scripts=list()
         self.noChrome="handlerId" in options
 
-    def renderTemplate(self, templateName, **kwargs):
+    def _getTemplateArgs(self, **kwargs):
         args = {
             "this":self, "entity":self.entity, "prefix":self.getPrefix()
         }
         if kwargs:
             args.update(kwargs)
-        return self.env.getTemplate(templateName).render(args)
+        return args
+
+    def renderTemplate(self, templateName, **kwargs):
+        return self.env.getTemplate(templateName).render(self._getTemplateArgs(**kwargs))
     
     def render(self):
         handlerId=self.options.get("handlerId")

@@ -1,0 +1,57 @@
+{%extends "basedialog.html"%}
+{%import "commonExecuteCallback.js" as commons%}
+
+{%block title %}Stash data to Cloudant{%endblock%}
+
+{%block body%}
+<form class="form-horizontal" role="form">
+    <div class="form-group">
+        <label class="control-label col-sm-3" for="pwd">Cloudant Connection:</label>
+        <div class="col-sm-9" >
+            <div class="input-group" id="service-connection-group" style="width:100%" > 
+                <a class="btn btn-default dropdown-toggle btn-select" id="service-connection" style="width:100%" data-toggle="dropdown" href="#">
+                    Select a Service connection
+                    <span class="caret"></span>
+                </a>
+                <span class="input-group-addon" id="add-service-connection" style="cursor:pointer">+</span>
+                <ul class="dropdown-menu" style="width:100%" >
+                    <li><a href="#">Cloudant-XY1</a></li>
+                    <li><a href="#">Cloudant-XY2</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-3">Database:</label>
+        <div class="col-sm-9">
+            <input type="text" class="form-control" id="dbName" readonly value="{{dbName}}">
+        </div>
+    </div>
+</form>
+{%endblock%}
+
+{%block onOK%}
+{% call(results) commons.ipython_execute(this._genDisplayScript(addOptionDict={'doStash':'True','dbName':dbName}),prefix) %}
+    $('#results{{prefix}}').html({{results}});
+    $('#loading{{prefix}}').css('display','none');
+{% endcall %};
+{%endblock%}
+
+{%block onDialogShown%}
+$("#service-connection-group .dropdown-menu li a").click(function(){
+    $('#service-connection').html($(this).text()+' <span class="caret"></span>');
+});
+$("#add-service-connection").click(function(){
+    alert("Here goes the add Cloudant Connection dialog");
+});
+{%endblock%}
+
+{%block cellOuputHTML%}
+<div id="loading{{prefix}}" style="display:none">
+    <div style="width:100px;height:60px;left:47%;position:relative">
+        <i class="fa fa-circle-o-notch fa-spin" style="font-size:48px"></i>
+    </div>
+    <div style="text-align:center">Stashing your data in Cloudant. Please wait...</div>
+</div>
+<div id="results{{prefix}}"></div>
+{%endblock%}

@@ -1,0 +1,29 @@
+<script>
+    require(['base/js/dialog'],function(dialog){
+        var modal = dialog.modal;
+        var modal_obj = modal({
+            title: "{%block title %}Pixiedust Dialog{%endblock%}",
+            body: '{%set body%}{%block body%}Pixiedust body{%endblock%}{%endset%}{{body|oneline}}',
+            sanitize:false,
+            notebook: IPython.notebook,
+            keyboard_manager: IPython.notebook.keyboard_manager,
+            buttons: {
+                {%block buttons%}
+                OK: {
+                    class : "btn-primary",
+                    click: function() {
+                        {%block onOK%}{%endblock%}
+                    }
+                },
+                Cancel: function(){
+                    {%block onCancel%}{%endblock%}
+                }
+                {%endblock%}
+            }
+        });
+        modal_obj.on('shown.bs.modal', function(){
+            {%block onDialogShown%}{%endblock%}
+        });
+    })
+</script>
+{%block cellOuputHTML%}{%endblock%}
