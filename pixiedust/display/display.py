@@ -128,6 +128,11 @@ class Display(object):
 
     def _addHTMLTemplate(self, templateName, **kwargs):
         self._addHTML(self.renderTemplate(templateName, **kwargs))
+
+    def _addHTMLTemplateString(self, source, **kwargs):
+        self._addHTML(
+            self.env.from_string(source).render(self._getTemplateArgs(**kwargs))
+        )
         
     def _safeString(self, s):
         if not isinstance(s, str if sys.version >= '3' else basestring):

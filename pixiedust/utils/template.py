@@ -51,6 +51,9 @@ class PixiedustTemplateEnvironment(object):
         self.env = Environment(loader=PixiedustTemplateLoader(baseModule))
         self.env.filters["oneline"]=lambda s:reduce(lambda s, l: s+l, s.split("\n"), "")
     
+    def from_string(self, source, **kwargs):
+        return self.env.from_string(source, globals=kwargs)
+
     def getTemplate(self, name):
         visited = {}
         for frm in inspect.stack():
