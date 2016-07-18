@@ -42,7 +42,7 @@ $("#service-connection-group .dropdown-menu li a").click(function(){
     $('#service-connection').html($(this).text()+' <span class="caret"></span>');
 });
 $("#add-service-connection").click(function(){
-    alert("Here goes the add Cloudant Connection dialog");
+    {%include module + ":addNewConnection.dialog" %}
 });
 {%endblock%}
 

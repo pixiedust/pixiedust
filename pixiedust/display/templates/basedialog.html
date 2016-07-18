@@ -1,12 +1,17 @@
+{% if not nested %}
 <script>
+{% endif -%}
+    var global={}
     require(['base/js/dialog'],function(dialog){
         var modal = dialog.modal;
         var modal_obj = modal({
-            title: "{%block title %}Pixiedust Dialog{%endblock%}",
+            title: "Pixiedust: {%block title %}Dialog{%endblock%}",
             body: '{%set body%}{%block body%}Pixiedust body{%endblock%}{%endset%}{{body|oneline}}',
             sanitize:false,
             notebook: IPython.notebook,
+            {% if not nested %}
             keyboard_manager: IPython.notebook.keyboard_manager,
+            {% endif -%}
             buttons: {
                 {%block buttons%}
                 OK: {
@@ -25,5 +30,7 @@
             {%block onDialogShown%}{%endblock%}
         });
     })
+{% if not nested %}
 </script>
 {%block cellOuputHTML%}{%endblock%}
+{% endif -%}

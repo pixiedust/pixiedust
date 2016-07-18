@@ -91,7 +91,8 @@ class Display(object):
 
     def _getTemplateArgs(self, **kwargs):
         args = {
-            "this":self, "entity":self.entity, "prefix":self.getPrefix()
+            "this":self, "entity":self.entity, "prefix":self.getPrefix(),
+            "module":self.__module__
         }
         if kwargs:
             args.update(kwargs)
