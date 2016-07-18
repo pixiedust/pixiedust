@@ -20,7 +20,7 @@ global.editor = CodeMirror.fromTextArea($("#connection-info")[0], {
     matchBrackets: true,
     indentUnit: 2,
     autoIndent: true,
-    mode: 'application/json',
+    mode: 'application/json'
 });
 global.editor.setSize("100%", 300);
 global.editor.setValue('{\n\

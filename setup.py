@@ -11,5 +11,5 @@ setup(name='pixiedust',
       packages=['pixiedust','pixiedust.packageManager','pixiedust.display',
             'pixiedust.display.table','pixiedust.display.graph','pixiedust.display.chart','pixiedust.display.tests','pixiedust.display.download',
             'pixiedust.services',
-            'utils'],
+            'pixiedust.utils'],
       zip_safe=False)
