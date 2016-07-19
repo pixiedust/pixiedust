@@ -88,7 +88,7 @@ function() {
 		}
 		$('#chartOptions{{prefix}} *').filter(':input').each(function(){
 			if ($(this).is(':checkbox')) {
-				addValueToCommand($(this).attr('name'),$(this).is(':checked'));	
+				addValueToCommand($(this).attr('name'),$(this).is(':checked')+"");	
 			}
 			else {
 				addValueToCommand($(this).attr('name'),$(this).val());
