@@ -1,0 +1,10 @@
+
+<div class="form-group">
+	<label>Show Legend</label>
+	<input class="form-control" name="showLegend" type="checkbox"{{' checked' if this.options.get("showLegend") != "false"}}>
+</div>
+<div class="form-group">
+	<label># of Rows to Display:</label>
+	<input class="form-control" name="rowCount" type="number" min="1" max="100" value="{{this.options.get("rowCount") or 100}}">
+</div>
+{%block customFormFields%}{%endblock%}

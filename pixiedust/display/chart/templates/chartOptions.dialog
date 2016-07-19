@@ -1,0 +1,21 @@
+{%extends "basedialog.html"%}
+{% set nested = 'true' %}
+
+{%block title %}Chart Options{%endblock%}
+
+{%block body%}
+<form id="chartOptions{{prefix}}">
+{{body}}
+</form>
+{%endblock%}
+
+{%block onDialogShown%}
+$('#chartOptions{{prefix}} *').filter(':input').each(function(){
+	IPython.keyboard_manager.register_events($(this));
+});
+{%endblock%}
+
+{%block onOK%}
+console.log("CLICKED: " + 'column{2}');
+({%include module + ":chartOptionsDialogOnOK.js"%})()
+{%endblock%}
