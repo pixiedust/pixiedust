@@ -4,7 +4,7 @@
     var global={}
     require(['base/js/dialog'],function(dialog){
         var modal = dialog.modal;
-        var modal_obj = modal({
+        var options = {
             title: "Pixiedust: {%block title %}Dialog{%endblock%}",
             body: '{%set body%}{%block body%}Pixiedust body{%endblock%}{%endset%}{{body|oneline}}',
             sanitize:false,
@@ -25,10 +25,32 @@
                 }
                 {%endblock%}
             }
-        });
+        };
+        var modal_obj = modal(options);
         modal_obj.on('shown.bs.modal', function(){
+            {% if not nested %}
+            var isFF = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
+            if( isFF && options.keyboard_manager){
+                //Only on FF, blur event issue, hard disable keyboard manager 
+                var KeyboardManager = require('notebook/js/keyboardmanager').KeyboardManager;
+                global.KMEnableProto = KeyboardManager.prototype.enable;
+                KeyboardManager.prototype.enable = function () {
+                    this.enabled = false;
+                };
+            }
+            {% endif -%}
             {%block onDialogShown%}{%endblock%}
         });
+
+        {% if not nested %}
+        modal_obj.on("hidden.bs.modal", function () {
+            if ( global.KMEnableProto ){
+                var KeyboardManager = require('notebook/js/keyboardmanager').KeyboardManager;
+                KeyboardManager.prototype.enable = global.KMEnableProto;
+                delete global.KMEnableProto;
+            }
+        });
+        {% endif -%}
     })
 {% if not nested %}
 </script>
