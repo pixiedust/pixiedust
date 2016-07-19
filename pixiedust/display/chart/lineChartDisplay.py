@@ -24,9 +24,6 @@ from random import randint
 
 class LineChartDisplay(ChartDisplay):
 
-    def getDialogOptions(self, handlerId):
-        return list('1','2','3')
-
     def doRender(self, handlerId):
         allNumericCols = self.getNumericalFieldNames()
         if len(allNumericCols) == 0:
@@ -36,24 +33,28 @@ class LineChartDisplay(ChartDisplay):
         # init
         mpld3.enable_notebook()
         fig, ax = plt.subplots()
-        plugins.connect(fig, DialogPlugin(handlerId, self.getPrefix(), self._getExecutePythonDisplayScript(), allNumericCols, self.options))
+        dialogBody = self._getHTMLTemplateString("lineChartOptionsDialogBody.html",colNames=allNumericCols)
+        plugins.connect(fig, DialogPlugin(self, handlerId, dialogBody))
         
-        #
+        # get the columns to display from options or display all
         displayCols = []
-        selectedCol = self.options.get("col")
+        selectedCol = self.options.get("selectedColumns")
         if (selectedCol and selectedCol is not "ALL"):
             displayCols.append(selectedCol)
         else:
             displayCols = allNumericCols
 
         # plot
-        MAX_ROWS = 100
-        numRows = min(MAX_ROWS,self.entity.count())
+        maxRows = 100
+        maxRowsStr = self.options.get("rowCount")
+        if maxRowsStr is not None:
+            maxRows = int(maxRowsStr)
+        numRows = min(maxRows,self.entity.count())
         numCols = len(displayCols)
         pdf = self.entity.toPandas()
         for i, displayCol in enumerate(displayCols):
             xs = list(range(0, numRows))
-            ys = pdf[displayCol].tolist()
+            ys = pdf[displayCol].tolist()[:numRows]
             ax.plot(xs, ys, label=displayCol)
 
         # display

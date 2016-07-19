@@ -58,6 +58,39 @@ function() {
     
     if (IPython && IPython.notebook && IPython.notebook.session && IPython.notebook.session.kernel){
         var command = "{{this._genDisplayScript(menuInfo)}}".replace("cellId",cellId);
+        // add chart options to command
+        var addValueToCommand = function(name, value) {
+			if (value) {
+				var startIndex, endIndex;
+				startIndex = command.indexOf(","+name+"='");
+				if (startIndex >= 0) {
+					endIndex = command.indexOf("'", startIndex+1);
+					endIndex = command.indexOf("'", endIndex+1) + 1;
+				}
+				else {
+					startIndex = endIndex = command.lastIndexOf(")");
+				}
+				var start = command.substring(0,startIndex);
+				var end = command.substring(endIndex);
+				command = start + "," + name +"='" + value + "'" + end;
+			}
+			else {
+				var startIndex, endIndex;
+				startIndex = command.indexOf(","+name+"='");
+				if (startIndex >= 0) {
+					endIndex = command.indexOf("'", startIndex+1);
+					endIndex = command.indexOf("'", endIndex+1) + 1;
+					command = start + end;
+				}
+			}
+		}
+		$('#chartOptions{{prefix}} *').filter(':input').each(function(){
+			addValueToCommand($(this).attr('name'),$(this).val());
+		});
+		$('#chartOptions{{prefix}} *').filter('select').each(function(){
+			addValueToCommand($(this).attr('name'),$(this).val());
+		});
+		// run command
         console.log("Running command",command);
         if(curCell&&curCell.output_area)curCell.output_area.outputs=[];
         $('#wrapperJS{{prefix}}').html("")
