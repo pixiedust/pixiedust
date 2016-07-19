@@ -59,7 +59,7 @@ class LineChartDisplay(ChartDisplay):
 
         # display
         ax.grid(color='lightgray', alpha=0.7)
-        ax.legend(title='')        
+        ax.legend(title='')
         
     def getNumericalFieldNames(self):
         schema = self.entity.schema

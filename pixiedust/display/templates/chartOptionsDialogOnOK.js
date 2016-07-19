@@ -80,12 +80,19 @@ function() {
 				if (startIndex >= 0) {
 					endIndex = command.indexOf("'", startIndex+1);
 					endIndex = command.indexOf("'", endIndex+1) + 1;
+					var start = command.substring(0,startIndex);
+					var end = command.substring(endIndex);
 					command = start + end;
 				}
 			}
 		}
 		$('#chartOptions{{prefix}} *').filter(':input').each(function(){
-			addValueToCommand($(this).attr('name'),$(this).val());
+			if ($(this).is(':checkbox')) {
+				addValueToCommand($(this).attr('name'),$(this).is(':checked'));	
+			}
+			else {
+				addValueToCommand($(this).attr('name'),$(this).val());
+			}
 		});
 		$('#chartOptions{{prefix}} *').filter('select').each(function(){
 			addValueToCommand($(this).attr('name'),$(this).val());
