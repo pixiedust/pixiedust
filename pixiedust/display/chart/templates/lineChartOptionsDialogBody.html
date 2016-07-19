@@ -2,12 +2,12 @@
 
 {%block customFormFields%}
 <div class="form-group">
-	<label for="rowCount{{prefix}}"># of Rows to Display:</label>
-	<input class="form-control" id="rowCount{{prefix}}" name="rowCount" type="number" min="1" max="100" value="{{this.options.get("rowCount") or 100}}">
+	<label># of Rows to Display:</label>
+	<input class="form-control" name="rowCount" type="number" min="1" max="100" value="{{this.options.get("rowCount") or 100}}">
 </div>
 <div class="form-group">
-	<label for="selectedColumns{{prefix}}">Columns to Display:</label>
-	<select class="form-control" id="selectedColumns{{prefix}}" name="selectedColumns" style="margin-left: 0px;">
+	<label>Columns to Display:</label>
+	<select class="form-control" name="selectedColumns" style="margin-left: 0px;">
 		<option>ALL</option>
 		{%for colName in colNames%}
 		<option value="{{colName}}"{{' selected' if this.options.get("selectedColumns") == colName}}>{{colName}}</option>
