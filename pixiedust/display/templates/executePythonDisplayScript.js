@@ -58,6 +58,7 @@ function() {
     
     if (IPython && IPython.notebook && IPython.notebook.session && IPython.notebook.session.kernel){
         var command = "{{this._genDisplayScript(menuInfo)}}".replace("cellId",cellId);
+        {%block preRunCommandScript%}{%endblock%}
         console.log("Running command",command);
         if(curCell&&curCell.output_area)curCell.output_area.outputs=[];
         $('#wrapperJS{{prefix}}').html("")

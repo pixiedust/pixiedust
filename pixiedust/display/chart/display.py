@@ -21,4 +21,4 @@ class ChartDisplay(Display):
         self._addHTML("""
             <p><b>Sorry, but this visualization is not yet implemented. Please check back often!</b></p>
         """
-        )     
+        )

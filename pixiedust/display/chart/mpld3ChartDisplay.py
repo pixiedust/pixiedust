@@ -37,7 +37,7 @@ class Mpld3ChartDisplay(ChartDisplay):
         if (context is not None):
             dialogBody = self.renderTemplate(context[0], **context[1])
         else:
-            dialogBody = self.renderTemplate("chartOptionsDialogBody.html")
+            dialogBody = self.renderTemplate("baseChartOptionsDialogBody.html")
         plugins.connect(fig, DialogPlugin(self, handlerId, dialogBody))
         return self.doRenderMpld3(handlerId, fig, ax)
 

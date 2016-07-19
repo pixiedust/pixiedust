@@ -14,28 +14,23 @@
 # limitations under the License.
 # -------------------------------------------------------------------------------
 
-from .display import ChartDisplay
-from .plugins.dialog import DialogPlugin
-import matplotlib as mpl
-import matplotlib.pyplot as plt
-import mpld3
-import mpld3.plugins as plugins
-from random import randint
+from .mpld3ChartDisplay import Mpld3ChartDisplay
 
-class LineChartDisplay(ChartDisplay):
+class LineChartDisplay(Mpld3ChartDisplay):
 
-    def doRender(self, handlerId):
+    def getMpld3Context(self, handlerId):
+        return ("lineChartOptionsDialogBody.html",{"colNames":self.getNumericalFieldNames()})
+
+    def doRenderMpld3(self, handlerId, figure, axes):
         allNumericCols = self.getNumericalFieldNames()
         if len(allNumericCols) == 0:
             self._addHTML("Unable to find a numerical column in the dataframe")
             return
 
         # init
-        mpld3.enable_notebook()
-        fig, ax = plt.subplots()
-        dialogBody = self._getHTMLTemplateString("lineChartOptionsDialogBody.html",colNames=allNumericCols)
-        plugins.connect(fig, DialogPlugin(self, handlerId, dialogBody))
-        
+        fig = figure
+        ax = axes
+
         # get the columns to display from options or display all
         displayCols = []
         selectedCol = self.options.get("selectedColumns")
@@ -59,7 +54,9 @@ class LineChartDisplay(ChartDisplay):
 
         # display
         ax.grid(color='lightgray', alpha=0.7)
-        ax.legend(title='')
+        showLegend = self.options.get("showLegend")
+        if showLegend is None or showLegend == 'true':
+            ax.legend(title='')
         
     def getNumericalFieldNames(self):
         schema = self.entity.schema
