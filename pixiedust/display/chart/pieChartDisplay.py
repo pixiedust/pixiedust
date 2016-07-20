@@ -53,14 +53,18 @@ class PieChartDisplay(ChartDisplay):
     #TODO: adjust for 'uuid' corner case and sample to test for repeated values
     def getSmartNumericalColInfo(self):
         schema = self.entity.schema
+        default=None
         for field in schema.fields:
             #ignore unique ids
             if field.name.lower() != 'id':
             #type = field.dataType.__class__.__name__
             #if ( type =="LongType" or type == "IntegerType" ):
 
-            #Find a good column to display in pie chart
-                sample = self.entity.sample(False, (float(200) / self.entity.count()))
+            #Find a good column to display in pie ChartDisplay
+                default = default or field.name
+                count = self.entity.count()
+                sample = self.entity.sample(False, (float(200) / count)) if count > 200 else self.entity
                 orderedSample = sample.groupBy(field.name).agg(F.count(field.name).alias("count")).orderBy(F.desc("count")).select("count")
                 if orderedSample.take(1)[0]["count"] > 10:
                     return field.name
+        return default
