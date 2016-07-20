@@ -34,11 +34,19 @@ class Mpld3ChartDisplay(ChartDisplay):
         mpld3.enable_notebook()
         fig, ax = plt.subplots()
         context = self.getMpld3Context(handlerId)
+        options = {"fieldNames":self.getFieldNames(),"aggregationOptions":["SUM","AVG","MIN","MAX","COUNT"]}
         if (context is not None):
-            dialogBody = self.renderTemplate(context[0], **context[1])
+            options.update(context[1])
+            dialogBody = self.renderTemplate(context[0], **options)
         else:
-            dialogBody = self.renderTemplate("baseChartOptionsDialogBody.html")
+            dialogBody = self.renderTemplate("baseChartOptionsDialogBody.html", **options)
         plugins.connect(fig, DialogPlugin(self, handlerId, dialogBody))
         return self.doRenderMpld3(handlerId, fig, ax)
 
+    def getFieldNames(self):
+        schema = self.entity.schema
+        fieldNames = []
+        for field in schema.fields:
+            fieldNames.append(field.name)
+        return fieldNames
 	

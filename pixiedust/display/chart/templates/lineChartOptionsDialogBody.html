@@ -1,13 +1,5 @@
 {%extends module + ":baseChartOptionsDialogBody.html"%}
 
 {%block customFormFields%}
-<div class="form-group">
-	<label>Columns to Display:</label>
-	<select class="form-control" name="selectedColumns" style="margin-left: 0px;">
-		<option>ALL</option>
-		{%for colName in colNames%}
-		<option value="{{colName}}"{{' selected' if this.options.get("selectedColumns") == colName}}>{{colName}}</option>
-		{%endfor%}
-	</select>
-</div>
+<!-- PUT CUSTOM FIELDS HERE -->
 {%endblock%}

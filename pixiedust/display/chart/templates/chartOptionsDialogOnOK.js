@@ -27,10 +27,22 @@ var addValueToCommand = function(name, value) {
             command = start + end;
         }
     }
-}
+};
+var getListValues = function(listId) {
+    var value = '';
+    $(listId + ' li').each(function(idx, li) {
+        if (value.length != 0) {
+            value += ',';
+        }
+        value += $(li).text();
+    });
+    return value;
+};
+addValueToCommand('keyFields',getListValues('#keyFields{{prefix}}'));
+addValueToCommand('valueFields',getListValues('#valueFields{{prefix}}'));
 $('#chartOptions{{prefix}} *').filter(':input').each(function(){
     if ($(this).is(':checkbox')) {
-        addValueToCommand($(this).attr('name'),$(this).is(':checked')+"");	
+        addValueToCommand($(this).attr('name'),$(this).is(':checked')+'');	
     }
     else {
         addValueToCommand($(this).attr('name'),$(this).val());

@@ -18,8 +18,9 @@ from .mpld3ChartDisplay import Mpld3ChartDisplay
 
 class LineChartDisplay(Mpld3ChartDisplay):
 
-    def getMpld3Context(self, handlerId):
-        return ("lineChartOptionsDialogBody.html",{"colNames":self.getNumericalFieldNames()})
+    # override if you need to add custom form fields
+    #def getMpld3Context(self, handlerId):
+    #    return ("lineChartOptionsDialogBody.html",{"colNames":self.getNumericalFieldNames()})
 
     def doRenderMpld3(self, handlerId, figure, axes):
         allNumericCols = self.getNumericalFieldNames()
