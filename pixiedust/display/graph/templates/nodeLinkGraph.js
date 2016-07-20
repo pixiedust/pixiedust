@@ -7,7 +7,7 @@ var tree = d3.layout.tree()
 var diagonal = d3.svg.diagonal.radial()
     .projection(function(d) { return [d.y, d.x / 180 * Math.PI]; });
 
-var svg = d3.select("svg")
+var svg = d3.select("#svg{{prefix}}")
     .attr("width", diameter)
     .attr("height", diameter - 150)
   .append("g")

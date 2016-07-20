@@ -23,7 +23,7 @@ class GraphDisplay(Display):
     def doRender(self,handlerId):
         g=self.entity
         
-        if ( handlerId == "forceGraph"):
+        if ( handlerId == "nodeLinkGraph"):
             import json
             ar = g.edges.select("src","dst").map(lambda (s,d): (s,[d]))\
                 .reduceByKey(lambda d1,d2: d1+d2).map(lambda (src, arTargets): (src, list(set(arTargets))))\
@@ -65,7 +65,20 @@ class GraphDisplay(Display):
                         stroke-width: 1.5px;
                     }
                 </style>
-                <svg width="960" height="600"></svg>                
+                <div>
+                    <form class="form-horizontal" role="form">
+                        <div class="form-group">
+                            <label class="control-label col-sm-3">Select Root Node:</label>
+                            <div class="col-sm-9" >
+                                <div class="input-group" style="width:100%" > 
+                                    <input type="text" class="form-control" value="JFK"/>
+                                    <span class="input-group-addon" style="cursor:pointer">GO</span>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                <div>
+                <svg id="svg{{prefix}}" width="960" height="600"></svg>                
             """)
         else:
             graphNodesJson="{"
