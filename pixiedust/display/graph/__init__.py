@@ -24,10 +24,11 @@ class GraphDisplayMeta(DisplayHandlerMeta):
         if clazz == "GraphFrame":
             #Check that we have a longitude and latitude in the vertices dataframe
             fnames=[sf.name for sf in entity.vertices.schema.fields]
+            ret = []
             if "longitude" in fnames and "latitude" in fnames:
-                return [
-                    {"categoryId": "Map", "title": "Graph Map", "icon":"fa-map-marker", "id":"graphMap"}
-                ]
+                ret.append({"categoryId": "Map", "title": "Graph Map", "icon":"fa-map-marker", "id":"graphMap"})
+            ret.append({"categoryId": "Map", "title": "Node-Link Graph", "icon":"fa-map-marker", "id":"nodeLinkGraph"})
+            return ret
         
         return []
             
