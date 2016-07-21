@@ -15,13 +15,15 @@
 # -------------------------------------------------------------------------------
 
 from .display import ChartDisplay
+from .mpld3ChartDisplay import Mpld3ChartDisplay
 import matplotlib.pyplot as plt
 import numpy as np
-from mpld3 import plugins
+import mpld3.plugins as plugins
 from mpld3 import utils
 from pyspark.sql import functions as F
 import mpld3
-
+from .plugins.dialog import DialogPlugin
+from random import randint
 
 class BarChart(mpld3.plugins.PluginBase):  # inherit from PluginBase
     """Bar chart plugin to fix xticks that are overriden by mpld3 while converting from matplotlib """
@@ -57,90 +59,107 @@ class BarChart(mpld3.plugins.PluginBase):  # inherit from PluginBase
 
 
 
-class BarChartDisplay(ChartDisplay):
-    def doRender(self, handlerId):
+class BarChartDisplay(Mpld3ChartDisplay):
+    # override if you need to add custom form fields
+    def getMpld3Context(self, handlerId):
+        return ("barChartOptionsDialogBody.html",{"colNames":self.getFieldNames()})
+    def doRenderMpld3(self, handlerId, figure, axes):
+        allNumericCols = self.getNumericalFieldNames()
+        if len(allNumericCols) == 0:
+            self._addHTML("Unable to find a numerical column in the dataframe")
+            return
         
+                 
+        keyFields = self.options.get("keyFields")
+        valueField = self.options.get("valueFields")
+
+        if(keyFields==None and valueField==None):
+            keyFields=self.getFirstStringColInfo()
+            valueField=self.getFirstNumericalColInfo() 
+        else:
+            keyFields = keyFields.split(',') 
+            valueField = valueField.split(',') 
+            if(len(valueField) > 1):
+                self._addHTML("You can enter only have one value field for Bar Charts (2-D)"+str(len(valueField)))
+                return
+            keyFields = keyFields[0]
+            valueField=valueField[0]
         
-        displayColName = self.getFirstNumericalColInfo()
-        if not displayColName:
-            return self._addHTML("Unable to find a numerical column in the dataframe")
-            
+                
+        #if(len(valueFields>)):
+
+
+    
+        #init
+        fig=figure
+        ax=axes
         
-        import mpld3
-        mpld3.enable_notebook()     
-        fig = plt.figure()
+        #fig, ax = plt.subplots()   
+        #fig = plt.figure()
+        
+
         params = plt.gcf()
         plSize = params.get_size_inches()
         params.set_size_inches( (plSize[0]*2, plSize[1]*2) )
-        
 
-        if ( (self.options.get("agg",False))==True):
-            aggType=self.options.get("aggType")
-            if(aggType=='average'):
-                colLabel = self.options.get("groupBy")
-                # group by 'displayColName' -> aggregate 'displayColName' by avg -> set column alias as 'avg'  
-                y1 = self.entity.groupBy(colLabel).agg(F.avg(displayColName).alias("avg")).toPandas()
-                # take column 'avg' remove NAs and convert to a list
-                y = y1["avg"].dropna().tolist()
-                #arrange() creates intervals for the axis eg: np.arange(3) -> array([0, 1, 2])
-                x_intv = np.arange(len(y))
-                labels =  self.entity.select(colLabel).toPandas()[colLabel].dropna().tolist()
-                # plot the x-axis with intervals and their respective labels 
-                plt.xticks(x_intv,labels)
-                # Label the x and y axis
-                plt.xlabel(colLabel, fontsize=18)
-                plt.ylabel("Average "+displayColName, fontsize=18)
-            elif(aggType=='sum'):
-                colLabel = self.options.get("groupBy")
-                # group by 'displayColName' -> aggregate 'displayColName' by sum -> set column alias as 'sum'  
-                y1 = self.entity.groupBy(colLabel).agg(F.sum(displayColName).alias("sum")).toPandas()
-                # take column 'avg' remove NAs and convert to a list
-                y = y1["sum"].dropna().tolist()
-                #arrange() creates intervals for the axis eg: np.arange(3) -> array([0, 1, 2])
-                x_intv = np.arange(len(y))
-                labels =  self.entity.select(colLabel).toPandas()[colLabel].dropna().tolist()
-                # plot the x-axis with intervals and their respective labels 
-                plt.xticks(x_intv,labels)
-                # Label the x and y axis
-                plt.xlabel(colLabel, fontsize=18)
-                plt.ylabel("Sum of "+displayColName, fontsize=18)
-            elif(aggType=='count'):
-                colLabel = self.options.get("groupBy")
-                # group by 'displayColName' -> aggregate 'displayColName' by count -> set column alias as 'count'  
-                y1 = self.entity.groupBy(colLabel).agg(F.count(displayColName).alias("count")).toPandas()
-                # take column 'avg' remove NAs and convert to a list
-                y = y1["count"].dropna().tolist()
-                #arrange() creates intervals for the axis eg: np.arange(3) -> array([0, 1, 2])
-                x_intv = np.arange(len(y))
-                labels =  self.entity.select(colLabel).toPandas()[colLabel].dropna().tolist()
-                # plot the x-axis with intervals and their respective labels 
-                plt.xticks(x_intv,labels)
-                # Label the x and y axis
-                plt.xlabel(colLabel, fontsize=18)
-                plt.ylabel("(Count) "+displayColName, fontsize=18)    
-            else:
-                return self._addHTML("aggType argument not mentioned.")
-        else:
-            colLabel = self.getFirstStringColInfo()
-            # Taking data as it is for plotting Bar Chart i.e. without aggregating 
-            y = self.entity.select(displayColName).toPandas()[displayColName].dropna().tolist()
-            #arrange() creates intervals for the axis eg: np.arange(3) -> array([0, 1, 2])
-            x_intv = np.arange(len(y))
-            labels =  self.entity.select(colLabel).toPandas()[colLabel].dropna().tolist()
-            # plot the x-axis with intervals and their respective labels 
-            plt.xticks(x_intv,labels)
-            # Label the x and y axis
-            plt.xlabel(colLabel, fontsize=18)
-            plt.ylabel(displayColName, fontsize=18)
-       
+
+        agg=self.options.get("aggregation")
+        groupByCol=self.options.get("groupByCol")
         
+        if (agg=="None" or agg==None):
+            colLabel = keyFields
+            y = self.entity.select(valueField).toPandas()[valueField].dropna().tolist()
+            x_intv = np.arange(len(y))
+            labels =  self.entity.select(keyFields).toPandas()[keyFields].dropna().tolist()
+            plt.xticks(x_intv,labels)
+            plt.xlabel(keyFields, fontsize=18)
+            plt.ylabel(valueField, fontsize=18)
+        elif(agg=='AVG'):
+            y1=self.entity.groupBy(keyFields).agg(F.avg(valueField).alias("avg")).toPandas().sort_values(by=keyFields)
+            y=y1["avg"].dropna().tolist()
+            x_intv = np.arange(len(y))
+            labels=y1[keyFields].dropna().tolist()
+            plt.xticks(x_intv,labels)
+            plt.xlabel(keyFields, fontsize=18)
+            plt.ylabel("Average "+valueField, fontsize=18)
+        elif(agg=='SUM'):
+            y1=self.entity.groupBy(keyFields).agg(F.sum(valueField).alias("sum")).toPandas().sort_values(by=keyFields)
+            y=y1["sum"].dropna().tolist()
+            x_intv = np.arange(len(y))
+            labels=y1[keyFields].dropna().tolist()
+            plt.xticks(x_intv,labels)
+            plt.xlabel(keyFields, fontsize=18)
+            plt.ylabel("sum "+valueField, fontsize=18)
+        elif(agg=='MAX'):
+            y1=self.entity.groupBy(keyFields).agg(F.max(valueField).alias("max")).toPandas().sort_values(by=keyFields)
+            y=y1["max"].dropna().tolist()
+            x_intv = np.arange(len(y))
+            labels=y1[keyFields].dropna().tolist()
+            plt.xticks(x_intv,labels)
+            plt.xlabel(keyFields, fontsize=18)
+            plt.ylabel("max "+valueField, fontsize=18)
+        elif(agg=='MIN'):
+            y1=self.entity.groupBy(keyFields).agg(F.min(valueField).alias("min")).toPandas().sort_values(by=keyFields)
+            y=y1["min"].dropna().tolist()
+            x_intv = np.arange(len(y))
+            labels=y1[keyFields].dropna().tolist()
+            plt.xticks(x_intv,labels)
+            plt.xlabel(keyFields, fontsize=18)
+            plt.ylabel("min "+valueField, fontsize=18)
+        elif(agg=='COUNT'):
+            y1=self.entity.groupBy(keyFields).agg(F.count(valueField).alias("count")).toPandas().sort_values(by=keyFields)
+            y=y1["count"].dropna().tolist()
+            x_intv = np.arange(len(y))
+            labels=y1[keyFields].dropna().tolist()
+            plt.xticks(x_intv,labels)
+            plt.xlabel(keyFields, fontsize=18)
+            plt.ylabel("count "+valueField, fontsize=18)
+
+        mpld3.enable_notebook()      
         plt.bar(x_intv,y,color="blue",alpha=0.5)
         ax_fmt = BarChart(labels)
         mpld3.plugins.connect(fig, ax_fmt)
         
-        
-        
-
     def getFirstNumericalColInfo(self):
         # Gets the first numerical column in the dataframe that is of either Long or IntegerType
         schema = self.entity.schema
@@ -156,3 +175,12 @@ class BarChartDisplay(ChartDisplay):
             type = field.dataType.__class__.__name__
             if (type != "LongType" and type != "IntegerType" and field.name.lower() !="id"):
                 return field.name
+    
+    def getNumericalFieldNames(self):
+        schema = self.entity.schema
+        fieldNames = []
+        for field in schema.fields:
+            type = field.dataType.__class__.__name__
+            if ( type =="LongType" or type == "IntegerType" ):
+                fieldNames.append(field.name)
+        return fieldNames
