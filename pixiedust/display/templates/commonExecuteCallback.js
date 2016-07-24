@@ -1,4 +1,4 @@
-{% macro ipython_execute(command, prefix) -%}
+{% macro ipython_execute(command, prefix, extraCommandOptions="{}") -%}
 
 var callbacks = {
     iopub:{
@@ -20,18 +20,47 @@ var callbacks = {
                         data = utils.fixCarriageReturn(data);
                         data = utils.autoLinkUrls(data);
                         $('#loading{{prefix}}').html("<pre>" + data +"</pre>");
+
+                        {{caller({"error": '"<pre>"+data+"</pre>"'})}}
                     }
                 });
             }
+            console.log("msg", msg);
         }
     }
 }
 
-$('#loading{{prefix}}').css('display','block');
-IPython.notebook.session.kernel.execute(
-    "{{command}}", 
-    callbacks, 
-    {silent:false,store_history:false,stop_on_error:true}
-);
+!function(){
+    $('#loading{{prefix}}').css('display','block');
+    var command = "{{command}}";
+    function addOptions(options){
+        for (var key in options){
+            var value = options[key];
+            function getStringRep(v) {
+                if (!isNaN(parseFloat(n)) && isFinite(n) ){
+                    return v.toString();
+                }
+                return "'" + v + "'";
+            }
+            var replaceValue = !!value ? (key+"=" + getStringRep(value) ) : "";
+            var pattern = (!!value?"":",")+"\\s*" + key + "\\s*=\\s*'(\\\\'|[^'])*'";
+            var rpattern=new RegExp(pattern);
+            var n = command.search(rpattern);
+            if ( n >= 0 ){
+                command = command.replace(rpattern, replaceValue);
+            }else if (options[key]){
+                var n = command.lastIndexOf(")\"");
+                command = [command.slice(0, n), "," + replaceValue, command.slice(n)].join('')
+            }        
+        }
+    }
+    addOptions({{extraCommandOptions|oneline|trim}});
+    console.log("Running command", command);
+    IPython.notebook.session.kernel.execute(
+        command, 
+        callbacks, 
+        {silent:false,store_history:false,stop_on_error:true}
+    );
+}()
 
 {%- endmacro %}

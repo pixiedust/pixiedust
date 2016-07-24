@@ -30,11 +30,13 @@ class GraphDisplay(Display):
                 .collect()
 
             dic = {item[0] : item[1] for item in ar}
+            limitLevel = self.options.get("limitLevel", 5)
+            limitChildren = self.options.get("limitChildren", 10)
             def expand(values, visited,level):
                 results=[]
-                if values is not None and level < 5:
+                if values is not None and level < limitLevel:
                     for v in values:
-                        if v not in visited and len(results)<level*5:
+                        if v not in visited and len(results)<limitChildren:
                             visited[v]=True
                             results.append({ "name": str(v), "children": {}})
                     for item in results:
@@ -42,44 +44,30 @@ class GraphDisplay(Display):
                         nextVisited.update(visited)
                         item["children"]=expand(dic.get(item["name"]), nextVisited, level+1)
                 return results
+            
+            root = self.options.get("root")
+            rootNode = ar[0]
+            if root:
+                def findRoot(ar):
+                    for a in ar:
+                        if a[0]==root:
+                            return a
+                rootNode = findRoot(ar)
+            
+            if not rootNode:
+                self._addHTML("<p>Can't find the airport</p>");
+                return;
 
-            res = { "name": str(ar[0][0]), "children":expand(dic[ar[0][0]], {ar[0][0]:True}, 1)}
+            res = { "name": str(rootNode[0]), "children":expand(dic[ar[0][0]], {rootNode[0]:True}, 1)}
             tree = json.dumps(res)
-            self._addScriptElement("https://d3js.org/d3.v3.js", checkJSVar="d3",
-                callback=self.renderTemplate("nodeLinkGraph.js", root=tree))
-            self._addHTMLTemplateString("""
-                <style>
-                    .node circle {
-                        fill: #fff;
-                        stroke: steelblue;
-                        stroke-width: 1.5px;
-                    }
 
-                    .node {
-                        font: 10px sans-serif;
-                    }
+            #if user specified root, then only send back the json tree
+            if root:
+                print(tree)
+                return
 
-                    .link {
-                        fill: none;
-                        stroke: #ccc;
-                        stroke-width: 1.5px;
-                    }
-                </style>
-                <div>
-                    <form class="form-horizontal" role="form">
-                        <div class="form-group">
-                            <label class="control-label col-sm-3">Select Root Node:</label>
-                            <div class="col-sm-9" >
-                                <div class="input-group" style="width:100%" > 
-                                    <input type="text" class="form-control" value="JFK"/>
-                                    <span class="input-group-addon" style="cursor:pointer">GO</span>
-                                </div>
-                            </div>
-                        </div>
-                    </form>
-                <div>
-                <svg id="svg{{prefix}}" width="960" height="600"></svg>                
-            """)
+            self._addScriptElement("https://d3js.org/d3.v3.js", checkJSVar="d3", callback=self.renderTemplate("nodeLinkGraph.js", root=tree))
+            self._addHTMLTemplate("nodeLinkGraph.html", root=tree, res=res)
         else:
             graphNodesJson="{"
             for r in g.vertices.map(lambda row: """"{0}":{{"id":"{0}","name":"{1}","latitude":{2},"longitude":{3}}}"""

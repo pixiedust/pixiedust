@@ -49,7 +49,7 @@ class PixiedustTemplateEnvironment(object):
             frm = inspect.stack()[1]
             baseModule = inspect.getmodule(frm[0]).__name__
         self.env = Environment(loader=PixiedustTemplateLoader(baseModule))
-        self.env.filters["oneline"]=lambda s:reduce(lambda s, l: s+l, s.split("\n"), "")
+        self.env.filters["oneline"]=lambda s:reduce(lambda s, l: s+l, s.split("\n"), "") if s else s
     
     def from_string(self, source, **kwargs):
         return self.env.from_string(source, globals=kwargs)

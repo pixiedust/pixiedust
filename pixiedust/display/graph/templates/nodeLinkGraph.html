@@ -1,0 +1,44 @@
+<style>
+    .node circle {
+        fill: #fff;
+        stroke: steelblue;
+        stroke-width: 1.5px;
+    }
+
+    .node {
+        font: 10px sans-serif;
+    }
+
+    .link {
+        fill: none;
+        stroke: #ccc;
+        stroke-width: 1.5px;
+    }
+</style>
+<div>
+    <form class="form-horizontal" role="form">
+        <div class="form-group">
+            <label class="control-label col-sm-2">Select Root Node:</label>
+            <div class="col-sm-2" >
+                <div class="input-group" style="width:100%" > 
+                    <input type="text" class="form-control" id="root{{prefix}}" value="JFK"/>
+                    <span class="input-group-addon" id="selectRoot{{prefix}}" style="cursor:pointer">GO</span>
+                </div>
+            </div>
+            <label class="control-label col-sm-2">Limit levels:</label>
+            <div class="col-sm-2" >
+                <div class="input-group" style="width:100%" > 
+                    <input type="text" class="form-control" id="limitLevel{{prefix}}" value="5"/>
+                </div>
+            </div>
+            <label class="control-label col-sm-2">Limit Children:</label>
+            <div class="col-sm-2" >
+                <div class="input-group" style="width:100%" > 
+                    <input type="text" class="form-control" id="limitChildren{{prefix}}" value="10"/>
+                </div>
+            </div>
+        </div>
+    </form>
+<div>
+<svg id="svg{{prefix}}" width="960" height="600"></svg>
+<div id="error{{prefix}}" style="display:none"></div>     
