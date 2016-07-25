@@ -1,36 +1,92 @@
-<div class="btn-group" role="group" style="margin-bottom:4px">
-    {%for key, menuInfoList in menuTree.iteritems()%}
-        {%if menuInfoList|length==1%}
-            <a class="btn btn-small btn-default display-type-button" id="menu{{this.getPrefix(menuInfoList[0])}}" title="{{menuInfoList[0]['title']}}">
-                <i class="fa {{menuInfoList[0]['icon']}}"></i>
-            </a>
-            {{this._getMenuHandlerScript(menuInfoList[0])}}
-        {%elif menuInfoList|length>1%}
-            <div class="btn-group btn-small" style="padding-left: 4px; padding-right: 4px;">
-                <a class="btn btn-small display-type-button btn-default" title="{{this.getCategoryTitle(key)}}" style="text-decoration:none">
-                    <i class="fa {{this.getCategoryIconClass(key)}}"></i>
-                </a>
-                <a class="btn btn-small dropdown-toggle btn-default" data-toggle="dropdown">
-                    <b class="caret"></b>
-                </a>
-                <div class="dropdown-menu" role="menu">
-                    <div class="row-fluid" style="width: 220px;">
-                        <ul class="span6 multicol-menu">
-                        {%for menuInfo in menuInfoList%}
-                            <li>
-                                <a href="#" class="display-type-button" id="menu{{this.getPrefix(menuInfo)}}" style="text-decoration:none">
-                                    <i class="fa {{menuInfo['icon']}}"></i>
-                                    {{menuInfo['title']}}
-                                </a>
-                                {{this._getMenuHandlerScript(menuInfo)}}
-                            </li>
-                        {%endfor%}
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        {%endif%}
-    {%endfor%}
-</div>
-<div id="wrapperJS{{this.getPrefix()}}"></div>
-<div id="wrapperHTML{{this.getPrefix()}}" style="min-height:100px">
+<style type="text/css">
+  .output_subarea.rendered_html {
+    max-width: 100%;
+    padding: 0;
+  }
+  .pixiedust {
+    border: 1px solid #ececec;
+    border-radius: 3px;
+    margin: 10px 0;
+    padding: 10px;
+    
+    color: #152935;
+    font-size: small;
+    font-weight: 300;
+    letter-spacing: 0.5px;
+    line-height: normal;
+  }
+  .pixiedust .display-type-button:not(:first-child) {
+    margin-left: 10px !important;
+  }
+  .pixiedust .btn-default {
+    border-radius: 0;
+    color: #003c32;
+  }
+  .pixiedust .btn-default.focus,
+  .pixiedust .btn-default:focus,
+  .pixiedust .btn-default:hover {
+    background-color: #41d6c3;
+    border-color: #008571;
+  }
+  .pixiedust .dropdown-menu {
+    padding: 0;
+  }
+  .pixiedust .dropdown-menu ul {
+    list-style: outside none none;
+    margin: 0;
+    padding: 0;
+  }
+  .pixiedust .dropdown-menu li {
+    color: #003c32;
+    cursor: pointer;
+    padding: 8px 12px;
+  }
+  .pixiedust .dropdown-menu li:hover {
+    background-color: #41d6c3;
+    cursor: pointer;
+  }
+  .pixiedust .dropdown-menu li > span {
+    display: inline-block;
+    margin-left: 10px;
+  }
+  .pixiedust .btn .fa-chevron-down {
+    margin-left: 25px;
+  }
+  .pixiedust .btn-group.open .dropdown-toggle {
+    background-color: #41d6c3;
+    border-color: #006d5d;
+  }
+</style>
+
+<div class="pixiedust">
+  <div class="btn-group" role="group" style="margin-bottom:15px">
+  {%for key, menuInfoList in menuTree.iteritems()%}
+    {%if menuInfoList|length==1%}
+      <a class="btn btn-small btn-default display-type-button" id="menu{{this.getPrefix(menuInfoList[0])}}" title="{{menuInfoList[0]['title']}}">
+        <i class="fa {{menuInfoList[0]['icon']}}"></i>
+      </a>
+      {{this._getMenuHandlerScript(menuInfoList[0])}}
+    {%elif menuInfoList|length>1%}
+      <div class="btn-group btn-small display-type-button">
+        <a class="btn btn-small dropdown-toggle btn-default" data-toggle="dropdown" title="{{this.getCategoryTitle(key)}}">
+          <i class="fa {{this.getCategoryIconClass(key)}}"></i>
+          <i class="fa fa-chevron-down"></i>
+        </a>
+        <div class="dropdown-menu" role="menu" style="white-space:nowrap">
+          <ul>
+          {%for menuInfo in menuInfoList%}
+            <li id="menu{{this.getPrefix(menuInfo)}}">
+              <i class="fa {{menuInfo['icon']}}"></i>
+              <span>{{menuInfo['title']}}</span>
+              {{this._getMenuHandlerScript(menuInfo)}}
+            </li>
+          {%endfor%}
+          </ul>
+        </div>
+      </div>
+    {%endif%}
+  {%endfor%}
+  </div>
+  <div id="wrapperJS{{this.getPrefix()}}"></div>
+  <div id="wrapperHTML{{this.getPrefix()}}" style="min-height:100px">
+<div>
