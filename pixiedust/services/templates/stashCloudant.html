@@ -15,8 +15,9 @@
                 </a>
                 <span class="input-group-addon" id="add-service-connection" style="cursor:pointer">+</span>
                 <ul class="dropdown-menu" style="width:100%" >
-                    <li><a href="#">Cloudant-XY1</a></li>
-                    <li><a href="#">Cloudant-XY2</a></li>
+                    {%for connection in connections%}
+                        <li><a href="#">{{connection.name}}</a></li>
+                    {%endfor%}
                 </ul>
             </div>
         </div>
@@ -42,6 +43,10 @@ $("#service-connection-group .dropdown-menu li a").click(function(){
     $('#service-connection').html($(this).text()+' <span class="caret"></span>');
 });
 $("#add-service-connection").click(function(){
+    var addNewConnCallback=function(newConn){
+        $('#service-connection').html(newConn+' <span class="caret"></span>');
+        $("#service-connection-group .dropdown-menu").append('<li><a href="#">'+newConn+'</a></li>');
+    }
     {%include module + ":addNewConnection.dialog" %}
 });
 {%endblock%}

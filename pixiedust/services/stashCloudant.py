@@ -15,8 +15,11 @@
 # -------------------------------------------------------------------------------
 
 from ..display.display import Display
+from .serviceManager import *
 import time
 import requests
+
+CLOUDANT_CONN_TYPE = "cloudant"
 
 class StashCloudantHandler(Display):
     def doRender(self, handlerId):
@@ -25,7 +28,7 @@ class StashCloudantHandler(Display):
         dbName = self.options.get("dbName", "dataframe-"+time.strftime('%m%d%Y-%H%M'))
         doStash=self.options.get("doStash")
         if doStash is None:
-            self._addHTMLTemplate("stashCloudant.html",dbName=dbName)
+            self._addHTMLTemplate("stashCloudant.html",dbName=dbName,connections=getConnections(CLOUDANT_CONN_TYPE))
         else:
             #first create the stash db
             r = requests.put("http://dtaieb:password@127.0.0.1:5984/" + dbName )

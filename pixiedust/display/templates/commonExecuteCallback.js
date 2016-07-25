@@ -21,7 +21,7 @@ var callbacks = {
                         data = utils.autoLinkUrls(data);
                         $('#loading{{prefix}}').html("<pre>" + data +"</pre>");
 
-                        {{caller({"error": '"<pre>"+data+"</pre>"'})}}
+                        {{caller({"message": 'content.evalue',"error": '"<pre>"+data+"</pre>"'})}}
                     }
                 });
             }
@@ -32,6 +32,7 @@ var callbacks = {
 
 !function(){
     $('#loading{{prefix}}').css('display','block');
+    {%if command%}
     var command = "{{command}}";
     function addOptions(options){
         for (var key in options){
@@ -55,6 +56,10 @@ var callbacks = {
         }
     }
     addOptions({{extraCommandOptions|oneline|trim}});
+    {%endif%}
+    if (typeof command == "undefined"){
+        return alert("Unable to find command. Did you forget to define it?");
+    }
     console.log("Running command", command);
     IPython.notebook.session.kernel.execute(
         command, 

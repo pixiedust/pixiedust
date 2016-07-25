@@ -1,6 +1,8 @@
 {%extends "basedialog.html"%}
 {% set nested = 'true' %}
 
+{%import "commonExecuteCallback.js" as commons%}
+
 {%block title %}Add new connection{%endblock%}
 
 {%block body%}
@@ -38,9 +40,22 @@ global.editor.setValue('{\n\
 {%endblock%}
 
 {%block onOK%}
-var connInfo=null;
+
 try {
-    connInfo = JSON.parse(global.editor.getValue());
+    var connInfo = JSON.parse(global.editor.getValue());
+    var command = "from pixiedust.services.serviceManager import addConnection\n"+
+        "print(addConnection(\"cloudant\"," + global.editor.getValue().replace(/[\n\r]+/g,"") + "))";
+    {% call(results) commons.ipython_execute(None,prefix) %}
+        {%if results["message"]%}
+            $("#connection-error").text({{results["message"]}});
+        {%else%}
+            if (typeof addNewConnCallback != "undefined"){
+                addNewConnCallback({{results}});
+            }
+            modal_obj.modal('hide')
+        {%endif%}
+    {% endcall %}
+    return false;
 } catch(e) {
     console.log(e);
     $("#connection-error").text('System error: ' + e.message);

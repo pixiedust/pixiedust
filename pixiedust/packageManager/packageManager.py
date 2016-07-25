@@ -20,6 +20,7 @@ import sys
 import platform
 import urllib
 import os
+from pixiedust.utils.storage import *
 from ..display.printEx import *
 from maven import Artifact
 from maven import downloader
@@ -39,40 +40,29 @@ def myGenFileName(self):
             
 Artifact._generate_filename=myGenFileName
 
+PACKAGES_TBL_NAME="SPARK_PACKAGES"
+
+class __ArtifactStorage(Storage):
+    def __init__(self):
+        self._initTable( PACKAGES_TBL_NAME,
+        '''
+            GROUPID        TEXT  NOT NULL,
+            ARTIFACTID     TEXT  NOT NULL,
+            VERSION        TEXT  NOT NULL,
+            FILEPATH       TEXT  NOT NULL,
+            BASE           TEXT,
+            PRIMARY KEY (GROUPID, ARTIFACTID)
+        ''')
+
+artifactStorage = __ArtifactStorage()
+
 class PackageManager(object):
-    PACKAGES_TBL="SPARK_PACKAGES"
     DOWNLOAD_DIR=os.path.expanduser('~') + "/data/libs"
-    def row_dict_factory(self,cursor,row):
-        res={}
-        for i,col in enumerate(cursor.description):
-            res[col[0]]=row[i]
-        return res
     
     def __init__(self):
-        self.conn = sqlite3.connect('spark.db')
-        self.conn.row_factory=self.row_dict_factory 
-        print("Opened database successfully")
         if not os.path.exists(self.DOWNLOAD_DIR):
             os.makedirs(self.DOWNLOAD_DIR)
-        self._initTable()
-        
-    def _initTable(self):
-        cursor=self.conn.execute("""
-            SELECT * FROM sqlite_master WHERE name ='{0}' and type='table';
-        """.format(self.PACKAGES_TBL))
-        if cursor.fetchone() is None:
-            self.conn.execute('''CREATE TABLE {0} (
-                   GROUPID        TEXT  NOT NULL,
-                   ARTIFACTID     TEXT  NOT NULL,
-                   VERSION        TEXT  NOT NULL,
-                   FILEPATH       TEXT  NOT NULL,
-                   BASE           TEXT,
-                   PRIMARY KEY (GROUPID, ARTIFACTID)
-                   );
-            '''.format(self.PACKAGES_TBL))
-            print("Table created successfully")
-        cursor.close()
-    
+
     def _toArtifact(self, artifact):
         if isinstance(artifact, basestring):
             artifact=Artifact.parse(artifact)
@@ -141,38 +131,30 @@ class PackageManager(object):
         
     def fetchArtifact(self, artifact ):
         artifact = self._toArtifact(artifact)
-        cursor=None
-        try:
-            cursor=self.conn.execute("""
+        return artifactStorage.fetchOne("""
                 SELECT * from {0} WHERE GROUPID='{1}' and ARTIFACTID='{2}'
-                """.format(self.PACKAGES_TBL,artifact.group_id,artifact.artifact_id)
-            )
-            row = cursor.fetchone()
-            return (Artifact(row["GROUPID"],row["ARTIFACTID"],row["VERSION"]),row["FILEPATH"]) if row else None
-        finally:
-            if cursor is not None:
-                cursor.close()
+            """.format(PACKAGES_TBL_NAME,artifact.group_id,artifact.artifact_id), 
+            lambda row: (Artifact(row["GROUPID"],row["ARTIFACTID"],row["VERSION"]),row["FILEPATH"])
+        )
                 
     def printAllPackages(self):
         self.visitAll(lambda row: print("{0}:{1}:{2} => {3}".format(row["GROUPID"],row["ARTIFACTID"],row["VERSION"],row["FILEPATH"])))
         
     def visitAll(self, walker):
-        cursor=self.conn.execute("""
+        artifactStorage.execute("""
                 SELECT * FROM {0}
-            """.format(self.PACKAGES_TBL)
+            """.format(PACKAGES_TBL_NAME),
+            walker
         )
-        for row in cursor:
-            walker(row)
-        cursor.close()
         
     def storeArtifact(self, artifact,base=None):
         artifact = self._toArtifact(artifact)
         fileLoc=artifact.get_filename(self.DOWNLOAD_DIR)
-        self.conn.execute("""
+        artifactStorage.insert("""
             INSERT INTO {0} (GROUPID,ARTIFACTID,VERSION,BASE,FILEPATH)
             VALUES ('{1}','{2}','{3}','{4}','{5}')
         """.format(
-                self.PACKAGES_TBL,
+                PACKAGES_TBL_NAME,
                 artifact.group_id,
                 artifact.artifact_id,
                 artifact.version,
@@ -180,28 +162,24 @@ class PackageManager(object):
                 fileLoc
             )
         )
-        self.conn.commit()
         print("Successfully added artifact {0}".format(str(artifact)))
         return fileLoc
         
     def _deleteArtifact(self,artifact,filePath):
         artifact = self._toArtifact(artifact)
-        cursor=self.conn.execute("""
+        rowDeleted = artifactStorage.delete("""
             DELETE FROM {0} WHERE GROUPID='{1}' AND ARTIFACTID='{2}'
         """.format(
-                self.PACKAGES_TBL,
+                PACKAGES_TBL_NAME,
                 artifact.group_id,
                 artifact.artifact_id
             )
         )
-        self.conn.commit()
-        if self.conn.total_changes==0:
-            print("Artifact {0} not deleted because it doesn't exist")
+        if rowDeleted==0:
+            print("Artifact {0} not deleted because it doesn't exist".format(str(artifact)))
         else:
             print("Successfully deleted artifact {0}".format(str(artifact)))
             
         if filePath is not None:
             os.remove(filePath)
     
-    def __del__(self):
-        self.conn.close()
