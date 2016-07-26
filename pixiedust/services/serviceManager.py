@@ -39,6 +39,16 @@ class __ServiceManagerStorage(Storage):
             lambda row: json.loads(row["PAYLOAD"])
         )
 
+    def getConnection(self, connectionType, connectionName):
+        return self.fetchOne("""
+            SELECT * FROM {0} WHERE NAME='{1}' AND TYPE='{2}'
+        """.format(
+                CONNECTION_TBL_NAME,
+                connectionName,
+                connectionType
+            )
+        )
+
     def addConnection(self, connectionType, payload):
         self._validatePayload(payload)
         self.insert("""
@@ -66,6 +76,9 @@ __connectionsStorage = __ServiceManagerStorage()
 #public CRUD APIs
 def getConnections(connectionType):
     return __connectionsStorage.getConnections(connectionType)
+
+def getConnection(connectionType, connectionName):
+    return __connectionsStorage.getConnection(connectionType, connectionName)
 
 def addConnection(connectionType, payload):
     return __connectionsStorage.addConnection(connectionType, payload)

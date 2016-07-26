@@ -17,15 +17,15 @@ Note: The data will be saved encrypted
 
 {%block onDialogShown%}
 var CodeMirror = require('codemirror/lib/codemirror');
-global.editor = CodeMirror.fromTextArea($("#connection-info")[0], {
+globalNested.editor = CodeMirror.fromTextArea($("#connection-info")[0], {
     lineNumbers: true,
     matchBrackets: true,
     indentUnit: 2,
     autoIndent: true,
     mode: 'application/json'
 });
-global.editor.setSize("100%", 300);
-global.editor.setValue('{\n\
+globalNested.editor.setSize("100%", 300);
+globalNested.editor.setValue('{\n\
     "name": "<<cloudant-connection name>>",\n\
     "label": "<<descriptive label>>",\n\
     "plan": "<<optional>>",\n\
@@ -42,9 +42,9 @@ global.editor.setValue('{\n\
 {%block onOK%}
 
 try {
-    var connInfo = JSON.parse(global.editor.getValue());
+    var connInfo = JSON.parse(globalNested.editor.getValue());
     var command = "from pixiedust.services.serviceManager import addConnection\n"+
-        "print(addConnection(\"cloudant\"," + global.editor.getValue().replace(/[\n\r]+/g,"") + "))";
+        "print(addConnection(\"cloudant\"," + globalNested.editor.getValue().replace(/[\n\r]+/g,"") + "))";
     {% call(results) commons.ipython_execute(None,prefix) %}
         {%if results["message"]%}
             $("#connection-error").text({{results["message"]}});

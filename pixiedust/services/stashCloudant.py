@@ -18,6 +18,7 @@ from ..display.display import Display
 from .serviceManager import *
 import time
 import requests
+import json
 
 CLOUDANT_CONN_TYPE = "cloudant"
 
@@ -26,19 +27,24 @@ class StashCloudantHandler(Display):
         entity=self.entity
 
         dbName = self.options.get("dbName", "dataframe-"+time.strftime('%m%d%Y-%H%M'))
-        doStash=self.options.get("doStash")
-        if doStash is None:
+        connectionName=self.options.get("connection")
+        if connectionName is None:
             self._addHTMLTemplate("stashCloudant.html",dbName=dbName,connections=getConnections(CLOUDANT_CONN_TYPE))
         else:
             #first create the stash db
-            r = requests.put("http://dtaieb:password@127.0.0.1:5984/" + dbName )
+            connection = getConnection(CLOUDANT_CONN_TYPE, connectionName)
+            if not connection:
+                raise Exception("Unable to resolve connection {0}".format(connectionName))
+            payload = json.loads( connection["PAYLOAD"])
+            credentials=payload["credentials"]
+            r = requests.put( credentials["url"] + "/" + dbName )
             if ( r.status_code != 200 and r.status_code != 201 ):
                 print("Unable to create db: " + str(r.content) )
             else:
                 self.entity.write.format("com.cloudant.spark")\
-                    .option("cloudant.host", "http://127.0.0.1:5984")\
-                    .option("cloudant.username","dtaieb")\
-                    .option("cloudant.password","password")\
+                    .option("cloudant.host", credentials["url"])\
+                    .option("cloudant.username",credentials["username"])\
+                    .option("cloudant.password",credentials["password"])\
                     .option("createDBOnSave","true")\
                     .save(dbName)
-                print("""Successfully stashed your data: <a target='_blank' href='http://127.0.0.1:5984/{0}'>{0}</a>""".format(dbName))
+                print("""Successfully stashed your data: <a target='_blank' href='{0}/{1}'>{1}</a>""".format(credentials["url"],dbName))

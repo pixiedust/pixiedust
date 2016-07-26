@@ -32,18 +32,25 @@
 {%endblock%}
 
 {%block onOK%}
-{% call(results) commons.ipython_execute(this._genDisplayScript(addOptionDict={'doStash':'True','dbName':dbName}),prefix) %}
-    $('#results{{prefix}}').html({{results}});
+if ( !global.selectedConn){
+    alert("you must select a cloudant connection");
+    return false;
+}
+{% call(results) commons.ipython_execute(this._genDisplayScript(addOptionDict={'dbName':dbName}),prefix,extraCommandOptions="{'connection':global.selectedConn}") %}
+    $('#results{{prefix}}').html({{results["error"] or results}});
     $('#loading{{prefix}}').css('display','none');
 {% endcall %};
 {%endblock%}
 
 {%block onDialogShown%}
 $("#service-connection-group .dropdown-menu li a").click(function(){
+    global.selectedConn = $(this).text();
     $('#service-connection').html($(this).text()+' <span class="caret"></span>');
 });
 $("#add-service-connection").click(function(){
     var addNewConnCallback=function(newConn){
+        newConn = newConn.trim()
+        global.selectedConn = newConn;
         $('#service-connection').html(newConn+' <span class="caret"></span>');
         $("#service-connection-group .dropdown-menu").append('<li><a href="#">'+newConn+'</a></li>');
     }

@@ -1,7 +1,10 @@
 {% if not nested %}
 <script>
-{% endif -%}
     var global={}
+{%else%}
+    var globalNested={}
+{% endif -%}
+    
     require(['base/js/dialog'],function(dialog){
         var modal = dialog.modal;
         var options = {
