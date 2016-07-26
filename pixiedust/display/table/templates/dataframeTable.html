@@ -20,7 +20,6 @@
     padding: 10px 15px;
     text-decoration: none;
   }
-
   .df-table-wrapper {
     color: #152935;
     font-size: small;
@@ -28,9 +27,9 @@
     letter-spacing: 0.5px;
     line-height: normal;
   }
-
-  .df-table-search {
-    margin: 0 0 20px 0;
+  .df-table-search-count {
+    display: inline-block;
+    margin: 20px 0;
   }
   .df-table-search:focus {
     border-color: #008571;
@@ -132,9 +131,9 @@
         </div>
         <div class="df-schema-fields">
           <div>field:</div>
-          {%for field in entity.schema.fields%}
+          {% for field in entity.schema.fields %}
             <div class="df-schema-field">{{field.jsonValue()}}</div>
-          {%endfor%}
+          {% endfor %}
         </div>
       </div>
     </div>
@@ -148,14 +147,18 @@
     </div>
     <div id="df-table-{{prefix}}" class="panel-collapse collapse in">
       <div class="panel-body">
+        {% set rows = entity.take(100) %}
         <input type="text" class="df-table-search form-control input-sm" placeholder="Search table">
+        <div>
+          <span class="df-table-search-count">Showing {{rows|length}} of {{entity.count()}}</span>
+        </div>
         <!-- fixed header for when dataframe table scrolls -->
         <div class="fixed-header-container">
           <div class="fixed-header">
             <div class="fixed-row">
-              {%for field in entity.schema.fields%}
+              {% for field in entity.schema.fields %}
               <div class="fixed-cell">{{field.name}}</div>
-              {%endfor%}
+              {% endfor %}
             </div>
           </div>
         </div>
@@ -163,19 +166,19 @@
           <table class="df-table">
             <thead>
               <tr>
-                {%for field in entity.schema.fields%}
+                {% for field in entity.schema.fields %}
                 <th><div>{{field.name}}</div></th>
-                {%endfor%}
+                {% endfor %}
               </tr>
             </thead>
             <tbody>
-              {%for row in entity.take(100)%}
+              {% for row in rows %}
               <tr>
-                {%for field in entity.schema.fields%}
+                {% for field in entity.schema.fields %}
                 <td>{{row[field.name]}}</td>
-                {%endfor%}
+                {% endfor %}
               </tr>
-              {%endfor%}
+              {% endfor %}
             </tbody>
           </table>
         </div>
@@ -190,7 +193,8 @@
     var fixedHeader = $('.fixed-header', tableWrapper);
     var tableContainer = $('.df-table-container', tableWrapper);
     var table = $('.df-table', tableContainer);
-    var rows = $('tr', table);
+    var rows = $('tbody > tr', table);
+    var total = {{entity.count()}};
 
     fixedHeader
       .css('width', table.width())
@@ -216,6 +220,8 @@
           $(this).attr('class', (++index % 2 == 0 ? 'even' : 'odd'));
         }
       });
+
+      $('.df-table-search-count', tableWrapper).html('Showing ' + index + ' of ' + total);
     });
   });
 </script>
