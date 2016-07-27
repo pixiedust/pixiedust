@@ -126,8 +126,6 @@ class Mpld3ChartDisplay(ChartDisplay):
                 valueDf = df.agg(F.min(valueField).alias("agg"))
             elif agg == "MAX":
                 valueDf = df.agg(F.max(valueField).alias("agg"))
-            elif agg == "MEAN":
-                valueDf = df.agg(F.mean(valueField).alias("agg"))
             else:
                 valueDf = df.agg(F.count(valueField).alias("agg"))
             for keyField in keyFields:
@@ -173,7 +171,7 @@ class Mpld3ChartDisplay(ChartDisplay):
         valueFields = self.getValueFields(handlerId)
         valueFieldValues = self.getValueFieldValueLists(handlerId, keyFields, valueFields)
         context = self.getMpld3Context(handlerId)
-        options = {"fieldNames":self.getFieldNames(),"aggregationSupported":self.supportsAggregation(handlerId),"aggregationOptions":["SUM","AVG","MIN","MAX","COUNT","MEAN"]}
+        options = {"fieldNames":self.getFieldNames(),"aggregationSupported":self.supportsAggregation(handlerId),"aggregationOptions":["SUM","AVG","MIN","MAX","COUNT"]}
         if (context is not None):
             options.update(context[1])
             dialogBody = self.renderTemplate(context[0], **options)
