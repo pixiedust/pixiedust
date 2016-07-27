@@ -204,11 +204,17 @@ class Mpld3ChartDisplay(ChartDisplay):
         if (aggregation is None and self.supportsAggregation(handlerId)):
             aggregation = self.getDefaultAggregation(handlerId)
             self.options["aggregation"] = aggregation
+        setKeyFields = self.options.get("keyFields") is None
+        setValueFields = self.options.get("valueFields") is None
         keyFields = self.getKeyFields(handlerId, aggregation)
         keyFieldValues = self.getKeyFieldValues(handlerId, aggregation, keyFields)
         keyFieldLabels = self.getKeyFieldLabels(handlerId, aggregation, keyFields)
         valueFields = self.getValueFields(handlerId, aggregation)
         valueFieldValues = self.getValueFieldValueLists(handlerId, aggregation, keyFields, valueFields)
+        if setKeyFields and len(keyFields) > 0:
+            self.options["keyFields"] = ",".join(keyFields)
+        if setValueFields and len(valueFields) > 0:
+            self.options["valueFields"] = ",".join(valueFields)
         context = self.getMpld3Context(handlerId)
         options = { "fieldNames":self.getFieldNames(),\
             "keyFieldsSupported":self.supportsKeyFields(handlerId),\
