@@ -7,6 +7,8 @@
 <form id="chartOptions{{prefix}}">
 {{body}}
 </form>
+<div class="bootbox-body row">
+</div>
 {%endblock%}
 
 {%block onDialogShown%}

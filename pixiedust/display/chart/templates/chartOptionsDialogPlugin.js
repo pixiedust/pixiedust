@@ -1,3 +1,4 @@
+// don't remove this comment
 mpld3.register_plugin("dialog", DialogPlugin);
 DialogPlugin.prototype = Object.create(mpld3.Plugin.prototype);
 DialogPlugin.prototype.constructor = DialogPlugin;

@@ -15,9 +15,11 @@
 # -------------------------------------------------------------------------------
 
 from .barChartDisplay import BarChartDisplay
+from .barChart2Display import BarChart2Display
 from .lineChartDisplay import LineChartDisplay
 from .scatterPlotDisplay import ScatterPlotDisplay
 from .pieChartDisplay import PieChartDisplay
+from .pieChart2Display import PieChart2Display
 from .mapChartDisplay import MapChartDisplay
 from .histogramDisplay import HistogramDisplay
 from ..display import *
@@ -29,9 +31,11 @@ class ChartDisplayMeta(DisplayHandlerMeta):
         if clazz == "DataFrame":
             return [
                 {"categoryId": "Chart", "title": "Bar Chart", "icon": "fa-bar-chart", "id": "barChart"},
+                {"categoryId": "Chart", "title": "Bar Chart 2", "icon": "fa-bar-chart", "id": "barChart2"},
                 {"categoryId": "Chart", "title": "Line Chart", "icon": "fa-line-chart", "id": "lineChart"},
                 {"categoryId": "Chart", "title": "Scatter Plot", "icon": "fa-table", "id": "scatterPlot"},
                 {"categoryId": "Chart", "title": "Pie Chart", "icon": "fa-pie-chart", "id": "pieChart"},
+                {"categoryId": "Chart", "title": "Pie Chart 2", "icon": "fa-pie-chart", "id": "pieChart2"},
                 {"categoryId": "Chart", "title": "Map", "icon": "fa-map", "id": "mapChart"},
                 {"categoryId": "Chart", "title": "Histogram", "icon": "fa-table", "id": "histogram"}
             ]
@@ -41,12 +45,16 @@ class ChartDisplayMeta(DisplayHandlerMeta):
         handlerId=options.get("handlerId")
         if handlerId is None or handlerId=="barChart":
             return BarChartDisplay(options,entity)
+        elif handlerId=="barChart2":
+            return BarChart2Display(options,entity)
         elif handlerId=="lineChart":
             return LineChartDisplay(options,entity)
         elif handlerId=="scatterPlot":
             return ScatterPlotDisplay(options,entity)
         elif handlerId=="pieChart":
             return PieChartDisplay(options,entity)
+        elif handlerId=="pieChart2":
+            return PieChart2Display(options,entity)
         elif handlerId=="mapChart":
             return MapChartDisplay(options,entity)
         elif handlerId=="histogram":

@@ -63,7 +63,7 @@ class BarChartDisplay(Mpld3ChartDisplay):
     # override if you need to add custom form fields
     def getMpld3Context(self, handlerId):
         return ("barChartOptionsDialogBody.html",{"colNames":self.getFieldNames()})
-    def doRenderMpld3(self, handlerId, figure, axes):
+    def doRenderMpld3(self, handlerId, figure, axes, keyFields, keyFieldValues, keyFieldLabels, valueFields, valueFieldValues):
         allNumericCols = self.getNumericalFieldNames()
         if len(allNumericCols) == 0:
             self._addHTML("Unable to find a numerical column in the dataframe")

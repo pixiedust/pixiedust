@@ -19,13 +19,13 @@ import matplotlib.cm as cm
 import matplotlib.pyplot as plt
 import numpy as np
 
-class LineChartDisplay(Mpld3ChartDisplay):
+class BarChart2Display(Mpld3ChartDisplay):
 
     def doRenderMpld3(self, handlerId, fig, ax, keyFields, keyFieldValues, keyFieldLabels, valueFields, valueFieldValues):
+        barWidth = 0.35
         numColumns = len(keyFieldValues)
+        x_intv = np.arange(numColumns)
         for i, valueField in enumerate(valueFields):
-            xs = keyFieldValues
-            ys = valueFieldValues[i]
-            ax.plot(xs, ys, color=cm.jet(1.*i/numColumns), label=valueField)
-        plt.xticks(np.arange(numColumns),keyFieldLabels)
+            ax.bar(x_intv+(i*barWidth), valueFieldValues[i], barWidth, color=cm.jet(1.*i/numColumns), alpha=0.5, label=valueField)
+        plt.xticks(x_intv,keyFieldLabels)
         plt.xlabel(", ".join(keyFields), fontsize=18)
