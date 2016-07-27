@@ -144,7 +144,7 @@ class Mpld3ChartDisplay(ChartDisplay):
         params.set_size_inches((plSize[0]*1.5, plSize[1]*1.5))
         
     def setChartGrid(self, handlerId, fig, ax):
-		ax.grid(color='lightgray', alpha=0.7)
+        ax.grid(color='lightgray', alpha=0.7)
 
     def setChartLegend(self, handlerId, fig, ax):
         showLegend = self.options.get("showLegend", "true")
