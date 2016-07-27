@@ -15,9 +15,6 @@
 # -------------------------------------------------------------------------------
 
 from .mpld3ChartDisplay import Mpld3ChartDisplay
-from pyspark.sql import functions as F
-import matplotlib.cm as cm
-import matplotlib.pyplot as plt
 import numpy as np
 
 class PieChartDisplay(Mpld3ChartDisplay):

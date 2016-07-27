@@ -19,7 +19,6 @@ from .barChart2Display import BarChart2Display
 from .lineChartDisplay import LineChartDisplay
 from .scatterPlotDisplay import ScatterPlotDisplay
 from .pieChartDisplay import PieChartDisplay
-from .pieChart2Display import PieChart2Display
 from .mapChartDisplay import MapChartDisplay
 from .histogramDisplay import HistogramDisplay
 from ..display import *
