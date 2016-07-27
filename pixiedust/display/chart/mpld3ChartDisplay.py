@@ -36,6 +36,9 @@ class Mpld3ChartDisplay(ChartDisplay):
     def supportsKeyFields(self, handlerId):
         return True
 
+    def supportsKeyFieldLabels(self, handlerId):
+        return True
+
     def supportsLegend(self, handlerId):
         return True
 
@@ -240,7 +243,7 @@ class Mpld3ChartDisplay(ChartDisplay):
             dialogBody = self.renderTemplate(context[0], **options)
         else:
             dialogBody = self.renderTemplate("baseChartOptionsDialogBody.html", **options)
-        if (self.supportsAggregation(handlerId) and len(keyFieldLabels) > 0):
+        if (len(keyFieldLabels) > 0 and self.supportsKeyFieldLabels(handlerId) and self.supportsAggregation(handlerId)):
             plugins.connect(fig, ChartPlugin(self, keyFieldLabels))
         plugins.connect(fig, DialogPlugin(self, handlerId, dialogBody))
         colormap = cm.jet

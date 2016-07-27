@@ -20,6 +20,9 @@ import numpy as np
 
 class PieChartDisplay(Mpld3ChartDisplay):
 
+    def supportsKeyFieldLabels(self, handlerId):
+        return False
+
     def supportsLegend(self, handlerId):
         return False
     
@@ -56,7 +59,13 @@ class PieChartDisplay(Mpld3ChartDisplay):
                 ax2.pie(valueFieldValues[i], labels=keyFieldLabels, colors=colors, explode=None, autopct='%1.1f%%')
                 ax2.set_title(valueFields[i], fontsize=18);
                 ax2.axis("equal")
+                # TODO: hide the x and y axis - this is not working
+                ax2.get_xaxis().set_alpha(0)
+                ax2.get_yaxis().set_alpha(0)
         else:
             ax.pie(valueFieldValues[0], labels=keyFieldLabels, colors=colors, explode=None, autopct='%1.1f%%')
             ax.set_title(valueFields[0], fontsize=18);
             ax.axis("equal")
+            # TODO: hide the x and y axis - this is not working
+            ax.get_xaxis().set_alpha(0)
+            ax.get_yaxis().set_alpha(0)
