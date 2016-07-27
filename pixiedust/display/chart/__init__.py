@@ -29,8 +29,8 @@ class ChartDisplayMeta(DisplayHandlerMeta):
         clazz = entity.__class__.__name__
         if clazz == "DataFrame":
             return [
-                {"categoryId": "Chart", "title": "Bar Chart", "icon": "fa-bar-chart", "id": "barChart"},
-                {"categoryId": "Chart", "title": "Bar Chart 2", "icon": "fa-bar-chart", "id": "barChart2"},
+                #{"categoryId": "Chart", "title": "Bar Chart", "icon": "fa-bar-chart", "id": "barChart"},
+                {"categoryId": "Chart", "title": "Bar Chart", "icon": "fa-bar-chart", "id": "barChart2"},
                 {"categoryId": "Chart", "title": "Line Chart", "icon": "fa-line-chart", "id": "lineChart"},
                 {"categoryId": "Chart", "title": "Scatter Plot", "icon": "fa-table", "id": "scatterPlot"},
                 {"categoryId": "Chart", "title": "Pie Chart", "icon": "fa-pie-chart", "id": "pieChart"},
