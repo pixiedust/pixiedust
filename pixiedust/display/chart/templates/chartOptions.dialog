@@ -19,13 +19,18 @@ $('.field{{prefix}}').draggable({
 	helper:"clone",
 	containment:"document"
 });
+$('.field{{prefix}}-remove').click(function(e) {
+	e.preventDefault();
+	$(this).parent().remove();
+	return false;
+});
 $('#keyFields{{prefix}}, #valueFields{{prefix}}').droppable({
 	drop:function(event, ui) {
 		var newId = ui.draggable.attr('id') + '-' + $(this).attr('id');
-		console.log("NEWID=" + newId);
 		if ( $('#'+newId).length == 0) { 
-			var el = ui.draggable.clone();
+			var el = ui.draggable.clone(true, true);
 			el.attr("id",newId);
+			el.find("a").addClass("field-remove");
 			el.appendTo($(this));
 		}
 	}

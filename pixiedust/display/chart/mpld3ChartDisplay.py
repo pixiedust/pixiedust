@@ -149,7 +149,9 @@ class Mpld3ChartDisplay(ChartDisplay):
     def setChartLegend(self, handlerId, fig, ax):
         showLegend = self.options.get("showLegend", "true")
         if showLegend == "true":
-            ax.legend(title='')
+            l = ax.legend(title='')
+            #for i, text in enumerate(l.get_texts()):
+            #    text.set_color(colors[i])
     
     def canRenderChart(self, handlerId):
         for field in self.entity.schema.fields:
