@@ -42,7 +42,7 @@ class Mpld3ChartDisplay(ChartDisplay):
     def getDefaultAggregation(self, handlerId):
         return "SUM"
 
-    def getDefaultKeyFields(self, handlerId):
+    def getDefaultKeyFields(self, handlerId, aggregation):
         defaultFields = []
         for field in self.entity.schema.fields:
             type = field.dataType.__class__.__name__
@@ -53,14 +53,14 @@ class Mpld3ChartDisplay(ChartDisplay):
             defaultFields.append(self.entity.schema.fields[0].name)
         return defaultFields
 
-    def getKeyFields(self, handlerId):
+    def getKeyFields(self, handlerId, aggregation):
         keyFields = self.options.get("keyFields")
         if keyFields is not None:
             return keyFields.split(",")
         else:
-            return self.getDefaultKeyFields(handlerId)
+            return self.getDefaultKeyFields(handlerId, aggregation)
 
-    def getKeyFieldValues(self, handlerId, keyFields):
+    def getKeyFieldValues(self, handlerId, aggregtaion, keyFields):
         numericKeyField = False
         if (len(keyFields) == 1 and self.isNumericField(keyFields[0])):
             numericKeyField = True
@@ -78,7 +78,7 @@ class Mpld3ChartDisplay(ChartDisplay):
                 values.append(i)
         return values
 
-    def getKeyFieldLabels(self, handlerId, keyFields):
+    def getKeyFieldLabels(self, handlerId, aggregtaion, keyFields):
         df = self.entity.groupBy(keyFields).count().dropna()
         for keyField in keyFields:
             df = df.sort(F.col(keyField).asc())
@@ -98,7 +98,7 @@ class Mpld3ChartDisplay(ChartDisplay):
     def defaultToSingleValueField(self, handlerId):
 		return False
 
-    def getDefaultValueFields(self, handlerId):
+    def getDefaultValueFields(self, handlerId, aggregation):
         fieldNames = []
         for field in self.entity.schema.fields:
             type = field.dataType.__class__.__name__
@@ -108,33 +108,31 @@ class Mpld3ChartDisplay(ChartDisplay):
                     break
         return fieldNames
         
-    def getValueFields(self, handlerId):
-        #agg = self.options.get("aggregation",self.getDefaultAggregation(handlerId))
+    def getValueFields(self, handlerId, aggregation):
         if self.options.get("valueFields") is not None:
             valueFields = self.options.get("valueFields").split(",")
         else:
-            valueFields = self.getDefaultValueFields(handlerId)
+            valueFields = self.getDefaultValueFields(handlerId, aggregation)
         numericValueFields = []
         for valueField in valueFields:
-            if self.isNumericField(valueField):
+            if self.isNumericField(valueField) or aggregation == "COUNT":
                 numericValueFields.append(valueField)
         return numericValueFields
 
-    def getValueFieldValueLists(self, handlerId, keyFields, valueFields):
+    def getValueFieldValueLists(self, handlerId, aggregation, keyFields, valueFields):
         df = self.entity.groupBy(keyFields)
-        agg = self.options.get("aggregation",self.getDefaultAggregation(handlerId))
         maxRows = int(self.options.get("rowCount","100"))
         numRows = min(maxRows,df.count())
         valueLists = []
         for valueField in valueFields:
             valueDf = None
-            if agg == "SUM":
+            if aggregation == "SUM":
                 valueDf = df.agg(F.sum(valueField).alias("agg"))
-            elif agg == "AVG":
+            elif aggregation == "AVG":
                 valueDf = df.agg(F.avg(valueField).alias("agg"))
-            elif agg == "MIN":
+            elif aggregation == "MIN":
                 valueDf = df.agg(F.min(valueField).alias("agg"))
-            elif agg == "MAX":
+            elif aggregation == "MAX":
                 valueDf = df.agg(F.max(valueField).alias("agg"))
             else:
                 valueDf = df.agg(F.count(valueField).alias("agg"))
@@ -182,11 +180,15 @@ class Mpld3ChartDisplay(ChartDisplay):
 
         mpld3.enable_notebook()
         fig, ax = plt.subplots()
-        keyFields = self.getKeyFields(handlerId)
-        keyFieldValues = self.getKeyFieldValues(handlerId, keyFields)
-        keyFieldLabels = self.getKeyFieldLabels(handlerId, keyFields)
-        valueFields = self.getValueFields(handlerId)
-        valueFieldValues = self.getValueFieldValueLists(handlerId, keyFields, valueFields)
+        aggregation = self.options.get("aggregation")
+        if (aggregation is None):
+            aggregation = self.getDefaultAggregation(handlerId)
+            self.options["aggregation"] = aggregation
+        keyFields = self.getKeyFields(handlerId, aggregation)
+        keyFieldValues = self.getKeyFieldValues(handlerId, aggregation, keyFields)
+        keyFieldLabels = self.getKeyFieldLabels(handlerId, aggregation, keyFields)
+        valueFields = self.getValueFields(handlerId, aggregation)
+        valueFieldValues = self.getValueFieldValueLists(handlerId, aggregation, keyFields, valueFields)
         context = self.getMpld3Context(handlerId)
         options = {"fieldNames":self.getFieldNames(),"legendSupported":self.supportsLegend(handlerId),"aggregationSupported":self.supportsAggregation(handlerId),"aggregationOptions":["SUM","AVG","MIN","MAX","COUNT"]}
         if (context is not None):

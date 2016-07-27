@@ -25,17 +25,16 @@ class PieChart2Display(Mpld3ChartDisplay):
 	def supportsLegend(self, handlerId):
 		return False
 	
-	def useKeyFieldsForCountAggregation(self, handlerId):
-		return True
-
 	def defaultToSingleValueField(self, handlerId):
 		return True
 
-	# override the default values displayed when the chart first renders
-	def getDefaultKeyFields(self, handlerId):
+	def getDefaultAggregation(self, handlerId):
+		return "COUNT"
+
+	# override the default keys displayed when the chart first renders
+	def getDefaultKeyFields(self, handlerId, aggregation):
 		default = None
-		#agg = self.options.get("aggregation", "count")
-		#numerical = (aggregation != "count")
+		numerical = (aggregation != "COUNT")
 		numerical = True
 		for field in self.entity.schema.fields:
 			# Ignore unique ids
@@ -49,6 +48,10 @@ class PieChart2Display(Mpld3ChartDisplay):
 					return [field.name]
 		# none found, return default
 		return [default]
+
+	# override the default values displayed when the chart first renders
+	def getDefaultValueFields(self, handlerId, aggregation):
+		return self.getDefaultKeyFields(handlerId, aggregation)
 
 	def setChartGrid(self, handlerId, fig, ax, colormap, keyFields, keyFieldValues, keyFieldLabels, valueFields, valueFieldValues):
 		pass
