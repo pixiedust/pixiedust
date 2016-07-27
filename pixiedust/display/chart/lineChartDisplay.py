@@ -21,11 +21,11 @@ import numpy as np
 
 class LineChartDisplay(Mpld3ChartDisplay):
 
-    def doRenderMpld3(self, handlerId, fig, ax, keyFields, keyFieldValues, keyFieldLabels, valueFields, valueFieldValues):
+    def doRenderMpld3(self, handlerId, fig, ax, colormap, keyFields, keyFieldValues, keyFieldLabels, valueFields, valueFieldValues):
         numColumns = len(keyFieldValues)
         for i, valueField in enumerate(valueFields):
             xs = keyFieldValues
             ys = valueFieldValues[i]
-            ax.plot(xs, ys, color=cm.jet(1.*i/numColumns), label=valueField)
+            ax.plot(xs, ys, color=colormap(1.*i/numColumns), label=valueField)
         plt.xticks(np.arange(numColumns),keyFieldLabels)
         plt.xlabel(", ".join(keyFields), fontsize=18)

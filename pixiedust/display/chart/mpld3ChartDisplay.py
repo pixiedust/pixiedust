@@ -19,6 +19,7 @@ from .plugins.chart import ChartPlugin
 from .plugins.dialog import DialogPlugin
 from abc import abstractmethod
 from pyspark.sql import functions as F
+import matplotlib.cm as cm
 import matplotlib.pyplot as plt
 import mpld3
 import mpld3.plugins as plugins
@@ -31,6 +32,9 @@ class Mpld3ChartDisplay(ChartDisplay):
     @abstractmethod
     def doRenderMpld3(self, handlerId, fig, ax, keyFields, keyFieldValues, keyFieldLabels, valueFields, valueFieldValues):
         pass
+
+    def supportsLegend(self, handlerId):
+        return True
 
     def supportsAggregation(self, handlerId):
         return True
@@ -91,15 +95,21 @@ class Mpld3ChartDisplay(ChartDisplay):
             labels.append(label)
         return labels
 
+    def defaultToSingleValueField(self, handlerId):
+		return False
+
     def getDefaultValueFields(self, handlerId):
         fieldNames = []
         for field in self.entity.schema.fields:
             type = field.dataType.__class__.__name__
             if ( type =="LongType" or type == "IntegerType" ):
                 fieldNames.append(field.name)
+                if self.defaultToSingleValueField(handlerId):
+                    break
         return fieldNames
         
     def getValueFields(self, handlerId):
+        #agg = self.options.get("aggregation",self.getDefaultAggregation(handlerId))
         if self.options.get("valueFields") is not None:
             valueFields = self.options.get("valueFields").split(",")
         else:
@@ -138,20 +148,25 @@ class Mpld3ChartDisplay(ChartDisplay):
             valueLists.append(valueList)
         return valueLists   
 
-    def setChartSize(self, handlerId, fig, ax):
+    def setChartSize(self, handlerId, fig, ax, colormap, keyFields, keyFieldValues, keyFieldLabels, valueFields, valueFieldValues):
         params = plt.gcf()
         plSize = params.get_size_inches()
         params.set_size_inches((plSize[0]*1.5, plSize[1]*1.5))
         
-    def setChartGrid(self, handlerId, fig, ax):
+    def setChartGrid(self, handlerId, fig, ax, colormap, keyFields, keyFieldValues, keyFieldLabels, valueFields, valueFieldValues):
         ax.grid(color='lightgray', alpha=0.7)
 
-    def setChartLegend(self, handlerId, fig, ax):
-        showLegend = self.options.get("showLegend", "true")
-        if showLegend == "true":
-            l = ax.legend(title='')
-            #for i, text in enumerate(l.get_texts()):
-            #    text.set_color(colors[i])
+    def setChartLegend(self, handlerId, fig, ax, colormap, keyFields, keyFieldValues, keyFieldLabels, valueFields, valueFieldValues):
+        if self.supportsLegend(handlerId):
+            showLegend = self.options.get("showLegend", "true")
+            if showLegend == "true":
+                l = ax.legend(title='')
+                numColumns = len(keyFieldValues)
+                for i, text in enumerate(l.get_texts()):
+                    text.set_color(colormap(1.*i/numColumns))
+                for i, line in enumerate(l.get_lines()):
+                    line.set_color(colormap(1.*i/numColumns))
+                    line.set_linewidth(10)
     
     def canRenderChart(self, handlerId):
         for field in self.entity.schema.fields:
@@ -173,7 +188,7 @@ class Mpld3ChartDisplay(ChartDisplay):
         valueFields = self.getValueFields(handlerId)
         valueFieldValues = self.getValueFieldValueLists(handlerId, keyFields, valueFields)
         context = self.getMpld3Context(handlerId)
-        options = {"fieldNames":self.getFieldNames(),"aggregationSupported":self.supportsAggregation(handlerId),"aggregationOptions":["SUM","AVG","MIN","MAX","COUNT"]}
+        options = {"fieldNames":self.getFieldNames(),"legendSupported":self.supportsLegend(handlerId),"aggregationSupported":self.supportsAggregation(handlerId),"aggregationOptions":["SUM","AVG","MIN","MAX","COUNT"]}
         if (context is not None):
             options.update(context[1])
             dialogBody = self.renderTemplate(context[0], **options)
@@ -181,10 +196,11 @@ class Mpld3ChartDisplay(ChartDisplay):
             dialogBody = self.renderTemplate("baseChartOptionsDialogBody.html", **options)
         plugins.connect(fig, ChartPlugin(self, keyFieldLabels))
         plugins.connect(fig, DialogPlugin(self, handlerId, dialogBody))
-        self.doRenderMpld3(handlerId, fig, ax, keyFields, keyFieldValues, keyFieldLabels, valueFields, valueFieldValues)
-        self.setChartSize(handlerId, fig, ax)
-        self.setChartGrid(handlerId, fig, ax)
-        self.setChartLegend(handlerId, fig, ax)
+        colormap = cm.jet
+        self.doRenderMpld3(handlerId, fig, ax, colormap, keyFields, keyFieldValues, keyFieldLabels, valueFields, valueFieldValues)
+        self.setChartSize(handlerId, fig, ax, colormap, keyFields, keyFieldValues, keyFieldLabels, valueFields, valueFieldValues)
+        self.setChartGrid(handlerId, fig, ax, colormap, keyFields, keyFieldValues, keyFieldLabels, valueFields, valueFieldValues)
+        self.setChartLegend(handlerId, fig, ax, colormap, keyFields, keyFieldValues, keyFieldLabels, valueFields, valueFieldValues)
 
     def getFieldNames(self):
         fieldNames = []

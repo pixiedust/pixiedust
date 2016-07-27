@@ -18,7 +18,7 @@ from .mpld3ChartDisplay import Mpld3ChartDisplay
 from pyspark.sql import functions as F
     
 class PieChartDisplay(Mpld3ChartDisplay):
-    def doRenderMpld3(self, handlerId, figure, axes, keyFields, keyFieldValues, keyFieldLabels, valueFields, valueFieldValues):
+    def doRenderMpld3(self, handlerId, figure, axes, colormap, keyFields, keyFieldValues, keyFieldLabels, valueFields, valueFieldValues):
         agg = self.options.get("aggregation", "count")
         displayColName = self.getPieColInfo(agg != "count")
         if not displayColName:

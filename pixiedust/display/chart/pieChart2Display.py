@@ -15,21 +15,47 @@
 # -------------------------------------------------------------------------------
 
 from .mpld3ChartDisplay import Mpld3ChartDisplay
+from pyspark.sql import functions as F
 import matplotlib.cm as cm
 import matplotlib.pyplot as plt
 import numpy as np
 
 class PieChart2Display(Mpld3ChartDisplay):
 
-	def setChartLegend(self, handlerId, fig, ax):
+	def supportsLegend(self, handlerId):
+		return False
+	
+	def useKeyFieldsForCountAggregation(self, handlerId):
+		return True
+
+	def defaultToSingleValueField(self, handlerId):
+		return True
+
+	# override the default values displayed when the chart first renders
+	def getDefaultKeyFields(self, handlerId):
+		default = None
+		#agg = self.options.get("aggregation", "count")
+		#numerical = (aggregation != "count")
+		numerical = True
+		for field in self.entity.schema.fields:
+			# Ignore unique ids
+			if field.name.lower() != 'id' and ( not numerical or self.isNum(field.dataType.__class__.__name__) ):
+				# Find a good column to display in pie ChartDisplay
+				default = default or field.name
+				count = self.entity.count()
+				sample = self.entity.sample(False, (float(200) / count)) if count > 200 else self.entity
+				orderedSample = sample.groupBy(field.name).agg(F.count(field.name).alias("agg")).orderBy(F.desc("agg")).select("agg")
+				if orderedSample.take(1)[0]["agg"] > 10:
+					return [field.name]
+		# none found, return default
+		return [default]
+
+	def setChartGrid(self, handlerId, fig, ax, colormap, keyFields, keyFieldValues, keyFieldLabels, valueFields, valueFieldValues):
 		pass
 
-	def setChartGrid(self, handlerId, fig, ax):
-		pass
-	
-	def doRenderMpld3(self, handlerId, fig, ax, keyFields, keyFieldValues, keyFieldLabels, valueFields, valueFieldValues):
+	def doRenderMpld3(self, handlerId, fig, ax, colormap, keyFields, keyFieldValues, keyFieldLabels, valueFields, valueFieldValues):
 		numPieCharts = len(valueFields)
-		colors = cm.jet(np.linspace(0., 1., len(keyFieldValues)))
+		colors = colormap(np.linspace(0., 1., len(keyFieldValues)))
 		if numPieCharts > 1:
 			fig.delaxes(ax)
 			if numPieCharts < 3:
@@ -47,3 +73,6 @@ class PieChart2Display(Mpld3ChartDisplay):
 			ax.pie(valueFieldValues[0], labels=keyFieldLabels, colors=colors, explode=None, autopct='%1.1f%%')
 			ax.set_title(valueFields[0], fontsize=18);
 			ax.axis("equal")
+	
+	def isNum(self, type):
+		return (type =="LongType" or type == "IntegerType")

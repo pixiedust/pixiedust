@@ -14,18 +14,18 @@
 # limitations under the License.
 # -------------------------------------------------------------------------------
 
-from .mpld3ChartDisplay import Mpld3ChartDisplay
-import matplotlib.cm as cm
+from .display import ChartDisplay
 import matplotlib.pyplot as plt
 import numpy as np
-
-class BarChart2Display(Mpld3ChartDisplay):
-
+    
+class Histogram2Display(Mpld3ChartDisplay):
+    
     def doRenderMpld3(self, handlerId, fig, ax, colormap, keyFields, keyFieldValues, keyFieldLabels, valueFields, valueFieldValues):
         numColumns = len(keyFieldValues)
-        barWidth = min(0.35, 0.9/len(valueFields))
-        x_intv = np.arange(numColumns)
         for i, valueField in enumerate(valueFields):
-            ax.bar(x_intv+(i*barWidth), valueFieldValues[i], barWidth, color=colormap(1.*i/numColumns), alpha=0.5, label=valueField)
-        plt.xticks(x_intv,keyFieldLabels)
+            xs = keyFieldValues
+            ys = valueFieldValues[i]
+            plt.hist(x, 30, histtype='bar', fc='lightblue', alpha=0.5);
+        plt.xticks(np.arange(numColumns),keyFieldLabels)
         plt.xlabel(", ".join(keyFields), fontsize=18)
+        
