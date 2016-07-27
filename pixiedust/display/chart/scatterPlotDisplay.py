@@ -14,37 +14,37 @@
 # limitations under the License.
 # -------------------------------------------------------------------------------
 
-from .display import ChartDisplay
-import matplotlib.pyplot as plt
-import numpy as np
-import warnings
-import mpld3
-     
-class ScatterPlotDisplay(ChartDisplay):
-    def doRender(self, handlerId):
-        displayColName = self.getNumericalColsInfo()
-        if len(displayColName) < 2:
-            self._addHTML("Unable to find two numerical columns in the dataframe")
-            return
-        
-        mpld3.enable_notebook()        
-        x = self.entity.select(displayColName[0]).toPandas()[displayColName[0]].dropna().tolist()
-        y = self.entity.select(displayColName[1]).toPandas()[displayColName[1]].dropna().tolist()
+from .mpld3ChartDisplay import Mpld3ChartDisplay
+    
+class ScatterPlotDisplay(Mpld3ChartDisplay):
+    
+	def supportsAggregation(self, handlerId):
+		return False
 
-        plt.rcParams['font.size']=11
-        plt.rcParams['figure.figsize']=[6.0, 5.0]
-        fig, ax=plt.subplots(subplot_kw=dict(axisbg='#EEEEEE'))          
-        ax.grid(color='white', linestyle='solid')
-        scatter = ax.scatter(x,y,c=y,marker='o',alpha=0.7,s=124,cmap=plt.cm.ocean)
-        ax.set_title("D3 Scatter Plot", size=18);
-        ax.set_xlabel(displayColName[0], size=14)
-        ax.set_ylabel(displayColName[1], size=14)
-            
-    def getNumericalColsInfo(self):
-        schema = self.entity.schema
-        fields = []
-        for field in schema.fields:
-            type = field.dataType.__class__.__name__
-            if ( type =="LongType" or type == "IntegerType" ):
-                fields = np.append(fields,field.name)
-        return fields
+	def supportsLegend(self, handlerId):
+		return False
+
+	def supportsKeyFields(self, handlerId):
+		return False
+    
+	def canRenderChart(self, handlerId, aggregation):
+		valueFields = self.getValueFields(handlerId, aggregation)
+		if len(valueFields) < 2:
+			return (False, "At least two numerical columns required.")
+		else:
+			return (True, None)
+
+	def getDefaultValueFields(self, handlerId, aggregation):
+		valueFields = []
+		for field in self.entity.schema.fields:
+			type = field.dataType.__class__.__name__
+			if (type =="LongType" or type == "IntegerType"):
+				valueFields.append(field.name)
+				if len(valueFields) == 2:
+					break
+		return valueFields
+
+	def doRenderMpld3(self, handlerId, fig, ax, colormap, keyFields, keyFieldValues, keyFieldLabels, valueFields, valueFieldValues):
+		scatter = ax.scatter(valueFieldValues[0],valueFieldValues[1],c=valueFieldValues[1],marker='o',alpha=0.7,s=124,cmap=colormap)
+		ax.set_xlabel(valueFields[0], size=14)
+		ax.set_ylabel(valueFields[1], size=14)

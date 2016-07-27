@@ -46,6 +46,8 @@ class Mpld3ChartDisplay(ChartDisplay):
         return "SUM"
 
     def getDefaultKeyFields(self, handlerId, aggregation):
+        if self.supportsKeyFields(handlerId) == False:
+            return []
         defaultFields = []
         for field in self.entity.schema.fields:
             type = field.dataType.__class__.__name__
@@ -57,6 +59,8 @@ class Mpld3ChartDisplay(ChartDisplay):
         return defaultFields
 
     def getKeyFields(self, handlerId, aggregation):
+        if self.supportsKeyFields(handlerId) == False:
+            return []
         keyFields = self.options.get("keyFields")
         if keyFields is not None:
             return keyFields.split(",")
@@ -186,24 +190,32 @@ class Mpld3ChartDisplay(ChartDisplay):
                     line.set_color(colormap(1.*i/numColumns))
                     line.set_linewidth(10)
     
-    def canRenderChart(self, handlerId):
-        for field in self.entity.schema.fields:
-            type = field.dataType.__class__.__name__
-            if ( type =="LongType" or type == "IntegerType" ):
-                return True
-        return False
+    def canRenderChart(self, handlerId, aggregation):
+        if (aggregation == "COUNT"):
+            return (True, None)
+        else:
+            for field in self.entity.schema.fields:
+                type = field.dataType.__class__.__name__
+                if (type =="LongType" or type == "IntegerType"):
+                    return (True, None)
+            return (False, "At least one numerical column required.")
 
     def doRender(self, handlerId):
-        if self.canRenderChart(handlerId) == False:
-            self._addHTML("Unable to find a numerical column in the dataframe")
-            return
-
-        mpld3.enable_notebook()
-        fig, ax = plt.subplots()
+        # get aggregation value (set to default if it doesn't exist)
         aggregation = self.options.get("aggregation")
         if (aggregation is None and self.supportsAggregation(handlerId)):
             aggregation = self.getDefaultAggregation(handlerId)
             self.options["aggregation"] = aggregation
+
+        # validate if we can render
+        canRender = self.canRenderChart(handlerId, aggregation)
+        if canRender[0] == False:
+            self._addHTML(canRender[1])
+            return
+
+        # go
+        mpld3.enable_notebook()
+        fig, ax = plt.subplots()
         setKeyFields = self.options.get("keyFields") is None
         setValueFields = self.options.get("valueFields") is None
         keyFields = self.getKeyFields(handlerId, aggregation)
