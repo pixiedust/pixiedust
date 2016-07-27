@@ -22,8 +22,8 @@ import numpy as np
 class BarChart2Display(Mpld3ChartDisplay):
 
     def doRenderMpld3(self, handlerId, fig, ax, keyFields, keyFieldValues, keyFieldLabels, valueFields, valueFieldValues):
-        barWidth = 0.35
         numColumns = len(keyFieldValues)
+        barWidth = min(0.35, 0.9/len(valueFields))
         x_intv = np.arange(numColumns)
         for i, valueField in enumerate(valueFields):
             ax.bar(x_intv+(i*barWidth), valueFieldValues[i], barWidth, color=cm.jet(1.*i/numColumns), alpha=0.5, label=valueField)
