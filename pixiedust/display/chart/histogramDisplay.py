@@ -30,8 +30,8 @@ class HistogramDisplay(Mpld3ChartDisplay):
     def supportsKeyFields(self, handlerId):
         return False
     
-    def defaultToSingleValueField(self, handlerId):
-        return True
+    def getPreferredDefaultValueFieldCount(self, handlerId):
+        return 1
 
     # no keys by default
     def getDefaultKeyFields(self, handlerId, aggregation):

@@ -106,8 +106,8 @@ class Mpld3ChartDisplay(ChartDisplay):
             labels.append(label)
         return labels
 
-    def defaultToSingleValueField(self, handlerId):
-		return False
+    def getPreferredDefaultValueFieldCount(self, handlerId):
+		return 2
 
     def getDefaultValueFields(self, handlerId, aggregation):
         fieldNames = []
@@ -115,7 +115,7 @@ class Mpld3ChartDisplay(ChartDisplay):
             type = field.dataType.__class__.__name__
             if ( type =="LongType" or type == "IntegerType" ):
                 fieldNames.append(field.name)
-                if self.defaultToSingleValueField(handlerId):
+                if len(fieldNames) == self.getPreferredDefaultValueFieldCount(handlerId):
                     break
         return fieldNames
         

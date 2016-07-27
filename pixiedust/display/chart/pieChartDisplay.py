@@ -23,8 +23,8 @@ class PieChartDisplay(Mpld3ChartDisplay):
     def supportsLegend(self, handlerId):
         return False
     
-    def defaultToSingleValueField(self, handlerId):
-        return True
+    def getPreferredDefaultValueFieldCount(self, handlerId):
+		return 1
 
     def getDefaultAggregation(self, handlerId):
         return "COUNT"

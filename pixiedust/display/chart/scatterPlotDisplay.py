@@ -34,15 +34,8 @@ class ScatterPlotDisplay(Mpld3ChartDisplay):
 		else:
 			return (True, None)
 
-	def getDefaultValueFields(self, handlerId, aggregation):
-		valueFields = []
-		for field in self.entity.schema.fields:
-			type = field.dataType.__class__.__name__
-			if (type =="LongType" or type == "IntegerType"):
-				valueFields.append(field.name)
-				if len(valueFields) == 2:
-					break
-		return valueFields
+	def getPreferredDefaultValueFieldCount(self, handlerId):
+		return 2
 
 	def doRenderMpld3(self, handlerId, fig, ax, colormap, keyFields, keyFieldValues, keyFieldLabels, valueFields, valueFieldValues):
 		scatter = ax.scatter(valueFieldValues[0],valueFieldValues[1],c=valueFieldValues[1],marker='o',alpha=0.7,s=124,cmap=colormap)
