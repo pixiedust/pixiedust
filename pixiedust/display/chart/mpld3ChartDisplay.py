@@ -182,7 +182,8 @@ class Mpld3ChartDisplay(ChartDisplay):
         if self.supportsLegend(handlerId):
             showLegend = self.options.get("showLegend", "true")
             if showLegend == "true":
-                l = ax.legend(title='')
+                l = ax.legend(title='',)
+                l.get_frame().set_alpha(0)
                 numColumns = len(keyFieldValues)
                 for i, text in enumerate(l.get_texts()):
                     text.set_color(colormap(1.*i/numColumns))
