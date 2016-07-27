@@ -35,7 +35,6 @@ class ChartDisplayMeta(DisplayHandlerMeta):
                 {"categoryId": "Chart", "title": "Line Chart", "icon": "fa-line-chart", "id": "lineChart"},
                 {"categoryId": "Chart", "title": "Scatter Plot", "icon": "fa-table", "id": "scatterPlot"},
                 {"categoryId": "Chart", "title": "Pie Chart", "icon": "fa-pie-chart", "id": "pieChart"},
-                {"categoryId": "Chart", "title": "Pie Chart 2", "icon": "fa-pie-chart", "id": "pieChart2"},
                 {"categoryId": "Chart", "title": "Map", "icon": "fa-map", "id": "mapChart"},
                 {"categoryId": "Chart", "title": "Histogram", "icon": "fa-table", "id": "histogram"}
             ]

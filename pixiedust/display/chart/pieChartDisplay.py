@@ -16,69 +16,52 @@
 
 from .mpld3ChartDisplay import Mpld3ChartDisplay
 from pyspark.sql import functions as F
-    
+import matplotlib.cm as cm
+import matplotlib.pyplot as plt
+import numpy as np
+
 class PieChartDisplay(Mpld3ChartDisplay):
-    def doRenderMpld3(self, handlerId, figure, axes, colormap, keyFields, keyFieldValues, keyFieldLabels, valueFields, valueFieldValues):
-        agg = self.options.get("aggregation", "count")
-        displayColName = self.getPieColInfo(agg != "count")
-        if not displayColName:
-            self._addHTML("Unable to find a suitable column in the dataframe")
-            return
 
-        pand = self.handleUIOptions(displayColName)
-        x = pand["agg"].dropna().tolist()
-        labels=pand[displayColName].tolist()
+    def supportsLegend(self, handlerId):
+        return False
+    
+    def defaultToSingleValueField(self, handlerId):
+        return True
 
-        # The default startangle is 0. With startangle=90, everything is rotated counter-clockwise by 90 degrees
-        axes.pie(x, labels=labels, explode=None, autopct='%1.1f%%', startangle=90)
+    def getDefaultAggregation(self, handlerId):
+        return "COUNT"
 
+    # override the default keys displayed when the chart first renders
+    def getDefaultKeyFields(self, handlerId, aggregation):
+        return self.sampleColumn((aggregation != "COUNT"))
 
-        # numerical used as a boolean flag for truth table
-    def getPieColInfo(self, numerical):
-        # If user selects a column in dialog box, give it to them
-        keyFields = self.options.get("keyFields")
-        if keyFields is not None:
-            return keyFields
+    # override the default values displayed when the chart first renders
+    def getDefaultValueFields(self, handlerId, aggregation):
+        return self.getDefaultKeyFields(handlerId, aggregation)
 
-        schema = self.entity.schema
-        default=None
-        for field in schema.fields:
-            # Ignore unique ids
-            if field.name.lower() != 'id' and ( not numerical or isNum(field.dataType.__class__.__name__) ):
-            # Find a good column to display in pie ChartDisplay
-                default = default or field.name
-                count = self.entity.count()
-                sample = self.entity.sample(False, (float(200) / count)) if count > 200 else self.entity
-                orderedSample = sample.groupBy(field.name).agg(F.count(field.name).alias("agg")).orderBy(F.desc("agg")).select("agg")
-                if orderedSample.take(1)[0]["agg"] > 10:
-                    return field.name
-        # Otherwise, return first non-id column
-        return default
+    def setChartGrid(self, handlerId, fig, ax, colormap, keyFields, keyFieldValues, keyFieldLabels, valueFields, valueFieldValues):
+        pass
 
-
-        # Handle user-defined aggregate functions
-    def handleUIOptions(self, displayColName):
-        agg = self.options.get("aggregation")
-        valFields = self.options.get("valueFields")
-
-        if agg == 'COUNT':
-            return self.entity.groupBy(displayColName).agg(F.count(displayColName).alias("agg")).toPandas()
-        elif agg == 'SUM':
-            return self.entity.groupBy(displayColName).agg(F.sum(valFields).alias("agg")).toPandas()
-        elif agg == 'AVG':
-            return self.entity.groupBy(displayColName).agg(F.avg(valFields).alias("agg")).toPandas()
-        elif agg == 'MIN':
-            return self.entity.groupBy(displayColName).agg(F.min(valFields).alias("agg")).toPandas()
-        elif agg == 'MAX':
-            return self.entity.groupBy(displayColName).agg(F.max(valFields).alias("agg")).toPandas()
-        elif agg == 'MEAN':
-            return self.entity.groupBy(displayColName).agg(F.mean(valFields).alias("agg")).toPandas()
+    def doRenderMpld3(self, handlerId, fig, ax, colormap, keyFields, keyFieldValues, keyFieldLabels, valueFields, valueFieldValues):
+        numPieCharts = len(valueFields)
+        colors = colormap(np.linspace(0., 1., len(keyFieldValues)))
+        if numPieCharts > 1:
+            fig.delaxes(ax)
+            if numPieCharts < 3:
+                pieChartGridPrefix = "1" + str(numPieCharts)
+            elif numPieCharts <= 4:
+                pieChartGridPrefix = "22"
+            else:
+                pieChartGridPrefix = str(int(math.ceil(numPieCharts//3))) + "3"
+            for i, valueField in enumerate(valueFields):
+                ax2 = fig.add_subplot(pieChartGridPrefix + str(i+1))
+                ax2.pie(valueFieldValues[i], labels=keyFieldLabels, colors=colors, explode=None, autopct='%1.1f%%')
+                ax2.set_title(valueFields[i], fontsize=18);
+                ax2.axis("equal")
         else:
-            return self.entity.groupBy(displayColName).agg(F.count(displayColName).alias("agg")).toPandas()
-
-
-    def isNum(type):
-        if ( type =="LongType" or type == "IntegerType" ):
-            return true
-        else:
-            return false
+            ax.pie(valueFieldValues[0], labels=keyFieldLabels, colors=colors, explode=None, autopct='%1.1f%%')
+            ax.set_title(valueFields[0], fontsize=18);
+            ax.axis("equal")
+    
+    def isNum(self, type):
+        return (type =="LongType" or type == "IntegerType")

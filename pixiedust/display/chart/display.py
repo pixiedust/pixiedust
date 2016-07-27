@@ -15,6 +15,7 @@
 # -------------------------------------------------------------------------------
 
 from ..display import Display
+from pyspark.sql import functions as F
     
 class ChartDisplay(Display):
     def doRender(self, handlerId):
@@ -22,3 +23,19 @@ class ChartDisplay(Display):
             <p><b>Sorry, but this visualization is not yet implemented. Please check back often!</b></p>
         """
         )
+
+    # numerical used as a boolean flag for truth table
+    def sampleColumn(self, numerical):
+        default=None
+        for field in self.entity.schema.fields:
+            # Ignore unique ids
+            if field.name.lower() != 'id' and ( not numerical or isNum(field.dataType.__class__.__name__) ):
+            # Find a good column to display in pie ChartDisplay
+                default = default or field.name
+                count = self.entity.count()
+                sample = self.entity.sample(False, (float(200) / count)) if count > 200 else self.entity
+                orderedSample = sample.groupBy(field.name).agg(F.count(field.name).alias("agg")).orderBy(F.desc("agg")).select("agg")
+                if orderedSample.take(1)[0]["agg"] > 10:
+                    return [field.name]
+        # Otherwise, return first non-id column
+        return [default]
