@@ -15,6 +15,7 @@
 # -------------------------------------------------------------------------------
 
 from .mpld3ChartDisplay import Mpld3ChartDisplay
+import math
 import numpy as np
 
 class PieChartDisplay(Mpld3ChartDisplay):

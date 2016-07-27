@@ -43,6 +43,7 @@
 			</ul>
 		</div>
 		<div class="col-sm-8" style="padding: 0px 0px 0px 5px;">
+			{%if keyFieldsSupported %}
 			<label>Keys:</label>
 			<ul id="keyFields{{prefix}}" style="height: 90px;">
 				{%if this.options.get("keyFields") is not none%}
@@ -51,8 +52,13 @@
 				{%endfor%}
 				{%endif%}
 			</ul>
+			{%endif%}
 			<label>Values:</label>
+			{%if keyFieldsSupported %}
 			<ul id="valueFields{{prefix}}" style="height: 90px;">
+			{%else%}
+			<ul id="valueFields{{prefix}}" style="height: 215px;">
+			{%endif%}
 				{%if this.options.get("valueFields") is not none%}
 				{%for fieldName in this.options.get("valueFields").split(",")%}
 					<li id="field{{prefix}}-{{fieldName}}-valueFields{{prefix}}">{{fieldName}}<a class="field{{prefix}}-remove field-remove"></a></li>

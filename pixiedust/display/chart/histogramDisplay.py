@@ -14,33 +14,43 @@
 # limitations under the License.
 # -------------------------------------------------------------------------------
 
-from .display import ChartDisplay
-import matplotlib.pyplot as plt
+from .mpld3ChartDisplay import Mpld3ChartDisplay
+import math
 import numpy as np
     
-class HistogramDisplay(ChartDisplay):
-    def doRender(self, handlerId):
-        displayColName = self.getFirstNumericalColInfo()
-        if not displayColName:
-            self._addHTML("Unable to find a numerical column in the dataframe")
-            return
-            
-        import mpld3
-        #mpld3.enable_notebook()     
-        fig = plt.figure()
-        
-        plt.xlabel(displayColName, fontsize=18)
-        
-        params = plt.gcf()
-        plSize = params.get_size_inches()
-        params.set_size_inches( (plSize[0]*2, plSize[1]*2) )
+class HistogramDisplay(Mpld3ChartDisplay):
+    
+    def supportsAggregation(self, handlerId):
+        return False
 
-        x = self.entity.select(displayColName).toPandas()[displayColName].dropna().tolist()
-        plt.hist(x, 30, histtype='bar', fc='lightblue', alpha=0.5);
-        
-    def getFirstNumericalColInfo(self):
-        schema = self.entity.schema
-        for field in schema.fields:
-            type = field.dataType.__class__.__name__
-            if ( type =="LongType" or type == "IntegerType" ):
-                return field.name
+    def supportsLegend(self, handlerId):
+        return False
+
+    # TODO: add support for keys
+    def supportsKeyFields(self, handlerId):
+        return False
+    
+    def defaultToSingleValueField(self, handlerId):
+        return True
+
+    # no keys by default
+    def getDefaultKeyFields(self, handlerId, aggregation):
+        return []
+
+    def doRenderMpld3(self, handlerId, fig, ax, colormap, keyFields, keyFieldValues, keyFieldLabels, valueFields, valueFieldValues):
+        # TODO: add support for keys
+        numHistograms = max(len(keyFieldValues),1) * len(valueFields)
+        colors = colormap(np.linspace(0., 1., numHistograms))
+        if numHistograms > 1:
+            fig.delaxes(ax)
+            if numHistograms < 3:
+                histogramGridPrefix = "1" + str(numHistograms)
+            else:
+                histogramGridPrefix = str(int(math.ceil(numHistograms//2))) + "2"
+            for i, valueField in enumerate(valueFields):
+                ax2 = fig.add_subplot(histogramGridPrefix + str(i+1))
+                ax2.hist(valueFieldValues[i], 30, histtype='bar', fc=colors[0], alpha=0.5);
+                ax2.set_xlabel(valueFields[i], fontsize=18)
+        else:
+            ax.hist(valueFieldValues[0], 30, histtype='bar', fc=colors[0], alpha=0.5);
+            ax.set_xlabel(valueFields[0], fontsize=18)

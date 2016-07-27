@@ -33,6 +33,9 @@ class Mpld3ChartDisplay(ChartDisplay):
     def doRenderMpld3(self, handlerId, fig, ax, keyFields, keyFieldValues, keyFieldLabels, valueFields, valueFieldValues):
         pass
 
+    def supportsKeyFields(self, handlerId):
+        return True
+
     def supportsLegend(self, handlerId):
         return True
 
@@ -61,6 +64,8 @@ class Mpld3ChartDisplay(ChartDisplay):
             return self.getDefaultKeyFields(handlerId, aggregation)
 
     def getKeyFieldValues(self, handlerId, aggregtaion, keyFields):
+        if (len(keyFields) == 0):
+            return []
         numericKeyField = False
         if (len(keyFields) == 1 and self.isNumericField(keyFields[0])):
             numericKeyField = True
@@ -79,6 +84,8 @@ class Mpld3ChartDisplay(ChartDisplay):
         return values
 
     def getKeyFieldLabels(self, handlerId, aggregtaion, keyFields):
+        if (len(keyFields) == 0):
+            return []
         df = self.entity.groupBy(keyFields).count().dropna()
         for keyField in keyFields:
             df = df.sort(F.col(keyField).asc())
@@ -120,30 +127,43 @@ class Mpld3ChartDisplay(ChartDisplay):
         return numericValueFields
 
     def getValueFieldValueLists(self, handlerId, aggregation, keyFields, valueFields):
-        df = self.entity.groupBy(keyFields)
-        maxRows = int(self.options.get("rowCount","100"))
-        numRows = min(maxRows,df.count())
         valueLists = []
-        for valueField in valueFields:
-            valueDf = None
-            if aggregation == "SUM":
-                valueDf = df.agg(F.sum(valueField).alias("agg"))
-            elif aggregation == "AVG":
-                valueDf = df.agg(F.avg(valueField).alias("agg"))
-            elif aggregation == "MIN":
-                valueDf = df.agg(F.min(valueField).alias("agg"))
-            elif aggregation == "MAX":
-                valueDf = df.agg(F.max(valueField).alias("agg"))
-            else:
-                valueDf = df.agg(F.count(valueField).alias("agg"))
-            for keyField in keyFields:
-                valueDf = valueDf.sort(F.col(keyField).asc())
-            valueDf = valueDf.dropna()
-            rows = valueDf.select("agg").take(numRows)
-            valueList = []
-            for row in rows:
-                valueList.append(row["agg"])
-            valueLists.append(valueList)
+        maxRows = int(self.options.get("rowCount","100"))
+        if len(keyFields) == 0:
+            valueLists = []
+            for valueField in valueFields:
+                valueLists.append(self.entity.select(valueField).toPandas()[valueField].dropna().tolist()[:maxRows])
+        #elif self.supportsAggregation(handlerId) == False:
+        #    for valueField in valueFields:
+                # TODO: Need to get the list of values per unique key (not count, avg, etc)
+                # For example, SELECT distinct key1, key2 FROM table
+                # for each key1/key2 SELECT value1 FROM table WHERE key1=key1 AND key2=key2
+                # for each key1/key2 SELECT value2 FROM table WHERE key1=key1 AND key2=key2
+                # repeat for each value
+        else:
+            df = self.entity.groupBy(keyFields)
+            maxRows = int(self.options.get("rowCount","100"))
+            numRows = min(maxRows,df.count())
+            for valueField in valueFields:
+                valueDf = None
+                if aggregation == "SUM":
+                    valueDf = df.agg(F.sum(valueField).alias("agg"))
+                elif aggregation == "AVG":
+                    valueDf = df.agg(F.avg(valueField).alias("agg"))
+                elif aggregation == "MIN":
+                    valueDf = df.agg(F.min(valueField).alias("agg"))
+                elif aggregation == "MAX":
+                    valueDf = df.agg(F.max(valueField).alias("agg"))
+                else:
+                    valueDf = df.agg(F.count(valueField).alias("agg"))
+                for keyField in keyFields:
+                    valueDf = valueDf.sort(F.col(keyField).asc())
+                valueDf = valueDf.dropna()
+                rows = valueDf.select("agg").take(numRows)
+                valueList = []
+                for row in rows:
+                    valueList.append(row["agg"])
+                valueLists.append(valueList)
         return valueLists   
 
     def setChartSize(self, handlerId, fig, ax, colormap, keyFields, keyFieldValues, keyFieldLabels, valueFields, valueFieldValues):
@@ -181,7 +201,7 @@ class Mpld3ChartDisplay(ChartDisplay):
         mpld3.enable_notebook()
         fig, ax = plt.subplots()
         aggregation = self.options.get("aggregation")
-        if (aggregation is None):
+        if (aggregation is None and self.supportsAggregation(handlerId)):
             aggregation = self.getDefaultAggregation(handlerId)
             self.options["aggregation"] = aggregation
         keyFields = self.getKeyFields(handlerId, aggregation)
@@ -190,13 +210,19 @@ class Mpld3ChartDisplay(ChartDisplay):
         valueFields = self.getValueFields(handlerId, aggregation)
         valueFieldValues = self.getValueFieldValueLists(handlerId, aggregation, keyFields, valueFields)
         context = self.getMpld3Context(handlerId)
-        options = {"fieldNames":self.getFieldNames(),"legendSupported":self.supportsLegend(handlerId),"aggregationSupported":self.supportsAggregation(handlerId),"aggregationOptions":["SUM","AVG","MIN","MAX","COUNT"]}
+        options = { "fieldNames":self.getFieldNames(),\
+            "keyFieldsSupported":self.supportsKeyFields(handlerId),\
+            "legendSupported":self.supportsLegend(handlerId),\
+            "aggregationSupported":self.supportsAggregation(handlerId),\
+            "aggregationOptions":["SUM","AVG","MIN","MAX","COUNT"]\
+        }
         if (context is not None):
             options.update(context[1])
             dialogBody = self.renderTemplate(context[0], **options)
         else:
             dialogBody = self.renderTemplate("baseChartOptionsDialogBody.html", **options)
-        plugins.connect(fig, ChartPlugin(self, keyFieldLabels))
+        if (self.supportsAggregation(handlerId) and len(keyFieldLabels) > 0):
+            plugins.connect(fig, ChartPlugin(self, keyFieldLabels))
         plugins.connect(fig, DialogPlugin(self, handlerId, dialogBody))
         colormap = cm.jet
         self.doRenderMpld3(handlerId, fig, ax, colormap, keyFields, keyFieldValues, keyFieldLabels, valueFields, valueFieldValues)
