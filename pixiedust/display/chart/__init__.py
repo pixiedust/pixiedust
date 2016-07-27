@@ -51,8 +51,6 @@ class ChartDisplayMeta(DisplayHandlerMeta):
             return ScatterPlotDisplay(options,entity)
         elif handlerId=="pieChart":
             return PieChartDisplay(options,entity)
-        elif handlerId=="pieChart2":
-            return PieChart2Display(options,entity)
         elif handlerId=="mapChart":
             return MapChartDisplay(options,entity)
         elif handlerId=="histogram":

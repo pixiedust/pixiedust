@@ -59,6 +59,3 @@ class PieChartDisplay(Mpld3ChartDisplay):
             ax.pie(valueFieldValues[0], labels=keyFieldLabels, colors=colors, explode=None, autopct='%1.1f%%')
             ax.set_title(valueFields[0], fontsize=18);
             ax.axis("equal")
-    
-    def isNum(self, type):
-        return (type =="LongType" or type == "IntegerType")
