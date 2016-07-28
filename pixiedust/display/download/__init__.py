@@ -15,7 +15,7 @@
 # -------------------------------------------------------------------------------
 
 from ..display import DisplayHandlerMeta,registerDisplayHandler,addId
-from .downloadCSV import DownloadCSVHandler
+from .downloadFile import DownloadCSVHandler
 
 class DownloadMeta(DisplayHandlerMeta):
     @addId
@@ -23,7 +23,7 @@ class DownloadMeta(DisplayHandlerMeta):
         clazz = entity.__class__.__name__
         if clazz == "DataFrame":
             return [
-                {"categoryId": "Download", "title": "Download as CSV", "icon": "fa-download", "id": "downloadCSV"}
+                {"categoryId": "Download", "title": "Export to File", "icon": "fa-download", "id": "downloadFile"}
             ]
         else:
             return []
