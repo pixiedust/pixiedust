@@ -15,7 +15,7 @@
 # -------------------------------------------------------------------------------
 
 from ..display import DisplayHandlerMeta,registerDisplayHandler,addId
-from .downloadFile import DownloadCSVHandler
+from .downloadFile import DownloadFileHandler
 
 class DownloadMeta(DisplayHandlerMeta):
     @addId
@@ -23,11 +23,11 @@ class DownloadMeta(DisplayHandlerMeta):
         clazz = entity.__class__.__name__
         if clazz == "DataFrame":
             return [
-                {"categoryId": "Download", "title": "Export to File", "icon": "fa-download", "id": "downloadFile"}
+                {"categoryId": "Download", "title": "Download as File", "icon": "fa-download", "id": "downloadFile"}
             ]
         else:
             return []
     def newDisplayHandler(self,options,entity):
-        return DownloadCSVHandler(options, entity)
+        return DownloadFileHandler(options, entity)
         
 registerDisplayHandler(DownloadMeta(), system=True)

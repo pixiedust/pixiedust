@@ -19,7 +19,7 @@ import time
 
 DELIMITER="@#$DELIMITER@#$"
 
-class DownloadCSVHandler(Display):
+class DownloadFileHandler(Display):
     def doRender(self, handlerId):
         entity=self.entity
         total=entity.count()
@@ -54,7 +54,7 @@ class DownloadCSVHandler(Display):
                                             
                                             var d = document.createElement('div');
                                             d.style = 'padding: 20px';
-                                            d.innerHTML = '<span>File successfully exported: </span>';
+                                            d.innerHTML = '<span>File successfully exported for download: </span>';
                                             d.appendChild(a);
 
                                             document.getElementById('results{3}').innerHTML = '';
@@ -73,7 +73,7 @@ class DownloadCSVHandler(Display):
                             }}
                             else if (msg_type === 'error') {{
                                 var d = document.getElementById('wrapperHTML{3}');
-                                d.appendChild('<span>Export failed: ' + content.ename + '</span>');
+                                d.appendChild('<span>Export for download failed: ' + content.ename + '</span>');
                                 for (m in msg) console.log('#msg', m, msg[m]);
                             }}
                         }}

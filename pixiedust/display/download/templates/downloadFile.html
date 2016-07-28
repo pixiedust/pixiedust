@@ -1,13 +1,13 @@
 {%extends "basedialog.html"%}
 {%import "commonExecuteCallback.js" as commons%}
 
-{%block title %}Download as Text File{%endblock%}
+{%block title %}Download as File{%endblock%}
 
 {%block body%}
 <p style="font-size: 1.25em;margin: 5px 0 25px;">Select the file type to download and the number of documents to include</p>
 <form role="form">
   <div class="form-group">
-    <label for="filetype">Export Format:</label>
+    <label for="filetype">Download Format:</label>
     <select class="form-control" id="filetype" style="margin:0;">
       <option value="csv">Comma-separated values (CSV) file</option>
       <option value="xml">XML file</option>
@@ -18,7 +18,7 @@
     </select>
   </div>
   <div class="form-group">
-    <label for="numrows">Number of Rows to Export ({{totalDocs}} rows available)</label>
+    <label for="numrows">Number of Rows to Download ({{totalDocs}} rows available)</label>
     <input type="number" class="form-control" id="numrows" min="1" max="{{totalDocs}}">
   </div>
 </form>
@@ -30,7 +30,7 @@ global.downloadcount=$('#numrows').val();
 {% call(results) commons.ipython_execute(this._genDisplayScript(addOptionDict={}),prefix,extraCommandOptions="{'doDownload':global.downloadtype, 'doDownloadCount':global.downloadcount}") %}
     $('#results{{prefix}}').html({{results["error"] or results}});
     $('#loading{{prefix}}').css('display','none');
-{% endcall %};
+{% endcall %}
 {%endblock%}
 
 {%block onDialogShown%}
