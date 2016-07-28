@@ -9,6 +9,7 @@ function() {
     var callbacks = {
         iopub:{
             output:function(msg){
+                console.log("msg", msg);
                 if ({{"false" if "cell_id" in this.options else "true"}}){
                     return curCell.output_area.handle_output.apply(curCell.output_area, arguments);
                 }
@@ -51,7 +52,6 @@ function() {
                         }
                     });
                 }
-                console.log("msg", msg);
             }
         }
     }

@@ -15,6 +15,7 @@
 # -------------------------------------------------------------------------------
 from jinja2 import BaseLoader, Environment, TemplateSyntaxError, TemplateAssertionError, TemplateError
 import pkg_resources
+from cStringIO import StringIO
 import inspect
 import sys
 
@@ -38,9 +39,21 @@ class PixiedustTemplateLoader(BaseLoader):
         
         if module=="__main__":
             module=self.baseModule
-
+        
+        decode = 'utf-8'
+        parts = templatePath.split("#")
+        if len(parts)>1:
+            templatePath = parts[0]
+            decode = parts[1]
+        
         path = self.path + "/" + templatePath
-        return pkg_resources.resource_string(module,path).decode('utf-8'), templatePath, lambda: False
+        data = None
+        if  decode == "base64":
+            data = StringIO(pkg_resources.resource_stream(module, path).read()).getvalue().encode('base64')
+        else:
+            data = pkg_resources.resource_string(module, path ).decode(decode)
+        
+        return data, templatePath, lambda: False
 
 class PixiedustTemplateEnvironment(object):
     
@@ -50,6 +63,7 @@ class PixiedustTemplateEnvironment(object):
             baseModule = inspect.getmodule(frm[0]).__name__
         self.env = Environment(loader=PixiedustTemplateLoader(baseModule))
         self.env.filters["oneline"]=lambda s:reduce(lambda s, l: s+l, s.split("\n"), "") if s else s
+        self.env.filters["base64dataUri"]=lambda s: 'data:image/png;base64,{}'.format(self.getTemplate(s+"#base64").render())
     
     def from_string(self, source, **kwargs):
         return self.env.from_string(source, globals=kwargs)
@@ -62,11 +76,13 @@ class PixiedustTemplateEnvironment(object):
                 try:
                     visited[mod.__name__]=mod
                     return self.env.get_template( mod.__name__ + ":" + name )
-                except (TemplateSyntaxError, TemplateAssertionError, TemplateError):
-                    raise
-                except:
+                except (OSError,IOError):
+                    #OK if file not found
                     pass
+                except:
+                    raise
         
         #if we are here, we didn't find it
         raise
+
     

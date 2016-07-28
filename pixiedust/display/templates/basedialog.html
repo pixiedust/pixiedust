@@ -9,7 +9,7 @@
         var modal = dialog.modal;
         var options = {
             title: "Pixiedust: {%block title %}Dialog{%endblock%}",
-            body: '{%set body%}{%block body%}Pixiedust body{%endblock%}{%endset%}{{body|oneline}}',
+            body: '{%set body%}{%block body%}Pixiedust body{%endblock%}{%endset%}{{body|oneline|replace("'","\\'")}}',
             sanitize:false,
             notebook: IPython.notebook,
             {% if not nested %}
