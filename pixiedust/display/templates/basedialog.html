@@ -30,6 +30,7 @@
             }
         };
         var modal_obj = modal(options);
+        modal_obj.addClass('pixiedust');
         modal_obj.on('shown.bs.modal', function(){
             {% if not nested %}
             var isFF = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;

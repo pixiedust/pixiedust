@@ -9,7 +9,7 @@
     margin: 10px 0;
     padding: 10px;
     
-    color: #152935;
+    color: #333333;
     font-size: small;
     font-weight: 300;
     letter-spacing: 0.5px;
@@ -20,13 +20,13 @@
   }
   .pixiedust .btn-default {
     border-radius: 0;
-    color: #003c32;
   }
-  .pixiedust .btn-default.focus,
-  .pixiedust .btn-default:focus,
-  .pixiedust .btn-default:hover {
-    background-color: #41d6c3;
-    border-color: #008571;
+  .pixiedust-toolbar .btn-default.focus,
+  .pixiedust-toolbar .btn-default:focus,
+  .pixiedust-toolbar .btn-default:hover {
+    background-color: #337ab7;
+    border-color: #2e6da4;
+    color: #ffffff;
   }
   .pixiedust .dropdown-menu {
     padding: 0;
@@ -37,12 +37,12 @@
     padding: 0;
   }
   .pixiedust .dropdown-menu li {
-    color: #003c32;
     cursor: pointer;
     padding: 8px 12px;
   }
   .pixiedust .dropdown-menu li:hover {
-    background-color: #41d6c3;
+    background-color: #337ab7;
+    color: #ffffff;
     cursor: pointer;
   }
   .pixiedust .dropdown-menu li > span {
@@ -53,13 +53,29 @@
     margin-left: 25px;
   }
   .pixiedust .btn-group.open .dropdown-toggle {
-    background-color: #41d6c3;
-    border-color: #006d5d;
+    background-color: #337ab7;
+    border-color: #2e6da4;
+    color: #ffffff;
+  }
+  .pixiedust .modal-header {
+    background-color: #337ab7;
+    color: #ffffff;
+  }
+  .pixiedust .modal-header .close {
+    color: #fff;
+    opacity: 1;
+    text-shadow: none;
+  }
+  .pixiedust .modal-header .close:hover {
+    opacity: 0.5;
+  }
+  .pixiedust .modal-footer .btn {
+    min-width: 75px;
   }
 </style>
 
 <div class="pixiedust">
-  <div class="btn-group" role="group" style="margin-bottom:15px">
+  <div class="pixiedust-toolbar btn-group" role="group" style="margin-bottom:15px">
   {%for key, menuInfoList in menuTree.iteritems()%}
     {%if menuInfoList|length==1%}
       <a class="btn btn-small btn-default display-type-button" id="menu{{this.getPrefix(menuInfoList[0])}}" title="{{menuInfoList[0]['title']}}">
