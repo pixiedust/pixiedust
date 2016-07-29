@@ -4,29 +4,26 @@
 {%block title %}Stash data to Cloudant{%endblock%}
 
 {%block body%}
-<form class="form-horizontal" role="form">
+<form role="form">
     <div class="form-group">
-        <label class="control-label col-sm-3" for="pwd">Cloudant Connection:</label>
-        <div class="col-sm-9" >
-            <div class="input-group" id="service-connection-group" style="width:100%" > 
-                <a class="btn btn-default dropdown-toggle btn-select" id="service-connection" style="width:100%" data-toggle="dropdown" href="#">
-                    Select a Service connection
-                    <span class="caret"></span>
-                </a>
-                <span class="input-group-addon" id="add-service-connection" style="cursor:pointer">+</span>
-                <ul class="dropdown-menu" style="width:100%" >
-                    {%for connection in connections%}
-                        <li><a href="#">{{connection.name}}</a></li>
-                    {%endfor%}
-                </ul>
-            </div>
+        <div class="input-group">
+            <label for="service-connection">Cloudant Connection</label>
+            <select id="service-connection" class="form-control" style="margin:0;" required>
+                <option disabled style="display: none;">Select or add a new Service Connection</option>
+                {%for connection in connections%}
+                <option>{{connection.name|escape}}</option>
+                {%endfor%}
+            </select>
+            <span class="input-group-btn" style="vertical-align:bottom;display:table-cell;">
+                <button id="add-service-connection" class="btn btn-default" type="button">
+                    <i class="fa fa-plus" aria-hidden="true"></i>
+                </button>
+            </span>
         </div>
     </div>
     <div class="form-group">
-        <label class="control-label col-sm-3">Database:</label>
-        <div class="col-sm-9">
-            <input type="text" class="form-control" id="dbName" readonly value="{{dbName}}">
-        </div>
+        <label for="dbName">Database</label>
+        <input type="text" class="form-control" id="dbName" readonly value="{{dbName}}">
     </div>
 </form>
 {%endblock%}
@@ -43,22 +40,40 @@ if ( !global.selectedConn){
 {%endblock%}
 
 {%block onDialogShown%}
-$("#service-connection-group .dropdown-menu li a").click(function(){
-    global.selectedConn = $(this).text();
-    $('#service-connection').html($(this).text()+' <span class="caret"></span>');
+$("#service-connection").on('change', function() {
+    global.selectedConn = htmlDecode($(this).val());
 });
 $("#add-service-connection").click(function(){
     var addNewConnCallback=function(newConn){
         newConn = newConn.trim()
         global.selectedConn = newConn;
-        $('#service-connection').html(newConn+' <span class="caret"></span>');
-        $("#service-connection-group .dropdown-menu").append('<li><a href="#">'+newConn+'</a></li>');
+        $('#service-connection').append('<option>' + htmlEncode(newConn) + '</option>');
+        $('#service-connection :last-child').prop('selected', true);
     }
     {%include module + ":addNewConnection.dialog" %}
 });
+global.selectedConn = htmlDecode($('#service-connection').val());
 {%endblock%}
 
 {%block cellOuputHTML%}
+<script>
+    var htmlEncode = function(str) {
+        return !str ? str : str
+            .replace(/"/g, "&#34;")
+            .replace(/&/g, "&#38;")
+            .replace(/'/g, "&#39;")
+            .replace(/</g, "&#60;")
+            .replace(/>/g, "&#62;");
+    }
+    var htmlDecode = function(str) {
+        return !str ? str : str
+            .replace(/&#34;/g, "\"")
+            .replace(/&#38;/g, "&")
+            .replace(/&#39;/g, "'")
+            .replace(/&#60;/g, "<")
+            .replace(/&#62;/g, ">");
+    }
+</script>
 <div id="loading{{prefix}}" style="display:none">
     <div style="width:100px;height:60px;left:47%;position:relative">
         <i class="fa fa-circle-o-notch fa-spin" style="font-size:48px"></i>

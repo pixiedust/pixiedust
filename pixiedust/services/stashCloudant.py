@@ -26,7 +26,7 @@ class StashCloudantHandler(Display):
     def doRender(self, handlerId):
         entity=self.entity
 
-        dbName = self.options.get("dbName", "dataframe-"+time.strftime('%m%d%Y-%H%M'))
+        dbName = self.options.get("dbName", "dataframe-"+time.strftime('%Y%m%d-%H%M%S'))
         connectionName=self.options.get("connection")
         if connectionName is None:
             self._addHTMLTemplate("stashCloudant.html",dbName=dbName,connections=getConnections(CLOUDANT_CONN_TYPE))
@@ -39,7 +39,7 @@ class StashCloudantHandler(Display):
             credentials=payload["credentials"]
             r = requests.put( credentials["url"] + "/" + dbName )
             if ( r.status_code != 200 and r.status_code != 201 ):
-                print("Unable to create db: " + str(r.content) )
+                print("Unable to create db ({0}) for connection ({1}): {2}".format(dbName, connectionName, str(r.content)))
             else:
                 self.entity.write.format("com.cloudant.spark")\
                     .option("cloudant.host", credentials["url"])\
