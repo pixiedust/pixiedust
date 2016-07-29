@@ -44,7 +44,7 @@ class ChartDisplayMeta(DisplayHandlerMeta):
         if handlerId is None or handlerId=="barChart":
             return BarChartDisplay(options,entity)
         elif handlerId=="barChart2":
-            return BarChart2Display(options,entity)
+            return BarChartDisplay(options,entity)
         elif handlerId=="lineChart":
             return LineChartDisplay(options,entity)
         elif handlerId=="scatterPlot":
