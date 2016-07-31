@@ -78,34 +78,36 @@
 </style>
 
 <div class="pixiedust">
-  <div class="pixiedust-toolbar btn-group" role="group" style="margin-bottom:15px">
-  {%for key, menuInfoList in menuTree.iteritems()%}
-    {%if menuInfoList|length==1%}
-      <a class="btn btn-small btn-default display-type-button" id="menu{{this.getPrefix(menuInfoList[0])}}" title="{{menuInfoList[0]['title']}}">
-        <i class="fa {{menuInfoList[0]['icon']}}"></i>
-      </a>
-      {{this._getMenuHandlerScript(menuInfoList[0])}}
-    {%elif menuInfoList|length>1%}
-      <div class="btn-group btn-small display-type-button">
-        <a class="btn btn-small dropdown-toggle btn-default" data-toggle="dropdown" title="{{this.getCategoryTitle(key)}}">
-          <i class="fa {{this.getCategoryIconClass(key)}}"></i>
-          <i class="fa fa-chevron-down"></i>
+  {%if numMenu > 1 %}
+    <div class="pixiedust-toolbar btn-group" role="group" style="margin-bottom:15px">  
+    {%for key, menuInfoList in menuTree.iteritems()%}
+      {%if menuInfoList|length==1%}
+        <a class="btn btn-small btn-default display-type-button" id="menu{{this.getPrefix(menuInfoList[0])}}" title="{{menuInfoList[0]['title']}}">
+          <i class="fa {{menuInfoList[0]['icon']}}"></i>
         </a>
-        <div class="dropdown-menu" role="menu" style="white-space:nowrap">
-          <ul>
-          {%for menuInfo in menuInfoList%}
-            <li id="menu{{this.getPrefix(menuInfo)}}">
-              <i class="fa {{menuInfo['icon']}}"></i>
-              <span>{{menuInfo['title']}}</span>
-              {{this._getMenuHandlerScript(menuInfo)}}
-            </li>
-          {%endfor%}
-          </ul>
+        {{this._getMenuHandlerScript(menuInfoList[0])}}
+      {%elif menuInfoList|length>1%}
+        <div class="btn-group btn-small display-type-button">
+          <a class="btn btn-small dropdown-toggle btn-default" data-toggle="dropdown" title="{{this.getCategoryTitle(key)}}">
+            <i class="fa {{this.getCategoryIconClass(key)}}"></i>
+            <i class="fa fa-chevron-down"></i>
+          </a>
+          <div class="dropdown-menu" role="menu" style="white-space:nowrap">
+            <ul>
+            {%for menuInfo in menuInfoList%}
+              <li id="menu{{this.getPrefix(menuInfo)}}">
+                <i class="fa {{menuInfo['icon']}}"></i>
+                <span>{{menuInfo['title']}}</span>
+                {{this._getMenuHandlerScript(menuInfo)}}
+              </li>
+            {%endfor%}
+            </ul>
+          </div>
         </div>
-      </div>
-    {%endif%}
-  {%endfor%}
-  </div>
+      {%endif%}
+    {%endfor%}
+    </div>
+  {%endif%}
   <div id="wrapperJS{{this.getPrefix()}}"></div>
   <div id="wrapperHTML{{this.getPrefix()}}" style="min-height:100px">
 <div>

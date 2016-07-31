@@ -50,8 +50,8 @@ var callbacks = {
             if ( n >= 0 ){
                 command = command.replace(rpattern, replaceValue);
             }else if (options[key]){
-                var n = command.lastIndexOf(")\"");
-                command = [command.slice(0, n), "," + replaceValue, command.slice(n)].join('')
+                var n = command.lastIndexOf(")");
+                command = [command.slice(0, n), (command[n-1]=="("? "":",") + replaceValue, command.slice(n)].join('')
             }        
         }
     }

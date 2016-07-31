@@ -168,7 +168,7 @@ class Display(object):
                 else:
                     menuTree[categoryId].append(menuInfo) 
 
-        return self.renderTemplate('cellOutput.html', menuTree=menuTree)
+        return self.renderTemplate('cellOutput.html', menuTree=menuTree, numMenu=reduce(lambda n,t:n+t, [len(v) for k,v in menuTree.iteritems()], 0))
     
     def getPrefix(self, menuInfo=None):
         if ( not hasattr(self, 'prefix') ):

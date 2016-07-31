@@ -27,7 +27,11 @@ function() {
                     }
                                                     
                     if (!!content.data["application/javascript"]){
-                        $('#wrapperJS{{prefix}}').html("<script type=\\\"text/javascript\\\">"+content.data["application/javascript"]+"</s" + "cript>");
+                        try{
+                            $('#wrapperJS{{prefix}}').html("<script type=\\\"text/javascript\\\">"+content.data["application/javascript"]+"</s" + "cript>");
+                        }catch(e){
+                            console.log("Invalid javascript output",e, content.data);
+                        }
                     }
                     
                     if (html){
@@ -36,7 +40,13 @@ function() {
                             if(!!data["text/html"])data["text/html"]=html;
                             curCell.output_area.outputs.push({"data": data,"metadata":content.metadata,"output_type":msg_type});
                         }
-                        $('#wrapperHTML{{prefix}}').html(html);
+                        try{
+                            $('#wrapperHTML{{prefix}}').html(html);
+                        }catch(e){
+                            console.log("Invalid html output", e, html);
+                            $('#wrapperHTML{{prefix}}').html( "Invalid html output. <pre>" 
+                                + html.replace(/>/g,'&gt;').replace(/</g,'&lt;').replace(/"/g,'&quot;') + "<pre>");
+                        }
                     }
                 }else if (msg_type === "error") {
                     require(['base/js/utils'], function(utils) {
