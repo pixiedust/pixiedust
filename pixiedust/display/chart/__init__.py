@@ -23,6 +23,7 @@ from .mapChartDisplay import MapChartDisplay
 from .histogramDisplay import HistogramDisplay
 from ..display import *
 
+@PixiedustDisplay()
 class ChartDisplayMeta(DisplayHandlerMeta):
     @addId
     def getMenuInfo(self,entity):
@@ -55,5 +56,3 @@ class ChartDisplayMeta(DisplayHandlerMeta):
             return MapChartDisplay(options,entity)
         elif handlerId=="histogram":
             return HistogramDisplay(options,entity)
-
-registerDisplayHandler(ChartDisplayMeta())

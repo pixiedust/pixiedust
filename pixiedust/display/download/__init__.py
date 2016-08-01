@@ -14,9 +14,10 @@
 # limitations under the License.
 # -------------------------------------------------------------------------------
 
-from ..display import DisplayHandlerMeta,registerDisplayHandler,addId
+from ..display import DisplayHandlerMeta,PixiedustDisplay,addId
 from .downloadFile import DownloadFileHandler
 
+@PixiedustDisplay(system=True)
 class DownloadMeta(DisplayHandlerMeta):
     @addId
     def getMenuInfo(self,entity):
@@ -29,5 +30,3 @@ class DownloadMeta(DisplayHandlerMeta):
             return []
     def newDisplayHandler(self,options,entity):
         return DownloadFileHandler(options, entity)
-        
-registerDisplayHandler(DownloadMeta(), system=True)

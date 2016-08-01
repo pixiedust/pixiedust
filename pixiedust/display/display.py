@@ -53,7 +53,18 @@ def getSelectedHandler(options, entity):
                 return handler
     #we didn't find any, return the first
     return handlers[0]
-  
+
+"""
+PixieDust display class decorator
+"""
+class PixiedustDisplay(object):
+    def __init__(self, **kwArgs):
+        self.keywordArgs = kwArgs
+
+    def __call__(self, cls, *args, **kwargs):
+        registerDisplayHandler(cls(), **self.keywordArgs)
+        return cls
+
 def addId(func):
     def wrapper(*args,**kwargs):
         global globalMenuInfos

@@ -17,6 +17,7 @@
 from .display import GraphDisplay
 from ..display import *
 
+@PixiedustDisplay()
 class GraphDisplayMeta(DisplayHandlerMeta):
     @addId
     def getMenuInfo(self,entity):
@@ -34,5 +35,3 @@ class GraphDisplayMeta(DisplayHandlerMeta):
             
     def newDisplayHandler(self,options,entity):
         return GraphDisplay(options,entity)
-        
-registerDisplayHandler(GraphDisplayMeta())

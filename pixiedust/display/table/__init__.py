@@ -17,6 +17,7 @@
 from .display import TableDisplay
 from ..display import *
 
+@PixiedustDisplay(isDefault=True)
 class TableDisplayMeta(DisplayHandlerMeta):
     @addId
     def getMenuInfo(self,entity):
@@ -34,5 +35,3 @@ class TableDisplayMeta(DisplayHandlerMeta):
             return []
     def newDisplayHandler(self,options,entity):
         return TableDisplay(options,entity)
-
-registerDisplayHandler(TableDisplayMeta(), isDefault=True)

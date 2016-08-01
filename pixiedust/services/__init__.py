@@ -14,11 +14,12 @@
 # limitations under the License.
 # -------------------------------------------------------------------------------
 
-from ..display.display import DisplayHandlerMeta,registerDisplayHandler,addId
+from ..display.display import DisplayHandlerMeta,PixiedustDisplay,addId
 
 from .stashCloudant import StashCloudantHandler
 from .stashSwift import StashSwiftHandler
 
+@PixiedustDisplay(system=True)
 class StashMeta(DisplayHandlerMeta):
     @addId
     def getMenuInfo(self,entity):
@@ -36,5 +37,3 @@ class StashMeta(DisplayHandlerMeta):
             return StashCloudantHandler(options, entity)
         else:
             return StashSwiftHandler(options,entity)
-        
-registerDisplayHandler(StashMeta(), system=True)
