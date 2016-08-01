@@ -72,15 +72,19 @@ class PixiedustTemplateEnvironment(object):
         visited = {}
         for frm in inspect.stack():
             mod = inspect.getmodule(frm[0])
-            if mod and mod.__name__ not in visited:
-                try:
-                    visited[mod.__name__]=mod
-                    return self.env.get_template( mod.__name__ + ":" + name )
-                except (OSError,IOError):
-                    #OK if file not found
-                    pass
-                except:
-                    raise
+            s = None if mod is None else mod.__name__
+            while s is not None:
+                if s not in visited:
+                    try:
+                        visited[s]=mod
+                        return self.env.get_template( s + ":" + name )
+                    except (OSError,IOError):
+                        #OK if file not found
+                        pass
+                    except:
+                        raise
+                n = s.rfind(".")
+                s = None if n < 0 else s[:n]
         
         #if we are here, we didn't find it
         raise

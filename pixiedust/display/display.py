@@ -160,13 +160,12 @@ class Display(object):
             menuTree[catId]=[]    
         for handler in (handlers+systemHandlers):
             for menuInfo in handler.getMenuInfo(self.entity):
-                categoryId=menuInfo['categoryId']
-                if categoryId is None:
-                    raise Exception("Handler missing category id")
-                elif not categoryId in menuTree:
-                    menuTree[categoryId]=[menuInfo]
-                else:
-                    menuTree[categoryId].append(menuInfo) 
+                categoryId=menuInfo.get('categoryId')
+                if categoryId is not None:
+                    if not categoryId in menuTree:
+                        menuTree[categoryId]=[menuInfo]
+                    else:
+                        menuTree[categoryId].append(menuInfo) 
 
         return self.renderTemplate('cellOutput.html', menuTree=menuTree, numMenu=reduce(lambda n,t:n+t, [len(v) for k,v in menuTree.iteritems()], 0))
     
