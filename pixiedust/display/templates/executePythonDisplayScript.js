@@ -5,6 +5,7 @@ function() {
     });
     curCell=curCell.length>0?curCell[0]:null;
     console.log("curCell",curCell);
+    var startWallToWall;
     //Resend the display command
     var callbacks = {
         iopub:{
@@ -15,10 +16,10 @@ function() {
                 }
                 var msg_type=msg.header.msg_type;
                 var content = msg.content;
+                var executionTime = $("#execution{{prefix}}");
                 if(msg_type==="stream"){
                     $('#wrapperHTML{{prefix}}').html(content.text);
                 }else if (msg_type==="display_data" || msg_type==="execute_result"){
-                    var executionTime = $("#execution{{prefix}}");
                     var html=null;                                
                     if (!!content.data["text/html"]){
                         html=content.data["text/html"];
@@ -43,9 +44,6 @@ function() {
                         }
                         try{
                             $('#wrapperHTML{{prefix}}').html(html);
-                            if (executionTime.length > 0 && $("#execution{{prefix}}").length == 0 ){
-                                $('#wrapperHTML{{prefix}}').append(executionTime);
-                            }
                         }catch(e){
                             console.log("Invalid html output", e, html);
                             $('#wrapperHTML{{prefix}}').html( "Invalid html output. <pre>" 
@@ -66,6 +64,13 @@ function() {
                         }
                     });
                 }
+
+                //Append profiling info
+                if (executionTime.length > 0 && $("#execution{{prefix}}").length == 0 ){
+                    $('#wrapperHTML{{prefix}}').append(executionTime);
+                }else if (startWallToWall && $("#execution{{prefix}}").length > 0 ){
+                    $("#execution{{prefix}}").append($("<div/>").text("Wall to Wall time: " + ( (new Date().getTime() - startWallToWall)/1000 ) + "s"));
+                }
             }
         }
     }
@@ -78,6 +83,7 @@ function() {
         $('#wrapperJS{{prefix}}').html("")
         $('#wrapperHTML{{prefix}}').html('<div style="width:100px;height:60px;left:47%;position:relative"><i class="fa fa-circle-o-notch fa-spin" style="font-size:48px"></i></div>'+
         '<div style="text-align:center">Loading your data. Please wait...</div>');
+        startWallToWall = new Date().getTime();
         IPython.notebook.session.kernel.execute(command, callbacks, {silent:false,store_history:false,stop_on_error:true});
     }
 }
