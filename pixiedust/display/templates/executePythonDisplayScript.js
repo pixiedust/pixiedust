@@ -18,7 +18,8 @@ function() {
                 if(msg_type==="stream"){
                     $('#wrapperHTML{{prefix}}').html(content.text);
                 }else if (msg_type==="display_data" || msg_type==="execute_result"){
-                    var html=null;                                    
+                    var executionTime = $("#execution{{prefix}}");
+                    var html=null;                                
                     if (!!content.data["text/html"]){
                         html=content.data["text/html"];
                     }else if (!!content.data["image/png"]){
@@ -42,6 +43,9 @@ function() {
                         }
                         try{
                             $('#wrapperHTML{{prefix}}').html(html);
+                            if (executionTime.length > 0 && $("#execution{{prefix}}").length == 0 ){
+                                $('#wrapperHTML{{prefix}}').append(executionTime);
+                            }
                         }catch(e){
                             console.log("Invalid html output", e, html);
                             $('#wrapperHTML{{prefix}}').html( "Invalid html output. <pre>" 

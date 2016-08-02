@@ -21,6 +21,7 @@ from .constants import *
 import sys
 import uuid
 from collections import OrderedDict
+import time
 
 handlers=[]
 systemHandlers=[]
@@ -99,6 +100,7 @@ class Display(object):
         self.html=""
         self.scripts=list()
         self.noChrome="handlerId" in options
+        self.executionTime=None
 
     def _getTemplateArgs(self, **kwargs):
         args = {
@@ -124,7 +126,9 @@ class Display(object):
                     </script>
                 """.format(self._getExecutePythonDisplayScript(menuInfos[0])))
         else:
+            start = time.clock()
             self.doRender(handlerId)
+            self.executionTime = time.clock() - start
             
         #generate final HTML
         ipythonDisplay(HTML(self._wrapBeforeHtml() + self.html + self._wrapAfterHtml()))
@@ -226,7 +230,7 @@ class Display(object):
         
     def _wrapAfterHtml(self):
         if ( self.noChrome ):
-            return ""
+            return ("""<div class="executionTime" id="execution{0}">Execution time: {1}s</div>""".format(self.getPrefix(), str(self.executionTime))) if self.executionTime is not None else ""
         return "</div>"
 
 #Special handler for fetching the id of the cell being executed 
