@@ -15,5 +15,6 @@
 # -------------------------------------------------------------------------------
 
 import storage
+from javaBridge import *
 
 storage._initStorage();
