@@ -63,6 +63,7 @@ class GraphDisplay(Display):
 
             #if user specified root, then only send back the json tree
             if root:
+                self.addProfilingTime = False
                 print(tree)
                 return
 

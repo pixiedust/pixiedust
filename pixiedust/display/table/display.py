@@ -38,22 +38,38 @@ class TableDisplay(Display):
 class DataFrameInfo(object):
     def __init__(self, entity):
         self.entity = entity
+        self.sparkDF = isPySparkDataFrame(entity);
 
     def count(self):
-        return self.entity.count()
+        if self.sparkDF:
+            return self.entity.count()
+        else:
+            return len(self.entity.index)
 
     def take(self,num):
-        return self.entity.take(num)
+        if self.sparkDF:
+            return self.entity.take(num)
+        else:
+            df = self.entity.head(num)
+            colNames = self.entity.columns.values.tolist()
+            def makeJsonRow(row):
+                ret = {}
+                for i,v in enumerate(colNames):
+                    ret[v]=row[i]
+                return ret
+            return [makeJsonRow(self.entity.iloc[i].values.tolist()) for i in range(0,len(df.index))]
 
     def getFields(self):
-        if isPySparkDataFrame(self.entity):
+        if self.sparkDF:
             return self.entity.schema.fields
         else:
             #must be a pandas dataframe
-            return zip(self.entity.columns, self.entity.dtypes)
+            def createObj(a,b):
+                return type("",(),{"jsonValue":lambda self: {"type": b, "name": a}, "name":a})()
+            return [createObj(a,b) for a,b in zip(self.entity.columns, self.entity.dtypes)]
 
     def getTypeName(self):
-        if isPySparkDataFrame(self.entity):
+        if self.sparkDF:
             return self.entity.schema.typeName()
         else:
             return "Pandas DataFrame Row"

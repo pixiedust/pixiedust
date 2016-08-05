@@ -22,6 +22,7 @@ DELIMITER="@#$DELIMITER@#$"
 class DownloadFileHandler(Display):
     def doRender(self, handlerId):
         entity=self.entity
+        self.addProfilingTime = False
         total=entity.count()
         schema = entity.schema
         doDownload=self.options.get("doDownload")

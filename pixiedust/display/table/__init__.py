@@ -21,7 +21,7 @@ from ..display import *
 class TableDisplayMeta(DisplayHandlerMeta):
     @addId
     def getMenuInfo(self,entity):
-        if isPySparkDataFrame(entity):
+        if isPySparkDataFrame(entity) or isPandasDataFrame(entity):
             return [
                 {"categoryId": "Table", "title": "DataFrame Table", "icon": "fa-table", "id": "dataframe"}
             ]
