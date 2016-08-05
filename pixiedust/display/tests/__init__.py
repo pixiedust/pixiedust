@@ -27,11 +27,11 @@ with warnings.catch_warnings():
 class TestsDisplayMeta(DisplayHandlerMeta):
     @addId
     def getMenuInfo(self,entity):
-        if entity=="test1":
+        if safeCompare(entity, "test1"):
             return [
                 {"categoryId": "Test", "title": "Test1", "icon": "fa-bar-chart", "id": "Test1"}
             ]
-        elif entity=="test2":
+        elif safeCompare(entity, "test2"):
             return [
                 {"categoryId": "Test", "title": "Test2", "icon": "fa-bar-chart", "id": "Test2"}
             ]

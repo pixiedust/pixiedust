@@ -14,23 +14,46 @@
 # limitations under the License.
 # -------------------------------------------------------------------------------
 
-from ..display import Display
+from ..display import *
 from pyspark.sql import DataFrame
     
 class TableDisplay(Display):
     def doRender(self, handlerId):
         entity=self.entity
         clazz = entity.__class__.__name__        
-        if( clazz == "GraphFrame"):
+        if fqName(entity) == "graphframes.graphframe.GraphFrame":
             if handlerId == "edges":
                 entity=entity.edges
             else:
                 entity=entity.vertices
-        if isinstance(entity, DataFrame):
-            self._addHTMLTemplate('dataframeTable.html', entity=entity)
+        if isPySparkDataFrame(entity) or isPandasDataFrame(entity):
+            self._addHTMLTemplate('dataframeTable.html', entity=entity, dfInfo=DataFrameInfo(entity))
             return
             
         self._addHTML("""
             <b>Unable to display object</b>
         """
         )
+
+class DataFrameInfo(object):
+    def __init__(self, entity):
+        self.entity = entity
+
+    def count(self):
+        return self.entity.count()
+
+    def take(self,num):
+        return self.entity.take(num)
+
+    def getFields(self):
+        if isPySparkDataFrame(self.entity):
+            return self.entity.schema.fields
+        else:
+            #must be a pandas dataframe
+            return zip(self.entity.columns, self.entity.dtypes)
+
+    def getTypeName(self):
+        if isPySparkDataFrame(self.entity):
+            return self.entity.schema.typeName()
+        else:
+            return "Pandas DataFrame Row"
