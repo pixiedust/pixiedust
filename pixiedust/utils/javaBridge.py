@@ -70,7 +70,6 @@ def pd_convertFromJava(entity):
     if ( entity.__class__.__name__ == "JavaMember"):
         entity = entity()
     if entity.__class__.__name__ == "JavaObject":
-        print("coucou")
         javaClassName = entity.getClass().getName()
         if javaClassName == "org.apache.spark.sql.DataFrame":
             return DataFrame(entity, SQLContext(sc, entity.sqlContext()))

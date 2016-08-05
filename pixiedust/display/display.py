@@ -56,6 +56,24 @@ def getSelectedHandler(options, entity):
     return handlers[0]
 
 """
+misc helper functions
+"""
+def safeCompare(entity1, entity2):
+    try:
+        return entity1 == entity2
+    except:
+        return False
+
+def fqName(entity):
+    return entity.__module__ + "." + entity.__class__.__name__
+
+def isPySparkDataFrame(entity):
+    return fqName(entity)=="pyspark.sql.dataframe.DataFrame"
+
+def isPandasDataFrame(entity):
+    return fqName(entity)=="pandas.core.frame.DataFrame"
+
+"""
 PixieDust display class decorator
 """
 class PixiedustDisplay(object):
@@ -100,6 +118,7 @@ class Display(object):
         self.html=""
         self.scripts=list()
         self.noChrome="handlerId" in options
+        self.addProfilingTime = True
         self.executionTime=None
 
     def _getTemplateArgs(self, **kwargs):
@@ -230,7 +249,7 @@ class Display(object):
         
     def _wrapAfterHtml(self):
         if ( self.noChrome ):
-            return ("""<div class="executionTime" id="execution{0}">Execution time: {1}s</div>""".format(self.getPrefix(), str(self.executionTime))) if self.executionTime is not None else ""
+            return ("""<div class="executionTime" id="execution{0}">Execution time: {1}s</div>""".format(self.getPrefix(), str(self.executionTime))) if self.executionTime is not None and self.addProfilingTime else ""
         return "</div>"
 
 #Special handler for fetching the id of the cell being executed 
