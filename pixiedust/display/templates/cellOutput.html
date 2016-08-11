@@ -15,6 +15,9 @@
     letter-spacing: 0.5px;
     line-height: normal;
   }
+  .pixiedust .btn-group {
+    border-right: 0;
+  }
   .pixiedust .display-type-button:not(:first-child) {
     margin-left: 10px !important;
   }
@@ -29,6 +32,8 @@
     color: #ffffff;
   }
   .pixiedust .dropdown-menu {
+    background-color: #ffffff;
+    border-color: rgba(0, 0, 0, 0.15);
     padding: 0;
   }
   .pixiedust .dropdown-menu ul {
@@ -56,6 +61,21 @@
     background-color: #337ab7;
     border-color: #2e6da4;
     color: #ffffff;
+  }
+  .pixiedust .modal-dialog .btn-default:focus,
+  .pixiedust .modal-dialog .btn-default:hover {
+    background-color: #e6e6e6;
+    border-color: #adadad;
+  }
+  .pixiedust .modal-dialog .btn-primary {
+    background-color: #337ab7;
+    color: #fff;
+    transition: background-color 0.15s ease-out 0s;
+  }
+  .pixiedust .modal-dialog .btn-primary:focus,
+  .pixiedust .modal-dialog .btn-primary:hover {
+    background-color: #286090;
+    border-color: #204d74;
   }
   .pixiedust .modal-header {
     background-color: #337ab7;
@@ -101,11 +121,11 @@
     float: right;
     width: initial;
   }
-  .pixiedust .expandButton:not(.collapsed) > i.fa-expand {
-    display: none;
+  .pixiedust .expandButton > i.fa:before {
+    content: "\f065";
   }
-  .pixiedust .expandButton.collapsed > i.fa-compress {
-    display: none;
+  .pixiedust .expandButton.collapsed > i.fa:before {
+    content: "\f066";
   }
   .pixiedust .expandButton.collapsed:before {
     color: #999999;
@@ -120,8 +140,7 @@
 <div class="pixiedust">
   <button class="btn btn-default btn-sm expandButton" data-toggle="collapse"
           data-target="#pixiedust-output-wrapper-{{this.getPrefix()}}" title="Expand/Collapse Pixiedust output">
-    <i class="fa fa-expand"></i>
-    <i class="fa fa-compress"></i>
+    <i class="fa"></i>
   </button>
   <div id="pixiedust-output-wrapper-{{this.getPrefix()}}" class="collapse in">
     {%if numMenu > 1 %}
