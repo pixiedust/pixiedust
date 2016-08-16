@@ -15,7 +15,6 @@
 # -------------------------------------------------------------------------------
 
 from .barChartDisplay import BarChartDisplay
-from .barChart2Display import BarChart2Display
 from .lineChartDisplay import LineChartDisplay
 from .scatterPlotDisplay import ScatterPlotDisplay
 from .pieChartDisplay import PieChartDisplay
@@ -30,8 +29,7 @@ class ChartDisplayMeta(DisplayHandlerMeta):
         clazz = entity.__class__.__name__
         if clazz == "DataFrame":
             return [
-                #{"categoryId": "Chart", "title": "Bar Chart", "icon": "fa-bar-chart", "id": "barChart"},
-                {"categoryId": "Chart", "title": "Bar Chart", "icon": "fa-bar-chart", "id": "barChart2"},
+                {"categoryId": "Chart", "title": "Bar Chart", "icon": "fa-bar-chart", "id": "barChart"},
                 {"categoryId": "Chart", "title": "Line Chart", "icon": "fa-line-chart", "id": "lineChart"},
                 {"categoryId": "Chart", "title": "Scatter Plot", "icon": "fa-table", "id": "scatterPlot"},
                 {"categoryId": "Chart", "title": "Pie Chart", "icon": "fa-pie-chart", "id": "pieChart"},
@@ -43,8 +41,6 @@ class ChartDisplayMeta(DisplayHandlerMeta):
     def newDisplayHandler(self,options,entity):
         handlerId=options.get("handlerId")
         if handlerId is None or handlerId=="barChart":
-            return BarChartDisplay(options,entity)
-        elif handlerId=="barChart2":
             return BarChartDisplay(options,entity)
         elif handlerId=="lineChart":
             return LineChartDisplay(options,entity)

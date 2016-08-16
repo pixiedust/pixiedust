@@ -18,3 +18,13 @@ from .display import ChartDisplay
     
 class MapChartDisplay(ChartDisplay):
     pass
+
+    def GeoChart(data_string, element):
+        return Javascript("""
+            //container.show();
+            function draw() {{
+            var chart = new google.visualization.GeoChart(document.getElementById(""" + element + """));
+            chart.draw(google.visualization.arrayToDataTable(""" + data_string + """));
+            }}
+            google.load('visualization', '1.0', {'callback': draw, 'packages':['geochart']});
+            """, lib="https://www.google.com/jsapi")

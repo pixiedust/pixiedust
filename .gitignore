@@ -89,3 +89,7 @@ ENV/
 .ropeproject
 
 .vscode/launch.json
+
+# IntelliJ
+.idea
+*.iml

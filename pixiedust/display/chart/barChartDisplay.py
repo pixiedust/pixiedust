@@ -27,8 +27,13 @@ from random import randint
 
 
 class BarChartDisplay(Mpld3ChartDisplay):
+    
+    def getMpld3Context(self, handlerId):
+        return ('barChartOptionsDialogBody.html', {})
+    
     def doRenderMpld3(self, handlerId, fig, ax, colormap, keyFields, keyFieldValues, keyFieldLabels, valueFields, valueFieldValues):
-        if(len(valueFieldValues)>1):
+        grouped = (self.options.get("stacked") == "false")
+        if(grouped == False and len(valueFieldValues)>1):
             self.generateStackedBarChart(handlerId, fig, ax, colormap, keyFields, keyFieldValues, keyFieldLabels, valueFields, valueFieldValues);            
         else:
             self.generateBarChart(handlerId, fig, ax, colormap, keyFields, keyFieldValues, keyFieldLabels, valueFields, valueFieldValues);
@@ -44,7 +49,7 @@ class BarChartDisplay(Mpld3ChartDisplay):
 
     def generateStackedBarChart(self, handlerId, fig, ax, colormap, keyFields, keyFieldValues, keyFieldLabels, valueFields, valueFieldValues):
         numColumns = len(keyFieldValues)
-        barWidth = min(0.35, 0.9/len(valueFields))
+        barWidth = 0.35
         x_intv = np.arange(numColumns)
         ax.bar(x_intv, valueFieldValues[0], barWidth, alpha=0.5, label=valueFields[0])
         colors= ['#79c36a','#f1595f','#599ad3','#f9a65a','#9e66ab','#cd7058','#d77fb3','#727272']

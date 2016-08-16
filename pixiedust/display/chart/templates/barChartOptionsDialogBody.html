@@ -14,9 +14,12 @@
 {%endblock%}
 {%block customFormFields%}
 <div class="col-sm-4" style="padding: 0px 0px 0px 5px;">
-			<div class="form-group">
-			<label>Stacked Bar Chart</label>
-			<br><input type="checkbox" name="stacked" value="Stacked Bar Chart" checked> <br>	
-			</div>
-		</div>
+	<div class="form-group">
+		<label class="field">Bar Chart Type</label>
+		<select class="form-control" name="stacked" style="margin-left: 0px;">
+			<option value="true">Stacked</option>
+			<option value="false"{{' selected' if this.options.get("stacked") == "false"}}>Grouped</option>
+		</select>
+	</div>
+</div>
 {%endblock%}
