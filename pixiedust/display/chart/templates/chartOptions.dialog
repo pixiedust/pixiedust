@@ -38,6 +38,5 @@ $('#keyFields{{prefix}}, #valueFields{{prefix}}').droppable({
 {%endblock%}
 
 {%block onOK%}
-console.log("CLICKED: " + 'column{2}');
 ({%include module + ":chartOptionsDialogOnOK.js"%})()
 {%endblock%}

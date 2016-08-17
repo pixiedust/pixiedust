@@ -1,0 +1,22 @@
+{%extends module + ":baseChartOptionsDialogBody.html"%}
+{%block customFormFields%}
+<div class="col-sm-4" style="padding: 0px 0px 0px 5px;">
+	<div class="form-group">
+		<label class="field">Display Mode</label>
+		<select class="form-control" name="mapDisplayMode" style="margin-left: 0px;">
+			<option value="region">Region</option>
+			<option value="markers"{{' selected' if this.options.get("mapDisplayMode") == "markers"}}>Markers</option>
+			<option value="text"{{' selected' if this.options.get("mapDisplayMode") == "text"}}>Text</option>
+		</select>
+	</div>
+</div>
+<div class="col-sm-4" style="padding: 0px 0px 0px 5px;">
+	<div class="form-group">
+		<label class="field">Region</label>
+		<select class="form-control" name="mapRegion" style="margin-left: 0px;">
+			<option value="world">World</option>
+			<option value="US"{{' selected' if this.options.get("mapRegion") == "US"}}>US</option>
+		</select>
+	</div>
+</div>
+{%endblock%}

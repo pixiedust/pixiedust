@@ -14,17 +14,50 @@
 # limitations under the License.
 # -------------------------------------------------------------------------------
 
-from .display import ChartDisplay
+from .baseChartDisplay import BaseChartDisplay
     
-class MapChartDisplay(ChartDisplay):
-    pass
+class MapChartDisplay(BaseChartDisplay):
 
-    def GeoChart(data_string, element):
-        return Javascript("""
-            //container.show();
-            function draw() {{
-            var chart = new google.visualization.GeoChart(document.getElementById(""" + element + """));
-            chart.draw(google.visualization.arrayToDataTable(""" + data_string + """));
-            }}
-            google.load('visualization', '1.0', {'callback': draw, 'packages':['geochart']});
-            """, lib="https://www.google.com/jsapi")
+    def supportsKeyFieldLabels(self, handlerId):
+        return False
+
+    def supportsLegend(self, handlerId):
+        return False
+    
+    def getPreferredDefaultValueFieldCount(self, handlerId):
+		return 1
+
+    def getDefaultKeyFields(self, handlerId, aggregation):
+        useLatLong = False
+        for field in self.entity.schema.fields:
+            if field.name.lower() == 'country' or field.name.lower() == 'province' or field.name.lower() == 'state' or field.name.lower() == 'city':
+                return [field.name]
+        # no field found - defer to superclass
+        return super(MapChartDisplay, self).getDefaultKeyFields(handlerId, aggregation)
+    
+    def getChartContext(self, handlerId):
+        return ('mapChartOptionsDialogBody.html', {})
+    
+    def doRenderChart(self, handlerId, dialogTemplate, dialogOptions, aggregation, keyFields, keyFieldValues, keyFieldLabels, valueFields, valueFieldValues):
+        if self.options.get("mapRegion") is None:
+            if keyFields[0].lower() == "state":
+                self.options["mapRegion"] = "US"
+            else:    
+                self.options["mapRegion"] = "world"
+        if self.options.get("mapDisplayMode") is None:
+            self.options["mapDisplayMode"] = "region"
+        dialogBody = self.renderTemplate(dialogTemplate, **dialogOptions)
+        mapData = "[['" + keyFields[0].replace('"','') + "'"
+        for i, valueField in enumerate(valueFields):
+            mapData = mapData + ", '" + valueField.replace('"','') + "'"
+        mapData = mapData + "]"
+        for i, keyFieldLabel in enumerate(keyFieldLabels):
+            mapData = mapData + ", ['" + keyFieldLabels[i].replace('"','') + "'"
+            for j, valueFieldValue in enumerate(valueFieldValues):
+                mapData = mapData + ", " + str(valueFieldValues[j][i]).replace('"','')
+            mapData = mapData + "]"
+        mapData = mapData + "]"
+        self.options["mapData"] = mapData.replace("'",'"')
+        self._addScriptElement("https://www.gstatic.com/charts/loader.js")
+        self._addScriptElement("https://www.google.com/jsapi", callback=self.renderTemplate("mapChart.js", body=dialogBody))
+        self._addHTMLTemplate("mapChart.html")

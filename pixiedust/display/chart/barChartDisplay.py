@@ -28,7 +28,7 @@ from random import randint
 
 class BarChartDisplay(Mpld3ChartDisplay):
     
-    def getMpld3Context(self, handlerId):
+    def getChartContext(self, handlerId):
         return ('barChartOptionsDialogBody.html', {})
     
     def doRenderMpld3(self, handlerId, fig, ax, colormap, keyFields, keyFieldValues, keyFieldLabels, valueFields, valueFieldValues):
