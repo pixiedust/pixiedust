@@ -16,60 +16,21 @@
 
 from ..display import *
 from pyspark.sql import DataFrame
+from pixiedust.utils.dataFrameAdapter import *
     
 class TableDisplay(Display):
     def doRender(self, handlerId):
-        entity=self.entity
-        clazz = entity.__class__.__name__        
+        entity=self.entity       
         if fqName(entity) == "graphframes.graphframe.GraphFrame":
             if handlerId == "edges":
                 entity=entity.edges
             else:
                 entity=entity.vertices
         if isPySparkDataFrame(entity) or isPandasDataFrame(entity):
-            self._addHTMLTemplate('dataframeTable.html', entity=entity, dfInfo=DataFrameInfo(entity))
+            self._addHTMLTemplate('dataframeTable.html', entity=PandasDataFrameAdapter(entity))
             return
             
         self._addHTML("""
             <b>Unable to display object</b>
         """
         )
-
-class DataFrameInfo(object):
-    def __init__(self, entity):
-        self.entity = entity
-        self.sparkDF = isPySparkDataFrame(entity);
-
-    def count(self):
-        if self.sparkDF:
-            return self.entity.count()
-        else:
-            return len(self.entity.index)
-
-    def take(self,num):
-        if self.sparkDF:
-            return self.entity.take(num)
-        else:
-            df = self.entity.head(num)
-            colNames = self.entity.columns.values.tolist()
-            def makeJsonRow(row):
-                ret = {}
-                for i,v in enumerate(colNames):
-                    ret[v]=row[i]
-                return ret
-            return [makeJsonRow(self.entity.iloc[i].values.tolist()) for i in range(0,len(df.index))]
-
-    def getFields(self):
-        if self.sparkDF:
-            return self.entity.schema.fields
-        else:
-            #must be a pandas dataframe
-            def createObj(a,b):
-                return type("",(),{"jsonValue":lambda self: {"type": b, "name": a}, "name":a})()
-            return [createObj(a,b) for a,b in zip(self.entity.columns, self.entity.dtypes)]
-
-    def getTypeName(self):
-        if self.sparkDF:
-            return self.entity.schema.typeName()
-        else:
-            return "Pandas DataFrame Row"

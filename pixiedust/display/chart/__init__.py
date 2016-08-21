@@ -21,13 +21,13 @@ from .pieChartDisplay import PieChartDisplay
 from .mapChartDisplay import MapChartDisplay
 from .histogramDisplay import HistogramDisplay
 from ..display import *
+from pixiedust.utils.dataFrameAdapter import *
 
 @PixiedustDisplay()
 class ChartDisplayMeta(DisplayHandlerMeta):
     @addId
     def getMenuInfo(self,entity):
-        clazz = entity.__class__.__name__
-        if clazz == "DataFrame":
+        if isPySparkDataFrame(entity) or isPandasDataFrame(entity):
             return [
                 {"categoryId": "Chart", "title": "Bar Chart", "icon": "fa-bar-chart", "id": "barChart"},
                 {"categoryId": "Chart", "title": "Line Chart", "icon": "fa-line-chart", "id": "lineChart"},
@@ -40,6 +40,7 @@ class ChartDisplayMeta(DisplayHandlerMeta):
             return []
     def newDisplayHandler(self,options,entity):
         handlerId=options.get("handlerId")
+        entity=createDataframeAdapter(entity)
         if handlerId is None or handlerId=="barChart":
             return BarChartDisplay(options,entity)
         elif handlerId=="lineChart":

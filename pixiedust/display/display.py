@@ -16,7 +16,7 @@
 
 from abc import ABCMeta,abstractmethod
 from IPython.display import display as ipythonDisplay, HTML, Javascript
-from ..utils.template import *
+from pixiedust.utils.template import *
 from .constants import *
 import sys
 import uuid
@@ -63,15 +63,6 @@ def safeCompare(entity1, entity2):
         return entity1 == entity2
     except:
         return False
-
-def fqName(entity):
-    return entity.__module__ + "." + entity.__class__.__name__
-
-def isPySparkDataFrame(entity):
-    return fqName(entity)=="pyspark.sql.dataframe.DataFrame"
-
-def isPandasDataFrame(entity):
-    return fqName(entity)=="pandas.core.frame.DataFrame"
 
 """
 PixieDust display class decorator
@@ -191,7 +182,7 @@ class Display(object):
             return ""        
         menuTree=OrderedDict()
         for catId in ActionCategories.CAT_INFOS.keys():
-            menuTree[catId]=[]    
+            menuTree[catId]=[]
         for handler in (handlers+systemHandlers):
             for menuInfo in handler.getMenuInfo(self.entity):
                 categoryId=menuInfo.get('categoryId')
@@ -199,8 +190,7 @@ class Display(object):
                     if not categoryId in menuTree:
                         menuTree[categoryId]=[menuInfo]
                     else:
-                        menuTree[categoryId].append(menuInfo) 
-
+                        menuTree[categoryId].append(menuInfo)
         return self.renderTemplate('cellOutput.html', menuTree=menuTree, numMenu=reduce(lambda n,t:n+t, [len(v) for k,v in menuTree.iteritems()], 0))
     
     def getPrefix(self, menuInfo=None):

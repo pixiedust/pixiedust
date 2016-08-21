@@ -124,11 +124,11 @@
     <div id="df-schema-{{prefix}}" class="panel-collapse collapse">
       <div class="panel-body" style="font-family: monospace;">
         <div class="df-schema-type">
-          <span>type: </span><span>{{dfInfo.getTypeName()}}</span>
+          <span>type: </span><span>{{entity.getTypeName()}}</span>
         </div>
         <div class="df-schema-fields">
           <div>field:</div>
-          {% for field in dfInfo.getFields() %}
+          {% for field in entity.getFields() %}
             <div class="df-schema-field">{{field.jsonValue()}}</div>
           {% endfor %}
         </div>
@@ -144,16 +144,16 @@
     </div>
     <div id="df-table-{{prefix}}" class="panel-collapse collapse in">
       <div class="panel-body">
-        {% set rows = dfInfo.take(100) %}
+        {% set rows = entity.take(100) %}
         <input type="text" class="df-table-search form-control input-sm" placeholder="Search table">
         <div>
-          <span class="df-table-search-count">Showing {{rows|length}} of {{dfInfo.count()}}</span>
+          <span class="df-table-search-count">Showing {{rows|length}} of {{entity.count()}}</span>
         </div>
         <!-- fixed header for when dataframe table scrolls -->
         <div class="fixed-header-container">
           <div class="fixed-header">
             <div class="fixed-row">
-              {% for field in dfInfo.getFields() %}
+              {% for field in entity.getFields() %}
               <div class="fixed-cell">{{field.name}}</div>
               {% endfor %}
             </div>
@@ -163,7 +163,7 @@
           <table class="df-table">
             <thead>
               <tr>
-                {% for field in dfInfo.getFields() %}
+                {% for field in entity.getFields() %}
                 <th><div>{{field.name}}</div></th>
                 {% endfor %}
               </tr>
@@ -171,7 +171,7 @@
             <tbody>
               {% for row in rows %}
               <tr>
-                {% for field in dfInfo.getFields() %}
+                {% for field in entity.getFields() %}
                 <td>{{row[field.name]}}</td>
                 {% endfor %}
               </tr>
@@ -191,7 +191,7 @@
     var tableContainer = $('.df-table-container', tableWrapper);
     var table = $('.df-table', tableContainer);
     var rows = $('tbody > tr', table);
-    var total = {{dfInfo.count()}};
+    var total = {{entity.count()}};
 
     fixedHeader
       .css('width', table.width())

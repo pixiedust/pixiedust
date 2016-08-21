@@ -16,6 +16,7 @@
 
 from .display import TableDisplay
 from ..display import *
+from pixiedust.utils.dataFrameAdapter import *
 
 @PixiedustDisplay(isDefault=True)
 class TableDisplayMeta(DisplayHandlerMeta):
