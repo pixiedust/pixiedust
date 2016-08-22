@@ -65,7 +65,23 @@ class PackageManager(object):
 
     def _toArtifact(self, artifact):
         if isinstance(artifact, basestring):
-            artifact=Artifact.parse(artifact)
+            #check if the user wants a direct download
+            if artifact.startswith("http://") or artifact.startswith("https://"):
+                url=artifact
+                artifact=type("",(),
+                    {
+                        "group_id":"direct.download",
+                        "artifact_id": artifact,
+                        "version":"1.0",
+                        "get_filename":lambda self,dir: os.path.join(dir, url.split("/")[-1] ),
+                        "is_snapshot": lambda self:False,
+                        "with_version": lambda self,version:self,
+                        "uri": lambda self, base, version: url,
+                        "__str__": lambda self: url
+                    }
+                )()
+            else:
+                artifact=Artifact.parse(artifact)
         return artifact
     
     def installPackage(self, artifact, base=None, sc=None):
