@@ -5,6 +5,10 @@ import org.apache.spark.SparkContext
 object PixiedustScalaRun {
     var sc:SparkContext=null;
 
+    {%for var,value in variables.iteritems()%}
+    var {{var}}:{{value["type"]}}={{value["codeValue"] or "null"}};
+    {%endfor%}
+
     def initSC(sc:SparkContext){
         this.sc = sc;
     }

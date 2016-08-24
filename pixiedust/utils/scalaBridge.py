@@ -19,11 +19,42 @@ from IPython.core.magic import (Magics, magics_class, cell_magic)
 from pixiedust.utils.javaBridge import *
 from pixiedust.utils.template import *
 
+'''
+Manages the variables defined interactively in the Notebook
+'''
+class InteractiveVariables(object):
+    def __init__(self, shell):
+        self.shell = shell
+
+    def varTypeTransformer(self, varName, varValue):
+        pythonToScalaTypeMap = {
+            "str":"String","int":"Int"
+        }
+        scalaType = pythonToScalaTypeMap.get(varValue.__class__.__name__, None)
+        if scalaType == "String":
+            varValue = "\"" + varValue + "\""
+        return {"value": varValue, "codeValue": varValue if scalaType is not None else None, "type": scalaType or "Any"}
+
+    def getVarsDict(self):
+        user_ns = self.shell.user_ns
+        user_ns_hidden = self.shell.user_ns_hidden
+        nonmatching = object()  # This can never be in user_ns
+        #for i in user_ns:
+        #    print(user_ns[i].__class__)
+        filtered = ["function"]
+        out = { key : self.varTypeTransformer(key, user_ns[key]) for key in user_ns \
+                if not key.startswith('_') \
+                and (user_ns[key] is not user_ns_hidden.get(key, nonmatching)) \
+                and not inspect.isclass(user_ns[key])\
+                and not inspect.isfunction(user_ns[key])\
+                and not inspect.ismodule(user_ns[key])}
+        return out
+
 @magics_class
 class PixiedustScalaMagics(Magics):
     def __init__(self, shell):
         super(PixiedustScalaMagics,self).__init__(shell)
-        self.interactiveShell = InteractiveVariable(shell)
+        self.interactiveVariables = InteractiveVariables(shell)
         self.scala_home = os.environ.get("SCALA_HOME")
         self.class_path = JavaWrapper("java.lang.System").getProperty("java.class.path")
         self.env = PixiedustTemplateEnvironment()
@@ -36,14 +67,19 @@ class PixiedustScalaMagics(Magics):
         if not self.scala_home:
             print("Error Cannot run scala code: SCALA_HOME environment variable not set")
             return
-
-        scalaCode = self.env.getTemplate("scalaCell.template").render(cell=cell)
+        
+        #generate the code
+        scalaCode = self.env.getTemplate("scalaCell.template").render(
+            cell=cell, variables=self.interactiveVariables.getVarsDict()
+        )
         if self.hasLineOption(line, "debug"):
             print(scalaCode)
             return
         
         #build the scala object
-        dir="/Users/dtaieb/temp"
+        dir=os.path.expanduser('~') + "/pixiedust"
+        if not os.path.exists(dir):
+            os.makedirs(dir)
         source="pixiedustRunner.scala"
         with open(dir + "/" + source, "w") as f:
             f.write(scalaCode)
@@ -79,10 +115,3 @@ class PixiedustScalaMagics(Magics):
         runnerObject=None
 
 get_ipython().register_magics(PixiedustScalaMagics)
-
-'''
-Manages the variables defined interactively in the Notebook
-'''
-class InteractiveVariable(object):
-    def __init__(self, shell):
-        self.shell = shell
