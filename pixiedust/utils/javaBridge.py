@@ -16,6 +16,7 @@
 from pyspark import SparkContext
 from pyspark.sql import SQLContext, DataFrame
 import py4j.java_gateway
+import sys
 
 """
 class used to redirect Java JVM System output to Python notebook
@@ -33,24 +34,27 @@ Helper class for making it easier to call Java code from Python
 """
 sc = SparkContext.getOrCreate()
 class JavaWrapper(object): 
-    def __init__(self, fqName, captureOutput=False):
-        self.fqName = fqName
-        self.jHandle = self._getJavaHandle()
+    def __init__(self, objectIdentifier, captureOutput=False):
+        if isinstance(objectIdentifier, str if sys.version >= '3' else basestring):
+            self.jHandle = self._getJavaHandle(objectIdentifier)
+        else:
+            self.jHandle=objectIdentifier
         self.captureOutput(captureOutput)
         
     def captureOutput(self, doIt):
-        if doIt:       
-            pixiedustOutputStream = JavaWrapper("com.ibm.pixiedust.PixiedustOutputStream")
-            console = JavaWrapper("scala.Console")
-            console.setOut(pixiedustOutputStream.jHandle(PixiedustOutput()))
+        if doIt:
+            pixiedustOutputSink = JavaWrapper("com.ibm.pixiedust.PixiedustOutputStream").jHandle(PixiedustOutput())
+            JavaWrapper("scala.Console").setOut(pixiedustOutputSink)
+            #TODO: find a way to redirect system.out output for the current execution of the call
+            #JavaWrapper("java.lang.System").setOut(pixiedustOutputSink)
             sc._gateway.start_callback_server()
 
     def __getattr__(self, name):
         o = self.jHandle.__getattr__(name)
         return o
         
-    def _getJavaHandle(self):
-        parts = self.fqName.split(".")
+    def _getJavaHandle(self,fqName):
+        parts = fqName.split(".")
         handle = sc._jvm
         for package in parts:
             handle = handle.__getattr__(package)
@@ -59,6 +63,20 @@ class JavaWrapper(object):
         except:
             handle = handle
         return handle
+
+    '''
+    use direct Java Reflection to run a method. This is needed because in case of dynamically loaded classes, Py$j automatic reflexion doesn't
+    work right
+    '''
+    def callMethod(self, methodName, *args):
+        argLen = len(args)
+        jMethodParams = None if argLen == 0 else sc._gateway.new_array(sc._jvm.Class, argLen )
+        jMethodArgs = None if argLen == 0 else sc._gateway.new_array(sc._jvm.Object, argLen )
+        for i,arg in enumerate(args):
+            jMethodParams[i] = arg.getClass()
+            jMethodArgs[i] = arg
+        #get the method and invoke it
+        self.jHandle.getClass().getMethod(methodName, jMethodParams).invoke(self.jHandle, jMethodArgs)
 
 """
 Misc helper functions

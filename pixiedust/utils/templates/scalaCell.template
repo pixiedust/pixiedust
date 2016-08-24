@@ -1,0 +1,15 @@
+package com.ibm.pixiedust
+
+import org.apache.spark.SparkContext
+
+object PixiedustScalaRun {
+    var sc:SparkContext=null;
+
+    def initSC(sc:SparkContext){
+        this.sc = sc;
+    }
+
+    def runCell(){
+        {{cell}}
+    }
+}

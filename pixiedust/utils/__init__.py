@@ -16,5 +16,6 @@
 
 import storage
 from javaBridge import *
+from scalaBridge import *
 
 storage._initStorage();
