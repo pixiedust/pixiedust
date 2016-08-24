@@ -13,7 +13,9 @@ object PixiedustScalaRun {
         this.sc = sc;
     }
 
-    def runCell(){
+    def runCell():Map[String, Any]={
         {{cell}}
+
+        Map({%for var in returnVars%}{%if not loop.first%},{%endif%} "{{var}}"->{{var}} {%endfor%})
     }
 }

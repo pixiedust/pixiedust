@@ -20,3 +20,8 @@ import packageManager
 import display
 import services
 import utils
+
+#shortcut to packageManager
+printAllPackages=packageManager.printAllPackages
+installPackage=packageManager.installPackage
+uninstallPackage=packageManager.uninstallPackage

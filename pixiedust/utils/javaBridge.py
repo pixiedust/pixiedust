@@ -76,7 +76,7 @@ class JavaWrapper(object):
             jMethodParams[i] = arg.getClass()
             jMethodArgs[i] = arg
         #get the method and invoke it
-        self.jHandle.getClass().getMethod(methodName, jMethodParams).invoke(self.jHandle, jMethodArgs)
+        return self.jHandle.getClass().getMethod(methodName, jMethodParams).invoke(self.jHandle, jMethodArgs)
 
 """
 Misc helper functions

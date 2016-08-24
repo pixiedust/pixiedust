@@ -15,3 +15,9 @@
 # -------------------------------------------------------------------------------
 
 from .packageManager import PackageManager
+
+#shortcut to packageManager
+pkg=PackageManager()
+printAllPackages=pkg.printAllPackages
+installPackage=pkg.installPackage
+uninstallPackage=pkg.uninstallPackage

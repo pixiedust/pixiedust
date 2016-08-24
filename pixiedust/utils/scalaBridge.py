@@ -15,6 +15,7 @@
 # -------------------------------------------------------------------------------
 import os
 import subprocess
+import re
 from IPython.core.magic import (Magics, magics_class, cell_magic)
 from pixiedust.utils.javaBridge import *
 from pixiedust.utils.template import *
@@ -25,6 +26,9 @@ Manages the variables defined interactively in the Notebook
 class InteractiveVariables(object):
     def __init__(self, shell):
         self.shell = shell
+
+    def getVar(self, varName):
+        return self.shell.user_ns.get(varName, None ) or self.shell.user_ns_hidden.get(varName, None)
 
     def varTypeTransformer(self, varName, varValue):
         pythonToScalaTypeMap = {
@@ -50,6 +54,9 @@ class InteractiveVariables(object):
                 and not inspect.ismodule(user_ns[key])}
         return out
 
+    def updateVarsDict(self, vars):
+        self.shell.user_ns.update(vars)
+
 @magics_class
 class PixiedustScalaMagics(Magics):
     def __init__(self, shell):
@@ -62,6 +69,20 @@ class PixiedustScalaMagics(Magics):
     def hasLineOption(self, line, option):
         return option in line
 
+    def getReturnVars(self, code):
+        vars=set()
+        for m in re.finditer(r"\b__(\w+?)\b",code):
+            vars.add(m.group(0))
+        return vars
+
+    def fromJava(self, stuff):
+        if stuff.__class__.__name__ == "JavaObject":
+            if stuff.getClass().getName() == "org.apache.spark.sql.DataFrame":
+                return DataFrame(stuff, SQLContext(SparkContext.getOrCreate(), stuff.sqlContext()))
+            elif stuff.getClass().getName() == "org.apache.spark.sql.SQLContext":
+                return SQLContext(SparkContext.getOrCreate(),stuff)
+        return stuff
+
     @cell_magic
     def scala(self, line, cell):
         if not self.scala_home:
@@ -70,7 +91,7 @@ class PixiedustScalaMagics(Magics):
         
         #generate the code
         scalaCode = self.env.getTemplate("scalaCell.template").render(
-            cell=cell, variables=self.interactiveVariables.getVarsDict()
+            cell=cell, variables=self.interactiveVariables.getVarsDict(), returnVars=self.getReturnVars(cell)
         )
         if self.hasLineOption(line, "debug"):
             print(scalaCode)
@@ -105,7 +126,15 @@ class PixiedustScalaMagics(Magics):
         
         runnerObject = JavaWrapper(cls.getField("MODULE$").get(None), True)
         runnerObject.callMethod("initSC", pd_getJavaSparkContext() )
-        runnerObject.callMethod("runCell")
+        varMap = runnerObject.callMethod("runCell")
+
+        #capture the return vars and update the interactive shell
+        returnVars = {}
+        it = varMap.iterator()
+        while it.hasNext():
+            t = it.next()
+            returnVars[t._1()] = self.fromJava(t._2())
+        self.interactiveVariables.updateVarsDict(returnVars)
 
         #discard the ClassLoader, we only use it within the context of a cell.
         #TODO: change that when we support inline scala class/object definition
