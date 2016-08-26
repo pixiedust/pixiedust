@@ -57,7 +57,7 @@ class BaseChartDisplay(ChartDisplay):
         defaultFields = []
         for field in self.entity.schema.fields:
             type = field.dataType.__class__.__name__
-            if (type != "LongType" and type != "IntegerType" and field.name.lower() !="id"):
+            if (self.isNumericType(type) == False and field.name.lower() != "id"):
                 defaultFields.append(field.name)
                 if len(defaultFields) == self.getPreferredDefaultKeyFieldCount(handlerId):
                     break
@@ -120,7 +120,7 @@ class BaseChartDisplay(ChartDisplay):
         fieldNames = []
         for field in self.entity.schema.fields:
             type = field.dataType.__class__.__name__
-            if ( type =="LongType" or type == "IntegerType" ):
+            if self.isNumericType(type):
                 fieldNames.append(field.name)
                 if len(fieldNames) == self.getPreferredDefaultValueFieldCount(handlerId):
                     break
@@ -204,7 +204,7 @@ class BaseChartDisplay(ChartDisplay):
         else:
             for field in self.entity.schema.fields:
                 type = field.dataType.__class__.__name__
-                if (type =="LongType" or type == "IntegerType"):
+                if self.isNumericType(type):
                     return (True, None)
             return (False, "At least one numerical column required.")
 
@@ -257,7 +257,10 @@ class BaseChartDisplay(ChartDisplay):
         for field in self.entity.schema.fields:
             if (field.name == fieldName):
                 type = field.dataType.__class__.__name__
-                if ( type =="LongType" or type == "IntegerType" ):
+                if self.isNumericType(type):
                     return True
         return False
+    
+    def isNumericType(self, type):
+        return (type =="LongType" or type == "IntegerType" or type == "DoubleType")
 	

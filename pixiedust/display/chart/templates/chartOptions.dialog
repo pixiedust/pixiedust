@@ -5,7 +5,7 @@
 
 {%block body%}
 <form id="chartOptions{{prefix}}">
-{{body}}
+{{optionsDialogBody}}
 </form>
 <div class="bootbox-body row">
 </div>

@@ -32,32 +32,55 @@ class MapChartDisplay(BaseChartDisplay):
         for field in self.entity.schema.fields:
             if field.name.lower() == 'country' or field.name.lower() == 'province' or field.name.lower() == 'state' or field.name.lower() == 'city':
                 return [field.name]
-        # no field found - defer to superclass
+        # check for lat/long
+        latLongFields = []
+        for field in self.entity.schema.fields:
+            if field.name.lower() == 'lat' or field.name.lower() == 'latitude':
+                latLongFields.append(field.name)
+        for field in self.entity.schema.fields:
+            if field.name.lower() == 'lon' or field.name.lower() == 'long' or field.name.lower() == 'longitude':
+                latLongFields.append(field.name)
+        if (len(latLongFields) == 2):
+            return latLongFields
+        # no relevant fields found - defer to superclass
         return super(MapChartDisplay, self).getDefaultKeyFields(handlerId, aggregation)
     
     def getChartContext(self, handlerId):
         return ('mapChartOptionsDialogBody.html', {})
     
     def doRenderChart(self, handlerId, dialogTemplate, dialogOptions, aggregation, keyFields, keyFieldValues, keyFieldLabels, valueFields, valueFieldValues):
+        latLong = super(MapChartDisplay, self).isNumericField(keyFields[0])
         if self.options.get("mapRegion") is None:
             if keyFields[0].lower() == "state":
                 self.options["mapRegion"] = "US"
             else:    
                 self.options["mapRegion"] = "world"
         if self.options.get("mapDisplayMode") is None:
-            self.options["mapDisplayMode"] = "region"
+            if latLong:
+                self.options["mapDisplayMode"] = "markers"
+            else:
+                self.options["mapDisplayMode"] = "region"
         dialogBody = self.renderTemplate(dialogTemplate, **dialogOptions)
-        mapData = "[['" + keyFields[0].replace('"','') + "'"
+        mapData = "[["
+        for i, keyField in enumerate(keyFields):
+            if i is not 0:
+                mapData = mapData + ", "
+            mapData = mapData + "'" + keyFields[0].replace('"','') + "'"
         for i, valueField in enumerate(valueFields):
             mapData = mapData + ", '" + valueField.replace('"','') + "'"
         mapData = mapData + "]"
         for i, keyFieldLabel in enumerate(keyFieldLabels):
-            mapData = mapData + ", ['" + keyFieldLabels[i].replace('"','') + "'"
+            mapData = mapData + ", ["
+            if latLong == False:
+                mapData = mapData + "'"
+            mapData = mapData + keyFieldLabels[i].replace('"','')
+            if latLong == False:
+                 mapData = mapData + "'"
             for j, valueFieldValue in enumerate(valueFieldValues):
                 mapData = mapData + ", " + str(valueFieldValues[j][i]).replace('"','')
             mapData = mapData + "]"
         mapData = mapData + "]"
         self.options["mapData"] = mapData.replace("'",'"')
         self._addScriptElement("https://www.gstatic.com/charts/loader.js")
-        self._addScriptElement("https://www.google.com/jsapi", callback=self.renderTemplate("mapChart.js", body=dialogBody))
-        self._addHTMLTemplate("mapChart.html")
+        self._addScriptElement("https://www.google.com/jsapi", callback=self.renderTemplate("mapChart.js"))
+        self._addHTMLTemplate("mapChart.html", optionsDialogBody=dialogBody)

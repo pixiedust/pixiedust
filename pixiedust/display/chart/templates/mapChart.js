@@ -1,6 +1,3 @@
-$("#mapOptions{{prefix}}").click(function(){
-    {%include module + ":chartOptions.dialog" %}
-});
 function draw() {
 	var drawOptions = {
 		region: '{{this.options.get("mapRegion")}}',

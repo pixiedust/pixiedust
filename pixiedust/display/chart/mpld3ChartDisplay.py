@@ -34,7 +34,7 @@ class Mpld3ChartDisplay(BaseChartDisplay):
     def doRenderChart(self, handlerId, dialogTemplate, dialogOptions, aggregation, keyFields, keyFieldValues, keyFieldLabels, valueFields, valueFieldValues):
         # go
         mpld3.enable_notebook()
-        fig, ax = plt.subplots()
+        fig, ax = plt.subplots(figsize=(6,4))
         dialogBody = self.renderTemplate(dialogTemplate, **dialogOptions)
         if (len(keyFieldLabels) > 0 and self.supportsKeyFieldLabels(handlerId) and self.supportsAggregation(handlerId)):
             plugins.connect(fig, ChartPlugin(self, keyFieldLabels))
@@ -44,4 +44,5 @@ class Mpld3ChartDisplay(BaseChartDisplay):
         self.setChartSize(handlerId, fig, ax, colormap, keyFields, keyFieldValues, keyFieldLabels, valueFields, valueFieldValues)
         self.setChartGrid(handlerId, fig, ax, colormap, keyFields, keyFieldValues, keyFieldLabels, valueFields, valueFieldValues)
         self.setChartLegend(handlerId, fig, ax, colormap, keyFields, keyFieldValues, keyFieldLabels, valueFields, valueFieldValues)
-	
+        self._addHTMLTemplate("mpld3Chart.html", mpld3Figure=mpld3.fig_to_html(fig), optionsDialogBody=dialogBody)
+        

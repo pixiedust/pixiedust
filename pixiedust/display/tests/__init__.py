@@ -22,7 +22,7 @@ from .test2 import *
 import warnings
 with warnings.catch_warnings():
     warnings.simplefilter("ignore")
-    get_ipython().run_line_magic("matplotlib", "inline")
+    #get_ipython().run_line_magic("matplotlib", "inline")
 
 class TestsDisplayMeta(DisplayHandlerMeta):
     @addId

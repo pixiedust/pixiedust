@@ -31,9 +31,9 @@ class ChartDisplayMeta(DisplayHandlerMeta):
             return [
                 {"categoryId": "Chart", "title": "Bar Chart", "icon": "fa-bar-chart", "id": "barChart"},
                 {"categoryId": "Chart", "title": "Line Chart", "icon": "fa-line-chart", "id": "lineChart"},
-                {"categoryId": "Chart", "title": "Scatter Plot", "icon": "fa-table", "id": "scatterPlot"},
+                {"categoryId": "Chart", "title": "Scatter Plot", "icon": "fa-circle", "id": "scatterPlot"},
                 {"categoryId": "Chart", "title": "Pie Chart", "icon": "fa-pie-chart", "id": "pieChart"},
-                {"categoryId": "Chart", "title": "Map", "icon": "fa-map", "id": "mapChart"},
+                {"categoryId": "Chart", "title": "Map", "icon": "fa-globe", "id": "mapChart"},
                 {"categoryId": "Chart", "title": "Histogram", "icon": "fa-table", "id": "histogram"}
             ]
         else:
