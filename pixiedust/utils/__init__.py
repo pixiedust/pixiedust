@@ -17,5 +17,26 @@
 import storage
 from javaBridge import *
 from scalaBridge import *
+import pkg_resources
+import binascii
+import shutil
 
 storage._initStorage();
+
+#init scala bridge, make sure that correct pixiedust.jar is installed
+jarFilePath = os.path.expanduser('~') + "/data/libs/pixiedust.jar"
+def installPixiedustJar():
+    with pkg_resources.resource_stream(__name__, "resources/pixiedust.jar") as resJar:
+        with open( jarFilePath, 'w+' ) as installedJar:
+            shutil.copyfileobj(resJar, installedJar)
+            print("Pixiedust runtime updated. Please restart kernel")
+
+copyFile = True
+if os.path.isfile(jarFilePath):
+    with open( jarFilePath, 'r' ) as installedJar:
+        installedCRC = binascii.crc32( installedJar.read() )
+        with pkg_resources.resource_stream(__name__, "resources/pixiedust.jar") as resJar:
+            copyFile = installedCRC != binascii.crc32(resJar.read())
+
+if copyFile:
+    installPixiedustJar()

@@ -49,7 +49,8 @@ class PixiedustTemplateLoader(BaseLoader):
         path = self.path + "/" + templatePath
         data = None
         if  decode == "base64":
-            data = StringIO(pkg_resources.resource_stream(module, path).read()).getvalue().encode('base64')
+            with pkg_resources.resource_stream(module, path) as res:
+                data = StringIO(res.read()).getvalue().encode('base64')
         else:
             data = pkg_resources.resource_string(module, path ).decode(decode)
         

@@ -1,1 +1,2 @@
 recursive-include pixiedust templates/*
+recursive-include pixiedust resources/*
