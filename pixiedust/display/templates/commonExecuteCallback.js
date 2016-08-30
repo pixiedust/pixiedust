@@ -35,21 +35,22 @@ var callbacks = {
     {%if command%}
     var command = "{{command}}";
     function addOptions(options){
+        function getStringRep(v) {
+            if (!isNaN(parseFloat(v)) && isFinite(v)){
+                return v.toString();
+            }
+            return "'" + v + "'";
+        }
         for (var key in options){
             var value = options[key];
-            function getStringRep(v) {
-                if (!isNaN(parseFloat(n)) && isFinite(n) ){
-                    return v.toString();
-                }
-                return "'" + v + "'";
-            }
-            var replaceValue = !!value ? (key+"=" + getStringRep(value) ) : "";
-            var pattern = (!!value?"":",")+"\\s*" + key + "\\s*=\\s*'(\\\\'|[^'])*'";
+            var hasValue = value != null && typeof value !== 'undefined' && value !== '';
+            var replaceValue = hasValue ? (key+"=" + getStringRep(value) ) : "";
+            var pattern = (hasValue?"":",")+"\\s*" + key + "\\s*=\\s*'(\\\\'|[^'])*'";
             var rpattern=new RegExp(pattern);
             var n = command.search(rpattern);
             if ( n >= 0 ){
                 command = command.replace(rpattern, replaceValue);
-            }else if (options[key]){
+            }else if (hasValue){
                 var n = command.lastIndexOf(")");
                 command = [command.slice(0, n), (command[n-1]=="("? "":",") + replaceValue, command.slice(n)].join('')
             }        
