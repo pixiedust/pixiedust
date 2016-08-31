@@ -25,6 +25,9 @@ It implements a Java interface that will be used as a callback from the java sid
 class PixiedustOutput(object):
     def printOutput(self, s):
         print(s)
+
+    def sendChannel(self, channel, data):
+        self.printOutput(channel + " : " + data)
         
     class Java:
         implements = ["com.ibm.pixiedust.PixiedustOutputListener"]
@@ -34,17 +37,36 @@ Helper class for making it easier to call Java code from Python
 """
 sc = SparkContext.getOrCreate()
 class JavaWrapper(object): 
-    def __init__(self, objectIdentifier, captureOutput=False):
+    def __init__(self, objectIdentifier, captureOutput=False, outputChannel = None, outputReceiverClassName = None):
         if isinstance(objectIdentifier, str if sys.version >= '3' else basestring):
             self.jHandle = self._getJavaHandle(objectIdentifier)
         else:
             self.jHandle=objectIdentifier
+        self.outputChannel = self.createClass(outputChannel) or PixiedustOutput()
+        self.outputReceiver = JavaWrapper(outputReceiverClassName) if outputReceiverClassName is not None else None
         self.captureOutput(captureOutput)
+
+    def createClass(self, className):
+        if className is None or className == False:
+            return None
+        #extract module
+        index = className.rfind(".")
+        moduleName = None
+        if index > 0:
+            moduleName = className[:index]
+            className = className[index+1:]
+
+        __import__(moduleName)
+        return getattr(sys.modules[moduleName], className)()
         
     def captureOutput(self, doIt):
         if doIt:
-            pixiedustOutputSink = JavaWrapper("com.ibm.pixiedust.PixiedustOutputStream").jHandle(PixiedustOutput())
+            pixiedustOutputSink = JavaWrapper("com.ibm.pixiedust.PixiedustOutputStream").jHandle(self.outputChannel)
             JavaWrapper("scala.Console").setOut(pixiedustOutputSink)
+
+            if self.outputReceiver and self.outputChannel and self.outputReceiver.hasMethod("setChannelListener", sc._jvm.java.lang.Class.forName("com.ibm.pixiedust.PixiedustOutputListener")):
+                self.outputReceiver.setChannelListener(self.outputChannel)
+
             #TODO: find a way to redirect system.out output for the current execution of the call
             #JavaWrapper("java.lang.System").setOut(pixiedustOutputSink)
             sc._gateway.start_callback_server()
@@ -63,6 +85,20 @@ class JavaWrapper(object):
         except:
             handle = handle
         return handle
+
+    def hasMethod(self, methodName, *args):
+        return self.getMethod(methodName, *args) != None
+
+    def getMethod(self, methodName, *args):
+        argLen = len(args)
+        jMethodParams = None if argLen == 0 else sc._gateway.new_array(sc._jvm.Class, argLen )
+        for i,arg in enumerate(args):
+            jMethodParams[i] = arg if arg.getClass().getName() == "java.lang.Class" else arg.getClass()
+
+        try:
+            return self.jHandle.getClass().getMethod(methodName, jMethodParams)
+        except:
+            return None
 
     '''
     use direct Java Reflection to run a method. This is needed because in case of dynamically loaded classes, Py$j automatic reflexion doesn't

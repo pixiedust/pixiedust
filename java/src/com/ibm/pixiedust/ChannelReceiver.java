@@ -13,13 +13,25 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
+
 package com.ibm.pixiedust;
 
 /**
  * @author dtaieb
  *
  */
-public interface PixiedustOutputListener {
-	void printOutput(String s);
-	void sendChannel(String channel, String data);	
+public class ChannelReceiver {
+
+	private PixiedustOutputListener listener;
+	
+	public void setChannelListener(PixiedustOutputListener listener){
+		this.listener = listener;
+	}
+	
+	public void send(String channel, String data){
+		if ( this.listener != null ){
+			this.listener.sendChannel(channel, data);
+		}
+	}
+
 }

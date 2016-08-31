@@ -66,8 +66,12 @@ class PixiedustScalaMagics(Magics):
         self.class_path = JavaWrapper("java.lang.System").getProperty("java.class.path")
         self.env = PixiedustTemplateEnvironment()
 
-    def hasLineOption(self, line, option):
-        return option in line
+    def getLineOption(self, line, optionName):
+        m=re.search(r"\b" + optionName + r"=(\S+)",line)
+        return m.group(1) if m is not None else None
+
+    def hasLineOption(self, line, optionName):
+        return re.match(r"\b" + optionName + r"\b", line) is not None
 
     def getReturnVars(self, code):
         vars=set()
@@ -123,8 +127,9 @@ class PixiedustScalaMagics(Magics):
 
         cl = sc._jvm.java.net.URLClassLoader(urls)
         cls = sc._jvm.java.lang.Class.forName("com.ibm.pixiedust.PixiedustScalaRun$", True, cl)
-        
-        runnerObject = JavaWrapper(cls.getField("MODULE$").get(None), True)
+
+        runnerObject = JavaWrapper(cls.getField("MODULE$").get(None), True, 
+            self.getLineOption(line, "channel"), self.getLineOption(line, "receiver"))
         runnerObject.callMethod("initSC", pd_getJavaSparkContext() )
         varMap = runnerObject.callMethod("runCell")
 

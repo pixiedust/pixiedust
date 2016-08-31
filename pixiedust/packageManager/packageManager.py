@@ -66,7 +66,7 @@ class PackageManager(object):
     def _toArtifact(self, artifact):
         if isinstance(artifact, basestring):
             #check if the user wants a direct download
-            if artifact.startswith("http://") or artifact.startswith("https://"):
+            if artifact.startswith("http://") or artifact.startswith("https://") or artifact.startswith("file://"):
                 url=artifact
                 artifact=type("",(),
                     {
