@@ -56,6 +56,7 @@
                 KeyboardManager.prototype.enable = global.KMEnableProto;
                 delete global.KMEnableProto;
             }
+            {%block onDialogHide%}{%endblock%}
             $('#pixiedust-dialog-script-{{prefix}}').remove();
         });
         {% endif -%}

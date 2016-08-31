@@ -13,7 +13,11 @@
     {%for t in this.scripts %}
         callback = function(){
             {%if t[2] is not none%}
-                {{t[2]}}
+                {%for locCall in t[2]|smartList %}
+                    !function(){
+                        {{locCall}}
+                    }();
+                {%endfor%}
             {%endif%}
         };
         if ({%if t[1] is not none%}(typeof {{t[1]}}=='undefined')&&{%endif%}!hasScriptElement('{{t[0]}}')){
