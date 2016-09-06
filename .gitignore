@@ -93,3 +93,5 @@ ENV/
 # IntelliJ
 .idea
 *.iml
+
+pixiedust/display/.DS_Store

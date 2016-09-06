@@ -262,5 +262,5 @@ class BaseChartDisplay(ChartDisplay):
         return False
     
     def isNumericType(self, type):
-        return (type =="LongType" or type == "IntegerType" or type == "DoubleType")
+        return (type =="LongType" or type == "IntegerType" or type == "DoubleType" or type == "DecimalType" or type == "FloatType")
 	
