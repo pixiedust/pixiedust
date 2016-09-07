@@ -20,7 +20,7 @@ function() {
                 if(msg_type==="stream"){
                     $('#wrapperHTML{{prefix}}').html(content.text);
                 }else if (msg_type==="display_data" || msg_type==="execute_result"){
-                    var html=null;                                
+                    var html=null;
                     if (!!content.data["text/html"]){
                         html=content.data["text/html"];
                     }else if (!!content.data["image/png"]){
@@ -77,9 +77,47 @@ function() {
     
     if (IPython && IPython.notebook && IPython.notebook.session && IPython.notebook.session.kernel){
         var command = "{{this._genDisplayScript(menuInfo)}}".replace("cellId",cellId);
+        if(typeof cellMetadata != "undefined" && cellMetadata.displayParams){
+            function getStringRep(v) {
+                if (!isNaN(parseFloat(v)) && isFinite(v)){
+                    return v.toString();
+                }
+                return "'" + v + "'";
+            }
+            function updateCommand(key,value){
+                var replaceValue = key+ "=" + getStringRep(value);
+                var pattern = "\\s*" + key + "\\s*=\\s*'(\\\\'|[^'])*'";
+                var rpattern=new RegExp(pattern);
+                var n = command.search(rpattern);
+                if ( n < 0 ){
+                    var n = command.lastIndexOf(")");
+                    command = [command.slice(0, n), (command[n-1]=="("? "":",") + replaceValue, command.slice(n)].join('')
+                }
+            }
+            for (var key in cellMetadata.displayParams){
+                updateCommand(key, cellMetadata.displayParams[key]);
+            }
+            updateCommand("showchrome","true");
+        }
         {%block preRunCommandScript%}{%endblock%}
-        console.log("Running command",command);
-        if(curCell&&curCell.output_area)curCell.output_area.outputs=[];
+        console.log("Running command2",command);
+        var pattern = "\\w*\\s*=\\s*'(\\\\'|[^'])*'";
+        var rpattern=new RegExp(pattern,"g");
+        var n = command.match(rpattern);
+        var displayParams={}
+        for (var i = 0; i < n.length; i++){
+            var parts=n[i].split("=");
+            var key = parts[0].trim();
+            var value = parts[1].trim()
+            if (key != "showchrome" && key != "prefix" && key != "cell_id"){
+                displayParams[key] = value.substring(1,value.length-1);
+            }
+        }
+        if(curCell&&curCell.output_area){
+            curCell._metadata.pixiedust = curCell._metadata.pixiedust || {}
+            curCell._metadata.pixiedust.displayParams=displayParams
+            curCell.output_area.outputs=[];
+        }
         $('#wrapperJS{{prefix}}').html("")
         $('#wrapperHTML{{prefix}}').html('<div style="width:100px;height:60px;left:47%;position:relative"><i class="fa fa-circle-o-notch fa-spin" style="font-size:48px"></i></div>'+
         '<div style="text-align:center">Loading your data. Please wait...</div>');

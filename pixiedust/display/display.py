@@ -22,6 +22,7 @@ import sys
 import uuid
 from collections import OrderedDict
 import time
+import re
 
 handlers=[]
 systemHandlers=[]
@@ -43,7 +44,14 @@ def getSelectedHandler(options, entity):
         
     handlerId=options.get("handlerId")
     if handlerId is not None:
-        return globalMenuInfos[handlerId]['handler']
+        if handlerId in globalMenuInfos:
+            return globalMenuInfos[handlerId]['handler']
+        else:
+            #we need to find it
+            for handler in (handlers+systemHandlers):
+                for menuInfo in handler.getMenuInfo(entity):
+                    if handlerId in globalMenuInfos:
+                        return globalMenuInfos[handlerId]['handler']
     else:
         if defaultHandler is not None and len(defaultHandler.getMenuInfo(entity))>0:
             return defaultHandler
@@ -108,7 +116,7 @@ class Display(object):
         self.options=options
         self.html=""
         self.scripts=list()
-        self.noChrome="handlerId" in options
+        self.noChrome="handlerId" in options and "showchrome" not in options
         self.addProfilingTime = True
         self.executionTime=None
 
@@ -126,15 +134,19 @@ class Display(object):
     
     def render(self):
         handlerId=self.options.get("handlerId")
-        if handlerId is None:
+        if handlerId is None or not self.noChrome:
             #get the first menuInfo for this handler and generate a js call
-            menuInfos = self.handlerMetadata.getMenuInfo(self.entity)
-            if len(menuInfos)>0:
+            menuInfo = globalMenuInfos[handlerId] if handlerId is not None and handlerId in globalMenuInfos else None
+            if menuInfo is None:
+                menuInfos = self.handlerMetadata.getMenuInfo(self.entity)
+                if len(menuInfos)>0:
+                    menuInfo = menuInfos[0]
+            if menuInfo is not None:
                 self._addHTML("""
                     <script>
                     ({0})();
                     </script>
-                """.format(self._getExecutePythonDisplayScript(menuInfos[0])))
+                """.format(self._getExecutePythonDisplayScript(menuInfo)))
         else:
             start = time.clock()
             self.doRender(handlerId)
@@ -179,7 +191,7 @@ class Display(object):
     
     def _wrapBeforeHtml(self):
         if self.noChrome:
-            return ""        
+            return ""   
         menuTree=OrderedDict()
         for catId in ActionCategories.CAT_INFOS.keys():
             menuTree[catId]=[]
@@ -211,17 +223,33 @@ class Display(object):
         """.format(self.getPrefix(menuInfo),self._getExecutePythonDisplayScript(menuInfo))
         
     def _genDisplayScript(self, menuInfo=None,addOptionDict={}):
-        k=self.callerText.rfind(")")
-        retScript = self.callerText[:k]
+        def updateCommand(command,key,value):
+            hasValue = value is not None and value != ''
+            replaceValue = (key+"=" + str(value)) if hasValue else ""
+            pattern = ("" if hasValue else ",")+"\\s*" + key + "\\s*=\\s*'((\\\\'|[^'])*)'"
+            m = re.search(pattern, str(command), re.IGNORECASE)
+            retCommand = command
+            if m is not None:
+                retCommand = command.replace(m.group(0), key+"='"+value+"'" if hasValue else "");
+            elif hasValue:
+                k=command.rfind(")")
+                retCommand = command[:k]
+                retCommand+=","+key+"='"+value+"'"
+                retCommand+= command[k:]
+            return retCommand
+
+        command = self.callerText
         if menuInfo:
-            retScript+= ",handlerId='"+menuInfo['id'] + "'"
-            retScript+= ",prefix='" + self.getPrefix() + "'"
+            command = updateCommand(command, "handlerId", menuInfo['id'])
+            command = updateCommand(command, "prefix", self.getPrefix())
         if "cell_id" not in self.options:
-            retScript+= ",cell_id='cellId'"
+            command = updateCommand(command, "cell_id", 'cellId')
         for key,value in addOptionDict.iteritems():
-            retScript+=","+key+"='"+value+"'"
-        retScript+= self.callerText[k:]
-        return retScript.replace("\"","\\\"")
+            command = updateComand(command, key, value)
+
+        command = updateCommand(command, "showchrome", None)
+        #remove showchrome if there
+        return command.replace("\"","\\\"")
         
     def getCategoryTitle(self,catId):
         if catId in ActionCategories.CAT_INFOS:
