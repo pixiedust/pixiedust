@@ -4,10 +4,22 @@
 var addValueToCommand = function(name, value) {
     if (value) {
         var startIndex, endIndex;
-        startIndex = command.indexOf(","+name+"='");
+        startIndex = command.indexOf(","+name+"=");
         if (startIndex >= 0) {
-            endIndex = command.indexOf("'", startIndex+1);
-            endIndex = command.indexOf("'", endIndex+1) + 1;
+            commaIndex = command.indexOf(",", startIndex+1);
+            quoteIndex = command.indexOf("'", startIndex+1);
+            if (quoteIndex >=0 && quoteIndex < commaIndex) {
+                // value is enclosed in quotes - end of value will be second quote
+                endIndex = command.indexOf("'", quoteIndex+1) + 1;
+            }
+            else if (commaIndex >= 0) {
+                // end of value is the comma
+                endIndex = commaIndex;
+            }
+            else {
+                // no quote or comma found - end of value is at the very end
+                endIndex = command.indexOf(")", startIndex+1);
+            }
         }
         else {
             startIndex = endIndex = command.lastIndexOf(")");
@@ -18,10 +30,22 @@ var addValueToCommand = function(name, value) {
     }
     else {
         var startIndex, endIndex;
-        startIndex = command.indexOf(","+name+"='");
+        startIndex = command.indexOf(","+name+"=");
         if (startIndex >= 0) {
-            endIndex = command.indexOf("'", startIndex+1);
-            endIndex = command.indexOf("'", endIndex+1) + 1;
+            commaIndex = command.indexOf(",", startIndex+1);
+            quoteIndex = command.indexOf("'", startIndex+1);
+            if (quoteIndex >=0 && quoteIndex < commaIndex) {
+                // value is enclosed in quotes - end of value will be second quote
+                endIndex = command.indexOf("'", quoteIndex+1) + 1;
+            }
+            else if (commaIndex >= 0) {
+                // end of value is the comma
+                endIndex = commaIndex;
+            }
+            else {
+                // no quote or comma found - end of value is at the very end
+                endIndex = command.indexOf(")", startIndex+1);
+            }
             var start = command.substring(0,startIndex);
             var end = command.substring(endIndex);
             command = start + end;
