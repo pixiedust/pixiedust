@@ -65,14 +65,18 @@ class BaseChartDisplay(ChartDisplay):
             defaultFields.append(self.entity.schema.fields[0].name)
         return defaultFields
 
-    def getKeyFields(self, handlerId, aggregation):
+    def getKeyFields(self, handlerId, aggregation, fieldNames):
         if self.supportsKeyFields(handlerId) == False:
             return []
-        keyFields = self.options.get("keyFields")
-        if keyFields is not None:
-            return keyFields.split(",")
-        else:
+        keyFields = []
+        keyFieldStr = self.options.get("keyFields")
+        if keyFieldStr is not None:
+            keyFields = keyFieldStr.split(",")
+            keyFields = [val for val in keyFields if val in fieldNames]
+        if len(keyFields) == 0:
             return self.getDefaultKeyFields(handlerId, aggregation)
+        else:
+            return keyFields
 
     def getKeyFieldValues(self, handlerId, aggregtaion, keyFields):
         if (len(keyFields) == 0):
@@ -126,10 +130,13 @@ class BaseChartDisplay(ChartDisplay):
                     break
         return fieldNames
         
-    def getValueFields(self, handlerId, aggregation):
-        if self.options.get("valueFields") is not None:
-            valueFields = self.options.get("valueFields").split(",")
-        else:
+    def getValueFields(self, handlerId, aggregation, fieldNames):
+        valueFields = []
+        valueFieldStr = self.options.get("valueFields")
+        if valueFieldStr is not None:
+            valueFields = valueFieldStr.split(",")
+            valueFields = [val for val in valueFields if val in fieldNames]
+        if len(valueFields) == 0:
             valueFields = self.getDefaultValueFields(handlerId, aggregation)
         numericValueFields = []
         for valueField in valueFields:
@@ -165,7 +172,7 @@ class BaseChartDisplay(ChartDisplay):
                     valueDf = df.agg(F.min(valueField).alias("agg"))
                 elif aggregation == "MAX":
                     valueDf = df.agg(F.max(valueField).alias("agg"))
-                else:
+                elif aggregation == "COUNT":
                     valueDf = df.agg(F.count(valueField).alias("agg"))
                 for keyField in keyFields:
                     valueDf = valueDf.sort(F.col(keyField).asc())
@@ -198,7 +205,7 @@ class BaseChartDisplay(ChartDisplay):
                     line.set_color(colormap(1.*i/numColumns))
                     line.set_linewidth(10)
     
-    def canRenderChart(self, handlerId, aggregation):
+    def canRenderChart(self, handlerId, aggregation, fieldNames):
         if (aggregation == "COUNT"):
             return (True, None)
         else:
@@ -209,6 +216,9 @@ class BaseChartDisplay(ChartDisplay):
             return (False, "At least one numerical column required.")
 
     def doRender(self, handlerId):
+        # field names
+        fieldNames = self.getFieldNames()
+        
         # get aggregation value (set to default if it doesn't exist)
         aggregation = self.options.get("aggregation")
         if (aggregation is None and self.supportsAggregation(handlerId)):
@@ -216,7 +226,7 @@ class BaseChartDisplay(ChartDisplay):
             self.options["aggregation"] = aggregation
 
         # validate if we can render
-        canRender = self.canRenderChart(handlerId, aggregation)
+        canRender = self.canRenderChart(handlerId, aggregation, fieldNames)
         if canRender[0] == False:
             self._addHTML(canRender[1])
             return
@@ -224,10 +234,10 @@ class BaseChartDisplay(ChartDisplay):
         # go
         setKeyFields = self.options.get("keyFields") is None
         setValueFields = self.options.get("valueFields") is None
-        keyFields = self.getKeyFields(handlerId, aggregation)
+        keyFields = self.getKeyFields(handlerId, aggregation, fieldNames)
         keyFieldValues = self.getKeyFieldValues(handlerId, aggregation, keyFields)
         keyFieldLabels = self.getKeyFieldLabels(handlerId, aggregation, keyFields)
-        valueFields = self.getValueFields(handlerId, aggregation)
+        valueFields = self.getValueFields(handlerId, aggregation, fieldNames)
         valueFieldValues = self.getValueFieldValueLists(handlerId, aggregation, keyFields, valueFields)
         if setKeyFields and len(keyFields) > 0:
             self.options["keyFields"] = ",".join(keyFields)
@@ -238,7 +248,7 @@ class BaseChartDisplay(ChartDisplay):
             "keyFieldsSupported":self.supportsKeyFields(handlerId),\
             "legendSupported":self.supportsLegend(handlerId),\
             "aggregationSupported":self.supportsAggregation(handlerId),\
-            "aggregationOptions":["SUM","AVG","MIN","MAX","COUNT"]\
+            "aggregationOptions":["SUM","AVG","MIN","MAX","COUNT","NONE"]\
         }
         if (context is not None):
             dialogTemplate = context[0]

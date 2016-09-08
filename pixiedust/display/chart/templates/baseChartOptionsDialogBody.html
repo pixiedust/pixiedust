@@ -38,7 +38,7 @@
 			<label>Fields:</label>
 			<ul id="allFields{{prefix}}" style="height: 215px;">
 				{%for fieldName in fieldNames%}
-				<li id="field{{prefix}}-{{fieldName}}" class="field{{prefix}}">{{fieldName}}<a class="field{{prefix}}-remove"></a></li>
+				<li id="field{{prefix}}-f{{loop.index}}" class="field{{prefix}}">{{fieldName}}<a class="field{{prefix}}-remove"></a></li>
 				{%endfor%}
 			</ul>
 		</div>
@@ -48,7 +48,9 @@
 			<ul id="keyFields{{prefix}}" style="height: 90px;">
 				{%if this.options.get("keyFields") is not none%}
 				{%for fieldName in this.options.get("keyFields").split(",")%}
-					<li id="field{{prefix}}-{{fieldName}}-keyFields{{prefix}}">{{fieldName}}<a class="field{{prefix}}-remove field-remove"></a></li>
+					{%if fieldName in fieldNames%}
+						<li id="field{{prefix}}-f{{fieldNames.index(fieldName)+1}}-keyFields{{prefix}}">{{fieldName}}<a class="field{{prefix}}-remove field-remove"></a></li>
+					{%endif%}
 				{%endfor%}
 				{%endif%}
 			</ul>
@@ -61,7 +63,9 @@
 			{%endif%}
 				{%if this.options.get("valueFields") is not none%}
 				{%for fieldName in this.options.get("valueFields").split(",")%}
-					<li id="field{{prefix}}-{{fieldName}}-valueFields{{prefix}}">{{fieldName}}<a class="field{{prefix}}-remove field-remove"></a></li>
+					{%if fieldName in fieldNames%}
+						<li id="field{{prefix}}-f{{fieldNames.index(fieldName)+1}}-valueFields{{prefix}}">{{fieldName}}<a class="field{{prefix}}-remove field-remove"></a></li>
+					{%endif%}
 				{%endfor%}
 				{%endif%}
 			</ul>

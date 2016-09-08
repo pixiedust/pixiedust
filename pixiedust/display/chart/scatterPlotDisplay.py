@@ -27,8 +27,8 @@ class ScatterPlotDisplay(Mpld3ChartDisplay):
 	def supportsKeyFields(self, handlerId):
 		return False
     
-	def canRenderChart(self, handlerId, aggregation):
-		valueFields = self.getValueFields(handlerId, aggregation)
+	def canRenderChart(self, handlerId, aggregation, fieldNames):
+		valueFields = self.getValueFields(handlerId, aggregation, fieldNames)
 		if len(valueFields) < 2:
 			return (False, "At least two numerical columns required.")
 		else:
