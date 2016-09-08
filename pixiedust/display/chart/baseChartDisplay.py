@@ -172,7 +172,7 @@ class BaseChartDisplay(ChartDisplay):
                     valueDf = df.agg(F.min(valueField).alias("agg"))
                 elif aggregation == "MAX":
                     valueDf = df.agg(F.max(valueField).alias("agg"))
-                elif aggregation == "COUNT":
+                else:
                     valueDf = df.agg(F.count(valueField).alias("agg"))
                 for keyField in keyFields:
                     valueDf = valueDf.sort(F.col(keyField).asc())
@@ -248,7 +248,7 @@ class BaseChartDisplay(ChartDisplay):
             "keyFieldsSupported":self.supportsKeyFields(handlerId),\
             "legendSupported":self.supportsLegend(handlerId),\
             "aggregationSupported":self.supportsAggregation(handlerId),\
-            "aggregationOptions":["SUM","AVG","MIN","MAX","COUNT","NONE"]\
+            "aggregationOptions":["SUM","AVG","MIN","MAX","COUNT"]\
         }
         if (context is not None):
             dialogTemplate = context[0]
