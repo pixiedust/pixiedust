@@ -17,19 +17,24 @@
 import sqlite3
 import os
 
-__all__ = ['SQLITE_DB_NAME','Storage']
+__all__ = ['Storage']
 
 SQLITE_DB_NAME = 'pixiedust.db'
+SQLITE_DB_NAME_PATH = os.path.expanduser('~') + "/" + SQLITE_DB_NAME
 #global connection
 _conn = None
 
 def _initStorage():
+    def copyRename(oldName, newName):
+        if os.path.isfile(oldName) and not os.path.isfile(newName):
+            from shutil import copyfile
+            copyfile(oldName, newName)
+            os.rename(oldName, oldName + ".migrated")
+            print("INFO: migrated pixiedust database")
+
     #if db already exist with old name, rename it now
-    if os.path.isfile('spark.db') and not os.path.isfile(SQLITE_DB_NAME):
-        from shutil import copyfile
-        copyfile('spark.db', 'spark.db.bak')
-        os.rename('spark.db', SQLITE_DB_NAME)
-        print("INFO: migrated pixiedust database")
+    copyRename('spark.db', SQLITE_DB_NAME)
+    copyRename(SQLITE_DB_NAME, SQLITE_DB_NAME_PATH)
 
     global _conn
     if not _conn:
@@ -38,7 +43,7 @@ def _initStorage():
             for i,col in enumerate(cursor.description):
                 res[col[0]]=row[i]
             return res
-        _conn = sqlite3.connect(SQLITE_DB_NAME)
+        _conn = sqlite3.connect(SQLITE_DB_NAME_PATH)
         _conn.row_factory=_row_dict_factory 
         print("Pixiedust database opened successfully")
 
