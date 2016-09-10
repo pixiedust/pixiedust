@@ -30,10 +30,27 @@ class BarChartDisplay(Mpld3ChartDisplay):
     
     def getChartContext(self, handlerId):
         return ('barChartOptionsDialogBody.html', {})
+
+    def getKeyFieldLabels(self, handlerId, aggregation, keyFields):
+        stacked = self.options.get("stacked", "true") == "true"
+        grouped = not stacked
+        if len(keyFields)>1 and grouped:
+            df = self.entity.groupBy(keyFields[0]).count().sort(F.col(keyFields[0]).asc()).dropna()        
+            maxRows = int(self.options.get("rowCount","100"))
+            numRows = min(maxRows,df.count())
+            rows = df.take(numRows)
+            labels = []
+            for i, row in enumerate(rows):
+                labels.append(str(row[keyFields[0]]))
+            return labels
+        return super(BarChartDisplay,self).getKeyFieldLabels(handlerId,aggregation,keyFields)
     
     def doRenderMpld3(self, handlerId, fig, ax, colormap, keyFields, keyFieldValues, keyFieldLabels, valueFields, valueFieldValues):
-        grouped = (self.options.get("stacked") == "false")
-        if(grouped == False and len(valueFieldValues)>1):
+        stacked = self.options.get("stacked", "true") == "true"
+        grouped = not stacked
+        if len(keyFields)>1 and grouped:
+            self.generateGroupedSeries(handlerId, fig, ax, colormap, keyFields, keyFieldValues, keyFieldLabels, valueFields, valueFieldValues)
+        elif grouped == False and len(valueFields)>1:
             self.generateStackedBarChart(handlerId, fig, ax, colormap, keyFields, keyFieldValues, keyFieldLabels, valueFields, valueFieldValues);            
         else:
             self.generateBarChart(handlerId, fig, ax, colormap, keyFields, keyFieldValues, keyFieldLabels, valueFields, valueFieldValues);
@@ -44,7 +61,7 @@ class BarChartDisplay(Mpld3ChartDisplay):
         x_intv = np.arange(numColumns)
         for i, valueField in enumerate(valueFields):
             ax.bar(x_intv+(i*barWidth), valueFieldValues[i], barWidth, color=colormap(1.*i/numColumns), alpha=0.5, label=valueField)
-        plt.xticks(x_intv,keyFieldLabels)
+        plt.xticks(x_intv+(barWidth/2),keyFieldLabels)
         plt.xlabel(", ".join(keyFields), fontsize=18)
 
     def generateStackedBarChart(self, handlerId, fig, ax, colormap, keyFields, keyFieldValues, keyFieldLabels, valueFields, valueFieldValues):
@@ -56,7 +73,22 @@ class BarChartDisplay(Mpld3ChartDisplay):
         bottom=valueFieldValues[0]
         for i in range(1,len(valueFields)):
             plt.bar(x_intv,valueFieldValues[i],barWidth,label=valueFields[i],color=colors[i],bottom=bottom)          
-            bottom = self.sumzip(bottom,valueFieldValues[i])   
+            bottom = self.sumzip(bottom,valueFieldValues[i])
+
+    def generateGroupedSeries(self, handlerId, fig, ax, colormap, keyFields, keyFieldValues, keyFieldLabels, valueFields, valueFieldValues):
+        series = self.entity.rdd.map(lambda r:(r[0], [(r[1],r[valueFields[0]])]))\
+            .reduceByKey(lambda x,y: x+y).collect()
+        maxLen=reduce(lambda x,y: max(x, len(y[1])), series, 0)
+        ind=np.arange(maxLen)
+        colors= ['#79c36a','#f1595f','#599ad3','#f9a65a','#9e66ab','#cd7058','#d77fb3','#727272']
+        for i in ind:
+            data=[t[1][i][1] if i<len(t[1]) else 0 for t in series]
+            plt.bar(ind + (i*0.15), data, width=0.15, color=colors[i], label=series[0][1][i][0])
+        plt.xticks(ind+0.3, [str(x[0]) for x in series])
+        plt.ylabel(valueFields[0])
+        plt.xlabel(keyFields[0])
+
+        self.titleLegend=keyFields[1]
 
     def sumzip(self,x,y):
         return [sum(values) for values in zip(x,y)]
