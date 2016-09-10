@@ -18,8 +18,6 @@ from .display import ChartDisplay
 from .mpld3ChartDisplay import Mpld3ChartDisplay
 import matplotlib.pyplot as plt
 import numpy as np
-import mpld3.plugins as plugins
-from mpld3 import utils
 from pyspark.sql import functions as F
 import mpld3
 from .plugins.dialog import DialogPlugin
@@ -79,11 +77,13 @@ class BarChartDisplay(Mpld3ChartDisplay):
         series = self.entity.rdd.map(lambda r:(r[0], [(r[1],r[valueFields[0]])]))\
             .reduceByKey(lambda x,y: x+y).collect()
         maxLen=reduce(lambda x,y: max(x, len(y[1])), series, 0)
-        ind=np.arange(maxLen)
+        ind=np.arange(len(series))
+        #FIXME: generate random colors
         colors= ['#79c36a','#f1595f','#599ad3','#f9a65a','#9e66ab','#cd7058','#d77fb3','#727272']
-        for i in ind:
+        for i in range(maxLen):
             data=[t[1][i][1] if i<len(t[1]) else 0 for t in series]
-            plt.bar(ind + (i*0.15), data, width=0.15, color=colors[i], label=series[0][1][i][0])
+            bars = ax.bar(ind + (i*0.15), data, width=0.15, color=colors[i], label=series[0][1][i][0])
+            self.connectElementInfo(bars, data)
         plt.xticks(ind+0.3, [str(x[0]) for x in series])
         plt.ylabel(valueFields[0])
         plt.xlabel(keyFields[0])

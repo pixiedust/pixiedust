@@ -18,6 +18,7 @@ from .baseChartDisplay import BaseChartDisplay
 from .display import ChartDisplay
 from .plugins.chart import ChartPlugin
 from .plugins.dialog import DialogPlugin
+from .plugins.elementInfo import ElementInfoPlugin
 from abc import abstractmethod
 from pyspark.sql import functions as F
 import matplotlib.cm as cm
@@ -45,4 +46,11 @@ class Mpld3ChartDisplay(BaseChartDisplay):
         self.setChartGrid(handlerId, fig, ax, colormap, keyFields, keyFieldValues, keyFieldLabels, valueFields, valueFieldValues)
         self.setChartLegend(handlerId, fig, ax, colormap, keyFields, keyFieldValues, keyFieldLabels, valueFields, valueFieldValues)
         self._addHTMLTemplate("mpld3Chart.html", mpld3Figure=mpld3.fig_to_html(fig), optionsDialogBody=dialogBody)
+
+    def connectElementInfo(self, element, data):
+        if not hasattr(element, "get_figure") and hasattr(element,"get_children"):
+            for i,child in enumerate(element.get_children()):
+                plugins.connect(child.get_figure(), ElementInfoPlugin(child,data[i]))
+        elif hasattr(element, "get_figure"):
+            plugins.connect(element.get_figure(), ElementInfoPlugin(child, data ))
         
