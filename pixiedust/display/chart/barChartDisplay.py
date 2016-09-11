@@ -23,7 +23,6 @@ import mpld3
 from .plugins.dialog import DialogPlugin
 from random import randint
 
-
 class BarChartDisplay(Mpld3ChartDisplay):
     
     def getChartContext(self, handlerId):
@@ -74,7 +73,12 @@ class BarChartDisplay(Mpld3ChartDisplay):
             bottom = self.sumzip(bottom,valueFieldValues[i])
 
     def generateGroupedSeries(self, handlerId, fig, ax, colormap, keyFields, keyFieldValues, keyFieldLabels, valueFields, valueFieldValues):
-        series = self.entity.rdd.map(lambda r:(r[0], [(r[1],r[valueFields[0]])]))\
+        def safeRepr(o):
+            import decimal
+            if isinstance(o, decimal.Decimal):
+                return float(o)
+            return o
+        series = self.entity.rdd.map(lambda r:(safeRepr(r[0]), [( safeRepr(r[1]), safeRepr(r[valueFields[0]]))]))\
             .reduceByKey(lambda x,y: x+y).collect()
         maxLen=reduce(lambda x,y: max(x, len(y[1])), series, 0)
         ind=np.arange(len(series))
