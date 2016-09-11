@@ -192,6 +192,11 @@ class BaseChartDisplay(ChartDisplay):
     def setChartGrid(self, handlerId, fig, ax, colormap, keyFields, keyFieldValues, keyFieldLabels, valueFields, valueFieldValues):
         ax.grid(color='lightgray', alpha=0.7)
 
+    def setChartTitle(self, handlerId):
+        title = self.options.get("title")
+        if title is not None:
+            plt.title(title, fontsize=30)
+
     def setChartLegend(self, handlerId, fig, ax, colormap, keyFields, keyFieldValues, keyFieldLabels, valueFields, valueFieldValues):
         if self.supportsLegend(handlerId):
             showLegend = self.options.get("showLegend", "true")

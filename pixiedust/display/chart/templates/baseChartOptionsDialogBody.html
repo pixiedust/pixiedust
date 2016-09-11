@@ -33,6 +33,12 @@
 	}
 </style>
 <div class="container col-sm-12">
+	<div class="row">
+		<div class="form-group col-sm-12">
+			<label for="title{{prefix}}">Chart Title:</label>
+			<input type="text" class="form-control" name="title" value="{{this.options.get("title") or ""}}">
+		</div>
+	</div>
 	<div class="field-container row">
 		<div class="col-sm-4" style="padding: 0px 5px 0px 0px;">
 			<label>Fields:</label>

@@ -45,6 +45,7 @@ class Mpld3ChartDisplay(BaseChartDisplay):
         self.setChartSize(handlerId, fig, ax, colormap, keyFields, keyFieldValues, keyFieldLabels, valueFields, valueFieldValues)
         self.setChartGrid(handlerId, fig, ax, colormap, keyFields, keyFieldValues, keyFieldLabels, valueFields, valueFieldValues)
         self.setChartLegend(handlerId, fig, ax, colormap, keyFields, keyFieldValues, keyFieldLabels, valueFields, valueFieldValues)
+        self.setChartTitle(handlerId)
         self._addHTMLTemplate("mpld3Chart.html", mpld3Figure=mpld3.fig_to_html(fig), optionsDialogBody=dialogBody)
 
     def connectElementInfo(self, element, data):
