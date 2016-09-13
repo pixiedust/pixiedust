@@ -60,6 +60,10 @@ class MapChartDisplay(BaseChartDisplay):
                 self.options["mapDisplayMode"] = "markers"
             else:
                 self.options["mapDisplayMode"] = "region"
+        if self.options["mapRegion"] == "US":
+            self.options["mapResolution"] = "provinces"
+        else:
+            self.options["mapResolution"] = "countries"
         dialogBody = self.renderTemplate(dialogTemplate, **dialogOptions)
         mapData = "[["
         for i, keyField in enumerate(keyFields):
