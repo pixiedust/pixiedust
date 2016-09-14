@@ -255,12 +255,12 @@ class BaseChartDisplay(ChartDisplay):
             dialogTemplate = "baseChartOptionsDialogBody.html"
         
         # validate if we can render
-        canRender = self.canRenderChart(handlerId, aggregation, fieldNames)
-        if canRender[0] == False:
+        canRender, errorMessage = self.canRenderChart(handlerId, aggregation, fieldNames)
+        if canRender == False:
             dialogBody = self.getChartErrorDialogBody(handlerId, dialogTemplate, dialogOptions)
             if (dialogBody is None):
                 dialogBody = ""
-            self._addHTMLTemplate("chartError.html", errorMessage=canRender[1], optionsDialogBody=dialogBody)
+            self._addHTMLTemplate("chartError.html", errorMessage=errorMessage, optionsDialogBody=dialogBody)
             return
 
         # set the keyFields and valueFields options if this is the first time

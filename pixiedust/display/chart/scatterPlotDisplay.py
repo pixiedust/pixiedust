@@ -15,7 +15,8 @@
 # -------------------------------------------------------------------------------
 
 from .mpld3ChartDisplay import Mpld3ChartDisplay
-    
+import mpld3
+
 class ScatterPlotDisplay(Mpld3ChartDisplay):
     
 	def supportsAggregation(self, handlerId):
@@ -38,6 +39,11 @@ class ScatterPlotDisplay(Mpld3ChartDisplay):
 		return 2
 
 	def doRenderMpld3(self, handlerId, fig, ax, colormap, keyFields, keyFieldValues, keyFieldLabels, valueFields, valueFieldValues):
-		scatter = ax.scatter(valueFieldValues[0],valueFieldValues[1],c=valueFieldValues[1],marker='o',alpha=0.7,s=124,cmap=colormap)
+		paths = ax.scatter(valueFieldValues[0],valueFieldValues[1],c=valueFieldValues[1],marker='o',alpha=0.7,s=124,cmap=colormap)
+		labels = []
+		for i in range(len(valueFieldValues[0])):
+			labels.append('({0},{1})'.format(valueFieldValues[0][i],valueFieldValues[1][i]))
+		tooltip = mpld3.plugins.PointLabelTooltip(paths, labels=labels)
+		mpld3.plugins.connect(fig, tooltip)
 		ax.set_xlabel(valueFields[0], size=14)
 		ax.set_ylabel(valueFields[1], size=14)

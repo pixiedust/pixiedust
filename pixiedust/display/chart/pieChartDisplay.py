@@ -56,8 +56,7 @@ class PieChartDisplay(Mpld3ChartDisplay):
                 pieChartGridPrefix = str(int(math.ceil(numPieCharts//3))) + "3"
             for i, valueField in enumerate(valueFields):
                 ax2 = fig.add_subplot(pieChartGridPrefix + str(i+1))
-                pie = ax2.pie(valueFieldValues[i], labels=keyFieldLabels, colors=colors, explode=None, autopct='%1.1f%%')
-                patches = pie[0]
+                patches, texts, autotexts = ax2.pie(valueFieldValues[i], labels=keyFieldLabels, colors=colors, explode=None, autopct='%1.1f%%')
                 for j, patch in enumerate(patches):
                     self.connectElementInfo(patch, valueFieldValues[i][j])
                 ax2.set_title(valueFields[i], fontsize=18);
@@ -66,8 +65,7 @@ class PieChartDisplay(Mpld3ChartDisplay):
                 ax2.get_xaxis().set_alpha(0)
                 ax2.get_yaxis().set_alpha(0)
         else:
-            pie = ax.pie(valueFieldValues[0], labels=keyFieldLabels, colors=colors, explode=None, autopct='%1.1f%%')
-            patches = pie[0]
+            patches, texts, autotexts = ax.pie(valueFieldValues[0], labels=keyFieldLabels, colors=colors, explode=None, autopct='%1.1f%%')
             for j, patch in enumerate(patches):
                 self.connectElementInfo(patch, valueFieldValues[0][j])
             ax.set_title(valueFields[0], fontsize=18);

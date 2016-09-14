@@ -17,6 +17,7 @@
 from .mpld3ChartDisplay import Mpld3ChartDisplay
 import matplotlib.cm as cm
 import matplotlib.pyplot as plt
+import mpld3
 import numpy as np
 
 class LineChartDisplay(Mpld3ChartDisplay):
@@ -26,6 +27,8 @@ class LineChartDisplay(Mpld3ChartDisplay):
         for i, valueField in enumerate(valueFields):
             xs = keyFieldValues
             ys = valueFieldValues[i]
-            ax.plot(xs, ys, color=colormap(1.*i/numColumns), label=valueField)
+            lines = ax.plot(xs, ys, color=colormap(1.*i/numColumns), label=valueField, marker='o')
+            tooltip = mpld3.plugins.PointLabelTooltip(lines[0], labels=ys)
+            mpld3.plugins.connect(fig, tooltip)
         plt.xticks(np.arange(numColumns),keyFieldLabels)
         plt.xlabel(", ".join(keyFields), fontsize=18)
