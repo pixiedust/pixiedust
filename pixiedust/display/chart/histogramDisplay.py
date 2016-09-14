@@ -49,8 +49,14 @@ class HistogramDisplay(Mpld3ChartDisplay):
                 histogramGridPrefix = str(int(math.ceil(numHistograms//2))) + "2"
             for i, valueField in enumerate(valueFields):
                 ax2 = fig.add_subplot(histogramGridPrefix + str(i+1))
-                ax2.hist(valueFieldValues[i], 30, histtype='bar', fc=colors[0], alpha=0.5);
+                hist = ax2.hist(valueFieldValues[i], 30, histtype='bar', fc=colors[0], alpha=0.5);
+                #patches = hist[2]
+                #for j, patch in enumerate(patches):
+                #    self.connectElementInfo(patch, valueFieldValues[i][j])
                 ax2.set_xlabel(valueFields[i], fontsize=18)
         else:
-            ax.hist(valueFieldValues[0], 30, histtype='bar', fc=colors[0], alpha=0.5);
+            hist = ax.hist(valueFieldValues[0], 30, histtype='bar', fc=colors[0], alpha=0.5);
+            #patches = hist[2]
+            #for j, patch in enumerate(patches):
+            #    self.connectElementInfo(patch, valueFieldValues[0][j])
             ax.set_xlabel(valueFields[0], fontsize=18)

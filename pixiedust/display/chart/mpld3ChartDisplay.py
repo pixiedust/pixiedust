@@ -55,5 +55,5 @@ class Mpld3ChartDisplay(BaseChartDisplay):
             for i,child in enumerate(element.get_children()):
                 plugins.connect(child.get_figure(), ElementInfoPlugin(child,data[i]))
         elif hasattr(element, "get_figure"):
-            plugins.connect(element.get_figure(), ElementInfoPlugin(child, data ))
+            plugins.connect(element.get_figure(), ElementInfoPlugin(element, data ))
         

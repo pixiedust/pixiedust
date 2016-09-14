@@ -28,26 +28,22 @@ class MapChartDisplay(BaseChartDisplay):
 		return 1
 
     def getDefaultKeyFields(self, handlerId, aggregation):
-        useLatLong = False
-        for field in self.entity.schema.fields:
-            if field.name.lower() == 'country' or field.name.lower() == 'province' or field.name.lower() == 'state' or field.name.lower() == 'city':
-                return [field.name]
-        # check for lat/long
-        latLongFields = []
-        for field in self.entity.schema.fields:
-            if field.name.lower() == 'lat' or field.name.lower() == 'latitude':
-                latLongFields.append(field.name)
-        for field in self.entity.schema.fields:
-            if field.name.lower() == 'lon' or field.name.lower() == 'long' or field.name.lower() == 'longitude':
-                latLongFields.append(field.name)
-        if (len(latLongFields) == 2):
-            return latLongFields
-        # no relevant fields found - defer to superclass
-        return super(MapChartDisplay, self).getDefaultKeyFields(handlerId, aggregation)
+        fields = self._getDefaultKeyFields()
+        if (len(fields) > 0):
+            return fields
+        else:
+            return super(MapChartDisplay, self).getDefaultKeyFields(handlerId, aggregation) # no relevant fields found - defer to superclass
     
     def getChartContext(self, handlerId):
         return ('mapChartOptionsDialogBody.html', {})
     
+    def canRenderChart(self, handlerId, aggregation, fieldNames):
+        keyFields = self.options.get("keyFields")
+        if ((keyFields is not None and len(keyFields) > 0) or len(self._getDefaultKeyFields()) > 0):
+            return (True, None)
+        else:
+            return (False, "No location field found ('country', 'province', 'state', 'city', or 'latitude'/'longitude').<br>Use the Chart Options dialog to specify a location field.")
+
     def doRenderChart(self, handlerId, dialogTemplate, dialogOptions, aggregation, keyFields, keyFieldValues, keyFieldLabels, valueFields, valueFieldValues):
         latLong = super(MapChartDisplay, self).isNumericField(keyFields[0])
         if self.options.get("mapRegion") is None:
@@ -88,3 +84,19 @@ class MapChartDisplay(BaseChartDisplay):
         self._addScriptElement("https://www.gstatic.com/charts/loader.js")
         self._addScriptElement("https://www.google.com/jsapi", callback=self.renderTemplate("mapChart.js"))
         self._addHTMLTemplate("mapChart.html", optionsDialogBody=dialogBody)
+
+    def _getDefaultKeyFields(self):
+        for field in self.entity.schema.fields:
+            if field.name.lower() == 'country' or field.name.lower() == 'province' or field.name.lower() == 'state' or field.name.lower() == 'city':
+                return [field.name]
+        # check for lat/long
+        latLongFields = []
+        for field in self.entity.schema.fields:
+            if field.name.lower() == 'lat' or field.name.lower() == 'latitude':
+                latLongFields.append(field.name)
+        for field in self.entity.schema.fields:
+            if field.name.lower() == 'lon' or field.name.lower() == 'long' or field.name.lower() == 'longitude':
+                latLongFields.append(field.name)
+        if (len(latLongFields) == 2):
+            return latLongFields
+        return []

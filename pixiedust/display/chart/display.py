@@ -29,7 +29,7 @@ class ChartDisplay(Display):
         default=None
         for field in self.entity.schema.fields:
             # Ignore unique ids
-            if field.name.lower() != 'id' and ( not numerical or isNum(field.dataType.__class__.__name__) ):
+            if field.name.lower() != 'id' and ( not numerical or self.isNumericType(field.dataType.__class__.__name__) ):
             # Find a good column to display in pie ChartDisplay
                 default = default or field.name
                 count = self.entity.count()
@@ -39,3 +39,6 @@ class ChartDisplay(Display):
                     return [field.name]
         # Otherwise, return first non-id column
         return [default]
+
+    def isNumericType(self, type):
+        return (type =="LongType" or type == "IntegerType" or type == "DoubleType" or type == "DecimalType" or type == "FloatType")

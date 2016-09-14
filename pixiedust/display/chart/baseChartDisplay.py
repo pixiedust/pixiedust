@@ -29,6 +29,9 @@ class BaseChartDisplay(ChartDisplay):
     def getChartContext(self, handlerId):
         return None
 
+    def getChartErrorDialogBody(self, handlerId, dialogTemplate, dialogOptions):
+        return self.renderTemplate(dialogTemplate, **dialogOptions)
+
     @abstractmethod
     def doRenderChart(self, handlerId, dialogTemplate, dialogOptions, aggregation, keyFields, keyFieldValues, keyFieldLabels, valueFields, valueFieldValues):
         pass
@@ -230,12 +233,6 @@ class BaseChartDisplay(ChartDisplay):
             aggregation = self.getDefaultAggregation(handlerId)
             self.options["aggregation"] = aggregation
 
-        # validate if we can render
-        canRender = self.canRenderChart(handlerId, aggregation, fieldNames)
-        if canRender[0] == False:
-            self._addHTML(canRender[1])
-            return
-
         # go
         setKeyFields = self.options.get("keyFields") is None
         setValueFields = self.options.get("valueFields") is None
@@ -244,10 +241,6 @@ class BaseChartDisplay(ChartDisplay):
         keyFieldLabels = self.getKeyFieldLabels(handlerId, aggregation, keyFields)
         valueFields = self.getValueFields(handlerId, aggregation, fieldNames)
         valueFieldValues = self.getValueFieldValueLists(handlerId, aggregation, keyFields, valueFields)
-        if setKeyFields and len(keyFields) > 0:
-            self.options["keyFields"] = ",".join(keyFields)
-        if setValueFields and len(valueFields) > 0:
-            self.options["valueFields"] = ",".join(valueFields)
         context = self.getChartContext(handlerId)
         dialogOptions = { "fieldNames":self.getFieldNames(),\
             "keyFieldsSupported":self.supportsKeyFields(handlerId),\
@@ -260,7 +253,31 @@ class BaseChartDisplay(ChartDisplay):
             dialogOptions.update(context[1])
         else:
             dialogTemplate = "baseChartOptionsDialogBody.html"
-        self.doRenderChart(handlerId, dialogTemplate, dialogOptions, aggregation, keyFields, keyFieldValues, keyFieldLabels, valueFields, valueFieldValues)
+        
+        # validate if we can render
+        canRender = self.canRenderChart(handlerId, aggregation, fieldNames)
+        if canRender[0] == False:
+            dialogBody = self.getChartErrorDialogBody(handlerId, dialogTemplate, dialogOptions)
+            if (dialogBody is None):
+                dialogBody = ""
+            self._addHTMLTemplate("chartError.html", errorMessage=canRender[1], optionsDialogBody=dialogBody)
+            return
+
+        # set the keyFields and valueFields options if this is the first time
+        # do this after call to canRenderChart as some charts may need to know that they have not been set
+        if setKeyFields and len(keyFields) > 0:
+            self.options["keyFields"] = ",".join(keyFields)
+        if setValueFields and len(valueFields) > 0:
+            self.options["valueFields"] = ",".join(valueFields)
+        
+        # render
+        try:
+            self.doRenderChart(handlerId, dialogTemplate, dialogOptions, aggregation, keyFields, keyFieldValues, keyFieldLabels, valueFields, valueFieldValues)
+        except Exception, e:
+            dialogBody = self.getChartErrorDialogBody(handlerId, dialogTemplate, dialogOptions)
+            if (dialogBody is None):
+                dialogBody = ""
+            self._addHTMLTemplate("chartError.html", errorMessage="Unexpected Error:<br><br>"+str(e), optionsDialogBody=dialogBody)
 
     def getFieldNames(self):
         fieldNames = []
@@ -275,7 +292,3 @@ class BaseChartDisplay(ChartDisplay):
                 if self.isNumericType(type):
                     return True
         return False
-    
-    def isNumericType(self, type):
-        return (type =="LongType" or type == "IntegerType" or type == "DoubleType" or type == "DecimalType" or type == "FloatType")
-	

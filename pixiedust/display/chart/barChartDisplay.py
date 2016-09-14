@@ -57,7 +57,8 @@ class BarChartDisplay(Mpld3ChartDisplay):
         barWidth = min(0.35, 0.9/len(valueFields))
         x_intv = np.arange(numColumns)
         for i, valueField in enumerate(valueFields):
-            ax.bar(x_intv+(i*barWidth), valueFieldValues[i], barWidth, color=colormap(1.*i/numColumns), alpha=0.5, label=valueField)
+            bar = ax.bar(x_intv+(i*barWidth), valueFieldValues[i], barWidth, color=colormap(1.*i/numColumns), alpha=0.5, label=valueField)
+            self.connectElementInfo(bar, valueFieldValues[i])
         plt.xticks(x_intv+(barWidth/2),keyFieldLabels)
         plt.xlabel(", ".join(keyFields), fontsize=18)
 
@@ -65,12 +66,14 @@ class BarChartDisplay(Mpld3ChartDisplay):
         numColumns = len(keyFieldValues)
         barWidth = 0.35
         x_intv = np.arange(numColumns)
-        ax.bar(x_intv, valueFieldValues[0], barWidth, alpha=0.5, label=valueFields[0])
+        bar = ax.bar(x_intv, valueFieldValues[0], barWidth, alpha=0.5, label=valueFields[0])
+        self.connectElementInfo(bar, valueFieldValues[0])
         colors= ['#79c36a','#f1595f','#599ad3','#f9a65a','#9e66ab','#cd7058','#d77fb3','#727272']
         bottom=valueFieldValues[0]
         for i in range(1,len(valueFields)):
-            plt.bar(x_intv,valueFieldValues[i],barWidth,label=valueFields[i],color=colors[i],bottom=bottom)          
-            bottom = self.sumzip(bottom,valueFieldValues[i])
+            bar = plt.bar(x_intv,valueFieldValues[i],barWidth,label=valueFields[i],color=colors[i],bottom=bottom)          
+            self.connectElementInfo(bar, valueFieldValues[i])
+        bottom = self.sumzip(bottom,valueFieldValues[i])
 
     def generateGroupedSeries(self, handlerId, fig, ax, colormap, keyFields, keyFieldValues, keyFieldLabels, valueFields, valueFieldValues):
         def safeRepr(o):
