@@ -47,6 +47,8 @@ class Mpld3ChartDisplay(BaseChartDisplay):
         self.setChartLegend(handlerId, fig, ax, colormap, keyFields, keyFieldValues, keyFieldLabels, valueFields, valueFieldValues)
         self.setChartTitle(handlerId)
         self._addHTMLTemplate("mpld3Chart.html", mpld3Figure=mpld3.fig_to_html(fig), optionsDialogBody=dialogBody)
+        plt.close(fig)
+        mpld3.disable_notebook()
 
     def connectElementInfo(self, element, data):
         if not hasattr(element, "get_figure") and hasattr(element,"get_children"):
