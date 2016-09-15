@@ -245,7 +245,7 @@ class Display(object):
         if "cell_id" not in self.options:
             command = updateCommand(command, "cell_id", 'cellId')
         for key,value in addOptionDict.iteritems():
-            command = updateComand(command, key, value)
+            command = updateCommand(command, key, value)
 
         command = updateCommand(command, "showchrome", None)
         #remove showchrome if there
