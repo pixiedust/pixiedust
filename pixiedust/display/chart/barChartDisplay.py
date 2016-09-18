@@ -18,9 +18,13 @@ from .display import ChartDisplay
 from .mpld3ChartDisplay import Mpld3ChartDisplay
 import matplotlib.pyplot as plt
 import numpy as np
-from pyspark.sql import functions as F
 import mpld3
+import pandas as pd
+from itertools import product
 from .plugins.dialog import DialogPlugin
+from pyspark import SparkContext
+from pyspark.sql import functions as F
+from pyspark.sql import SQLContext
 from random import randint
 
 class BarChartDisplay(Mpld3ChartDisplay):
@@ -81,7 +85,19 @@ class BarChartDisplay(Mpld3ChartDisplay):
             if isinstance(o, decimal.Decimal):
                 return float(o)
             return o
-        series = self.entity.rdd.map(lambda r:(safeRepr(r[0]), [( safeRepr(r[1]), safeRepr(r[valueFields[0]]))]))\
+        # convert to pandas
+        pdf = self.entity.toPandas()
+        # fill in gaps
+        vals = []
+        for keyField in keyFields:
+            vals.append(pdf[keyField].unique())
+        pdf2 = pd.DataFrame(list(product(*vals)), columns=keyFields)
+        pdf = pd.merge(pdf,pdf2, on=keyFields, how='outer').fillna(0)
+        # sort by key fields
+        pdf = pdf.sort(keyFields, ascending=True)
+        # convert back to sql dataframe
+        df = SQLContext(SparkContext.getOrCreate()).createDataFrame(pdf)
+        series = df.rdd.map(lambda r:(safeRepr(r[0]), [( safeRepr(r[1]), safeRepr(r[valueFields[0]]))]))\
             .reduceByKey(lambda x,y: x+y).collect()
         maxLen=reduce(lambda x,y: max(x, len(y[1])), series, 0)
         ind=np.arange(len(series))
