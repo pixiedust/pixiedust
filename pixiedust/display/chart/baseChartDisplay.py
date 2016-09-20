@@ -23,6 +23,7 @@ import matplotlib.cm as cm
 import matplotlib.pyplot as plt
 import mpld3
 import mpld3.plugins as plugins
+import traceback
 
 class BaseChartDisplay(ChartDisplay):
 
@@ -277,7 +278,8 @@ class BaseChartDisplay(ChartDisplay):
             dialogBody = self.getChartErrorDialogBody(handlerId, dialogTemplate, dialogOptions)
             if (dialogBody is None):
                 dialogBody = ""
-            self._addHTMLTemplate("chartError.html", errorMessage="Unexpected Error:<br><br>"+str(e), optionsDialogBody=dialogBody)
+            self._addHTMLTemplate("chartError.html", errorMessage="Unexpected Error:<br>"+str(e), optionsDialogBody=dialogBody)
+            #self._addHTMLTemplate("chartError.html", errorMessage="Unexpected Error:<br>"+str(e)+"<br><br><pre>"+traceback.format_exc()+"</pre>", optionsDialogBody=dialogBody)
 
     def getFieldNames(self):
         fieldNames = []
