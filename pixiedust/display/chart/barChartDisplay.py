@@ -93,12 +93,13 @@ class BarChartDisplay(Mpld3ChartDisplay):
             vals.append(pdf[keyField].unique())
         pdf2 = pd.DataFrame(list(product(*vals)), columns=keyFields)
         pdf = pd.merge(pdf,pdf2, on=keyFields, how='outer').fillna(0)
-        # sort by key fields
-        pdf = pdf.sort_values(keyFields, ascending=True)
         # convert back to sql dataframe (fillna required)
         df = SQLContext(SparkContext.getOrCreate()).createDataFrame(pdf).fillna(0)
         series = df.rdd.map(lambda r:(safeRepr(r[0]), [( safeRepr(r[1]), safeRepr(r[valueFields[0]]))]))\
-            .reduceByKey(lambda x,y: x+y).collect()
+            .reduceByKey(lambda x,y: x+y)\
+            .map(lambda r: (r[0], sorted(r[1], key=lambda tup: tup[0])))\
+            .sortByKey()\
+            .collect()
         maxLen=reduce(lambda x,y: max(x, len(y[1])), series, 0)
         ind=np.arange(len(series))
         #FIXME: generate random colors
