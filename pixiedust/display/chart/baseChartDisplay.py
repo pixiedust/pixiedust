@@ -19,6 +19,7 @@ from .plugins.chart import ChartPlugin
 from .plugins.dialog import DialogPlugin
 from abc import abstractmethod
 from pyspark.sql import functions as F
+from pyspark.sql.types import StructType
 import matplotlib.cm as cm
 import matplotlib.pyplot as plt
 import mpld3
@@ -154,7 +155,7 @@ class BaseChartDisplay(ChartDisplay):
         if len(keyFields) == 0:
             valueLists = []
             for valueField in valueFields:
-                valueLists.append(self.entity.select(valueField).toPandas()[valueField].dropna().tolist()[:maxRows])
+                valueLists.append(self.entity.select(F.col(valueField).alias(valueField)).toPandas()[valueField].dropna().tolist()[:maxRows])
         #elif self.supportsAggregation(handlerId) == False:
         #    for valueField in valueFields:
                 # TODO: Need to get the list of values per unique key (not count, avg, etc)
@@ -226,7 +227,7 @@ class BaseChartDisplay(ChartDisplay):
 
     def doRender(self, handlerId):
         # field names
-        fieldNames = self.getFieldNames()
+        fieldNames = self.getFieldNames(True)
         
         # get aggregation value (set to default if it doesn't exist)
         aggregation = self.options.get("aggregation")
@@ -243,7 +244,7 @@ class BaseChartDisplay(ChartDisplay):
         valueFields = self.getValueFields(handlerId, aggregation, fieldNames)
         valueFieldValues = self.getValueFieldValueLists(handlerId, aggregation, keyFields, valueFields)
         context = self.getChartContext(handlerId)
-        dialogOptions = { "fieldNames":self.getFieldNames(),\
+        dialogOptions = { "fieldNames":fieldNames,\
             "keyFieldsSupported":self.supportsKeyFields(handlerId),\
             "legendSupported":self.supportsLegend(handlerId),\
             "aggregationSupported":self.supportsAggregation(handlerId),\
@@ -281,16 +282,31 @@ class BaseChartDisplay(ChartDisplay):
             self._addHTMLTemplate("chartError.html", errorMessage="Unexpected Error:<br>"+str(e), optionsDialogBody=dialogBody)
             #self._addHTMLTemplate("chartError.html", errorMessage="Unexpected Error:<br>"+str(e)+"<br><br><pre>"+traceback.format_exc()+"</pre>", optionsDialogBody=dialogBody)
 
-    def getFieldNames(self):
+    def getFieldNames(self, expandNested=False):
+        def getFieldName(field, expand):
+            if isinstance(field.dataType, StructType) and expand:
+                retFields = []
+                for f in field.dataType.fields:
+                    retFields.extend([field.name + "." + name for name in getFieldName(f, expand)])
+                return retFields
+            else:
+                return [field.name]
         fieldNames = []
         for field in self.entity.schema.fields:
-            fieldNames.append(field.name)
+            fieldNames.extend( getFieldName(field, expandNested) )
         return fieldNames
 
     def isNumericField(self, fieldName):
+        def isNumericFieldRecurse(field, targetName):
+            if field.name == targetName:
+                return self.isNumericType(field.dataType.__class__.__name__)
+            elif isinstance(field.dataType, StructType) and targetName.startswith(field.name + "."):
+                nestedFieldName = targetName[len(field.name)+1:]
+                for f in field.dataType.fields:
+                    if isNumericFieldRecurse(f, nestedFieldName):
+                        return True         
+            return False
         for field in self.entity.schema.fields:
-            if (field.name == fieldName):
-                type = field.dataType.__class__.__name__
-                if self.isNumericType(type):
-                    return True
+            if isNumericFieldRecurse(field, fieldName):
+                return True
         return False
