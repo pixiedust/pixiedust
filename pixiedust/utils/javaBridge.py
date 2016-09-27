@@ -61,11 +61,11 @@ class JavaWrapper(object):
         
     def captureOutput(self, doIt):
         if doIt:
-            pixiedustOutputSink = JavaWrapper("com.ibm.pixiedust.PixiedustOutputStream").jHandle(self.outputChannel)
-            JavaWrapper("scala.Console").setOut(pixiedustOutputSink)
-
             if self.outputReceiver and self.outputChannel and self.outputReceiver.hasMethod("setChannelListener", sc._jvm.java.lang.Class.forName("com.ibm.pixiedust.PixiedustOutputListener")):
                 self.outputReceiver.setChannelListener(self.outputChannel)
+            else:
+                pixiedustOutputSink = JavaWrapper("com.ibm.pixiedust.PixiedustOutputStream").jHandle(self.outputChannel)
+                JavaWrapper("scala.Console").setOut(pixiedustOutputSink)
 
             #TODO: find a way to redirect system.out output for the current execution of the call
             #JavaWrapper("java.lang.System").setOut(pixiedustOutputSink)
@@ -89,6 +89,9 @@ class JavaWrapper(object):
     def hasMethod(self, methodName, *args):
         return self.getMethod(methodName, *args) != None
 
+    def getMethods(self):
+        return self.jHandle.getClass().getMethods()
+
     def getMethod(self, methodName, *args):
         argLen = len(args)
         jMethodParams = None if argLen == 0 else sc._gateway.new_array(sc._jvm.Class, argLen )
@@ -109,7 +112,7 @@ class JavaWrapper(object):
         jMethodParams = None if argLen == 0 else sc._gateway.new_array(sc._jvm.Class, argLen )
         jMethodArgs = None if argLen == 0 else sc._gateway.new_array(sc._jvm.Object, argLen )
         for i,arg in enumerate(args):
-            jMethodParams[i] = arg.getClass()
+            jMethodParams[i] = (arg if arg.__class__.__name__ == "JavaClass" else arg.getClass())
             jMethodArgs[i] = arg
         #get the method and invoke it
         return self.jHandle.getClass().getMethod(methodName, jMethodParams).invoke(self.jHandle, jMethodArgs)

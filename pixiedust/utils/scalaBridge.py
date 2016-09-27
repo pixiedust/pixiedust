@@ -31,10 +31,8 @@ class InteractiveVariables(object):
         return self.shell.user_ns.get(varName, None ) or self.shell.user_ns_hidden.get(varName, None)
 
     def varTypeTransformer(self, varName, varValue):
-        pythonToScalaTypeMap = {
-            "str":"String","int":"Int"
-        }
-        scalaType = pythonToScalaTypeMap.get(varValue.__class__.__name__, None)
+        pythonToScalaSimpleTypeMap = {"str":"String","int":"Int"}
+        scalaType = pythonToScalaSimpleTypeMap.get(varValue.__class__.__name__, None)
         if scalaType == "String":
             varValue = "\"" + varValue + "\""
         return {"value": varValue, "codeValue": varValue if scalaType is not None else None, "type": scalaType or "Any"}
@@ -48,6 +46,7 @@ class InteractiveVariables(object):
         filtered = ["function"]
         out = { key : self.varTypeTransformer(key, user_ns[key]) for key in user_ns \
                 if not key.startswith('_') \
+                and key!="sc" and key!="sqlContext" \
                 and (user_ns[key] is not user_ns_hidden.get(key, nonmatching)) \
                 and not inspect.isclass(user_ns[key])\
                 and not inspect.isfunction(user_ns[key])\
@@ -130,7 +129,7 @@ class PixiedustScalaMagics(Magics):
 
         runnerObject = JavaWrapper(cls.getField("MODULE$").get(None), True, 
             self.getLineOption(line, "channel"), self.getLineOption(line, "receiver"))
-        runnerObject.callMethod("initSC", pd_getJavaSparkContext() )
+        runnerObject.callMethod("init", pd_getJavaSparkContext(), self.interactiveVariables.getVar("sqlContext")._ssql_ctx )
         varMap = runnerObject.callMethod("runCell")
 
         #capture the return vars and update the interactive shell
