@@ -20,8 +20,13 @@ import packageManager
 import display
 import services
 import utils
+import utils.pdLogging
 
 #shortcut to packageManager
 printAllPackages=packageManager.printAllPackages
 installPackage=packageManager.installPackage
 uninstallPackage=packageManager.uninstallPackage
+
+#shortcut to logging
+logger = utils.pdLogging.getPixiedustLogger()
+getLogger = utils.pdLogging.getLogger

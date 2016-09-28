@@ -21,6 +21,7 @@ from scalaBridge import *
 import pkg_resources
 import binascii
 import shutil
+import pdLogging
 
 storage._initStorage();
 
