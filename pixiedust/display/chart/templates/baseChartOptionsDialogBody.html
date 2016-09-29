@@ -38,6 +38,7 @@
 			<label for="title{{prefix}}">Chart Title:</label>
 			<input type="text" class="form-control" id="title{{prefix}}" name="title" value="{{this.options.get("title") or ""}}">
 		</div>
+		{%block staticFigure%}
 		<div class="form-group col-sm-2">
 			<label class="field">Static Figure:</label>
 			<select class="form-control" name="staticFigure" style="margin-left: 0px;">
@@ -45,6 +46,7 @@
 				<option value="false"{{' selected' if "staticFigure" not in this.options or this.options.get("staticFigure") == "false"}}>No</option>
 			</select>
 		</div>
+		{%endblock%}
 	</div>
 	<div class="field-container row">
 		<div class="col-sm-4" style="padding: 0px 5px 0px 0px;">
