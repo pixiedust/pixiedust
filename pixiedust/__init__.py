@@ -30,3 +30,6 @@ uninstallPackage=packageManager.uninstallPackage
 #shortcut to logging
 logger = utils.pdLogging.getPixiedustLogger()
 getLogger = utils.pdLogging.getLogger
+
+#automated import into the user namespace
+get_ipython().user_ns["display"]=display.display

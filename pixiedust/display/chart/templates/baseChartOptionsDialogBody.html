@@ -34,9 +34,16 @@
 </style>
 <div class="container col-sm-12">
 	<div class="row">
-		<div class="form-group col-sm-12">
+		<div class="form-group col-sm-10" style="padding-right:10px;">
 			<label for="title{{prefix}}">Chart Title:</label>
-			<input type="text" class="form-control" name="title" value="{{this.options.get("title") or ""}}">
+			<input type="text" class="form-control" id="title{{prefix}}" name="title" value="{{this.options.get("title") or ""}}">
+		</div>
+		<div class="form-group col-sm-2">
+			<label class="field">Static Figure:</label>
+			<select class="form-control" name="staticFigure" style="margin-left: 0px;">
+				<option value="true">Yes</option>
+				<option value="false"{{' selected' if "staticFigure" not in this.options or this.options.get("staticFigure") == "false"}}>No</option>
+			</select>
 		</div>
 	</div>
 	<div class="field-container row">

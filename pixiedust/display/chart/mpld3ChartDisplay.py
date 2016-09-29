@@ -34,7 +34,6 @@ class Mpld3ChartDisplay(BaseChartDisplay):
 
     def doRenderChart(self, handlerId, dialogTemplate, dialogOptions, aggregation, keyFields, keyFieldValues, keyFieldLabels, valueFields, valueFieldValues):
         # go
-        mpld3.enable_notebook()
         fig, ax = plt.subplots(figsize=(6,4))
         dialogBody = self.renderTemplate(dialogTemplate, **dialogOptions)
         if (len(keyFieldLabels) > 0 and self.supportsKeyFieldLabels(handlerId) and self.supportsAggregation(handlerId)):
@@ -46,9 +45,20 @@ class Mpld3ChartDisplay(BaseChartDisplay):
         self.setChartGrid(handlerId, fig, ax, colormap, keyFields, keyFieldValues, keyFieldLabels, valueFields, valueFieldValues)
         self.setChartLegend(handlerId, fig, ax, colormap, keyFields, keyFieldValues, keyFieldLabels, valueFields, valueFieldValues)
         self.setChartTitle(handlerId)
-        self._addHTMLTemplate("mpld3Chart.html", mpld3Figure=mpld3.fig_to_html(fig), optionsDialogBody=dialogBody)
-        plt.close(fig)
-        mpld3.disable_notebook()
+
+        if self.options.get("staticFigure","false") is "true":
+            import StringIO
+            png=StringIO.StringIO()
+            plt.savefig(png)
+            self._addHTMLTemplate("mpld3Chart.html", 
+                mpld3Figure="""<img src="data:image/png;base64,{0}">""".format(png.getvalue().encode('base64')), 
+                optionsDialogBody=dialogBody)
+            plt.close(fig)
+        else:
+            mpld3.enable_notebook()
+            self._addHTMLTemplate("mpld3Chart.html", mpld3Figure=mpld3.fig_to_html(fig), optionsDialogBody=dialogBody)
+            plt.close(fig)
+            mpld3.disable_notebook()
 
     def connectElementInfo(self, element, data):
         if not hasattr(element, "get_figure") and hasattr(element,"get_children"):
