@@ -104,6 +104,9 @@ class DisplayHandlerMeta(object):
     @abstractmethod
     def newDisplayHandler(self,options,entity):
         pass
+
+    def createCategories():
+        return []
     
 class Display(object):
     __metaclass__ = ABCMeta

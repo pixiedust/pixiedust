@@ -15,7 +15,6 @@
 # -------------------------------------------------------------------------------
 
 import storage
-from .dataFrameAdapter import fqName as fqName2
 from javaBridge import *
 from scalaBridge import *
 import pkg_resources
@@ -26,7 +25,8 @@ import pdLogging
 storage._initStorage();
 
 #Misc helper methods
-fqName = fqName2
+def fqName(entity):
+    return (entity.__module__ + "." if hasattr(entity, "__module__") else "") + entity.__class__.__name__
 
 #init scala bridge, make sure that correct pixiedust.jar is installed
 jarFilePath = os.path.expanduser('~') + "/data/libs/pixiedust.jar"

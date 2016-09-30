@@ -17,20 +17,12 @@ import numpy as np
 import pandas as pd
 import re
 from pyspark.sql.types import *
-
-def isPySparkDataFrame(entity):
-    return fqName(entity)=="pyspark.sql.dataframe.DataFrame"
-
-def isPandasDataFrame(entity):
-    return fqName(entity)=="pandas.core.frame.DataFrame"
-
-def fqName(entity):
-    return (entity.__module__ + "." if hasattr(entity, "__module__") else "") + entity.__class__.__name__
+import pixiedust.utils.dataFrameMisc as dataFrameMisc
 
 def createDataframeAdapter(entity):
-    if isPandasDataFrame(entity):
+    if dataFrameMisc.isPandasDataFrame(entity):
         return PandasDataFrameAdapter(entity)
-    elif isPySparkDataFrame(entity):
+    elif dataFrameMisc.isPySparkDataFrame(entity):
         return entity
     raise ValueError("Invalid argument")
 
@@ -43,7 +35,7 @@ This is Experimental, currently support only a subset of the Spark DataFrame API
 class PandasDataFrameAdapter(object):
     def __init__(self, entity):
         self.entity = entity
-        self.sparkDF = isPySparkDataFrame(entity);
+        self.sparkDF = dataFrameMisc.isPySparkDataFrame(entity);
 
     def __getattr__(self, name):
         if self.sparkDF and hasattr(self.entity, name):

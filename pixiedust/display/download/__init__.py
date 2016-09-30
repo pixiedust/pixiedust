@@ -16,13 +16,13 @@
 
 from ..display import DisplayHandlerMeta,PixiedustDisplay,addId
 from .downloadFile import DownloadFileHandler
-from pixiedust.utils.dataFrameAdapter import *
+import pixiedust.utils.dataFrameMisc as dataFrameMisc
 
 @PixiedustDisplay(system=True)
 class DownloadMeta(DisplayHandlerMeta):
     @addId
     def getMenuInfo(self,entity):
-        if isPySparkDataFrame(entity) or isPandasDataFrame(entity):
+        if dataFrameMisc.isPySparkDataFrame(entity) or dataFrameMisc.isPandasDataFrame(entity):
             return [
                 {"categoryId": "Download", "title": "Download as File", "icon": "fa-download", "id": "downloadFile"}
             ]

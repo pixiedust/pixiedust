@@ -17,16 +17,17 @@
 from ..display import *
 from pyspark.sql import DataFrame
 from pixiedust.utils.dataFrameAdapter import *
+import pixiedust.utils.dataFrameMisc as dataFrameMisc
     
 class TableDisplay(Display):
     def doRender(self, handlerId):
         entity=self.entity       
-        if fqName(entity) == "graphframes.graphframe.GraphFrame":
+        if dataFrameMisc.fqName(entity) == "graphframes.graphframe.GraphFrame":
             if handlerId == "edges":
                 entity=entity.edges
             else:
                 entity=entity.vertices
-        if isPySparkDataFrame(entity) or isPandasDataFrame(entity):
+        if dataFrameMisc.isPySparkDataFrame(entity) or dataFrameMisc.isPandasDataFrame(entity):
             self._addHTMLTemplate('dataframeTable.html', entity=PandasDataFrameAdapter(entity))
             return
             

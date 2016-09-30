@@ -16,6 +16,7 @@
 
 from ..display import Display
 from pyspark.sql import functions as F
+import pixiedust.utils.dataFrameMisc as dataFrameMisc
     
 class ChartDisplay(Display):
     def doRender(self, handlerId):
@@ -29,7 +30,7 @@ class ChartDisplay(Display):
         default=None
         for field in self.entity.schema.fields:
             # Ignore unique ids
-            if field.name.lower() != 'id' and ( not numerical or self.isNumericType(field.dataType.__class__.__name__) ):
+            if field.name.lower() != 'id' and ( not numerical or dataFrameMisc.isNumericType(field.dataType) ):
             # Find a good column to display in pie ChartDisplay
                 default = default or field.name
                 count = self.entity.count()
@@ -39,6 +40,3 @@ class ChartDisplay(Display):
                     return [field.name]
         # Otherwise, return first non-id column
         return [default]
-
-    def isNumericType(self, type):
-        return (type =="LongType" or type == "IntegerType" or type == "DoubleType" or type == "DecimalType" or type == "FloatType")

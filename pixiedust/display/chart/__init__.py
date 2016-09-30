@@ -22,12 +22,13 @@ from .mapChartDisplay import MapChartDisplay
 from .histogramDisplay import HistogramDisplay
 from ..display import *
 from pixiedust.utils.dataFrameAdapter import *
+import pixiedust.utils.dataFrameMisc as dataFrameMisc
 
 @PixiedustDisplay()
 class ChartDisplayMeta(DisplayHandlerMeta):
     @addId
     def getMenuInfo(self,entity):
-        if isPySparkDataFrame(entity) or isPandasDataFrame(entity):
+        if dataFrameMisc.isPySparkDataFrame(entity) or dataFrameMisc.isPandasDataFrame(entity):
             return [
                 {"categoryId": "Chart", "title": "Bar Chart", "icon": "fa-bar-chart", "id": "barChart"},
                 {"categoryId": "Chart", "title": "Line Chart", "icon": "fa-line-chart", "id": "lineChart"},

@@ -25,6 +25,7 @@ import matplotlib.pyplot as plt
 import mpld3
 import mpld3.plugins as plugins
 import traceback
+import pixiedust.utils.dataFrameMisc as dataFrameMisc
 
 class BaseChartDisplay(ChartDisplay):
 
@@ -61,8 +62,7 @@ class BaseChartDisplay(ChartDisplay):
             return []
         defaultFields = []
         for field in self.entity.schema.fields:
-            type = field.dataType.__class__.__name__
-            if (self.isNumericType(type) == False and field.name.lower() != "id"):
+            if (dataFrameMisc.isNumericType(field.dataType) == False and field.name.lower() != "id"):
                 defaultFields.append(field.name)
                 if len(defaultFields) == self.getPreferredDefaultKeyFieldCount(handlerId):
                     break
@@ -128,8 +128,7 @@ class BaseChartDisplay(ChartDisplay):
     def getDefaultValueFields(self, handlerId, aggregation):
         fieldNames = []
         for field in self.entity.schema.fields:
-            type = field.dataType.__class__.__name__
-            if self.isNumericType(type):
+            if dataFrameMisc.isNumericType(field.dataType):
                 fieldNames.append(field.name)
                 if len(fieldNames) == self.getPreferredDefaultValueFieldCount(handlerId):
                     break
@@ -220,8 +219,7 @@ class BaseChartDisplay(ChartDisplay):
             return (True, None)
         else:
             for field in self.entity.schema.fields:
-                type = field.dataType.__class__.__name__
-                if self.isNumericType(type):
+                if dataFrameMisc.isNumericType(field.dataType):
                     return (True, None)
             return (False, "At least one numerical column required.")
 
@@ -283,30 +281,7 @@ class BaseChartDisplay(ChartDisplay):
             #self._addHTMLTemplate("chartError.html", errorMessage="Unexpected Error:<br>"+str(e)+"<br><br><pre>"+traceback.format_exc()+"</pre>", optionsDialogBody=dialogBody)
 
     def getFieldNames(self, expandNested=False):
-        def getFieldName(field, expand):
-            if isinstance(field.dataType, StructType) and expand:
-                retFields = []
-                for f in field.dataType.fields:
-                    retFields.extend([field.name + "." + name for name in getFieldName(f, expand)])
-                return retFields
-            else:
-                return [field.name]
-        fieldNames = []
-        for field in self.entity.schema.fields:
-            fieldNames.extend( getFieldName(field, expandNested) )
-        return fieldNames
+        return dataFrameMisc.getFieldNames(self.entity, expandNested)
 
     def isNumericField(self, fieldName):
-        def isNumericFieldRecurse(field, targetName):
-            if field.name == targetName:
-                return self.isNumericType(field.dataType.__class__.__name__)
-            elif isinstance(field.dataType, StructType) and targetName.startswith(field.name + "."):
-                nestedFieldName = targetName[len(field.name)+1:]
-                for f in field.dataType.fields:
-                    if isNumericFieldRecurse(f, nestedFieldName):
-                        return True         
-            return False
-        for field in self.entity.schema.fields:
-            if isNumericFieldRecurse(field, fieldName):
-                return True
-        return False
+        return dataFrameMisc.isNumericField(self.entity, fieldName)

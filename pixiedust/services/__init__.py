@@ -18,13 +18,13 @@ from ..display.display import DisplayHandlerMeta,PixiedustDisplay,addId
 
 from .stashCloudant import StashCloudantHandler
 from .stashSwift import StashSwiftHandler
-from pixiedust.utils.dataFrameAdapter import *
+import pixiedust.utils.dataFrameMisc as dataFrameMisc
 
 @PixiedustDisplay(system=True)
 class StashMeta(DisplayHandlerMeta):
     @addId
     def getMenuInfo(self,entity):
-        if isPySparkDataFrame(entity):
+        if dataFrameMisc.isPySparkDataFrame(entity):
             return [
                 {"categoryId": "Download", "title": "Stash to Cloudant", "icon": "fa-cloud", "id": "stashCloudant"},
                 {"categoryId": "Download", "title": "Stash to Object Storage", "icon": "fa-suitcase", "id": "stashSwift"}

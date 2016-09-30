@@ -16,17 +16,17 @@
 
 from .display import TableDisplay
 from ..display import *
-from pixiedust.utils.dataFrameAdapter import *
+import pixiedust.utils.dataFrameMisc as dataFrameMisc
 
 @PixiedustDisplay(isDefault=True)
 class TableDisplayMeta(DisplayHandlerMeta):
     @addId
     def getMenuInfo(self,entity):
-        if isPySparkDataFrame(entity) or isPandasDataFrame(entity):
+        if dataFrameMisc.isPySparkDataFrame(entity) or dataFrameMisc.isPandasDataFrame(entity):
             return [
                 {"categoryId": "Table", "title": "DataFrame Table", "icon": "fa-table", "id": "dataframe"}
             ]
-        elif fqName(entity) == "graphframes.graphframe.GraphFrame":
+        elif dataFrameMisc.fqName(entity) == "graphframes.graphframe.GraphFrame":
             return [
                 {"categoryId": "Table", "title": "Graph Vertices", "icon": "fa-location-arrow", "id":"vertices"},
                 {"categoryId": "Table", "title": "Graph Edges", "icon": "fa-link", "id":"edges"}
