@@ -226,54 +226,54 @@ class BaseChartDisplay(ChartDisplay):
             return (False, "At least one numerical column required.")
 
     def doRender(self, handlerId):
-        # field names
-        fieldNames = self.getFieldNames(True)
-        
-        # get aggregation value (set to default if it doesn't exist)
-        aggregation = self.options.get("aggregation")
-        if (aggregation is None and self.supportsAggregation(handlerId)):
-            aggregation = self.getDefaultAggregation(handlerId)
-            self.options["aggregation"] = aggregation
-
-        # go
-        setKeyFields = self.options.get("keyFields") is None
-        setValueFields = self.options.get("valueFields") is None
-        keyFields = self.getKeyFields(handlerId, aggregation, fieldNames)
-        keyFieldValues = self.getKeyFieldValues(handlerId, aggregation, keyFields)
-        keyFieldLabels = self.getKeyFieldLabels(handlerId, aggregation, keyFields)
-        valueFields = self.getValueFields(handlerId, aggregation, fieldNames)
-        valueFieldValues = self.getValueFieldValueLists(handlerId, aggregation, keyFields, valueFields)
-        context = self.getChartContext(handlerId)
-        dialogOptions = { "fieldNames":fieldNames,\
-            "keyFieldsSupported":self.supportsKeyFields(handlerId),\
-            "legendSupported":self.supportsLegend(handlerId),\
-            "aggregationSupported":self.supportsAggregation(handlerId),\
-            "aggregationOptions":["SUM","AVG","MIN","MAX","COUNT"]\
-        }
-        if (context is not None):
-            dialogTemplate = context[0]
-            dialogOptions.update(context[1])
-        else:
-            dialogTemplate = "baseChartOptionsDialogBody.html"
-        
-        # validate if we can render
-        canRender, errorMessage = self.canRenderChart(handlerId, aggregation, fieldNames)
-        if canRender == False:
-            dialogBody = self.getChartErrorDialogBody(handlerId, dialogTemplate, dialogOptions)
-            if (dialogBody is None):
-                dialogBody = ""
-            self._addHTMLTemplate("chartError.html", errorMessage=errorMessage, optionsDialogBody=dialogBody)
-            return
-
-        # set the keyFields and valueFields options if this is the first time
-        # do this after call to canRenderChart as some charts may need to know that they have not been set
-        if setKeyFields and len(keyFields) > 0:
-            self.options["keyFields"] = ",".join(keyFields)
-        if setValueFields and len(valueFields) > 0:
-            self.options["valueFields"] = ",".join(valueFields)
-        
-        # render
         try:
+            # field names
+            fieldNames = self.getFieldNames(True)
+            
+            # get aggregation value (set to default if it doesn't exist)
+            aggregation = self.options.get("aggregation")
+            if (aggregation is None and self.supportsAggregation(handlerId)):
+                aggregation = self.getDefaultAggregation(handlerId)
+                self.options["aggregation"] = aggregation
+
+            # go
+            setKeyFields = self.options.get("keyFields") is None
+            setValueFields = self.options.get("valueFields") is None
+            keyFields = self.getKeyFields(handlerId, aggregation, fieldNames)
+            keyFieldValues = self.getKeyFieldValues(handlerId, aggregation, keyFields)
+            keyFieldLabels = self.getKeyFieldLabels(handlerId, aggregation, keyFields)
+            valueFields = self.getValueFields(handlerId, aggregation, fieldNames)
+            valueFieldValues = self.getValueFieldValueLists(handlerId, aggregation, keyFields, valueFields)
+            context = self.getChartContext(handlerId)
+            dialogOptions = { "fieldNames":fieldNames,\
+                "keyFieldsSupported":self.supportsKeyFields(handlerId),\
+                "legendSupported":self.supportsLegend(handlerId),\
+                "aggregationSupported":self.supportsAggregation(handlerId),\
+                "aggregationOptions":["SUM","AVG","MIN","MAX","COUNT"]\
+            }
+            if (context is not None):
+                dialogTemplate = context[0]
+                dialogOptions.update(context[1])
+            else:
+                dialogTemplate = "baseChartOptionsDialogBody.html"
+            
+            # validate if we can render
+            canRender, errorMessage = self.canRenderChart(handlerId, aggregation, fieldNames)
+            if canRender == False:
+                dialogBody = self.getChartErrorDialogBody(handlerId, dialogTemplate, dialogOptions)
+                if (dialogBody is None):
+                    dialogBody = ""
+                self._addHTMLTemplate("chartError.html", errorMessage=errorMessage, optionsDialogBody=dialogBody)
+                return
+
+            # set the keyFields and valueFields options if this is the first time
+            # do this after call to canRenderChart as some charts may need to know that they have not been set
+            if setKeyFields and len(keyFields) > 0:
+                self.options["keyFields"] = ",".join(keyFields)
+            if setValueFields and len(valueFields) > 0:
+                self.options["valueFields"] = ",".join(valueFields)
+            
+            # render
             self.doRenderChart(handlerId, dialogTemplate, dialogOptions, aggregation, keyFields, keyFieldValues, keyFieldLabels, valueFields, valueFieldValues)
         except Exception, e:
             dialogBody = self.getChartErrorDialogBody(handlerId, dialogTemplate, dialogOptions)
