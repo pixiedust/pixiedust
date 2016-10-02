@@ -14,9 +14,8 @@
 # limitations under the License.
 # -------------------------------------------------------------------------------
 
+import os
 import storage
-from javaBridge import *
-from scalaBridge import *
 import pkg_resources
 import binascii
 import shutil

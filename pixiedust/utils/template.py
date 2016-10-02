@@ -18,6 +18,9 @@ import pkg_resources
 from cStringIO import StringIO
 import inspect
 import sys
+import pixiedust
+
+myLogger = pixiedust.getLogger(__name__)
 
 class PixiedustTemplateLoader(BaseLoader):
     def __init__(self, baseModule, path="templates"):
@@ -49,6 +52,7 @@ class PixiedustTemplateLoader(BaseLoader):
         path = self.path + "/" + templatePath
         data = None
         if  decode == "base64":
+            myLogger.debug("Loading base64 resource from {0}:{1}".format(module, path))
             with pkg_resources.resource_stream(module, path) as res:
                 data = StringIO(res.read()).getvalue().encode('base64')
         else:
@@ -64,13 +68,16 @@ class PixiedustTemplateEnvironment(object):
             baseModule = inspect.getmodule(frm[0]).__name__
         self.env = Environment(loader=PixiedustTemplateLoader(baseModule))
         self.env.filters["oneline"]=lambda s:reduce(lambda s, l: s+l, s.split("\n"), "") if s else s
-        self.env.filters["base64dataUri"]=lambda s: 'data:image/png;base64,{}'.format(self.getTemplate(s+"#base64").render())
+        self.env.filters["base64dataUri"]=lambda s: 'data:image/png;base64,{0}'.format(self.getTemplate(s+"#base64").render())
         self.env.filters["smartList"]=lambda s: ([s] if type(s) is not list else s)
     
     def from_string(self, source, **kwargs):
         return self.env.from_string(source, globals=kwargs)
 
     def getTemplate(self, name):
+        if ":" in name:
+            myLogger.debug("Template already qualified {0}".format(name))
+            return self.env.get_template( name )
         visited = {}
         for frm in inspect.stack():
             mod = inspect.getmodule(frm[0])

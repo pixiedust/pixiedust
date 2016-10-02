@@ -16,6 +16,7 @@
 
 from ..display import DisplayHandlerMeta,PixiedustDisplay,addId
 from .downloadFile import DownloadFileHandler
+from pixiedust.utils.dataFrameAdapter import createDataframeAdapter
 import pixiedust.utils.dataFrameMisc as dataFrameMisc
 
 @PixiedustDisplay(system=True)

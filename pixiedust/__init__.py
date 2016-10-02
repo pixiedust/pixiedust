@@ -16,20 +16,22 @@
 
 __all__=['packageManager','display','services','utils']
 
-import packageManager
-import display
-import services
+#shortcut to logging
 import utils
 import utils.pdLogging
+logger = utils.pdLogging.getPixiedustLogger()
+getLogger = utils.pdLogging.getLogger
 
 #shortcut to packageManager
+import packageManager
 printAllPackages=packageManager.printAllPackages
 installPackage=packageManager.installPackage
 uninstallPackage=packageManager.uninstallPackage
 
-#shortcut to logging
-logger = utils.pdLogging.getPixiedustLogger()
-getLogger = utils.pdLogging.getLogger
+import display
+import services
+from utils.javaBridge import *
+from utils.scalaBridge import *
 
 #automated import into the user namespace
 get_ipython().user_ns["display"]=display.display

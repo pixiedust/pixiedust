@@ -153,8 +153,13 @@
           {{this._getMenuHandlerScript(menuInfoList[0])}}
         {%elif menuInfoList|length>1%}
           <div class="btn-group btn-small display-type-button">
-            <a class="btn btn-small dropdown-toggle btn-default" data-toggle="dropdown" title="{{this.getCategoryTitle(key)}}">
-              <i class="fa {{this.getCategoryIconClass(key)}}"></i>
+            {% set category = this.getCategory(key) %}
+            <a class="btn btn-small dropdown-toggle btn-default" data-toggle="dropdown" title="{{category.title}}">
+              {% if "icon-class" in category %}
+              <i class="fa {{category["icon-class"]}}"></i>
+              {% elif "icon-path" in category %}
+              <img src="{{category["icon-path"]|base64dataUri}}" style="max-width:18px;display:inline-block">
+              {% endif %}
               <i class="fa fa-chevron-down"></i>
             </a>
             <div class="dropdown-menu" role="menu" style="white-space:nowrap">

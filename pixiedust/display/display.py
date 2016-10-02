@@ -17,17 +17,36 @@
 from abc import ABCMeta,abstractmethod
 from IPython.display import display as ipythonDisplay, HTML, Javascript
 from pixiedust.utils.template import *
-from .constants import *
 import sys
 import uuid
 from collections import OrderedDict
 import time
 import re
+import pixiedust
+
+myLogger = pixiedust.getLogger(__name__)
 
 handlers=[]
 systemHandlers=[]
 defaultHandler=None
 globalMenuInfos={}
+
+"""
+Registry of Action categories
+"""
+class ActionCategories(object):
+    CAT_INFOS = OrderedDict([
+        ("Table", {"title": "Table", "icon-class": "fa-table"}),
+        ("Chart", {"title": "Chart", "icon-class": "fa-line-chart"}),
+        ("Map",   {"title": "Map", "icon-class": "fa-map"}),
+        ("Graph", {"title": "Graph", "icon-class": "fa-share-alt"}),
+        ("Download", {"title":  "Stash dataset", "icon-class": "fa-cloud-download", "pos": 100})
+    ])
+    
+    @staticmethod
+    def sort():
+        ActionCategories.CAT_INFOS = OrderedDict(sorted(ActionCategories.CAT_INFOS.iteritems(), key=lambda item: item[1]["pos"] if "pos" in item[1] else 0))
+
 def registerDisplayHandler(handlerMetadata, isDefault=False, system=False):
     global defaultHandler
     if isDefault and defaultHandler is None:
@@ -36,6 +55,21 @@ def registerDisplayHandler(handlerMetadata, isDefault=False, system=False):
         systemHandlers.append(handlerMetadata)
     else:
         handlers.append(handlerMetadata)
+
+    #Add the categories
+    cat = None
+    for cat in handlerMetadata.createCategories():
+        myLogger.debug("Adding category {0} to registry".format(str(cat)))
+        if "id" not in cat:
+            myLogger.error("Invalid category {0}".format(str(cat)))
+        else:
+            #fix the icon-path if available
+            if "icon-path" in cat and ":" not in cat["icon-path"]:
+                cat["icon-path"] = handlerMetadata.__module__ + ":" + cat["icon-path"]
+            ActionCategories.CAT_INFOS[cat["id"]] = cat
+    if cat is not None:
+        #resort the registry by position
+        ActionCategories.sort()
     
 def getSelectedHandler(options, entity):
     if "cell_id" not in options:
@@ -105,7 +139,7 @@ class DisplayHandlerMeta(object):
     def newDisplayHandler(self,options,entity):
         pass
 
-    def createCategories():
+    def createCategories(self):
         return []
     
 class Display(object):
@@ -253,12 +287,18 @@ class Display(object):
         command = updateCommand(command, "showchrome", None)
         #remove showchrome if there
         return command.replace("\"","\\\"")
+
+    def getCategory(self, catId):
+        if catId in ActionCategories.CAT_INFOS:
+            return ActionCategories.CAT_INFOS[catId]
+        myLogger.error("catId {0} not found in Registry".format(catId))
         
     def getCategoryTitle(self,catId):
         if catId in ActionCategories.CAT_INFOS:
             return ActionCategories.CAT_INFOS[catId]['title']
         elif catId == "Download":
             return "Stash dataset"
+        myLogger.error("catId {0} not found in Registry".format(catId))
         return ""
             
     def getCategoryIconClass(self,catId):
@@ -266,6 +306,7 @@ class Display(object):
             return ActionCategories.CAT_INFOS[catId]['icon-class']
         elif catId == "Download":
             return "fa-cloud-download"
+        myLogger.error("catId {0} not found in Registry".format(catId))
         return ""
         
     def _wrapAfterHtml(self):
