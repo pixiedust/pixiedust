@@ -147,4 +147,8 @@ class PixiedustScalaMagics(Magics):
         cls=None
         runnerObject=None
 
-get_ipython().register_magics(PixiedustScalaMagics)
+try:
+    get_ipython().register_magics(PixiedustScalaMagics)
+except NameError:
+    #IPython not available we must be in a spark executor
+    pass

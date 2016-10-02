@@ -59,7 +59,11 @@ class PixiedustLoggingMagics(Magics):
             """)
             raise
 
-get_ipython().register_magics(PixiedustLoggingMagics)
+try:
+    get_ipython().register_magics(PixiedustLoggingMagics)
+except NameError:
+    #IPython not available we must be in a spark executor
+    pass
 
 def getPixiedustLogger():
     return pixiedustLogger

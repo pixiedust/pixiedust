@@ -34,4 +34,8 @@ from utils.javaBridge import *
 from utils.scalaBridge import *
 
 #automated import into the user namespace
-get_ipython().user_ns["display"]=display.display
+try:
+    get_ipython().user_ns["display"]=display.display
+except NameError:
+    #IPython not available we must be in a spark executor
+    pass

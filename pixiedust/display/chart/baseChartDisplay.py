@@ -227,6 +227,22 @@ class BaseChartDisplay(ChartDisplay):
                     return (True, None)
             return (False, "At least one numerical column required.")
 
+    def getDialogInfo(self, handlerId):
+        context = self.getChartContext(handlerId)
+        dialogOptions = { "fieldNames":self.getFieldNames(True),\
+            "keyFieldsSupported":self.supportsKeyFields(handlerId),\
+            "legendSupported":self.supportsLegend(handlerId),\
+            "aggregationSupported":self.supportsAggregation(handlerId),\
+            "aggregationOptions":["SUM","AVG","MIN","MAX","COUNT"]\
+        }
+        if (context is not None):
+            dialogTemplate = context[0]
+            dialogOptions.update(context[1])
+        else:
+            dialogTemplate = BaseChartDisplay.__module__ + ":baseChartOptionsDialogBody.html"
+
+        return (dialogTemplate, dialogOptions)
+
     def doRender(self, handlerId):
         # field names
         fieldNames = self.getFieldNames(True)
@@ -238,25 +254,13 @@ class BaseChartDisplay(ChartDisplay):
             self.options["aggregation"] = aggregation
 
         # go
-        setKeyFields = self.options.get("keyFields") is None
-        setValueFields = self.options.get("valueFields") is None
         keyFields = self.getKeyFields(handlerId, aggregation, fieldNames)
         keyFieldValues = self.getKeyFieldValues(handlerId, aggregation, keyFields)
         keyFieldLabels = self.getKeyFieldLabels(handlerId, aggregation, keyFields)
         valueFields = self.getValueFields(handlerId, aggregation, fieldNames)
         valueFieldValues = self.getValueFieldValueLists(handlerId, aggregation, keyFields, valueFields)
-        context = self.getChartContext(handlerId)
-        dialogOptions = { "fieldNames":fieldNames,\
-            "keyFieldsSupported":self.supportsKeyFields(handlerId),\
-            "legendSupported":self.supportsLegend(handlerId),\
-            "aggregationSupported":self.supportsAggregation(handlerId),\
-            "aggregationOptions":["SUM","AVG","MIN","MAX","COUNT"]\
-        }
-        if (context is not None):
-            dialogTemplate = context[0]
-            dialogOptions.update(context[1])
-        else:
-            dialogTemplate = "baseChartOptionsDialogBody.html"
+
+        (dialogTemplate, dialogOptions) = self.getDialogInfo(handlerId)
         
         # validate if we can render
         canRender, errorMessage = self.canRenderChart(handlerId, aggregation, fieldNames)
@@ -269,6 +273,8 @@ class BaseChartDisplay(ChartDisplay):
 
         # set the keyFields and valueFields options if this is the first time
         # do this after call to canRenderChart as some charts may need to know that they have not been set
+        setKeyFields = self.options.get("keyFields") is None
+        setValueFields = self.options.get("valueFields") is None
         if setKeyFields and len(keyFields) > 0:
             self.options["keyFields"] = ",".join(keyFields)
         if setValueFields and len(valueFields) > 0:

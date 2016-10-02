@@ -46,6 +46,10 @@ class Mpld3ChartDisplay(BaseChartDisplay):
         self.setChartLegend(handlerId, fig, ax, colormap, keyFields, keyFieldValues, keyFieldLabels, valueFields, valueFieldValues)
         self.setChartTitle(handlerId)
 
+        #Render the figure
+        self.renderFigure(fig, dialogBody)
+
+    def renderFigure(self, fig, dialogBody):
         if self.options.get("staticFigure","false") is "true":
             import StringIO
             png=StringIO.StringIO()
