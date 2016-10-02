@@ -156,12 +156,14 @@ class Display(object):
         self.noChrome="handlerId" in options and "showchrome" not in options
         self.addProfilingTime = True
         self.executionTime=None
+        self.extraTemplateArgs={}
 
     def _getTemplateArgs(self, **kwargs):
         args = {
             "this":self, "entity":self.entity, "prefix":self.getPrefix(),
             "module":self.__module__
         }
+        args.update(self.extraTemplateArgs)
         if kwargs:
             args.update(kwargs)
         return args
@@ -234,6 +236,9 @@ class Display(object):
             menuTree[catId]=[]
         for handler in (handlers+systemHandlers):
             for menuInfo in handler.getMenuInfo(self.entity):
+                #fix the icon-path if available
+                if "icon-path" in menuInfo and ":" not in menuInfo["icon-path"]:
+                    menuInfo["icon-path"] = handler.__module__ + ":" + menuInfo["icon-path"]
                 categoryId=menuInfo.get('categoryId')
                 if categoryId is not None:
                     if not categoryId in menuTree:

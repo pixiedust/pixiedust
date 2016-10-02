@@ -19,6 +19,11 @@ from pyspark.sql import functions as F
 import pixiedust.utils.dataFrameMisc as dataFrameMisc
     
 class ChartDisplay(Display):
+    def __init__(self, options, entity):
+        super(ChartDisplay,self).__init__(options,entity)
+        #note: since this class can be subclassed from other module, we need to mark the correct resource module with resModule so there is no mixup
+        self.extraTemplateArgs["resModule"]=ChartDisplay.__module__
+
     def doRender(self, handlerId):
         self._addHTML("""
             <p><b>Sorry, but this visualization is not yet implemented. Please check back often!</b></p>

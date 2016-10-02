@@ -21,7 +21,7 @@ import platform
 import urllib
 import os
 from pixiedust.utils.storage import *
-from ..display.printEx import *
+from pixiedust.utils.printEx import *
 from maven import Artifact
 from maven import downloader
 from maven import RequestException

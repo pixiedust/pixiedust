@@ -156,9 +156,9 @@
             {% set category = this.getCategory(key) %}
             <a class="btn btn-small dropdown-toggle btn-default" data-toggle="dropdown" title="{{category.title}}">
               {% if "icon-class" in category %}
-              <i class="fa {{category["icon-class"]}}"></i>
+              <i class="fa {{category['icon-class']}}"></i>
               {% elif "icon-path" in category %}
-              <img src="{{category["icon-path"]|base64dataUri}}" style="max-width:18px;display:inline-block">
+              <img src="{{category['icon-path']|base64dataUri}}" style="max-width:18px;display:inline-block">
               {% endif %}
               <i class="fa fa-chevron-down"></i>
             </a>
@@ -166,7 +166,11 @@
               <ul>
               {%for menuInfo in menuInfoList%}
                 <li id="menu{{this.getPrefix(menuInfo)}}">
-                  <i class="fa {{menuInfo['icon']}}"></i>
+                  {% if "icon-class" in menuInfo or "icon" in menuInfo%}
+                  <i class="fa {{menuInfo.get('icon-class', menuInfo.get('icon'))}}"></i>
+                  {% elif "icon-path" in menuInfo %}
+                  <img src="{{menuInfo['icon-path']|base64dataUri}}" style="max-width:18px;display:inline-block">
+                  {% endif %}
                   <span>{{menuInfo['title']}}</span>
                   {{this._getMenuHandlerScript(menuInfo)}}
                 </li>

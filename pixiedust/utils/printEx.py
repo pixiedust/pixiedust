@@ -14,16 +14,7 @@
 # limitations under the License.
 # -------------------------------------------------------------------------------
 
-from .display import *
-from table.display import *
-from graph.display import *
-import traceback
-import warnings
-import pixiedust
-
-myLogger=pixiedust.getLogger(__name__ )
-
-__all__=['printEx','display','PrintColors']
+__all__=['printEx','PrintColors']
 
 class PrintColors(object):
     PURPLE = '\x1b[35m'
@@ -43,18 +34,3 @@ def printEx(message, color=None):
         print(message)
     else:
         print( color + message + PrintColors.END)
-    
-def display(entity, **kwargs):
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore")
-        selectedHandler=getSelectedHandler(kwargs, entity)
-        
-        myLogger.debug("Creating a new handler with options {0}".format(kwargs))
-        displayHandler = selectedHandler.newDisplayHandler(kwargs,entity)
-        if displayHandler is None:
-            printEx("Unable to obtain handler")
-            return
-        
-        displayHandler.handlerMetadata = selectedHandler    
-        displayHandler.callerText = traceback.extract_stack(limit=2)[0][3]
-        displayHandler.render()

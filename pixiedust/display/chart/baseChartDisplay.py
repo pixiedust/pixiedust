@@ -26,6 +26,9 @@ import mpld3
 import mpld3.plugins as plugins
 import traceback
 import pixiedust.utils.dataFrameMisc as dataFrameMisc
+import pixiedust
+
+myLogger = pixiedust.getLogger(__name__)
 
 class BaseChartDisplay(ChartDisplay):
 
@@ -206,13 +209,14 @@ class BaseChartDisplay(ChartDisplay):
             showLegend = self.options.get("showLegend", "true")
             if showLegend == "true":
                 l = ax.legend(title=self.titleLegend if hasattr(self, 'titleLegend') else '')
-                l.get_frame().set_alpha(0)
-                numColumns = len(keyFieldValues)
-                for i, text in enumerate(l.get_texts()):
-                    text.set_color(colormap(1.*i/numColumns))
-                for i, line in enumerate(l.get_lines()):
-                    line.set_color(colormap(1.*i/numColumns))
-                    line.set_linewidth(10)
+                if l is not None:
+                    l.get_frame().set_alpha(0)
+                    numColumns = len(keyFieldValues)
+                    for i, text in enumerate(l.get_texts()):
+                        text.set_color(colormap(1.*i/numColumns))
+                    for i, line in enumerate(l.get_lines()):
+                        line.set_color(colormap(1.*i/numColumns))
+                        line.set_linewidth(10)
     
     def canRenderChart(self, handlerId, aggregation, fieldNames):
         if (aggregation == "COUNT"):
@@ -274,6 +278,7 @@ class BaseChartDisplay(ChartDisplay):
         try:
             self.doRenderChart(handlerId, dialogTemplate, dialogOptions, aggregation, keyFields, keyFieldValues, keyFieldLabels, valueFields, valueFieldValues)
         except Exception, e:
+            myLogger.exception("Unexpected error while trying to render BaseChartDisplay")
             dialogBody = self.getChartErrorDialogBody(handlerId, dialogTemplate, dialogOptions)
             if (dialogBody is None):
                 dialogBody = ""

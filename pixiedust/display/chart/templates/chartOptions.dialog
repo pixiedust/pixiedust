@@ -38,5 +38,5 @@ $('#keyFields{{prefix}}, #valueFields{{prefix}}').droppable({
 {%endblock%}
 
 {%block onOK%}
-({%include module + ":chartOptionsDialogOnOK.js"%})()
+({%include resModule + ":chartOptionsDialogOnOK.js"%})()
 {%endblock%}
