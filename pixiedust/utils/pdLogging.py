@@ -75,5 +75,6 @@ def getLogger(loggerName):
         logger = logging.getLogger(loggerName)
         logger.addHandler(memHandler)
         logger.setLevel(logging.DEBUG)
+        logger.propagate=0
         loggerDict[loggerName]=logger
     return logger
