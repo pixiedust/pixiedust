@@ -28,7 +28,7 @@ def display(entity, **kwargs):
         warnings.simplefilter("ignore")
         selectedHandler=getSelectedHandler(kwargs, entity)
         
-        myLogger.debug("Creating a new handler with options {0}".format(kwargs))
+        myLogger.debug("Creating a new display handler with options {0}: {1}".format(kwargs, selectedHandler))
         displayHandler = selectedHandler.newDisplayHandler(kwargs,entity)
         if displayHandler is None:
             printEx("Unable to obtain handler")

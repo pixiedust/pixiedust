@@ -95,7 +95,8 @@ def getSelectedHandler(options, entity):
             if ( menuInfos is not None and len(menuInfos)>0 ):
                 return handler
     #we didn't find any, return the first
-    return handlers[0]
+    myLogger.debug("Didn't find any handler for {0}".format(handlerId))
+    return UnknownEntityMeta()
 
 """
 misc helper functions
@@ -330,6 +331,22 @@ class CellHandshake(Display):
     def render(self):
         ipythonDisplay(HTML(
             self.renderTemplate("handshake.html")
+        ))
+        
+    def doRender(self, handlerId):
+        pass
+
+#Special handler used when no handlers was found to process the entity 
+class UnknownEntityMeta(DisplayHandlerMeta):
+    def getMenuInfo(self,entity):
+       return []
+    def newDisplayHandler(self,options,entity):
+        return UnknownEntityDisplay(options,entity)
+        
+class UnknownEntityDisplay(Display):
+    def render(self):
+        ipythonDisplay(HTML(
+            self.renderTemplate("unknownEntity.html")
         ))
         
     def doRender(self, handlerId):
