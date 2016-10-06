@@ -1,6 +1,27 @@
 {% macro ipython_execute(command, prefix, extraCommandOptions="{}") -%}
 
 var callbacks = {
+    shell : {
+        reply : function(){
+            //Done executing
+            {{caller('')}}
+        },
+        payload : {
+            set_next_input : function(payload){
+                {% if this and this.options %}
+                    var curCell=IPython.notebook.get_cells().filter(function(cell){return cell.cell_id=="{{this.options.get('cell_id')}}";});
+                    curCell=curCell.length>0?curCell[0]:null;
+                    if (!curCell){
+                        console.log("Unable to execute set_next_input. Cell cannot be found");
+                    }else{
+                        curCell._handle_set_next_input(payload);
+                    }
+                {% else %}
+                    console.log("Unable to execute set_next_input because context is not available. Perhaps you should import commonExecuteCallback.js with context");
+                {% endif %}
+            }
+        }
+    },
     iopub:{
         output:function(msg){
             var msg_type=msg.header.msg_type;

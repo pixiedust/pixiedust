@@ -66,7 +66,7 @@ class PixiedustTemplateEnvironment(object):
         if not baseModule:
             frm = inspect.stack()[1]
             baseModule = inspect.getmodule(frm[0]).__name__
-        self.env = Environment(loader=PixiedustTemplateLoader(baseModule))
+        self.env = Environment(loader=PixiedustTemplateLoader(baseModule),extensions=['jinja2.ext.with_'])
         self.env.filters["oneline"]=lambda s:reduce(lambda s, l: s+l, s.split("\n"), "") if s else s
         self.env.filters["base64dataUri"]=lambda s: 'data:image/png;base64,{0}'.format(self.getTemplate(s+"#base64").render())
         self.env.filters["smartList"]=lambda s: ([s] if type(s) is not list else s)
