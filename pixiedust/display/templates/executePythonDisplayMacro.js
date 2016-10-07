@@ -1,4 +1,4 @@
-{% macro executeDisplay(options="{}") -%}
+{% macro executeDisplayfunction(options="{}") -%}
 function() {
     cellId = typeof cellId === "undefined" ? "" : cellId;
     var curCell=IPython.notebook.get_cells().filter(function(cell){
@@ -102,9 +102,11 @@ function() {
         }
         if(typeof cellMetadata != "undefined" && cellMetadata.displayParams){
             addOptions(cellMetadata.displayParams);
-            add({"showchrome":"true"});
+            addOptions({"showchrome":"true"});
         }
         addOptions({{options|oneline|trim}});
+        {#Give a chance to the caller to add extra template fragment here#}
+        {{caller()}}
         console.log("Running command2",command);
         var pattern = "\\w*\\s*=\\s*'(\\\\'|[^'])*'";
         var rpattern=new RegExp(pattern,"g");
@@ -130,4 +132,8 @@ function() {
         IPython.notebook.session.kernel.execute(command, callbacks, {silent:false,store_history:false,stop_on_error:true});
     }
 }
+{% endmacro %}
+
+{% macro executeDisplay(options="{}") -%}
+    !{%call executeDisplayfunction(options)%}{%endcall%}()
 {%- endmacro %}

@@ -34,7 +34,7 @@ class InteractiveVariables(object):
         pythonToScalaSimpleTypeMap = {"str":"String","int":"Int"}
         scalaType = pythonToScalaSimpleTypeMap.get(varValue.__class__.__name__, None)
         if scalaType == "String":
-            varValue = "\"" + varValue + "\""
+            varValue = "\"" + varValue.replace('\n','\\n') + "\""
         return {"value": varValue, "codeValue": varValue if scalaType is not None else None, "type": scalaType or "Any"}
 
     def getVarsDict(self):

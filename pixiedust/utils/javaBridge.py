@@ -17,6 +17,9 @@ from pyspark import SparkContext
 from pyspark.sql import SQLContext, DataFrame
 import py4j.java_gateway
 import sys
+import pixiedust
+
+myLogger = pixiedust.getLogger(__name__)
 
 """
 class used to redirect Java JVM System output to Python notebook
@@ -108,14 +111,30 @@ class JavaWrapper(object):
     work right
     '''
     def callMethod(self, methodName, *args):
+        myLogger.debug("Calling callMethod: methodName: {0}".format(methodName))
         argLen = len(args)
         jMethodParams = None if argLen == 0 else sc._gateway.new_array(sc._jvm.Class, argLen )
         jMethodArgs = None if argLen == 0 else sc._gateway.new_array(sc._jvm.Object, argLen )
         for i,arg in enumerate(args):
             jMethodParams[i] = (arg if arg.__class__.__name__ == "JavaClass" else arg.getClass())
             jMethodArgs[i] = arg
-        #get the method and invoke it
-        return self.jHandle.getClass().getMethod(methodName, jMethodParams).invoke(self.jHandle, jMethodArgs)
+        #find the method and invoke it
+        for m in self.jHandle.getClass().getMethods():
+            if m.getName() == methodName and len(m.getParameterTypes()) == argLen:
+                myLogger.debug("Found method with Name {0}".format(methodName))
+                #Check the arguments type match
+                match=True
+                if argLen > 0:
+                    for m1,m2 in zip( m.getParameterTypes(), jMethodParams ):
+                        if not m1.isAssignableFrom(m2):
+                            myLogger.debug("Found method {0} with arguments that are not matching".format(methodName))
+                            match = False
+                            break;
+                if match:
+                    return m.invoke(self.jHandle, jMethodArgs)
+        
+        raise ValueError("Method {0} that matches the given arguments not found".format(methodName) )
+        #return self.jHandle.getClass().getMethod(methodName, jMethodParams).invoke(self.jHandle, jMethodArgs)
 
 """
 Misc helper functions
