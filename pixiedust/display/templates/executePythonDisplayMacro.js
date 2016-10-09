@@ -1,4 +1,4 @@
-{% macro executeDisplayfunction(options="{}") -%}
+{% macro executeDisplayfunction(options="{}", useCellMetadata=False) -%}
 function() {
     cellId = typeof cellId === "undefined" ? "" : cellId;
     var curCell=IPython.notebook.get_cells().filter(function(cell){
@@ -103,6 +103,8 @@ function() {
         if(typeof cellMetadata != "undefined" && cellMetadata.displayParams){
             addOptions(cellMetadata.displayParams);
             addOptions({"showchrome":"true"});
+        }else if ('{{useCellMetadata}}'=='True' && curCell && curCell._metadata.pixiedust ){
+            addOptions(curCell._metadata.pixiedust.displayParams || {} );
         }
         addOptions({{options|oneline|trim}});
         {#Give a chance to the caller to add extra template fragment here#}
@@ -134,6 +136,6 @@ function() {
 }
 {% endmacro %}
 
-{% macro executeDisplay(options="{}") -%}
-    !{%call executeDisplayfunction(options)%}{%endcall%}()
+{% macro executeDisplay(options="{}",useCellMetadata=False) -%}
+    !{%call executeDisplayfunction(options, useCellMetadata)%}{%endcall%}()
 {%- endmacro %}
