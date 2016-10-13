@@ -42,7 +42,7 @@ class StashCloudantHandler(Display):
                 print("Unable to create db ({0}) for connection ({1}): {2}".format(dbName, connectionName, str(r.content)))
             else:
                 self.entity.write.format("com.cloudant.spark")\
-                    .option("cloudant.host", credentials["url"])\
+                    .option("cloudant.host", credentials["host"])\
                     .option("cloudant.username",credentials["username"])\
                     .option("cloudant.password",credentials["password"])\
                     .option("createDBOnSave","true")\
