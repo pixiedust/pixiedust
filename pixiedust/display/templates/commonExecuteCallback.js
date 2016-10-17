@@ -54,13 +54,7 @@ var callbacks = {
 !function(){
     $('#loading{{prefix}}').css('display','block');
     {%if command%}
-    var command = null;
-    if (typeof Pixiedust.execute_command == "undefined") {
-       command = "{{command}}";
-    } else {
-       command = Pixiedust.execute_command;
-       Pixiedust.execute_command = (function () { return; })();
-    }
+    var command = "{{command}}";
     function addOptions(options){
         function getStringRep(v) {
             if (!isNaN(parseFloat(v)) && isFinite(v)){

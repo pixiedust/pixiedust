@@ -165,6 +165,8 @@ def _trackDeploymentIfVersionChange(deploymenTrackerStorage, existingVersion):
         app = get_distribution("pixiedust")
         version = app.version
         repo_url = PIXIEDUST_REPO_URL
+        notebook_tenant_id = os.environ.get("NOTEBOOK_TENANT_ID")
+        notebook_kernel = os.environ.get("NOTEBOOK_KERNEL")
         # save last tracked version in the db
         if existingVersion is None:
             deploymenTrackerStorage.insert("INSERT INTO {0} (VERSION) VALUES ('{1}')".format(DEPLOYMENT_TRACKER_TBL_NAME,version))
@@ -184,6 +186,10 @@ def _trackDeploymentIfVersionChange(deploymenTrackerStorage, existingVersion):
                 event['code_version'] = version
             if repo_url is not None:
                 event['repository_url'] = repo_url
+            if notebook_tenant_id is not None:
+                event['notebook_tenant_id'] = notebook_tenant_id
+            if notebook_kernel is not None:
+                event['notebook_kernel'] = notebook_kernel
             event['runtime'] = 'python'
             # Create and format request to Deployment Tracker
             url = 'https://deployment-tracker.mybluemix.net/api/v1/track'

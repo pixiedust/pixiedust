@@ -289,7 +289,7 @@ class BaseChartDisplay(ChartDisplay):
             if (dialogBody is None):
                 dialogBody = ""
             self._addHTMLTemplate("chartError.html", errorMessage="Unexpected Error:<br>"+str(e), optionsDialogBody=dialogBody)
-            #self._addHTMLTemplate("chartError.html", errorMessage="Unexpected Error:<br>"+str(e)+"<br><br><pre>"+traceback.format_exc()+"</pre>", optionsDialogBody=dialogBody)
+            myLogger.info("Unexpected Error:\n"+str(e)+"\n\n"+traceback.format_exc())
 
     def getFieldNames(self, expandNested=False):
         return dataFrameMisc.getFieldNames(self.entity, expandNested)
