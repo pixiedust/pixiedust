@@ -17,6 +17,21 @@
 import sqlite3
 import os
 
+import json
+import sys
+import time
+from constants import PIXIEDUST_REPO_URL
+from pkg_resources import get_distribution
+from re import search
+from requests import post
+from os import environ as env
+
+import pdLogging
+logger = pdLogging.getPixiedustLogger()
+getLogger = pdLogging.getLogger
+
+myLogger = getLogger(__name__)
+
 __all__ = ['Storage']
 
 SQLITE_DB_NAME = 'pixiedust.db'
@@ -46,6 +61,8 @@ def _initStorage():
         _conn = sqlite3.connect(SQLITE_DB_NAME_PATH)
         _conn.row_factory=_row_dict_factory 
         print("Pixiedust database opened successfully")
+
+    _trackDeployment()
 
 """
 Encapsule access to data from the pixiedust database
@@ -122,3 +139,58 @@ class Storage(object):
         _conn.execute(sqlQuery)
         _conn.commit()
 
+    def update(self, sqlQuery):
+        _conn.execute(sqlQuery)
+        _conn.commit()
+
+DEPLOYMENT_TRACKER_TBL_NAME = "VERSION_TRACKER"
+
+class __DeploymentTrackerStorage(Storage):
+    def __init__(self):
+        self._initTable(DEPLOYMENT_TRACKER_TBL_NAME,"VERSION TEXT NOT NULL")
+
+def _trackDeployment():
+    deploymenTrackerStorage = __DeploymentTrackerStorage()
+    row = deploymenTrackerStorage.fetchOne("SELECT * FROM {0}".format(DEPLOYMENT_TRACKER_TBL_NAME));
+    if row is None:
+        _trackDeploymentIfVersionChange(deploymenTrackerStorage, None)
+    else:
+        _trackDeploymentIfVersionChange(deploymenTrackerStorage, row["VERSION"])
+
+def _trackDeploymentIfVersionChange(deploymenTrackerStorage, existingVersion):
+    # Get version and repository URL from 'setup.py'
+    version = None
+    repo_url = None
+    try:
+        app = get_distribution("pixiedust")
+        version = app.version
+        repo_url = PIXIEDUST_REPO_URL
+        # save last tracked version in the db
+        if existingVersion is None:
+            deploymenTrackerStorage.insert("INSERT INTO {0} (VERSION) VALUES ('{1}')".format(DEPLOYMENT_TRACKER_TBL_NAME,version))
+        else:
+            deploymenTrackerStorage.update("UPDATE {0} SET VERSION='{1}'".format(DEPLOYMENT_TRACKER_TBL_NAME,version))
+        # if version has changed then track with deployment tracker
+        if existingVersion is None or existingVersion != version:
+            myLogger.info("Change in version detected: {0} -> {1}.".format(existingVersion,version))
+            if existingVersion is None:
+                print("Pixiedust version {0}".format(version))
+            else:
+                print("Pixiedust version upgraded from {0} to {1}".format(existingVersion,version))
+            # create dictionary and register
+            event = dict()
+            event['date_sent'] = time.strftime("%Y-%m-%dT%H:%M:%S.000Z", time.gmtime())
+            if version is not None:
+                event['code_version'] = version
+            if repo_url is not None:
+                event['repository_url'] = repo_url
+            event['runtime'] = 'python'
+            # Create and format request to Deployment Tracker
+            url = 'https://deployment-tracker.mybluemix.net/api/v1/track'
+            headers = {'content-type': "application/json"}
+            response = post(url, data=json.dumps(event), headers=headers)
+        else:
+            myLogger.info("No change in version: {0} -> {1}.".format(existingVersion,version))
+            print("Pixiedust version {0}".format(version)) 
+    except:
+        myLogger.error("Error registering with deployment tracker:\n" + str(sys.exc_info()[0]) + "\n" + str(sys.exc_info()[1]))
