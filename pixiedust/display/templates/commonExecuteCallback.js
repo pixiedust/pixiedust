@@ -3,8 +3,10 @@
 var callbacks = {
     shell : {
         reply : function(){
-            //Done executing
-            {{caller('')}}
+            if ( !callbacks.response ) {
+                //Done executing
+                {{caller('')}}
+            }
         },
         payload : {
             set_next_input : function(payload){
@@ -27,6 +29,7 @@ var callbacks = {
             var msg_type=msg.header.msg_type;
             var content = msg.content;
             if(msg_type==="stream"){
+                callbacks.response = true;
                 {{caller("content.text")}}
             }else if (msg_type==="display_data" || msg_type==="execute_result"){
                 if (!!content.data["text/html"]){
@@ -41,7 +44,7 @@ var callbacks = {
                         data = utils.fixCarriageReturn(data);
                         data = utils.autoLinkUrls(data);
                         $('#loading{{prefix}}').html("<pre>" + data +"</pre>");
-
+                        callbacks.response = true;
                         {{caller({"message": 'content.evalue',"error": '"<pre>"+data+"</pre>"'})}}
                     }
                 });
@@ -53,8 +56,12 @@ var callbacks = {
 
 !function(){
     $('#loading{{prefix}}').css('display','block');
+    {%if command and (command|startswith("$$"))%}
+    var command = {{command}};
+    {%elif command%}
+    var command= "{{command}}";
+    {%endif%}
     {%if command%}
-    var command = "{{command}}";
     function addOptions(options){
         function getStringRep(v) {
             if (!isNaN(parseFloat(v)) && isFinite(v)){

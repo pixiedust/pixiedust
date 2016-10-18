@@ -70,6 +70,7 @@ class PixiedustTemplateEnvironment(object):
         self.env.filters["oneline"]=lambda s:reduce(lambda s, l: s+l, s.split("\n"), "") if s else s
         self.env.filters["base64dataUri"]=lambda s: 'data:image/png;base64,{0}'.format(self.getTemplate(s+"#base64").render())
         self.env.filters["smartList"]=lambda s: ([s] if type(s) is not list else s)
+        self.env.filters['startswith']=lambda s,t: (s.startswith(t))
     
     def from_string(self, source, **kwargs):
         return self.env.from_string(source, globals=kwargs)
