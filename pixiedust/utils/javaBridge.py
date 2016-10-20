@@ -127,7 +127,7 @@ class JavaWrapper(object):
                 if argLen > 0:
                     for m1,m2 in zip( m.getParameterTypes(), jMethodParams ):
                         if not m1.isAssignableFrom(m2):
-                            myLogger.debug("Found method {0} with arguments that are not matching".format(methodName))
+                            myLogger.debug("Found method {0} with arguments that are not matching: {1} => {2}".format(methodName, m1, m2))
                             match = False
                             break;
                 if match:

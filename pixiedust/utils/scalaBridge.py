@@ -16,9 +16,13 @@
 import os
 import subprocess
 import re
+import inspect
 from IPython.core.magic import (Magics, magics_class, cell_magic)
 from pixiedust.utils.javaBridge import *
 from pixiedust.utils.template import *
+import pixiedust
+
+myLogger = pixiedust.getLogger(__name__)
 
 '''
 Manages the variables defined interactively in the Notebook
@@ -30,12 +34,19 @@ class InteractiveVariables(object):
     def getVar(self, varName):
         return self.shell.user_ns.get(varName, None ) or self.shell.user_ns_hidden.get(varName, None)
 
-    def varTypeTransformer(self, varName, varValue):
+    def transform(self, varName, varValue):
         pythonToScalaSimpleTypeMap = {"str":"String","int":"Int"}
-        scalaType = pythonToScalaSimpleTypeMap.get(varValue.__class__.__name__, None)
-        if scalaType == "String":
-            varValue = "\"" + varValue.replace('\n','\\n') + "\""
-        return {"value": varValue, "codeValue": varValue if scalaType is not None else None, "type": scalaType or "Any"}
+        scalaType = pythonToScalaSimpleTypeMap.get(varValue.__class__.__name__, None) 
+        codeValue = None
+        initValue = None
+        if scalaType is not None:
+            primitive = True
+            codeValue = "\"" + varValue.replace('\n','\\n') + "\"" if scalaType == "String" else varValue
+        else:
+            #Try the ConverterRegistry
+            initValue,scalaType = ConverterRegistry.toJava(varValue)
+        
+        return {"value": varValue, "codeValue": codeValue, "type": scalaType or "Any", "initValue":initValue}
 
     def getVarsDict(self):
         user_ns = self.shell.user_ns
@@ -44,7 +55,7 @@ class InteractiveVariables(object):
         #for i in user_ns:
         #    print(user_ns[i].__class__)
         filtered = ["function"]
-        out = { key : self.varTypeTransformer(key, user_ns[key]) for key in user_ns \
+        out = { key : self.transform(key, user_ns[key]) for key in user_ns \
                 if not key.startswith('_') \
                 and key!="sc" and key!="sqlContext" \
                 and (user_ns[key] is not user_ns_hidden.get(key, nonmatching)) \
@@ -55,6 +66,24 @@ class InteractiveVariables(object):
 
     def updateVarsDict(self, vars):
         self.shell.user_ns.update(vars)
+
+class ConverterRegistry(object):
+    pythonToJavaConverters=[]
+
+    @staticmethod
+    def toJava(obj):
+        for converter in ConverterRegistry.pythonToJavaConverters:
+            v, t = converter(obj)
+            if v is not None and t is not None:
+                return (v,t)
+        return (None,None)
+
+def toJavaConverter(func):
+    ConverterRegistry.pythonToJavaConverters.append( func )
+    def wrapper(*args,**kwargs):
+        return func(*args, **kwargs)
+    return wrapper
+
 
 @magics_class
 class PixiedustScalaMagics(Magics):
@@ -130,6 +159,12 @@ class PixiedustScalaMagics(Magics):
         runnerObject = JavaWrapper(cls.getField("MODULE$").get(None), True, 
             self.getLineOption(line, "channel"), self.getLineOption(line, "receiver"))
         runnerObject.callMethod("init", pd_getJavaSparkContext(), self.interactiveVariables.getVar("sqlContext")._ssql_ctx )
+        
+        #Init the variables
+        for key, val in self.interactiveVariables.getVarsDict().iteritems():
+            if val["initValue"] is not None:
+                runnerObject.callMethod("set" + key.capitalize(), val["initValue"])
+        
         varMap = runnerObject.callMethod("runCell")
 
         #capture the return vars and update the interactive shell
@@ -152,3 +187,26 @@ try:
 except NameError:
     #IPython not available we must be in a spark executor
     pass
+
+#converters
+@toJavaConverter
+def dataFrameConverter(var):
+    from pyspark.sql import DataFrame
+    if isinstance(var, DataFrame):
+        return (var._jdf, "org.apache.spark.sql.DataFrame")
+    return (None,None)
+
+@toJavaConverter
+def rddConverter(var):
+    from pyspark.rdd import RDD
+    if isinstance(var, RDD):
+        return (var._jrdd, var._jrdd.getClass().getName() + "[Object]")
+    return (None,None)
+
+@toJavaConverter
+def graphFrameConverter(var):
+    if hasattr(var, "__module__") and hasattr(var, "__class__"):
+        clazz = var.__module__ + "." + var.__class__.__name__
+        if clazz == "graphframes.graphframe.GraphFrame":
+            return (var._jvm_graph, "org.graphframes.GraphFrame")
+    return (None,None)
