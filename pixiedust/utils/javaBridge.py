@@ -18,6 +18,7 @@ from pyspark.sql import SQLContext, DataFrame
 import py4j.java_gateway
 import sys
 import pixiedust
+from py4j.java_gateway import *
 
 myLogger = pixiedust.getLogger(__name__)
 
@@ -72,7 +73,19 @@ class JavaWrapper(object):
 
             #TODO: find a way to redirect system.out output for the current execution of the call
             #JavaWrapper("java.lang.System").setOut(pixiedustOutputSink)
-            sc._gateway.start_callback_server()
+            try:
+                gw = sc._gateway
+                if "_callback_server" not in gw.__dict__ or gw._callback_server is None:
+                    gw.callback_server_parameters.eager_load = True
+                    gw.callback_server_parameters.daemonize = True
+                    gw.callback_server_parameters.daemonize_connections = True
+                    gw.callback_server_parameters.port = 0
+                    gw.start_callback_server(gw.callback_server_parameters)
+                    gw._callback_server.port = gw._callback_server.server_socket.getsockname()[1]
+                    jgws = JavaObject("GATEWAY_SERVER", gw._gateway_client)
+                    gw.jvm.org.apache.spark.streaming.api.python.PythonDStream.updatePythonGatewayPort(jgws, gw._callback_server.port)
+            except Exception, e:
+                print("Error {0}".format(e))
 
     def __getattr__(self, name):
         o = self.jHandle.__getattr__(name)
