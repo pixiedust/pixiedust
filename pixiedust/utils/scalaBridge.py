@@ -163,7 +163,7 @@ class PixiedustScalaMagics(Magics):
         #Init the variables
         for key, val in self.interactiveVariables.getVarsDict().iteritems():
             if val["initValue"] is not None:
-                runnerObject.callMethod("set" + key.capitalize(), val["initValue"])
+                runnerObject.callMethod("set" + key[0].upper() + key[1:], val["initValue"])
         
         varMap = runnerObject.callMethod("runCell")
 
