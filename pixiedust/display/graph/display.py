@@ -77,10 +77,11 @@ class GraphDisplay(Display):
             graphNodesJson+="}"        
             graphLinksJson=str(g.edges.select("src","dst").groupBy("src","dst").agg(F.count("src").alias("count")).toJSON().map(lambda j: yaml.safe_load(j)).collect())
     
-            self._addScriptElement("https://d3js.org/d3.v3.js", checkJSVar="d3")
-            self._addScriptElement("https://mbostock.github.io/d3/talk/20111116/d3/d3.geo.js")
-            self._addScriptElement(
-                "https://mbostock.github.io/d3/talk/20111116/d3/d3.geom.js", 
-                callback= self.renderTemplate("graphMap.js", graphNodesJson=graphNodesJson, graphLinksJson=graphLinksJson)
-            )        
+            self._addScriptElement("https://d3js.org/d3.v3.js", checkJSVar="d3",
+                callback= self.renderTemplate("graphMap.js", graphNodesJson=graphNodesJson, graphLinksJson=graphLinksJson))
+            #self._addScriptElement("https://mbostock.github.io/d3/talk/20111116/d3/d3.geo.js")
+            #self._addScriptElement(
+            #    "https://mbostock.github.io/d3/talk/20111116/d3/d3.geom.js", 
+            #    callback= self.renderTemplate("graphMap.js", graphNodesJson=graphNodesJson, graphLinksJson=graphLinksJson)
+            #)        
             self._addHTMLTemplate("graphMap.html")
