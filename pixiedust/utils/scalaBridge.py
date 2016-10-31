@@ -35,8 +35,8 @@ class InteractiveVariables(object):
         return self.shell.user_ns.get(varName, None ) or self.shell.user_ns_hidden.get(varName, None)
 
     def transform(self, varName, varValue):
-        pythonToScalaSimpleTypeMap = {"str":"String","int":"Int"}
-        scalaType = pythonToScalaSimpleTypeMap.get(varValue.__class__.__name__, None) 
+        pythonToScalaSimpleTypeMap = {"str":"String","unicode":"String","int":"Int"}
+        scalaType = pythonToScalaSimpleTypeMap.get(varValue.__class__.__name__, None)
         codeValue = None
         initValue = None
         if scalaType is not None:
@@ -135,7 +135,7 @@ class PixiedustScalaMagics(Magics):
             os.makedirs(dir)
         source="pixiedustRunner.scala"
         with open(dir + "/" + source, "w") as f:
-            f.write(scalaCode)
+            f.write(scalaCode.encode("utf-8","ignore"))
         #Compile the code
         proc = subprocess.Popen([self.scala_home + "/bin/scalac","-classpath", self.class_path, source],stdout=subprocess.PIPE,stderr=subprocess.PIPE, cwd=dir)
         code = proc.wait()
