@@ -55,7 +55,7 @@ class Mpld3ChartDisplay(BaseChartDisplay):
             png=StringIO.StringIO()
             plt.savefig(png)
             self._addHTMLTemplate("mpld3Chart.html", 
-                mpld3Figure="""<img src="data:image/png;base64,{0}">""".format(png.getvalue().encode('base64')), 
+                mpld3Figure="""<img src="data:image/png;base64,{0}"  class="pd_save">""".format(png.getvalue().encode('base64')), 
                 optionsDialogBody=dialogBody)
             plt.close(fig)
         else:

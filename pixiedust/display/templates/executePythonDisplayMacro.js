@@ -13,7 +13,9 @@ function() {
             output:function(msg){
                 console.log("msg", msg);
                 if ({{"false" if "cell_id" in this.options else "true"}}){
-                    return curCell.output_area.handle_output.apply(curCell.output_area, arguments);
+                    curCell.output_area.handle_output.apply(curCell.output_area, arguments);
+                    curCell.output_area.outputs=[];
+                    return;
                 }
                 var msg_type=msg.header.msg_type;
                 var content = msg.content;
@@ -38,17 +40,43 @@ function() {
                     }
                     
                     if (html){
-                        if(curCell&&curCell.output_area&&curCell.output_area.outputs){
-                            var data = JSON.parse(JSON.stringify(content.data));
-                            if(!!data["text/html"])data["text/html"]=html;
-                            curCell.output_area.outputs.push({"data": data,"metadata":content.metadata,"output_type":msg_type});
-                        }
                         try{
                             $('#wrapperHTML{{prefix}}').html(html);
                         }catch(e){
                             console.log("Invalid html output", e, html);
                             $('#wrapperHTML{{prefix}}').html( "Invalid html output. <pre>" 
                                 + html.replace(/>/g,'&gt;').replace(/</g,'&lt;').replace(/"/g,'&quot;') + "<pre>");
+                        }
+
+                        if(curCell&&curCell.output_area&&curCell.output_area.outputs){
+                            setTimeout(function(){
+                                var data = JSON.parse(JSON.stringify(content.data));
+                                if(!!data["text/html"])data["text/html"]=html;
+                                function savedData(data){
+                                    var markup="";
+                                    nodes = $.parseHTML(data["text/html"], null, true);
+                                    var s = $(nodes).wrap("<div>").parent().find(".pd_save").not(".pd_save > .pd_save")
+                                    s.each(function(){
+                                        var found = false;
+                                        if ( $(this).attr("id") ){
+                                            var n = $("#" + $(this).attr("id"));
+                                            if (n.length>0){
+                                                found=true;
+                                                markup+=n.wrap("<div>").parent().html();
+                                            }
+                                        }
+                                        if (!found){
+                                            markup+=$(this).parent().html();
+                                        }
+                                    });
+                                    if ( markup === ""){
+                                        markup="<div/>"
+                                    }
+                                    data["text/html"] = markup;
+                                    return data;
+                                }
+                                curCell.output_area.outputs.push({"data": savedData(data),"metadata":content.metadata,"output_type":msg_type});
+                            },2000);
                         }
                     }
                 }else if (msg_type === "error") {
@@ -126,6 +154,12 @@ function() {
             curCell._metadata.pixiedust = curCell._metadata.pixiedust || {}
             curCell._metadata.pixiedust.displayParams=displayParams
             curCell.output_area.outputs=[];
+            var old_msg_id = curCell.last_msg_id;
+            if (old_msg_id) {
+                curCell.kernel.clear_callbacks_for_msg(old_msg_id);
+            }
+        }else{
+            console.log("couldn't find the cell");
         }
         $('#wrapperJS{{prefix}}').html("")
         $('#wrapperHTML{{prefix}}').html('<div style="width:100px;height:60px;left:47%;position:relative"><i class="fa fa-circle-o-notch fa-spin" style="font-size:48px"></i></div>'+
