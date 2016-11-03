@@ -2,6 +2,8 @@
 
 PixieDust is an open source Python helper library that works as an add-on to Jupyter notebooks to improve the user experience of working with data. It also provides extra capabilities that fill a gap when the notebook is hosted on the cloud and the user has no access to configuration files.
 
+<iframe width="853" height="480" src="https://www.youtube.com/embed/JcMefQ_o9oU?loop=1&amp;playlist=JcMefQ_o9oU" frameborder="0" allowfullscreen="true"></iframe>
+
 Its current capabilities include:
 
 - **packageManager** lets you install spark packages inside a python notebook. This is something that you can't do today on hosted Jupyter notebooks, which prevents developers from using a large number of spark package add-ons.
