@@ -53,25 +53,29 @@ function() {
                                 var data = JSON.parse(JSON.stringify(content.data));
                                 if(!!data["text/html"])data["text/html"]=html;
                                 function savedData(data){
-                                    var markup="";
+                                    {#hide the output when displayed with nbviewer on github, use the is-viewer-good class which is only available on github#}
+                                    var markup='<style type="text/css">.pd_warning{display:none;}</style>';
+                                    markup+='<div class="pd_warning">PixieDust Output only renders in Jupyter</div>';
                                     nodes = $.parseHTML(data["text/html"], null, true);
-                                    var s = $(nodes).wrap("<div>").parent().find(".pd_save").not(".pd_save > .pd_save")
+                                    var s = $(nodes).wrap("<div>").parent().find(".pd_save").not(".pd_save .pd_save")
                                     s.each(function(){
                                         var found = false;
                                         if ( $(this).attr("id") ){
                                             var n = $("#" + $(this).attr("id"));
                                             if (n.length>0){
                                                 found=true;
+                                                n.each(function(){
+                                                    $(this).addClass("is-viewer-good");
+                                                });
                                                 markup+=n.wrap("<div>").parent().html();
                                             }
+                                        }else{
+                                            $(this).addClass("is-viewer-good");
                                         }
                                         if (!found){
                                             markup+=$(this).parent().html();
                                         }
                                     });
-                                    if ( markup === ""){
-                                        markup="<div/>"
-                                    }
                                     data["text/html"] = markup;
                                     return data;
                                 }
