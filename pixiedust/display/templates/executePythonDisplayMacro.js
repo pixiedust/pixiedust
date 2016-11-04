@@ -55,7 +55,7 @@ function() {
                                 function savedData(data){
                                     {#hide the output when displayed with nbviewer on github, use the is-viewer-good class which is only available on github#}
                                     var markup='<style type="text/css">.pd_warning{display:none;}</style>';
-                                    markup+='<div class="pd_warning">PixieDust Output only renders in Jupyter</div>';
+                                    markup+='<div class="pd_warning"><em>Hey, there\'s something awesome here! To see it, open this notebook outside GitHub, in a viewer like Jupyter</em></div>';
                                     nodes = $.parseHTML(data["text/html"], null, true);
                                     var s = $(nodes).wrap("<div>").parent().find(".pd_save").not(".pd_save .pd_save")
                                     s.each(function(){
