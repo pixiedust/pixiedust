@@ -1,5 +1,6 @@
-package com.ibm.pixiedust
+package com.ibm.pixiedust{{cl}}
 
+import com.ibm.pixiedust._
 import org.apache.spark.SparkContext
 import org.apache.spark.sql.SQLContext
 import collection.JavaConversions._

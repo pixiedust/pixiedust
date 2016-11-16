@@ -32,4 +32,4 @@ class ShellAccess(object):
     @staticmethod
     def update(**kwargs):
         for key,val in kwargs.iteritems():
-            Configuration[key]=val
+            ShellAccess[key]=val

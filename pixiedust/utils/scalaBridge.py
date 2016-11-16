@@ -20,6 +20,7 @@ import inspect
 from IPython.core.magic import (Magics, magics_class, cell_magic)
 from pixiedust.utils.javaBridge import *
 from pixiedust.utils.template import *
+from pixiedust.utils.shellAccess import ShellAccess
 import pixiedust
 
 myLogger = pixiedust.getLogger(__name__)
@@ -41,7 +42,7 @@ class InteractiveVariables(object):
         initValue = None
         if scalaType is not None:
             primitive = True
-            codeValue = "\"" + varValue.replace('\n','\\n') + "\"" if scalaType == "String" else varValue
+            codeValue = "\"" + varValue.replace('\n','\\n').replace("\"", "\\\"") + "\"" if scalaType == "String" else varValue
         else:
             #Try the ConverterRegistry
             initValue,scalaType = ConverterRegistry.toJava(varValue)
@@ -65,7 +66,7 @@ class InteractiveVariables(object):
         return out
 
     def updateVarsDict(self, vars):
-        self.shell.user_ns.update(vars)
+        ShellAccess.update(**vars)
 
 class ConverterRegistry(object):
     pythonToJavaConverters=[]
@@ -84,6 +85,7 @@ def toJavaConverter(func):
         return func(*args, **kwargs)
     return wrapper
 
+runningClassLoaders = {}
 
 @magics_class
 class PixiedustScalaMagics(Magics):
@@ -122,8 +124,10 @@ class PixiedustScalaMagics(Magics):
             return
         
         #generate the code
+        clSlot = self.getLineOption(line, "cl")
+        clExt = "." + clSlot if clSlot is not None else ""
         scalaCode = self.env.getTemplate("scalaCell.template").render(
-            cell=cell, variables=self.interactiveVariables.getVarsDict(), returnVars=self.getReturnVars(cell)
+            cell=cell, variables=self.interactiveVariables.getVarsDict(), returnVars=self.getReturnVars(cell), cl=clExt
         )
         if self.hasLineOption(line, "debug"):
             print(scalaCode)
@@ -153,8 +157,14 @@ class PixiedustScalaMagics(Magics):
         urls=sc._gateway.new_array(sc._jvm.java.net.URL,1)
         urls[0]=url
 
+        if clSlot is not None and runningClassLoaders.get(clSlot) is not None:
+            #close the running classLoader
+            runningCl = runningClassLoaders.get(clSlot)
+            runningCl.close()
+            runningClassLoaders.pop( clSlot, None )
+
         cl = sc._jvm.java.net.URLClassLoader(urls)
-        cls = sc._jvm.java.lang.Class.forName("com.ibm.pixiedust.PixiedustScalaRun$", True, cl)
+        cls = sc._jvm.java.lang.Class.forName("com.ibm.pixiedust{0}.PixiedustScalaRun$".format(clExt), True, cl)
 
         runnerObject = JavaWrapper(cls.getField("MODULE$").get(None), True, 
             self.getLineOption(line, "channel"), self.getLineOption(line, "receiver"))
@@ -177,7 +187,10 @@ class PixiedustScalaMagics(Magics):
 
         #discard the ClassLoader, we only use it within the context of a cell.
         #TODO: change that when we support inline scala class/object definition
-        cl.close()
+        if clSlot:
+            runningClassLoaders[clSlot] = cl
+        else:
+            cl.close()
         cl=None
         cls=None
         runnerObject=None
