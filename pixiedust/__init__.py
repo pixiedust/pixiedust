@@ -15,29 +15,31 @@
 # -------------------------------------------------------------------------------
 
 __all__=['packageManager','display','services','utils']
+import warnings
+with warnings.catch_warnings():
+    warnings.simplefilter("ignore")
+    #shortcut to logging
+    import utils
+    import utils.pdLogging
+    logger = utils.pdLogging.getPixiedustLogger()
+    getLogger = utils.pdLogging.getLogger
 
-#shortcut to logging
-import utils
-import utils.pdLogging
-logger = utils.pdLogging.getPixiedustLogger()
-getLogger = utils.pdLogging.getLogger
+    #shortcut to packageManager
+    import packageManager
+    printAllPackages=packageManager.printAllPackages
+    installPackage=packageManager.installPackage
+    uninstallPackage=packageManager.uninstallPackage
 
-#shortcut to packageManager
-import packageManager
-printAllPackages=packageManager.printAllPackages
-installPackage=packageManager.installPackage
-uninstallPackage=packageManager.uninstallPackage
+    import display
+    import services
 
-import display
-import services
+    #automated import into the user namespace
+    try:
+        get_ipython().user_ns["display"]=display.display
 
-#automated import into the user namespace
-try:
-    get_ipython().user_ns["display"]=display.display
-
-    #javaBridge and scalaBridge only work in the driver, not an executor
-    from utils.javaBridge import *
-    from utils.scalaBridge import *
-except NameError:
-    #IPython not available we must be in a spark executor
-    pass
+        #javaBridge and scalaBridge only work in the driver, not an executor
+        from utils.javaBridge import *
+        from utils.scalaBridge import *
+    except NameError:
+        #IPython not available we must be in a spark executor
+        pass

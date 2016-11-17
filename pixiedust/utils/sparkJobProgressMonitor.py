@@ -38,25 +38,21 @@ class SparkJobProgressMonitorOutput(object):
         self.firstTime=True
         self.updaterId = "updaterId"
         self.progressHTMLId = "progress"
-        self.currentJobId = None
 
     def display_with_id(self, obj, display_id, update=False):
         """Create a new display with an id"""
         ip = get_ipython()
         data, md = ip.display_formatter.format(obj)
-        transient = {'display_id': display_id}
         content = {
             'data': data,
             'metadata': md,
-            'transient': transient,
+            'transient': {'display_id': display_id},
         }
         msg_type = 'update_display_data' if update else 'display_data'
         ip.kernel.session.send(ip.kernel.iopub_socket, msg_type, content, parent=ip.parent_header)
 
     def printOutput(self, s):
-        self.printStuff(s)
-        self.updaterId = "updaterId"
-        self.progressHTMLId = "progress"        
+        print(s)
 
     def sendChannel(self, channel, data):
         self.printStuff(channel, data)
@@ -77,35 +73,43 @@ class SparkJobProgressMonitorOutput(object):
             ),self.progressHTMLId )
 
     def printStuff(self,channel, s):
-        if True:
-            try:
-                if channel=="jobStart": 
-                    data = json.loads(s)
-                    self.currentJobId=data["jobId"]
-                    display(
-                        Javascript(_env.getTemplate("sparkJobProgressMonitor/addJobTab.js").render( prefix=self.prefix, data=data ) )
+        try:
+            data = json.loads(s)
+            if channel=="jobStart":
+                display(
+                    Javascript(_env.getTemplate("sparkJobProgressMonitor/addJobTab.js").render( prefix=self.prefix, data=data ) )
+                )
+            elif channel=="stageSubmitted":
+                display(
+                    Javascript(_env.getTemplate("sparkJobProgressMonitor/updateStageStatus.js").render( 
+                        prefix=self.prefix, stageId=data["stageInfo"]["stageId"], status="Submitted", host=None ) 
                     )
-                elif False and channel=="stageSubmitted":
-                    data=json.loads(s)
-                    self.display_with_id( HTML(addStage.format(
-                        jobId=self.currentJobId,stageId=data["stageInfo"]["stageId"],numTasks=data["stageInfo"]["numTasks"],
-                        details=data["stageInfo"]["details"]
-                    )), self.updaterId, update=True)
-                elif channel=="taskStart":
-                    data=json.loads(s)
-                    display(
-                        Javascript(_env.getTemplate("sparkJobProgressMonitor/taskStart.js").render( prefix=self.prefix, data=data ) )
+                )
+            elif channel=="taskStart":
+                display(
+                    Javascript(_env.getTemplate("sparkJobProgressMonitor/taskStart.js").render( prefix=self.prefix, data=data ) )
+                )
+                display(
+                    Javascript(_env.getTemplate("sparkJobProgressMonitor/updateStageStatus.js").render( 
+                        prefix=self.prefix, stageId=data["stageId"], status="Running",
+                        host="{0}({1})".format(data["taskInfo"]["executorId"],data["taskInfo"]["host"] ))
                     )
-                elif channel=="stageCompleted":
-                    data=json.loads(s)
-                    #self.display_with_id( HTML( updateDetails.format(
-                    #    stageId=data["stageId"], numTask=data["taskInfo"]["index"]+1
-                    #)), updaterId, update=True)
-            except:
-                print("Unexpected error: {0} : {1}".format(s, sys.exc_info()[0]))
-                traceback.print_exc()
-        else:        
-            self.display_with_id( HTML(gs), self.progressHTMLId, update= not firstTime)
+                )
+            elif channel=="stageCompleted":
+                display(
+                    Javascript(_env.getTemplate("sparkJobProgressMonitor/updateStageStatus.js").render( 
+                        prefix=self.prefix, stageId=data["stageInfo"]["stageId"], status="Completed", host=None ) 
+                    )
+                )
+            elif channel=="jobEnd":
+                display(
+                    Javascript(_env.getTemplate("sparkJobProgressMonitor/jobEnded.js").render( 
+                        prefix=self.prefix, jobId=data["jobId"] ) 
+                    )
+                )
+        except:
+            print("Unexpected error: {0} - {1} : {2}".format(channel, s, sys.exc_info()[0]))
+            traceback.print_exc()
 
 class SparkJobProgressMonitor(object):
     def __init__(self):

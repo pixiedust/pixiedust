@@ -13,13 +13,24 @@ def serializeStageJSON(stageInfo: StageInfo):String={
 
 def serializeStagesJSON(stageInfos: Seq[StageInfo]):String = {
     try{
-        return "[" + stageInfos.map(si => serializeStageJSON(si)).reduce( _ + "," + _ ) + "]"
+        return "[" + stageInfos.sortWith( (s,t) => s.stageId < t.stageId ).map(si => serializeStageJSON(si)).reduce( _ + "," + _ ) + "]"
     }catch{
         case e:Throwable=>{
             e.printStackTrace();
             return "[]"
         }
     }
+}
+
+def serializeTaskJSON(taskInfo: TaskInfo):String = {
+    return s"""{
+        "taskId":"${taskInfo.taskId}", 
+        "attemptNumber":${taskInfo.attemptNumber},
+        "index":${taskInfo.index},
+        "launchTime":${taskInfo.launchTime},
+        "executorId":"${taskInfo.executorId}",
+        "host":"${taskInfo.host}"
+    }"""
 }
 
 val __pixiedustSparkListener = new ChannelReceiver with SparkListener{    
@@ -29,24 +40,34 @@ val __pixiedustSparkListener = new ChannelReceiver with SparkListener{
             "stageInfos":${serializeStagesJSON(jobStart.stageInfos)}
         }
         """)
-
-        //Job started with ${jobStart.stageInfos.length} stages")
     }
     override def onJobEnd(jobEnd: SparkListenerJobEnd){
-        send("jobEnd", "Job Ended")
+        val jobResult = jobEnd.jobResult match{
+            case JobSucceeded => "Success"
+            case _ => "Failure"
+        }
+        send("jobEnd", s"""{
+            "jobId":"${jobEnd.jobId}",
+            "jobResult": "${jobResult}"
+        }
+        """)
     }
+
     override def onTaskStart(taskStart: SparkListenerTaskStart) { 
         send("taskStart", s"""{
             "stageId":"${taskStart.stageId}",
-            "taskInfo":{
-                "taskId":"${taskStart.taskInfo.taskId}", 
-                "attemptNumber":${taskStart.taskInfo.attemptNumber},
-                "index":${taskStart.taskInfo.index}
-            }
+            "taskInfo":${serializeTaskJSON(taskStart.taskInfo)}
         }
         """)
+    }
 
-        //taskStart ${taskStart.stageId} : ${taskStart.taskInfo.taskId} : ${taskStart.taskInfo.executorId}")
+    override def onTaskEnd(taskEnd: SparkListenerTaskEnd) { 
+        send("taskEnd", s"""{
+            "stageId":"${taskEnd.stageId}",
+            "taskType":"${taskEnd.taskType}",
+            "taskInfo":${serializeTaskJSON(taskEnd.taskInfo)}
+        }
+        """)
     }
 
     override def onStageSubmitted(stageSubmitted: SparkListenerStageSubmitted) { 
@@ -56,12 +77,8 @@ val __pixiedustSparkListener = new ChannelReceiver with SparkListener{
         """)
     }
 
-    override def onTaskEnd(taskEnd: SparkListenerTaskEnd) { 
-        send("taskEnd", s"taskEnd: ${taskEnd.stageId}")
-    }
-
     override def onTaskGettingResult(taskGettingResult: SparkListenerTaskGettingResult) { 
-        send("taskGettingResult", s"taskGettingResult ${taskGettingResult.taskInfo.taskId} : ${taskGettingResult.taskInfo.executorId}")
+        //send("taskGettingResult", s"taskGettingResult ${taskGettingResult.taskInfo.taskId} : ${taskGettingResult.taskInfo.executorId}")
     }
 
     override def onExecutorMetricsUpdate(executorMetricsUpdate: SparkListenerExecutorMetricsUpdate) { 
@@ -73,7 +90,6 @@ val __pixiedustSparkListener = new ChannelReceiver with SparkListener{
             "stageInfo":${serializeStageJSON(stageCompleted.stageInfo)}
         }
         """)
-        //onStageCompleted ${stageCompleted.stageInfo.name}")
     }
 }
 
