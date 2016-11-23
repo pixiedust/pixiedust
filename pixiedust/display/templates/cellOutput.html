@@ -145,7 +145,7 @@
   <div id="pixiedust-output-wrapper-{{this.getPrefix()}}" class="collapse in">
     {%if numMenu > 1 %}
       <div class="pixiedust-toolbar btn-group" role="group" style="margin-bottom:15px">  
-      {%for key, menuInfoList in menuTree.iteritems()%}
+      {%for key, menuInfoList in menuTree|iteritems%}
         {%if menuInfoList|length==1%}
           <a class="btn btn-small btn-default display-type-button" id="menu{{this.getPrefix(menuInfoList[0])}}" title="{{menuInfoList[0]['title']}}">
             <i class="fa {{menuInfoList[0]['icon']}}"></i>

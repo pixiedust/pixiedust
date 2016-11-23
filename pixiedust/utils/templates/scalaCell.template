@@ -9,7 +9,7 @@ object PixiedustScalaRun {
     var sc:SparkContext = null;
     var sqlContext:SQLContext = null;
 
-    {%for var,value in variables.iteritems()%}
+    {%for var,value in variables | iteritems %}
     @scala.reflect.BeanProperty
     var {{var}}:{{value["type"]}} = {{value["codeValue"] or "null"}};
     {%endfor%}

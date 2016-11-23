@@ -27,7 +27,7 @@ class PieChartDisplay(Mpld3ChartDisplay):
         return False
     
     def getPreferredDefaultValueFieldCount(self, handlerId):
-		return 1
+        return 1
 
     def getDefaultAggregation(self, handlerId):
         return "COUNT"

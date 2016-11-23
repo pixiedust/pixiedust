@@ -19,27 +19,27 @@ import warnings
 with warnings.catch_warnings():
     warnings.simplefilter("ignore")
     #shortcut to logging
-    import utils
-    import utils.pdLogging
+    import pixiedust.utils as utils
+    import pixiedust.utils.pdLogging
     logger = utils.pdLogging.getPixiedustLogger()
     getLogger = utils.pdLogging.getLogger
 
     #shortcut to packageManager
-    import packageManager
+    import pixiedust.packageManager as packageManager
     printAllPackages=packageManager.printAllPackages
     installPackage=packageManager.installPackage
     uninstallPackage=packageManager.uninstallPackage
 
-    import display
-    import services
+    import pixiedust.display
+    import pixiedust.services
 
     #automated import into the user namespace
     try:
         get_ipython().user_ns["display"]=display.display
 
         #javaBridge and scalaBridge only work in the driver, not an executor
-        from utils.javaBridge import *
-        from utils.scalaBridge import *
+        from pixiedust.utils.javaBridge import *
+        from pixiedust.utils.scalaBridge import *
     except NameError:
         #IPython not available we must be in a spark executor
         pass

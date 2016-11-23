@@ -22,6 +22,8 @@ from pixiedust.utils.javaBridge import *
 from pixiedust.utils.template import *
 from pixiedust.utils.shellAccess import ShellAccess
 import pixiedust
+import warnings
+from six import iteritems
 
 myLogger = pixiedust.getLogger(__name__)
 
@@ -90,7 +92,7 @@ runningClassLoaders = {}
 @magics_class
 class PixiedustScalaMagics(Magics):
     def __init__(self, shell):
-        super(PixiedustScalaMagics,self).__init__(shell)
+        super(PixiedustScalaMagics,self).__init__(shell=shell)
         self.interactiveVariables = InteractiveVariables(shell)
         self.scala_home = os.environ.get("SCALA_HOME")
         self.class_path = JavaWrapper("java.lang.System").getProperty("java.class.path")
@@ -138,10 +140,12 @@ class PixiedustScalaMagics(Magics):
         if not os.path.exists(dir):
             os.makedirs(dir)
         source="pixiedustRunner.scala"
-        with open(dir + "/" + source, "w") as f:
+        with open(dir + "/" + source, "wb") as f:
             f.write(scalaCode.encode("utf-8","ignore"))
         #Compile the code
-        proc = subprocess.Popen([self.scala_home + "/bin/scalac","-classpath", self.class_path, source],stdout=subprocess.PIPE,stderr=subprocess.PIPE, cwd=dir)
+        commands = [self.scala_home + "/bin/scalac","-classpath", self.class_path, source]
+        myLogger.debug("Calling scala compiler with command: {0}".format( " ".join(commands)))
+        proc = subprocess.Popen(commands,stdout=subprocess.PIPE,stderr=subprocess.PIPE, cwd=dir)
         code = proc.wait()
         if code != 0:
             while True:
@@ -171,7 +175,7 @@ class PixiedustScalaMagics(Magics):
         runnerObject.callMethod("init", pd_getJavaSparkContext(), self.interactiveVariables.getVar("sqlContext")._ssql_ctx )
         
         #Init the variables
-        for key, val in self.interactiveVariables.getVarsDict().iteritems():
+        for key, val in iteritems(self.interactiveVariables.getVarsDict()):
             if val["initValue"] is not None:
                 runnerObject.callMethod("set" + key[0].upper() + key[1:], val["initValue"])
         
@@ -196,7 +200,9 @@ class PixiedustScalaMagics(Magics):
         runnerObject=None
 
 try:
-    get_ipython().register_magics(PixiedustScalaMagics)
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        get_ipython().register_magics(PixiedustScalaMagics)
 except NameError:
     #IPython not available we must be in a spark executor
     pass

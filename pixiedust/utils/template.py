@@ -15,10 +15,15 @@
 # -------------------------------------------------------------------------------
 from jinja2 import BaseLoader, Environment, TemplateSyntaxError, TemplateAssertionError, TemplateError
 import pkg_resources
-from cStringIO import StringIO
+try:
+    from io import StringIO    
+    from functools import reduce
+except ImportError:
+    from cStringIO import StringIO
 import inspect
 import sys
 import pixiedust
+from six import iteritems,PY2
 
 myLogger = pixiedust.getLogger(__name__)
 
@@ -71,6 +76,8 @@ class PixiedustTemplateEnvironment(object):
         self.env.filters["base64dataUri"]=lambda s: 'data:image/png;base64,{0}'.format(self.getTemplate(s+"#base64").render())
         self.env.filters["smartList"]=lambda s: ([s] if type(s) is not list else s)
         self.env.filters['startswith']=lambda s,t: (s.startswith(t))
+        self.env.filters['iteritems']=lambda s: iteritems(s)
+        self.env.filters['decodeUTF8']=lambda s: s.decode('utf-8') if PY2 else s
     
     def from_string(self, source, **kwargs):
         return self.env.from_string(source, globals=kwargs)

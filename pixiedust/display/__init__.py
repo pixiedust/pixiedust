@@ -15,7 +15,11 @@
 # -------------------------------------------------------------------------------
 
 from .display import *
-import chart,graph,table,tests,download
+from .chart import *
+from .graph import *
+from .table import *
+from .tests import *
+from .download import *
 from pixiedust.utils.printEx import *
 import traceback
 import warnings

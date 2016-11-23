@@ -26,6 +26,7 @@ from pyspark import SparkContext
 from pyspark.sql import functions as F
 from pyspark.sql import SQLContext
 from random import randint
+from functools import reduce
 
 class BarChartDisplay(Mpld3ChartDisplay):
     
