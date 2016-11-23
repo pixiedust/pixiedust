@@ -24,8 +24,7 @@ from pixiedust.utils.storage import *
 from pixiedust.utils.printEx import *
 from pyspark import SparkContext
 from .package import Package
-from .downloader import Downloader
-from .requestor import RequestException
+from .downloader import Downloader, RequestException
 import six
 
 PACKAGES_TBL_NAME="SPARK_PACKAGES"
