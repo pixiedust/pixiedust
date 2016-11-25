@@ -46,6 +46,8 @@ class Mpld3ChartDisplay(BaseChartDisplay):
         self.setChartLegend(handlerId, fig, ax, colormap, keyFields, keyFieldValues, keyFieldLabels, valueFields, valueFieldValues)
         self.setChartTitle(handlerId)
 
+        fig.autofmt_xdate()
+
         #Render the figure
         self.renderFigure(fig, dialogBody)
 

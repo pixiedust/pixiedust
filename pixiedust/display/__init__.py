@@ -18,7 +18,6 @@ from .display import *
 from .chart import *
 from .graph import *
 from .table import *
-from .tests import *
 from .download import *
 from pixiedust.utils.printEx import *
 import traceback
@@ -26,6 +25,15 @@ import warnings
 import pixiedust
 
 myLogger=pixiedust.getLogger(__name__ )
+
+#Make sure that matplotlib is running inline
+with warnings.catch_warnings():
+    warnings.simplefilter("ignore")
+    try:
+        get_ipython().run_line_magic("matplotlib", "inline")
+    except NameError:
+        #IPython not available we must be in a spark executor
+        pass
 
 def display(entity, **kwargs):
     with warnings.catch_warnings():
