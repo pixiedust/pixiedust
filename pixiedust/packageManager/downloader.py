@@ -19,6 +19,8 @@ import hashlib
 import os
 from .package import Package
 from lxml import etree
+import uuid
+from IPython.display import display, HTML, Javascript
 
 try:
     from urllib.request import Request, urlopen, URLError, HTTPError
@@ -81,25 +83,25 @@ class Downloader(object):
         self.username = username
         self.password = password
         self.resolver = Resolver(base)
+        self.prefix = str(uuid.uuid4())[:8]
     
     def download(self, package, filename=None, suppress_log=False):
         filename = package.getFilePath(filename)
         url = self.resolver.uri_for_artifact(package)
         if not self.verify_md5(filename, url + ".md5"):
             if not suppress_log:
-                print("Downloading artifact " + str(package))
                 hook=self._chunk_report
             else:
                 hook=self._chunk_report_suppress
 
-            onError = lambda uri, err: self._throwDownloadFailed("Failed to download artifact " + str(package) + "from " + uri)
+            onError = lambda uri, err: self._throwDownloadFailed("Failed to download package " + str(package) + "from " + uri)
             response = doRequest(url, onError, lambda r: r)
             
             if response:
+                if not suppress_log:
+                    print("Downloading package {0} to {1}".format(package, filename))
                 with open(filename, 'wb') as f:
                     self._write_chunks(response, f, report_hook=hook)
-                if not suppress_log:
-                    print("Downloaded package %s to %s" % (package, filename))
                 return (package, True)
             else:
                 return (package, False)
@@ -115,16 +117,31 @@ class Downloader(object):
         pass
 
     def _chunk_report(self, bytes_so_far, chunk_size, total_size):
-        percent = float(bytes_so_far) / total_size
-        percent = round(percent*100, 2)
-        print("Downloaded %d of %d bytes (%0.2f%%)\r" % (bytes_so_far, total_size, percent))
-        if bytes_so_far >= total_size:
-            print()
+        if bytes_so_far == 0:
+            display( HTML( """
+                <div>
+                    <span id="pm_label{0}">Starting download...</span>
+                    <progress id="pm_progress{0}" max="100" value="0" style="width:200px"></progress>
+                </div>""".format(self.prefix)
+                )
+            )
+        else:
+            percent = float(bytes_so_far) / total_size
+            percent = round(percent*100, 2)
+            display(
+                Javascript("""
+                    $("#pm_label{prefix}").text("{label}");
+                    $("#pm_progress{prefix}").attr("value", {percent});
+                """.format(prefix=self.prefix, label="Downloaded {0} of {1} bytes".format(bytes_so_far, total_size), percent=percent))
+            )
 
     def _write_chunks(self, response, file, chunk_size=8192, report_hook=None):
         total_size = response.headers['Content-Length'].strip()
         total_size = int(total_size)
         bytes_so_far = 0
+
+        if report_hook:
+                report_hook(bytes_so_far, chunk_size, total_size)
 
         while 1:
             chunk = response.read(chunk_size)

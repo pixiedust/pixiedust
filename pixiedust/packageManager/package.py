@@ -12,6 +12,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+# Inherited from maven-artifact https://github.com/hamnis/maven-artifact
 # -------------------------------------------------------------------------------
 
 import os
@@ -57,6 +58,11 @@ class Package(object):
         elif os.path.isdir(filename):
             filename = os.path.join(filename, self._generateFileName())
         return filename
+
+    def __str__(self):
+        if self.uri:
+            return self.uri
+        return "{0}:{1}:{2}".format(self.group_id, self.artifact_id, self.version)
 
     @staticmethod
     def clone(package, version=None):

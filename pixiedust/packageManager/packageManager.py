@@ -78,7 +78,7 @@ class PackageManager(object):
                     raise Exception("Error downloading package {0}".format(str(package)))
                 else:
                     package=results[0]
-                    print("Package downloaded successfully {0}".format(str(package)))
+                    print("Package {0} downloaded successfully".format(str(package)))
                     printEx("Please restart Kernel to complete installation of the new package",PrintColors.RED)
                 fileLoc=self.storePackage(package,base)
                 return fileLoc
