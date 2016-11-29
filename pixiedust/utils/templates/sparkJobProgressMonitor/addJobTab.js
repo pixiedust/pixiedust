@@ -17,17 +17,15 @@
 {%- endmacro %}
 
 $("#pm_container{{prefix}}").css("border","1px solid #dddddd").css("padding","10px")
-
+var jobName = 'Job {{data["jobId"]}} ({{data["stageInfos"]|length}} '+
+            {%if data["stageInfos"]|length > 1%} 'Stages'+ {%else%} 'Stage'+ {%endif%} ')'
+$("#pm_overallContainer{{prefix}}").show();
+$("#pm_overallJobName{{prefix}}").text(jobName);
+$("#pm_overallProgress{{prefix}}").attr("max", {{overalNumTasks}}).attr("value",0);
 $("#progressMonitors{{prefix}}").append(
     '<li>'+
         '<a style="padding: 5px 5px;font-size: 12px;" data-toggle="tab" href="#menu{{prefix}}{{data["jobId"]}}">'+
-            'Job {{data["jobId"]}} ({{data["stageInfos"]|length}} '+
-            {%if data["stageInfos"]|length > 1%}
-            'Stages'+
-            {%else%}
-            'Stage'+
-            {%endif%}
-            ')'+
+            jobName +
         '</a>'+
     '</li>'
 );

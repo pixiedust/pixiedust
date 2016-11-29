@@ -39,6 +39,11 @@ def display(entity, **kwargs):
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
         selectedHandler=getSelectedHandler(kwargs, entity)
+
+        #check if we have a job monitor id
+        from pixiedust.utils.sparkJobProgressMonitor import progressMonitor
+        if progressMonitor:
+            progressMonitor.onDisplayRun(kwargs.get("cell_id"))
         
         myLogger.debug("Creating a new display handler with options {0}: {1}".format(kwargs, selectedHandler))
         displayHandler = selectedHandler.newDisplayHandler(kwargs,entity)

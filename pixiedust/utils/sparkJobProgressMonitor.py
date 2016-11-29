@@ -17,11 +17,14 @@ from pixiedust.utils.template import PixiedustTemplateEnvironment
 from IPython.core.getipython import *
 from IPython.display import display, HTML, Javascript
 from pixiedust.utils.shellAccess import ShellAccess
+from functools import reduce
 import uuid
 import json
 import sys
 import traceback
+import pixiedust
 
+myLogger = pixiedust.getLogger(__name__)
 _env = PixiedustTemplateEnvironment()
 progressMonitor = None
 
@@ -35,9 +38,13 @@ class SparkJobProgressMonitorOutput(object):
         implements = ["com.ibm.pixiedust.PixiedustOutputListener"]
     
     def __init__(self):
-        self.firstTime=True
-        self.updaterId = "updaterId"
-        self.progressHTMLId = "progress"
+        self.prefix = None
+
+    def getUpdaterId(self):
+        return "updaterId{0}".format(self.prefix)
+
+    def getProgressHTMLId(self):
+        return "progress{0}".format(self.prefix)
 
     def display_with_id(self, obj, display_id, update=False):
         """Create a new display with an id"""
@@ -58,26 +65,21 @@ class SparkJobProgressMonitorOutput(object):
         self.printStuff(channel, data)
 
     def onRunCell(self):
-        self.firstTime = True
         self.prefix = str(uuid.uuid4())[:8]
-        self.updaterId = "updaterId{0}".format(self.prefix)
-        self.progressHTMLId = "progress{0}".format(self.prefix)
         #Create the place holder area for the progress monitor
-        self.display_with_id( HTML( """
-            <div id="pm_container{0}">
-                <ul class="nav nav-tabs" id="progressMonitors{0}">
-                </ul>
-                <div class="tab-content" id="tabContent{0}">
-                </div>
-            </div>""".format(self.prefix)
-            ),self.progressHTMLId )
+        self.display_with_id( 
+            HTML( _env.getTemplate("sparkJobProgressMonitor/pmLayout.html").render( prefix = self.prefix)),self.getProgressHTMLId() 
+        )
 
     def printStuff(self,channel, s):
         try:
             data = json.loads(s)
             if channel=="jobStart":
                 display(
-                    Javascript(_env.getTemplate("sparkJobProgressMonitor/addJobTab.js").render( prefix=self.prefix, data=data ) )
+                    Javascript(_env.getTemplate("sparkJobProgressMonitor/addJobTab.js").render( 
+                        prefix=self.prefix, data=data, overalNumTasks=reduce(lambda x,y:x+y["numTasks"], data["stageInfos"], 0) 
+                        ) 
+                    )
                 )
             elif channel=="stageSubmitted":
                 display(
@@ -113,7 +115,30 @@ class SparkJobProgressMonitorOutput(object):
 
 class SparkJobProgressMonitor(object):
     def __init__(self):
+        self.monitorOutput = None
         self.addSparkListener()
+        self.displayRuns={}
+        self.newDisplayRun = False
+
+    def onDisplayRun(self, contextId):
+        if contextId is None or self.monitorOutput is None:
+            self.newDisplayRun=True
+            return
+
+        cellContext = self.displayRuns.get( contextId )
+        if cellContext and cellContext != self.monitorOutput.prefix:
+            #switch the cell context if not a new display Run
+            if self.newDisplayRun:
+                self.displayRuns.pop( contextId, None )
+            else:
+                self.monitorOutput.prefix = cellContext
+        elif cellContext is None:
+            self.displayRuns[contextId] = self.monitorOutput.prefix
+
+        if cellContext:
+            display(Javascript(_env.getTemplate("sparkJobProgressMonitor/emptyTabs.js").render(prefix=cellContext)))
+
+        self.newDisplayRun=False
 
     def addSparkListener(self):
         get_ipython().run_cell_magic(
@@ -126,7 +151,7 @@ class SparkJobProgressMonitor(object):
 
         #access the listener object from the namespace
         if listener:
-            monitorOutput = SparkJobProgressMonitorOutput()
+            self.monitorOutput = SparkJobProgressMonitorOutput()
             #Add pre_run_cell event handler
-            get_ipython().events.register('pre_run_cell',lambda: monitorOutput.onRunCell() )
-            listener.setChannelListener( monitorOutput )
+            get_ipython().events.register('pre_run_cell',lambda: self.monitorOutput.onRunCell() )
+            listener.setChannelListener( self.monitorOutput )

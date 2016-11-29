@@ -40,6 +40,10 @@ with warnings.catch_warnings():
         #javaBridge and scalaBridge only work in the driver, not an executor
         from pixiedust.utils.javaBridge import *
         from pixiedust.utils.scalaBridge import *
+
+        #shortcut to Spark job monitoring
+        from pixiedust.utils.sparkJobProgressMonitor import enableSparkJobProgressMonitor
+        enableJobMonitor = enableSparkJobProgressMonitor
     except NameError:
         #IPython not available we must be in a spark executor
         pass
