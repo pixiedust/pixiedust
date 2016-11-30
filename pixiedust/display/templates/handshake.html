@@ -16,7 +16,7 @@
             var cell=cells[0];
             var cellId=cell.cell_id;
             var cellMetadata=cell._metadata.pixiedust;
-            cell.output_area.clear_output(false, true);
+            //cell.output_area.clear_output(false, true);
             var old_msg_id = cell.last_msg_id;
             if (old_msg_id) {
                 cell.kernel.clear_callbacks_for_msg(old_msg_id);

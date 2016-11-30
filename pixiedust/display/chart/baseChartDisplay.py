@@ -27,6 +27,7 @@ import mpld3.plugins as plugins
 import traceback
 import pixiedust.utils.dataFrameMisc as dataFrameMisc
 import pixiedust
+from six import PY2
 
 myLogger = pixiedust.getLogger(__name__)
 
@@ -58,7 +59,7 @@ class BaseChartDisplay(ChartDisplay):
         return "SUM"
 
     def getPreferredDefaultKeyFieldCount(self, handlerId):
-		return 1
+        return 1
 
     def getDefaultKeyFields(self, handlerId, aggregation):
         if self.supportsKeyFields(handlerId) == False:
@@ -66,11 +67,12 @@ class BaseChartDisplay(ChartDisplay):
         defaultFields = []
         for field in self.entity.schema.fields:
             if (dataFrameMisc.isNumericType(field.dataType) == False and field.name.lower() != "id"):
-                defaultFields.append(field.name)
+                defaultFields.append(field.name.decode("utf-8") if PY2 else field.name)
                 if len(defaultFields) == self.getPreferredDefaultKeyFieldCount(handlerId):
                     break
         if len(defaultFields) == 0:
-            defaultFields.append(self.entity.schema.fields[0].name)
+            fieldName = self.entity.schema.fields[0].name
+            defaultFields.append(fieldName.decode("utf-8") if PY2 else fieldName )
         return defaultFields
 
     def getKeyFields(self, handlerId, aggregation, fieldNames):
@@ -126,13 +128,13 @@ class BaseChartDisplay(ChartDisplay):
         return labels
 
     def getPreferredDefaultValueFieldCount(self, handlerId):
-		return 2
+        return 2
 
     def getDefaultValueFields(self, handlerId, aggregation):
         fieldNames = []
         for field in self.entity.schema.fields:
             if dataFrameMisc.isNumericType(field.dataType):
-                fieldNames.append(field.name)
+                fieldNames.append(field.name.decode("utf-8") if PY2 else field.name)
                 if len(fieldNames) == self.getPreferredDefaultValueFieldCount(handlerId):
                     break
         return fieldNames
@@ -168,7 +170,6 @@ class BaseChartDisplay(ChartDisplay):
         else:
             df = self.entity.groupBy(keyFields)
             maxRows = int(self.options.get("rowCount","100"))
-            numRows = min(maxRows,df.count())
             for valueField in valueFields:
                 valueDf = None
                 if aggregation == "SUM":
@@ -184,6 +185,7 @@ class BaseChartDisplay(ChartDisplay):
                 for keyField in keyFields:
                     valueDf = valueDf.sort(F.col(keyField).asc())
                 valueDf = valueDf.dropna()
+                numRows = min(maxRows,valueDf.count())
                 rows = valueDf.select("agg").take(numRows)
                 valueList = []
                 for row in rows:
@@ -283,7 +285,7 @@ class BaseChartDisplay(ChartDisplay):
         # render
         try:
             self.doRenderChart(handlerId, dialogTemplate, dialogOptions, aggregation, keyFields, keyFieldValues, keyFieldLabels, valueFields, valueFieldValues)
-        except Exception, e:
+        except Exception as e:
             myLogger.exception("Unexpected error while trying to render BaseChartDisplay")
             dialogBody = self.getChartErrorDialogBody(handlerId, dialogTemplate, dialogOptions)
             if (dialogBody is None):

@@ -46,17 +46,26 @@ class Mpld3ChartDisplay(BaseChartDisplay):
         self.setChartLegend(handlerId, fig, ax, colormap, keyFields, keyFieldValues, keyFieldLabels, valueFields, valueFieldValues)
         self.setChartTitle(handlerId)
 
+        fig.autofmt_xdate()
+
         #Render the figure
         self.renderFigure(fig, dialogBody)
 
     def renderFigure(self, fig, dialogBody):
         if self.options.get("staticFigure","false") is "true":
-            import StringIO
-            png=StringIO.StringIO()
+            import base64
+            try:
+                from io import BytesIO as pngIO
+            except ImportError:
+                from StringIO import StringIO as pngIO
+            png=pngIO()
             plt.savefig(png)
             self._addHTMLTemplate("mpld3Chart.html", 
-                mpld3Figure="""<img src="data:image/png;base64,{0}"  class="pd_save">""".format(png.getvalue().encode('base64')), 
+                mpld3Figure="""<img src="data:image/png;base64,{0}"  class="pd_save">""".format(
+                    base64.b64encode(png.getvalue()).decode("ascii")
+                ), 
                 optionsDialogBody=dialogBody)
+            png.close()
             plt.close(fig)
         else:
             mpld3.enable_notebook()

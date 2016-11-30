@@ -32,11 +32,8 @@ function() {
                     }
                                                     
                     if (!!content.data["application/javascript"]){
-                        try{
-                            $('#wrapperJS{{prefix}}').html("<script type=\\\"text/javascript\\\">"+content.data["application/javascript"]+"</s" + "cript>");
-                        }catch(e){
-                            console.log("Invalid javascript output",e, content.data);
-                        }
+                        curCell.output_area.handle_output.apply(curCell.output_area, arguments);
+                        return;
                     }
                     
                     if (html){
@@ -169,7 +166,7 @@ function() {
         $('#wrapperHTML{{prefix}}').html('<div style="width:100px;height:60px;left:47%;position:relative"><i class="fa fa-circle-o-notch fa-spin" style="font-size:48px"></i></div>'+
         '<div style="text-align:center">Loading your data. Please wait...</div>');
         startWallToWall = new Date().getTime();
-        IPython.notebook.session.kernel.execute(command, callbacks, {silent:false,store_history:false,stop_on_error:true});
+        IPython.notebook.session.kernel.execute(command, callbacks, {silent:true,store_history:false,stop_on_error:true});
     }
 }
 {% endmacro %}

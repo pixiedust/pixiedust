@@ -25,7 +25,7 @@ class MapChartDisplay(BaseChartDisplay):
         return False
     
     def getPreferredDefaultValueFieldCount(self, handlerId):
-		return 1
+        return 1
 
     def getDefaultKeyFields(self, handlerId, aggregation):
         fields = self._getDefaultKeyFields()

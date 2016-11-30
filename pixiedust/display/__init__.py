@@ -15,7 +15,10 @@
 # -------------------------------------------------------------------------------
 
 from .display import *
-import chart,graph,table,tests,download
+from .chart import *
+from .graph import *
+from .table import *
+from .download import *
 from pixiedust.utils.printEx import *
 import traceback
 import warnings
@@ -23,10 +26,24 @@ import pixiedust
 
 myLogger=pixiedust.getLogger(__name__ )
 
+#Make sure that matplotlib is running inline
+with warnings.catch_warnings():
+    warnings.simplefilter("ignore")
+    try:
+        get_ipython().run_line_magic("matplotlib", "inline")
+    except NameError:
+        #IPython not available we must be in a spark executor
+        pass
+
 def display(entity, **kwargs):
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
         selectedHandler=getSelectedHandler(kwargs, entity)
+
+        #check if we have a job monitor id
+        from pixiedust.utils.sparkJobProgressMonitor import progressMonitor
+        if progressMonitor:
+            progressMonitor.onDisplayRun(kwargs.get("cell_id"))
         
         myLogger.debug("Creating a new display handler with options {0}: {1}".format(kwargs, selectedHandler))
         displayHandler = selectedHandler.newDisplayHandler(kwargs,entity)

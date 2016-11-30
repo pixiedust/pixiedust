@@ -25,8 +25,8 @@ class GraphDisplay(Display):
         
         if ( handlerId == "nodeLinkGraph"):
             import json
-            ar = g.edges.select("src","dst").map(lambda (s,d): (s,[d]))\
-                .reduceByKey(lambda d1,d2: d1+d2).map(lambda (src, arTargets): (src, list(set(arTargets))))\
+            ar = g.edges.select("src","dst").map(lambda s,d: (s,[d]))\
+                .reduceByKey(lambda d1,d2: d1+d2).map(lambda src, arTargets: (src, list(set(arTargets))))\
                 .collect()
 
             dic = {item[0] : item[1] for item in ar}

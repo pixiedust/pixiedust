@@ -15,6 +15,7 @@
 # -------------------------------------------------------------------------------
 from pyspark.sql.types import DataType,StructType
 from pixiedust.utils import *
+from six import PY2
 
 """
 return True is entity is a spark DataFrame
@@ -40,7 +41,7 @@ def getFieldNames(df, expandNested=False):
                 retFields.extend([field.name + "." + name for name in getFieldName(f, expand)])
             return retFields
         else:
-            return [field.name]
+            return [field.name.decode('utf-8') if PY2 else field.name]
     fieldNames = []
     for field in df.schema.fields:
         fieldNames.extend( getFieldName(field, expandNested) )
