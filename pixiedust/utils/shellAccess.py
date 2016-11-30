@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # -------------------------------------------------------------------------------
+from six import iteritems, with_metaclass
 '''
 Provide easy access to the Shell user variables
 Sample use:
@@ -20,16 +21,17 @@ Sample use:
     ShellAccess["sqlContext"] => access the SQLContext
     ShellAccess.myVar = "Hello" => set a new variable called myVar in the user namespace
 '''
-class ShellAccess(object):
-    __metaclass__= type("",(type,),{
-        "__getitem__":lambda cls, key: get_ipython().user_ns.get(key),
-        "__setitem__":lambda cls, key,val: get_ipython().user_ns.update({key:val}),
-        "__getattr__":lambda cls, key: get_ipython().user_ns.get(key),
-        "__setattr__":lambda cls, key, val: get_ipython().user_ns.update({key:val}),
-        "__iter__": lambda cls: iter(get_ipython().user_ns.keys())
-    })
+class ShellAccess(with_metaclass( 
+        type("",(type,),{
+            "__getitem__":lambda cls, key: get_ipython().user_ns.get(key),
+            "__setitem__":lambda cls, key,val: get_ipython().user_ns.update({key:val}),
+            "__getattr__":lambda cls, key: get_ipython().user_ns.get(key),
+            "__setattr__":lambda cls, key, val: get_ipython().user_ns.update({key:val}),
+            "__iter__": lambda cls: iter(get_ipython().user_ns.keys())
+        }), object
+    )):
 
     @staticmethod
     def update(**kwargs):
-        for key,val in kwargs.iteritems():
+        for key,val in iteritems(kwargs):
             ShellAccess[key]=val

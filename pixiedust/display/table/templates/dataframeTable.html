@@ -154,7 +154,7 @@
           <div class="fixed-header">
             <div class="fixed-row">
               {% for field in entity.getFields() %}
-              <div class="fixed-cell">{{field.name}}</div>
+              <div class="fixed-cell">{{field.name | decodeUTF8 }}</div>
               {% endfor %}
             </div>
           </div>
@@ -164,7 +164,7 @@
             <thead>
               <tr>
                 {% for field in entity.getFields() %}
-                <th><div>{{field.name}}</div></th>
+                <th><div>{{field.name | decodeUTF8 }}</div></th>
                 {% endfor %}
               </tr>
             </thead>

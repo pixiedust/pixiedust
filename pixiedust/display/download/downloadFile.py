@@ -15,6 +15,7 @@
 # -------------------------------------------------------------------------------
 
 from ..display import Display
+from functools import reduce
 import time
 
 DELIMITER="@#$DELIMITER@#$"

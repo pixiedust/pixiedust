@@ -84,7 +84,7 @@ class JavaWrapper(object):
                     gw._callback_server.port = gw._callback_server.server_socket.getsockname()[1]
                     jgws = JavaObject("GATEWAY_SERVER", gw._gateway_client)
                     gw.jvm.org.apache.spark.streaming.api.python.PythonDStream.updatePythonGatewayPort(jgws, gw._callback_server.port)
-            except Exception, e:
+            except Exception as e:
                 print("Error {0}".format(e))
 
     def __getattr__(self, name):

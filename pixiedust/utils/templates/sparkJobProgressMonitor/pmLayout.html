@@ -1,0 +1,23 @@
+<div id="pm_overallContainer{{prefix}}" style="display:none">
+    <table width="100%" style="border:0px">
+        <tr style="border:0px">
+            <td width="20px" style="border:0px"><span id="twistie{{prefix}}" style="color:blue;font-size:x-large;cursor:pointer">&#9656;</span></td>
+            <td width="130px" style="text-align:left;border:0px"><span id="pm_overallJobName{{prefix}}"></span>:</td>
+            <td width="calc(100% - 150px)" style="border:0px"><progress id="pm_overallProgress{{prefix}}" max="100" value="0" style="width:100%"></progress></td>
+        </tr>
+    </table>
+</div>
+<div id="pm_container{{prefix}}" style="display:none">
+    <ul class="nav nav-tabs" id="progressMonitors{{prefix}}">
+    </ul>
+    <div class="tab-content" id="tabContent{{prefix}}">
+    </div>
+</div>
+
+<script>
+$("#twistie{{prefix}}").click(function(){
+    visible = $("#pm_container{{prefix}}").is(':visible');
+    $("#pm_container{{prefix}}").slideToggle("slow");
+    $(this).html(visible?"&#9656;":"&#9662;")
+});
+</script>

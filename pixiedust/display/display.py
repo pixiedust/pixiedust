@@ -23,6 +23,8 @@ from collections import OrderedDict
 import time
 import re
 import pixiedust
+from six import iteritems
+from functools import reduce
 
 myLogger = pixiedust.getLogger(__name__)
 
@@ -246,7 +248,7 @@ class Display(object):
                         menuTree[categoryId]=[menuInfo]
                     else:
                         menuTree[categoryId].append(menuInfo)
-        return self.renderTemplate('cellOutput.html', menuTree=menuTree, numMenu=reduce(lambda n,t:n+t, [len(v) for k,v in menuTree.iteritems()], 0))
+        return self.renderTemplate('cellOutput.html', menuTree=menuTree, numMenu=reduce(lambda n,t:n+t, [len(v) for k,v in iteritems(menuTree)], 0))
     
     def getPrefix(self, menuInfo=None):
         if ( not hasattr(self, 'prefix') ):
@@ -287,7 +289,7 @@ class Display(object):
             command = updateCommand(command, "prefix", self.getPrefix())
         if "cell_id" not in self.options:
             command = updateCommand(command, "cell_id", 'cellId')
-        for key,value in addOptionDict.iteritems():
+        for key,value in iteritems(addOptionDict):
             command = updateCommand(command, key, value)
 
         command = updateCommand(command, "showchrome", None)

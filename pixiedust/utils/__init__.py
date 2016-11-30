@@ -15,11 +15,11 @@
 # -------------------------------------------------------------------------------
 
 import os
-import storage
+from . import storage
 import pkg_resources
 import binascii
 import shutil
-import pdLogging
+from . import pdLogging
 
 storage._initStorage();
 
@@ -31,16 +31,16 @@ def fqName(entity):
 jarFilePath = os.path.expanduser('~') + "/data/libs/pixiedust.jar"
 def installPixiedustJar():
     with pkg_resources.resource_stream(__name__, "resources/pixiedust.jar") as resJar:
-        with open( jarFilePath, 'w+' ) as installedJar:
+        with open( jarFilePath, 'wb+' ) as installedJar:
             shutil.copyfileobj(resJar, installedJar)
             print("Pixiedust runtime updated. Please restart kernel")
 
 copyFile = True
 if os.path.isfile(jarFilePath):
-    with open( jarFilePath, 'r' ) as installedJar:
+    with open( jarFilePath, 'rb' ) as installedJar:
         installedCRC = binascii.crc32( installedJar.read() )
         with pkg_resources.resource_stream(__name__, "resources/pixiedust.jar") as resJar:
-            copyFile = installedCRC != binascii.crc32(resJar.read())
+            copyFile = installedCRC != binascii.crc32( resJar.read() )
 
 if copyFile:
     installPixiedustJar()

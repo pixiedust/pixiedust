@@ -20,13 +20,13 @@ import os
 import json
 import sys
 import time
-from constants import PIXIEDUST_REPO_URL
+from pixiedust.utils.constants import PIXIEDUST_REPO_URL
 from pkg_resources import get_distribution
 from re import search
 from requests import post
 from os import environ as env
 
-import pdLogging
+from . import pdLogging
 logger = pdLogging.getPixiedustLogger()
 getLogger = pdLogging.getLogger
 
