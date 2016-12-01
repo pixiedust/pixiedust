@@ -29,6 +29,11 @@ def fqName(entity):
 
 #init scala bridge, make sure that correct pixiedust.jar is installed
 jarFilePath = os.path.expanduser('~') + "/data/libs/pixiedust.jar"
+
+dir = os.path.dirname(jarFilePath)
+if not os.path.exists(dir):
+        os.makedirs(dir)
+
 def installPixiedustJar():
     with pkg_resources.resource_stream(__name__, "resources/pixiedust.jar") as resJar:
         with open( jarFilePath, 'wb+' ) as installedJar:
