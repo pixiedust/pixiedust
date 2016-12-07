@@ -15,6 +15,7 @@
 # -------------------------------------------------------------------------------
 from jinja2 import BaseLoader, Environment, TemplateSyntaxError, TemplateAssertionError, TemplateError
 import pkg_resources
+import base64
 try:
     from io import StringIO    
     from functools import reduce
@@ -59,7 +60,7 @@ class PixiedustTemplateLoader(BaseLoader):
         if  decode == "base64":
             myLogger.debug("Loading base64 resource from {0}:{1}".format(module, path))
             with pkg_resources.resource_stream(module, path) as res:
-                data = StringIO(res.read()).getvalue().encode('base64')
+                data = base64.b64encode(res.read()).decode("utf-8")
         else:
             data = pkg_resources.resource_string(module, path ).decode(decode)
         

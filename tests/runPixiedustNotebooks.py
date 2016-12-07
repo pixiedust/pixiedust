@@ -16,23 +16,71 @@
 import os
 import nbformat
 from nbconvert.preprocessors import ExecutePreprocessor
+import logging
+from ipykernel.kernelspec import KernelSpecManager, write_kernel_spec
+from jupyter_client.manager import KernelManager
+from jupyter_client.kernelspec import NoSuchKernel
+import shutil
+
+__TEST_KERNEL_NAME__ = "PixiedustTravisTest"
+
+logging.basicConfig(level=logging.DEBUG)
+
+def createKernelSpecIfNeeded(kernelName):
+    try:
+        km = KernelManager(kernel_name=kernelName)
+        km.kernel_spec
+        return None
+    except NoSuchKernel:
+        sparkHome = os.environ["SPARK_HOME"]
+        overrides={
+            "argv": [
+                "python",
+                "-m",
+                "ipykernel",
+                "-f",
+                "{connection_file}"
+            ],
+            "env": {
+                "SPARK_HOME": "{0}".format(sparkHome),
+                "PYTHONPATH": "{0}/python/:{0}/python/lib/py4j-0.9-src.zip".format(sparkHome),
+                "PYTHONSTARTUP": "{0}/python/pyspark/shell.py".format(sparkHome),
+                "PYSPARK_SUBMIT_ARGS": "--master local[10] pyspark-shell",
+                "SPARK_DRIVER_MEMORY":"10G",
+                "SPARK_LOCAL_IP":"127.0.0.1"
+            }
+        }
+        path = write_kernel_spec(overrides=overrides)
+        dest = KernelSpecManager().install_kernel_spec(path, kernel_name=kernelName, user=True)
+        # cleanup afterward
+        shutil.rmtree(path)
+        return dest
 
 def runNotebook(path):
-    ep = ExecutePreprocessor(timeout=3600, kernel_name= 'python2.7')
-    nb=nbformat.read("./tests/" + path, as_version=4)
-
+    ep = ExecutePreprocessor(timeout=3600, kernel_name= __TEST_KERNEL_NAME__)
+    nb=nbformat.read(path, as_version=4)
+    #set the kernel name to test
+    nb.metadata.kernelspec.name=__TEST_KERNEL_NAME__
+    kernelPath = None
     try:
-        ep.preprocess(nb, {'metadata':{'path': './tests/'}})
+        kernelPath = createKernelSpecIfNeeded(__TEST_KERNEL_NAME__)
+        ep.preprocess(nb, {'metadata':{'path': os.path.dirname(path)}})
     except:
         print("Error executing notebook")
         raise
     else:
         pass
     finally:
-        nbformat.write(nb, path + ".out")
+        dir = os.environ.get("PIXIEDUST_TEST_OUTPUT", os.path.expanduser('~') + "/pixiedust") + "/tests"
+        if not os.path.exists(dir):
+            os.makedirs( dir )
+        nbformat.write(nb, dir + "/" + os.path.basename(path) + ".out")
+        if kernelPath:
+            shutil.rmtree(kernelPath)
 
 if __name__ == '__main__':
-    for path in os.listdir('./tests'):
+    inputDir = os.environ.get("PIXIEDUST_TEST_INPUT", './tests')
+    for path in os.listdir( inputDir ):
         if path.endswith(".ipynb"):
-            print("./tests/" + path)
-            runNotebook(path)
+            print(path)
+            runNotebook(inputDir + "/" + path)

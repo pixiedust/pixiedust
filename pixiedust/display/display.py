@@ -47,7 +47,7 @@ class ActionCategories(object):
     
     @staticmethod
     def sort():
-        ActionCategories.CAT_INFOS = OrderedDict(sorted(ActionCategories.CAT_INFOS.iteritems(), key=lambda item: item[1]["pos"] if "pos" in item[1] else 0))
+        ActionCategories.CAT_INFOS = OrderedDict(sorted(iteritems(ActionCategories.CAT_INFOS), key=lambda item: item[1]["pos"] if "pos" in item[1] else 0))
 
 def registerDisplayHandler(handlerMetadata, isDefault=False, system=False):
     global defaultHandler
