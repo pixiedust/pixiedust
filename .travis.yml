@@ -22,6 +22,6 @@ install:
     - python setup.py install
 
 script:
-    - python $TRAVIS_BUILD_DIR/tests/runPixiedustNotebooks.py
+    - python $TRAVIS_BUILD_DIR/tests/runPixiedustNotebooks.py 
 
 sudo: false
