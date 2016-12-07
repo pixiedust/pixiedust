@@ -42,6 +42,7 @@ def createKernelSpecIfNeeded(kernelName):
                 "{connection_file}"
             ],
             "env": {
+                "SCALA_HOME": "{0}".format(os.environ["SCALA_HOME"]),
                 "SPARK_HOME": "{0}".format(sparkHome),
                 "PYTHONPATH": "{0}/python/:{0}/python/lib/py4j-0.9-src.zip".format(sparkHome),
                 "PYTHONSTARTUP": "{0}/python/pyspark/shell.py".format(sparkHome),

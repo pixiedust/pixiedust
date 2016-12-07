@@ -14,6 +14,10 @@ before_install:
     - bash anaconda.sh -b -p $HOME/anaconda
     - export PATH="$HOME/anaconda/bin:$PATH"
     - echo Done installing Anaconda. Path is $PATH
+    - echo Install scala
+    - wget http://www.scala-lang.org/files/archive/scala-2.10.4.tgz
+    - tar -xvf scala-2.10.4.tgz
+    - export SCALA_HOME=~/scala-2.10.4
     - echo Installing Spark
     - wget http://d3kbcqa49mib13.cloudfront.net/spark-1.6.0-bin-hadoop2.6.tgz
     - tar -xvf spark-1.6.0-bin-hadoop2.6.tgz
