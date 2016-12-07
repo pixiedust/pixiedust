@@ -16,6 +16,7 @@
 import os
 import nbformat
 from nbconvert.preprocessors import ExecutePreprocessor
+from nbconvert.preprocessors.execute import CellExecutionError
 import logging
 from ipykernel.kernelspec import KernelSpecManager, write_kernel_spec
 from jupyter_client.manager import KernelManager
@@ -57,8 +58,26 @@ def createKernelSpecIfNeeded(kernelName):
         shutil.rmtree(path)
         return dest
 
+class PixieDustTestExecutePreprocessor( ExecutePreprocessor ):
+    def preprocess_cell(self, cell, resources, cell_index):
+        beforeOutputs = cell["outputs"]
+        cell, resources = super(PixieDustTestExecutePreprocessor, self).preprocess_cell(cell, resources, cell_index)
+        self.compareOutputs(beforeOutputs, cell["outputs"])
+        return cell, resources
+
+    def compareOutputs(self, beforeOutputs, afterOutputs):
+        if ( len(beforeOutputs) != len(afterOutputs)):
+            raise CellExecutionError("Output do not match. Expected {0} got {1}".format(beforeOutputs, afterOutputs))
+
+        for beforeOutput, afterOutput in list(zip(beforeOutputs,afterOutputs)):
+            if len(beforeOutput) != len(afterOutput):
+                raise CellExecutionError("Output do not match. Expected {0} got {1}".format(beforeOutputs, afterOutputs))
+            for key in beforeOutput:
+                if beforeOutput[key] != afterOutput[key]:
+                    raise CellExecutionError("Output do not match for. Expected {0} got {1}".format(beforeOutput, afterOutput))
+
 def runNotebook(path):
-    ep = ExecutePreprocessor(timeout=3600, kernel_name= __TEST_KERNEL_NAME__)
+    ep = PixieDustTestExecutePreprocessor(timeout=3600, kernel_name= __TEST_KERNEL_NAME__)
     nb=nbformat.read(path, as_version=4)
     #set the kernel name to test
     nb.metadata.kernelspec.name=__TEST_KERNEL_NAME__
