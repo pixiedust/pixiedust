@@ -5,7 +5,7 @@ python:
 before_install:
     - echo Installing Anaconda. Path is $PATH
     - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
-        wget https://repo.continuum.io/archive/Anaconda2-4.2.0-Linux-x86_64.
+        wget https://repo.continuum.io/archive/Anaconda2-4.2.0-Linux-x86_64
       fi
     - bash Anaconda2-4.2.0-Linux-x86_64.sh -b -p $HOME/anaconda
     - export PATH="$HOME/anaconda/bin:$PATH"
