@@ -34,6 +34,13 @@ def createKernelSpecIfNeeded(kernelName):
     except NoSuchKernel:
         sparkHome = os.environ["SPARK_HOME"]
         overrides={
+            "argv": [
+                "python",
+                "-m",
+                "ipykernel",
+                "-f",
+                "{connection_file}"
+            ],
             "env": {
                 "SPARK_HOME": "{0}".format(sparkHome),
                 "PYTHONPATH": "{0}/python/:{0}/python/lib/py4j-0.9-src.zip".format(sparkHome),
