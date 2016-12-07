@@ -22,7 +22,7 @@ install:
     - conda create -y -q -n pixiedust-travis-test python=$TRAVIS_PYTHON_VERSION
     - source activate pixiedust-travis-test
     - conda install -y jupyter lxml matplotlib pandas
-    - python setup.py install
+    - python $TRAVIS_BUILD_DIR/setup.py install
 
 script:
     - python $TRAVIS_BUILD_DIR/tests/runPixiedustNotebooks.py 
