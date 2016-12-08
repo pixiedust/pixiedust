@@ -74,7 +74,6 @@ class PixieDustTestExecutePreprocessor( ExecutePreprocessor ):
             cell, resources = super(PixieDustTestExecutePreprocessor, self).preprocess_cell(cell, resources, cell_index)
             for output in cell.outputs:
                 if "text" in output and "restart kernel" in output["text"].lower():
-                    print("restarting kernel...")
                     raise RestartKernelException()
             if not skipCompareOutput:
                 self.compareOutputs(beforeOutputs, cell.outputs)
@@ -138,10 +137,16 @@ if __name__ == '__main__':
         for path in os.listdir( inputDir ):
             if path.endswith(".ipynb"):
                 print("Processing notebook {0}".format(path))
-                try:
-                    runNotebook(inputDir + "/" + path)
-                except RestartKernelException:
-                    runNotebook(inputDir + "/" + path)
+                processed = False
+                count = 0
+                while (not processed and count < 10 ):
+                    try:
+                        processed = True
+                        count += 1
+                        runNotebook(inputDir + "/" + path)
+                    except RestartKernelException:
+                        print("restarting kernel...")
+                        processed = False
     finally:
         if kernelPath:
             shutil.rmtree(kernelPath)
