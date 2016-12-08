@@ -1,14 +1,36 @@
 language: python
 python:
-    -"2.7"
-    -"3.5"
+    - "2.7"
+    - "3.5"
+
+before_install:
+    - echo Installing Anaconda. Path is $PATH
+    - cd
+    - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
+        wget https://repo.continuum.io/archive/Anaconda2-4.2.0-Linux-x86_64.sh -O anaconda.sh;
+      else
+        wget https://repo.continuum.io/archive/Anaconda3-4.2.0-Linux-x86_64.sh -O anaconda.sh;
+      fi
+    - bash anaconda.sh -b -p $HOME/anaconda
+    - export PATH="$HOME/anaconda/bin:$PATH"
+    - echo Done installing Anaconda. Path is $PATH
+    - echo Install scala
+    - wget http://www.scala-lang.org/files/archive/scala-2.10.4.tgz
+    - tar -xvf scala-2.10.4.tgz
+    - export SCALA_HOME=~/scala-2.10.4
+    - echo Installing Spark
+    - wget http://d3kbcqa49mib13.cloudfront.net/spark-1.6.0-bin-hadoop2.6.tgz
+    - tar -xvf spark-1.6.0-bin-hadoop2.6.tgz
+    - export SPARK_HOME=~/spark-1.6.0-bin-hadoop2.6
 
 install:
-    - conda create -q -n test-env python=$TRAVIS_PYTHON_VERSION pip nbconvert
-    - source activate test-env
+    - conda create -y -q -n pixiedust-travis-test python=$TRAVIS_PYTHON_VERSION
+    - source activate pixiedust-travis-test
+    - conda install -y jupyter matplotlib pandas
+    - cd $TRAVIS_BUILD_DIR
     - python setup.py install
 
 script:
-    - python $TRAVIS_BUILD_DIR/tests/runPixiedustNotebooks.py
+    - python $TRAVIS_BUILD_DIR/tests/runPixiedustNotebooks.py 
 
 sudo: false
