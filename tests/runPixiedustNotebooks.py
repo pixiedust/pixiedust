@@ -14,6 +14,7 @@
 # limitations under the License.
 # -------------------------------------------------------------------------------
 import os
+import sys
 import nbformat
 from nbconvert.preprocessors import ExecutePreprocessor
 from nbconvert.preprocessors.execute import CellExecutionError
@@ -25,7 +26,8 @@ import shutil
 
 __TEST_KERNEL_NAME__ = "PixiedustTravisTest"
 
-logging.basicConfig(level=logging.DEBUG)
+if "debug" in os.environ:
+    logging.basicConfig(level=logging.DEBUG)
 
 def createKernelSpecIfNeeded(kernelName):
     try:
@@ -47,7 +49,7 @@ def createKernelSpecIfNeeded(kernelName):
                 "SPARK_HOME": "{0}".format(sparkHome),
                 "PYTHONPATH": "{0}/python/:{0}/python/lib/py4j-0.9-src.zip".format(sparkHome),
                 "PYTHONSTARTUP": "{0}/python/pyspark/shell.py".format(sparkHome),
-                "PYSPARK_SUBMIT_ARGS": "--driver-class-path {0}/data/libs/* --master local[10] pyspark-shell".format(os.path.expanduser('~')),
+                "PYSPARK_SUBMIT_ARGS": "--driver-class-path {0}/data/libs/* --master local[10] pyspark-shell".format(os.environ.get("PIXIEDUST_HOME", os.path.expanduser('~'))),
                 "SPARK_DRIVER_MEMORY":"10G",
                 "SPARK_LOCAL_IP":"127.0.0.1"
             }
@@ -61,6 +63,9 @@ def createKernelSpecIfNeeded(kernelName):
 class RestartKernelException(Exception):
     pass
 
+class CompareOutputException(Exception):
+    pass
+
 class PixieDustTestExecutePreprocessor( ExecutePreprocessor ):
     def preprocess_cell(self, cell, resources, cell_index):
         beforeOutputs = cell.outputs
@@ -68,7 +73,7 @@ class PixieDustTestExecutePreprocessor( ExecutePreprocessor ):
         try:
             cell, resources = super(PixieDustTestExecutePreprocessor, self).preprocess_cell(cell, resources, cell_index)
             for output in cell.outputs:
-                if "text" in output and "restart kernel" in output["text"]:
+                if "text" in output and "restart kernel" in output["text"].lower():
                     print("restarting kernel...")
                     raise RestartKernelException()
             if not skipCompareOutput:
@@ -78,25 +83,44 @@ class PixieDustTestExecutePreprocessor( ExecutePreprocessor ):
             cell.source="%pixiedustLog -l debug"
             cell, resources = super(PixieDustTestExecutePreprocessor, self).preprocess_cell(cell, resources, cell_index)
             print("An error occurred executing the last cell. Fetching pixiedust log...")
-            print(cell.outputs[0].text)
+            if len(cell.outputs) > 0 and "text" in cell.outputs[0]:
+                print(cell.outputs[0].text)
+            else:
+                print("Pixiedust Log is empty")
             raise
 
     def compareOutputs(self, beforeOutputs, afterOutputs):
+        #filter transient data from afterOutputs
+        def filterOutput(output):
+            return "data" in output and "application/javascript" in output["data"]
+
+        afterOutputs = [output for output in afterOutputs if not filterOutput(output)]
+
         if ( len(beforeOutputs) != len(afterOutputs)):
-            raise CellExecutionError("Output do not match. Expected {0} got {1}".format(beforeOutputs, afterOutputs))
+            raise CompareOutputException("Output do not match. Expected {0} got {1}".format(beforeOutputs, afterOutputs))
 
         for beforeOutput, afterOutput in list(zip(beforeOutputs,afterOutputs)):
-            if len(beforeOutput) != len(afterOutput):
-                raise CellExecutionError("Output do not match. Expected {0} got {1}".format(beforeOutputs, afterOutputs))
-            for key in beforeOutput:
-                if beforeOutput[key] != afterOutput[key]:
-                    raise CellExecutionError("Output do not match for. Expected {0} got {1}".format(beforeOutput, afterOutput))
+            if "output_type" in beforeOutput and beforeOutput["output_type"] != "execute_result":
+                if len(beforeOutput) != len(afterOutput):
+                    raise CompareOutputException("Output do not match. Expected {0} got {1}".format(beforeOutputs, afterOutputs))
+                skip = ["execution_count"]
+                for key in beforeOutput:
+                    if beforeOutput[key] != afterOutput[key] and key not in skip:
+                        raise CompareOutputException("Output do not match for {0}. Expected {1} got {2}".format(key, beforeOutput, afterOutput))
 
 def runNotebook(path):
     ep = PixieDustTestExecutePreprocessor(timeout=3600, kernel_name= __TEST_KERNEL_NAME__)
     nb=nbformat.read(path, as_version=4)
     #set the kernel name to test
     nb.metadata.kernelspec.name=__TEST_KERNEL_NAME__
+    if "pixiedust_test" in nb.metadata:
+        testMeta = nb.metadata["pixiedust_test"]
+        skipVersions = testMeta.get("skipPython",[])
+        for skipVersion in skipVersions:
+            skipVersion = int(float(skipVersion))
+            if skipVersion == sys.version_info.major:
+                print("Skipping processing of notebook {0} based on pixiedust_test metadata".format(path))
+                return
     try:
         ep.preprocess(nb, {'metadata':{'path': os.path.dirname(path)}})
     finally:
@@ -106,12 +130,14 @@ def runNotebook(path):
         nbformat.write(nb, dir + "/" + os.path.basename(path) + ".out")
 
 if __name__ == '__main__':
+    if "PIXIEDUST_HOME" in os.environ:
+        print("Using PIXIEDUST_HOME: ", os.environ["PIXIEDUST_HOME"])
     kernelPath = createKernelSpecIfNeeded(__TEST_KERNEL_NAME__)
     try:
         inputDir = os.environ.get("PIXIEDUST_TEST_INPUT", './tests')
         for path in os.listdir( inputDir ):
             if path.endswith(".ipynb"):
-                print(path)
+                print("Processing notebook {0}".format(path))
                 try:
                     runNotebook(inputDir + "/" + path)
                 except RestartKernelException:
@@ -119,3 +145,9 @@ if __name__ == '__main__':
     finally:
         if kernelPath:
             shutil.rmtree(kernelPath)
+
+        #clean up PIXIEDUST_HOME if provided
+        if "PIXIEDUST_HOME" in os.environ:
+            shutil.rmtree(os.environ["PIXIEDUST_HOME"] + "/data/libs")
+            shutil.rmtree(os.environ["PIXIEDUST_HOME"] + "/pixiedust")
+            os.remove(os.environ["PIXIEDUST_HOME"] + "/pixiedust.db")

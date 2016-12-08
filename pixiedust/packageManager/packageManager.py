@@ -44,7 +44,7 @@ class __PackageStorage(Storage):
 packageStorage = __PackageStorage()
 
 class PackageManager(object):
-    DOWNLOAD_DIR=os.path.expanduser('~') + "/data/libs"
+    DOWNLOAD_DIR=os.environ.get("PIXIEDUST_HOME", os.path.expanduser('~')) + "/data/libs"
     
     def __init__(self):
         if not os.path.exists(self.DOWNLOAD_DIR):
