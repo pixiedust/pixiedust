@@ -145,7 +145,7 @@ if __name__ == '__main__':
                         count += 1
                         runNotebook(inputDir + "/" + path)
                     except RestartKernelException:
-                        print("restarting kernel...")
+                        print("Restarting kernel...")
                         processed = False
     finally:
         if kernelPath:
