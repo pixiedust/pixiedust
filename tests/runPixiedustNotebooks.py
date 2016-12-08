@@ -47,7 +47,7 @@ def createKernelSpecIfNeeded(kernelName):
                 "SPARK_HOME": "{0}".format(sparkHome),
                 "PYTHONPATH": "{0}/python/:{0}/python/lib/py4j-0.9-src.zip".format(sparkHome),
                 "PYTHONSTARTUP": "{0}/python/pyspark/shell.py".format(sparkHome),
-                "PYSPARK_SUBMIT_ARGS": "--master local[10] pyspark-shell",
+                "PYSPARK_SUBMIT_ARGS": "--driver-class-path {0}/data/libs/* --master local[10] pyspark-shell".format(os.path.expanduser('~')),
                 "SPARK_DRIVER_MEMORY":"10G",
                 "SPARK_LOCAL_IP":"127.0.0.1"
             }
