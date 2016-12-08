@@ -147,7 +147,13 @@ if __name__ == '__main__':
             shutil.rmtree(kernelPath)
 
         #clean up PIXIEDUST_HOME if provided
+        def rmTree(path):
+            if os.path.exists(path):
+                shutil.rmtree(path)
+        def rmFile(path):
+            if os.path.exists(path):
+                os.remove(path)
         if "PIXIEDUST_HOME" in os.environ:
-            shutil.rmtree(os.environ["PIXIEDUST_HOME"] + "/data/libs")
-            shutil.rmtree(os.environ["PIXIEDUST_HOME"] + "/pixiedust")
-            os.remove(os.environ["PIXIEDUST_HOME"] + "/pixiedust.db")
+            rmTree(os.environ["PIXIEDUST_HOME"] + "/data/libs")
+            rmTree(os.environ["PIXIEDUST_HOME"] + "/pixiedust")
+            rmFile(os.environ["PIXIEDUST_HOME"] + "/pixiedust.db")
