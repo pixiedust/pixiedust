@@ -26,6 +26,7 @@ before_install:
 install:
     - conda create -y -q -n pixiedust-travis-test python=$TRAVIS_PYTHON_VERSION
     - source activate pixiedust-travis-test
+    - conda install -y nbformat
     - cd $TRAVIS_BUILD_DIR
     - python setup.py install
 
