@@ -60,9 +60,11 @@ def createKernelSpecIfNeeded(kernelName):
 
 class PixieDustTestExecutePreprocessor( ExecutePreprocessor ):
     def preprocess_cell(self, cell, resources, cell_index):
-        beforeOutputs = cell["outputs"]
+        beforeOutputs = cell.outputs
+        skipCompareOutput = "#SKIP_COMPARE_OUTPUT" in cell.source
         cell, resources = super(PixieDustTestExecutePreprocessor, self).preprocess_cell(cell, resources, cell_index)
-        self.compareOutputs(beforeOutputs, cell["outputs"])
+        if not skipCompareOutput:
+            self.compareOutputs(beforeOutputs, cell.outputs)
         return cell, resources
 
     def compareOutputs(self, beforeOutputs, afterOutputs):
