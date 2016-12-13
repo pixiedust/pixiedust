@@ -136,7 +136,7 @@ class PixiedustScalaMagics(Magics):
             return
         
         #build the scala object
-        dir=os.path.expanduser('~') + "/pixiedust"
+        dir=os.environ.get("PIXIEDUST_HOME", os.path.expanduser('~')) + "/pixiedust"
         if not os.path.exists(dir):
             os.makedirs(dir)
         source="pixiedustRunner.scala"

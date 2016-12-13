@@ -35,7 +35,11 @@ myLogger = getLogger(__name__)
 __all__ = ['Storage']
 
 SQLITE_DB_NAME = 'pixiedust.db'
-SQLITE_DB_NAME_PATH = os.path.expanduser('~') + "/" + SQLITE_DB_NAME
+SQLITE_DB_NAME_PATH = os.environ.get("PIXIEDUST_HOME", os.path.expanduser('~')) + "/" + SQLITE_DB_NAME
+
+if not os.path.exists(os.path.dirname(SQLITE_DB_NAME_PATH)):
+    os.makedirs(os.path.dirname(SQLITE_DB_NAME_PATH))
+
 #global connection
 _conn = None
 
