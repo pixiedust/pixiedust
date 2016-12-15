@@ -1,4 +1,4 @@
-As a `<user type>`, I want to `<task>` so that `<goal>`
+As a `<user type>`, I want to `<task>` so that `<goal>` (make this the title)
 
 ### Expected behavior
 
