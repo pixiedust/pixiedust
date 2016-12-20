@@ -28,6 +28,7 @@ def fqName(entity):
     return (entity.__module__ + "." if hasattr(entity, "__module__") else "") + entity.__class__.__name__
 
 #init scala bridge, make sure that correct pixiedust.jar is installed
+
 jarDirPath = os.environ.get("PIXIEDUST_HOME", os.path.expanduser('~')) + "/data/libs/"
 jarFilePath = jarDirPath + "pixiedust.jar"
 
