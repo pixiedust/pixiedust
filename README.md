@@ -1,5 +1,7 @@
 # PixieDust
 
+[![Build Status](https://travis-ci.org/ibm-cds-labs/pixiedust.svg?branch=master)](https://travis-ci.org/ibm-cds-labs/pixiedust)  
+
 PixieDust is an open source Python helper library that works as an add-on to Jupyter notebooks to improve the user experience of working with data. It also provides extra capabilities that fill a gap when the notebook is hosted on the cloud and the user has no access to configuration files.
 
 Its current capabilities include:
