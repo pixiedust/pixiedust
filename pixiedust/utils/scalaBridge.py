@@ -137,6 +137,9 @@ class PixiedustScalaMagics(Magics):
         
         #build the scala object
         dir=os.environ.get("PIXIEDUST_HOME", os.path.expanduser('~')) + "/pixiedust"
+        globalPath = self.getLineOption(line, "global")
+        if globalPath is not None and globalPath == "true":
+            dir = os.environ.get("PIXIEDUST_HOME", os.path.expanduser('~')) + "/data/libs"
         if not os.path.exists(dir):
             os.makedirs(dir)
         source="pixiedustRunner.scala"
