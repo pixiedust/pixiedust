@@ -138,7 +138,6 @@ function() {
         addOptions({{options|oneline|trim}});
         {#Give a chance to the caller to add extra template fragment here#}
         {{caller()}}
-        console.log("Running command2",command);
         var pattern = "\\w*\\s*=\\s*'(\\\\'|[^'])*'";
         var rpattern=new RegExp(pattern,"g");
         var n = command.match(rpattern);
@@ -166,6 +165,13 @@ function() {
         $('#wrapperHTML{{prefix}}').html('<div style="width:100px;height:60px;left:47%;position:relative"><i class="fa fa-circle-o-notch fa-spin" style="font-size:48px"></i></div>'+
         '<div style="text-align:center">Loading your data. Please wait...</div>');
         startWallToWall = new Date().getTime();
+        {% if this.scalaKernel %}
+        debugger;
+        command=command.replace(/(\w*?)\s*=\s*('(\\'|[^'])*'?)/g, function(a, b, c){
+            return '("' + b + '","' + c.substring(1, c.length-1) + '")';
+        })
+        {% endif %}
+        console.log("Running command2",command);
         IPython.notebook.session.kernel.execute(command, callbacks, {silent:true,store_history:false,stop_on_error:true});
     }
 }

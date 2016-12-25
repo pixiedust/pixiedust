@@ -15,6 +15,7 @@
 # -------------------------------------------------------------------------------
 
 __all__=['packageManager','display','services','utils']
+
 import warnings
 with warnings.catch_warnings():
     warnings.simplefilter("ignore")
@@ -23,6 +24,13 @@ with warnings.catch_warnings():
     import pixiedust.utils.pdLogging
     logger = utils.pdLogging.getPixiedustLogger()
     getLogger = utils.pdLogging.getLogger
+
+    try:
+        #Check if we have an python shell available, if not, use our ProxyShell
+        get_ipython()
+    except NameError:
+        from pixiedust.utils.proxyShell import ProxyInteractiveShell
+        ProxyInteractiveShell.instance()   
 
     #shortcut to packageManager
     import pixiedust.packageManager as packageManager
