@@ -49,14 +49,17 @@ class SparkJobProgressMonitorOutput(object):
     def display_with_id(self, obj, display_id, update=False):
         """Create a new display with an id"""
         ip = get_ipython()
-        data, md = ip.display_formatter.format(obj)
-        content = {
-            'data': data,
-            'metadata': md,
-            'transient': {'display_id': display_id},
-        }
-        msg_type = 'update_display_data' if update else 'display_data'
-        ip.kernel.session.send(ip.kernel.iopub_socket, msg_type, content, parent=ip.parent_header)
+        if hasattr(ip, "kernel"):
+            data, md = ip.display_formatter.format(obj)
+            content = {
+                'data': data,
+                'metadata': md,
+                'transient': {'display_id': display_id},
+            }
+            msg_type = 'update_display_data' if update else 'display_data'
+            ip.kernel.session.send(ip.kernel.iopub_socket, msg_type, content, parent=ip.parent_header)
+        else:
+            display(obj)
 
     def printOutput(self, s):
         print(s)

@@ -43,6 +43,7 @@ with warnings.catch_warnings():
 
     #automated import into the user namespace
     try:
+        from IPython.core.getipython import get_ipython
         get_ipython().user_ns["display"]=display.display
 
         #javaBridge and scalaBridge only work in the driver, not an executor

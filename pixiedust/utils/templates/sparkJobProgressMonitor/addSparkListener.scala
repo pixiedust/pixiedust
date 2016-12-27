@@ -33,9 +33,15 @@ def serializeTaskJSON(taskInfo: TaskInfo):String = {
     }"""
 }
 
-val __pixiedustSparkListener = new ChannelReceiver with SparkListener{    
+val __pixiedustSparkListener = new SparkListener{
+    private val channelReceiver = new ChannelReceiver()
+
+    def setChannelListener(listener:PixiedustOutputListener){
+		channelReceiver.setChannelListener(listener)
+	}
+
     override def onJobStart(jobStart: SparkListenerJobStart) {
-        send("jobStart", s"""{
+        channelReceiver.send("jobStart", s"""{
             "jobId":"${jobStart.jobId}",
             "stageInfos":${serializeStagesJSON(jobStart.stageInfos)}
         }
@@ -46,7 +52,7 @@ val __pixiedustSparkListener = new ChannelReceiver with SparkListener{
             case JobSucceeded => "Success"
             case _ => "Failure"
         }
-        send("jobEnd", s"""{
+        channelReceiver.send("jobEnd", s"""{
             "jobId":"${jobEnd.jobId}",
             "jobResult": "${jobResult}"
         }
@@ -54,7 +60,7 @@ val __pixiedustSparkListener = new ChannelReceiver with SparkListener{
     }
 
     override def onTaskStart(taskStart: SparkListenerTaskStart) { 
-        send("taskStart", s"""{
+        channelReceiver.send("taskStart", s"""{
             "stageId":"${taskStart.stageId}",
             "taskInfo":${serializeTaskJSON(taskStart.taskInfo)}
         }
@@ -62,7 +68,7 @@ val __pixiedustSparkListener = new ChannelReceiver with SparkListener{
     }
 
     override def onTaskEnd(taskEnd: SparkListenerTaskEnd) { 
-        send("taskEnd", s"""{
+        channelReceiver.send("taskEnd", s"""{
             "stageId":"${taskEnd.stageId}",
             "taskType":"${taskEnd.taskType}",
             "taskInfo":${serializeTaskJSON(taskEnd.taskInfo)}
@@ -71,14 +77,14 @@ val __pixiedustSparkListener = new ChannelReceiver with SparkListener{
     }
 
     override def onStageSubmitted(stageSubmitted: SparkListenerStageSubmitted) { 
-        send("stageSubmitted", s"""{
+        channelReceiver.send("stageSubmitted", s"""{
             "stageInfo": ${serializeStageJSON(stageSubmitted.stageInfo)}
         }
         """)
     }
 
     override def onTaskGettingResult(taskGettingResult: SparkListenerTaskGettingResult) { 
-        //send("taskGettingResult", s"taskGettingResult ${taskGettingResult.taskInfo.taskId} : ${taskGettingResult.taskInfo.executorId}")
+        //channelReceiver.send("taskGettingResult", s"taskGettingResult ${taskGettingResult.taskInfo.taskId} : ${taskGettingResult.taskInfo.executorId}")
     }
 
     override def onExecutorMetricsUpdate(executorMetricsUpdate: SparkListenerExecutorMetricsUpdate) { 
@@ -86,7 +92,7 @@ val __pixiedustSparkListener = new ChannelReceiver with SparkListener{
     }
 
     override def onStageCompleted(stageCompleted: SparkListenerStageCompleted) { 
-        send("stageCompleted", s"""{
+        channelReceiver.send("stageCompleted", s"""{
             "stageInfo":${serializeStageJSON(stageCompleted.stageInfo)}
         }
         """)

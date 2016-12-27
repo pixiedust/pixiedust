@@ -24,6 +24,7 @@ from pixiedust.utils.shellAccess import ShellAccess
 import pixiedust
 import warnings
 from six import iteritems
+from IPython.core.getipython import get_ipython
 
 myLogger = pixiedust.getLogger(__name__)
 
