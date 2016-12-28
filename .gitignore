@@ -95,3 +95,10 @@ ENV/
 *.iml
 
 pixiedust/display/.DS_Store
+
+scala/.cache-main
+
+scala/.classpath
+
+scala/.project
+!lib/
