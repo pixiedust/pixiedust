@@ -284,6 +284,8 @@ class Display(object):
             return retCommand
 
         command = self.callerText
+        if command is None:
+            raise ValueError("command is None")
         if menuInfo:
             command = updateCommand(command, "handlerId", menuInfo['id'])
             command = updateCommand(command, "prefix", self.getPrefix())
