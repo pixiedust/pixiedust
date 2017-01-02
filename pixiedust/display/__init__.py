@@ -19,6 +19,7 @@ from .chart import *
 from .graph import *
 from .table import *
 from .download import *
+from .datahandler import getDataHandler
 from pixiedust.utils.printEx import *
 import traceback
 import warnings
@@ -65,7 +66,9 @@ def display(entity, **kwargs):
             entity = toPython(entity)
             scalaKernel = True
 
-        selectedHandler=getSelectedHandler(kwargs, entity)
+        #get a datahandler and displayhandler for this entity
+        dataHandler = getDataHandler(kwargs, entity)
+        selectedHandler = getSelectedHandler(kwargs, entity, dataHandler)
 
         #check if we have a job monitor id
         from pixiedust.utils.sparkJobProgressMonitor import progressMonitor
@@ -79,6 +82,7 @@ def display(entity, **kwargs):
             return
         
         displayHandler.handlerMetadata = selectedHandler
+        displayHandler.dataHandler = dataHandler
         displayHandler.callerText = callerText
         if scalaKernel:
             displayHandler.scalaKernel = True

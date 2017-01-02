@@ -26,7 +26,7 @@ with warnings.catch_warnings():
 
 class TestsDisplayMeta(DisplayHandlerMeta):
     @addId
-    def getMenuInfo(self,entity):
+    def getMenuInfo(self,entity, dataHandler):
         if safeCompare(entity, "test1"):
             return [
                 {"categoryId": "Test", "title": "Test1", "icon": "fa-bar-chart", "id": "Test1"}

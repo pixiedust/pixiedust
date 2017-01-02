@@ -22,12 +22,38 @@ from .mapChartDisplay import MapChartDisplay
 from .histogramDisplay import HistogramDisplay
 from ..display import *
 from pixiedust.utils.dataFrameAdapter import *
-import pixiedust.utils.dataFrameMisc as dataFrameMisc
+from pixiedust.display.chart.renderers import PixiedustRenderer
 
-@PixiedustDisplay()
+#bootstrap all the renderers
+import pixiedust.display.chart.renderers.matplotlib
+import pixiedust.display.chart.renderers.bokeh
+import pixiedust.display.chart.renderers.altair
+
+@PixiedustDisplayMeta()
+class ChartDisplayMeta2(DisplayHandlerMeta):
+    def createCategories(self):
+        return [{"id":"Chart2","title":"Chart2", "icon-class": "fa-line-chart"}]
+
+    @addId
+    def getMenuInfo(self, entity, dataHandler):
+        if dataHandler is not None:
+            return [
+                {"categoryId": "Chart2", "title": "Bar Chart", "icon": "fa-bar-chart", "id": "barChart2"},
+                {"categoryId": "Chart2", "title": "Line Chart", "icon": "fa-line-chart", "id": "lineChart2"},
+                {"categoryId": "Chart2", "title": "Scatter Plot", "icon": "fa-circle", "id": "scatterPlot2"},
+                {"categoryId": "Chart2", "title": "Pie Chart", "icon": "fa-pie-chart", "id": "pieChart2"},
+                {"categoryId": "Chart2", "title": "Map", "icon": "fa-globe", "id": "mapChart2"},
+                {"categoryId": "Chart2", "title": "Histogram", "icon": "fa-table", "id": "histogram2"}
+            ]
+        return []
+
+    def newDisplayHandler(self, options, entity):
+        return PixiedustRenderer.getRenderer(options, entity)
+
+@PixiedustDisplayMeta()
 class ChartDisplayMeta(DisplayHandlerMeta):
     @addId
-    def getMenuInfo(self,entity):
+    def getMenuInfo(self, entity, dataHandler):
         if dataFrameMisc.isPySparkDataFrame(entity) or dataFrameMisc.isPandasDataFrame(entity):
             return [
                 {"categoryId": "Chart", "title": "Bar Chart", "icon": "fa-bar-chart", "id": "barChart"},

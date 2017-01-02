@@ -1,3 +1,4 @@
+{%import "executePythonDisplayMacro.js" as display with context%}
 <script>
 $("#mapOptions{{prefix}}").click(function(){
     {%include resModule + ":chartOptions.dialog" %}
@@ -15,8 +16,30 @@ $("#downloadSVG{{prefix}}").click(function(){
     a.download = "graphic.svg";
     a.click();
 });
+
+$("#renderer{{prefix}}").change(function(){
+    var rendererId = $(this).val();
+    {% call display.executeDisplay( useCellMetadata=True ) %}
+        addOptions({"rendererId": rendererId });
+    {% endcall %}
+});
 </script>
-<button id="mapOptions{{prefix}}">Options</button>
-{% if this.options.get('staticFigure') != 'true' %}
-    <button id="downloadSVG{{prefix}}">Download SVG</button>
-{% endif %}
+
+<div class="row">
+    <div class="form-group col-sm-10" style="padding-right:10px;">
+        <button id="mapOptions{{prefix}}">Options</button>
+        {% if this.options.get('staticFigure') != 'true' %}
+            <button id="downloadSVG{{prefix}}">Download SVG</button>
+        {% endif %}
+    </div>
+    {% if this.getRendererList() and this._rendererId %}
+    <div class="form-group col-sm-2">
+        <label class="field">Renderer:</label>
+        <select class="form-control" id="renderer{{prefix}}" style="margin-left: 0px;">
+            {% for renderer in this.getRendererList() %}
+                <option value="{{renderer._rendererId}}" {{'selected' if this._rendererId==renderer._rendererId else ''}}>{{renderer._rendererId}}</option>
+            {% endfor %}
+        </select>
+    </div>
+    {% endif %}
+</div>

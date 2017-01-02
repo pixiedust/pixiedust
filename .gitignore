@@ -102,3 +102,5 @@ scala/.classpath
 
 scala/.project
 !lib/
+
+.vscode/

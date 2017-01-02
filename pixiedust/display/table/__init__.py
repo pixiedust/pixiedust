@@ -21,7 +21,7 @@ import pixiedust.utils.dataFrameMisc as dataFrameMisc
 @PixiedustDisplay(isDefault=True)
 class TableDisplayMeta(DisplayHandlerMeta):
     @addId
-    def getMenuInfo(self,entity):
+    def getMenuInfo(self,entity, dataHandler):
         if dataFrameMisc.isPySparkDataFrame(entity) or dataFrameMisc.isPandasDataFrame(entity):
             return [
                 {"categoryId": "Table", "title": "DataFrame Table", "icon": "fa-table", "id": "dataframe"}

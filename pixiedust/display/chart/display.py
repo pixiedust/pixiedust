@@ -20,8 +20,8 @@ import pixiedust.utils.dataFrameMisc as dataFrameMisc
 from six import PY2
     
 class ChartDisplay(Display):
-    def __init__(self, options, entity):
-        super(ChartDisplay,self).__init__(options,entity)
+    def __init__(self, options, entity, dataHandler=None):
+        super(ChartDisplay,self).__init__(options,entity,dataHandler)
         #note: since this class can be subclassed from other module, we need to mark the correct resource module with resModule so there is no mixup
         self.extraTemplateArgs["resModule"]=ChartDisplay.__module__
 

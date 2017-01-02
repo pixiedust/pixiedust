@@ -166,7 +166,6 @@ function() {
         '<div style="text-align:center">Loading your data. Please wait...</div>');
         startWallToWall = new Date().getTime();
         {% if this.scalaKernel %}
-        debugger;
         command=command.replace(/(\w*?)\s*=\s*('(\\'|[^'])*'?)/g, function(a, b, c){
             return '("' + b + '","' + c.substring(1, c.length-1) + '")';
         })
@@ -178,5 +177,8 @@ function() {
 {% endmacro %}
 
 {% macro executeDisplay(options="{}",useCellMetadata=False) -%}
-    !{%call executeDisplayfunction(options, useCellMetadata)%}{%endcall%}()
+    {% set content=caller() %}
+    !{%call executeDisplayfunction(options, useCellMetadata)%}
+        {{content}}
+    {%endcall%}()
 {%- endmacro %}
