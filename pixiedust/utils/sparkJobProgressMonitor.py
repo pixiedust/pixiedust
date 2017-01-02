@@ -23,6 +23,7 @@ import json
 import sys
 import traceback
 import pixiedust
+from IPython.core.getipython import get_ipython
 
 myLogger = pixiedust.getLogger(__name__)
 _env = PixiedustTemplateEnvironment()

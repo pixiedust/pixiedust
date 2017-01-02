@@ -25,6 +25,7 @@ import traceback
 import warnings
 import pixiedust
 from six import string_types
+from IPython.core.getipython import get_ipython
 
 myLogger=pixiedust.getLogger(__name__ )
 
