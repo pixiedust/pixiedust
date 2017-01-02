@@ -20,7 +20,7 @@ import pixiedust
 
 myLogger = pixiedust.getLogger(__name__)
 
-@PixiedustRenderer(id="barChart2")
+@PixiedustRenderer(id="barChart")
 class BarChartRenderer(AltairBaseDisplay):
     def doRenderChart(self):
         return "<b>Bar chart powered by Altair not yet implemented</b>"

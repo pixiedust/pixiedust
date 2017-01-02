@@ -29,6 +29,11 @@ class ShowChartOptionDialog(Exception):
 
 class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
 
+    def __init__(self, options, entity, dataHandler=None):
+        super(BaseChartDisplay,self).__init__(options,entity,dataHandler)
+        #note: since this class can be subclassed from other module, we need to mark the correct resource module with resModule so there is no mixup
+        self.extraTemplateArgs["resModule"]=BaseChartDisplay.__module__
+
     #helper method
     def _getField(self, fieldName):
         if not hasattr(self, fieldName):
@@ -151,7 +156,9 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
         if len(keyFields) == 0:
             valueLists = []
             for valueField in valueFields:
-                valueLists.append(self.dataHandler.select(F.col(valueField).alias(valueField)).toPandas()[valueField].dropna().tolist()[:maxRows])
+                valueLists.append(
+                    self.dataHandler.select(valueField).toPandas()[valueField].dropna().tolist()[:maxRows]
+                )
         #elif self.supportsAggregation(handlerId) == False:
         #    for valueField in valueFields:
                 # TODO: Need to get the list of values per unique key (not count, avg, etc)
@@ -221,6 +228,7 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
         if (aggregation is None and self.supportsAggregation(self.handlerId)):
             aggregation = self.getDefaultAggregation(handlerId)
             self.options["aggregation"] = aggregation
+        return aggregation
 
     @cache(fieldName="fieldNames")
     def getFieldNames(self, expandNested=True):

@@ -16,3 +16,8 @@
 
 from .matplotlibBaseDisplay import *
 from .barChartDisplay import *
+from .lineChartDisplay import *
+from .scatterPlotDisplay import *
+from .pieChartDisplay import *
+from .mapChartDisplay import *
+from .histogramDisplay import *

@@ -1,0 +1,42 @@
+{%extends "basedialog.html"%}
+{% set nested = 'true' %}
+
+{%block title %}Chart Options{%endblock%}
+
+{%block body%}
+<form id="chartOptions{{prefix}}">
+{{optionsDialogBody}}
+</form>
+<div class="bootbox-body row">
+</div>
+{%endblock%}
+
+{%block onDialogShown%}
+$('#chartOptions{{prefix}} *').filter(':input').each(function(){
+	IPython.keyboard_manager.register_events($(this));
+});
+$('.field{{prefix}}').draggable({
+	helper:"clone",
+	containment:"document"
+});
+$('.field{{prefix}}-remove').click(function(e) {
+	e.preventDefault();
+	$(this).parent().remove();
+	return false;
+});
+$('#keyFields{{prefix}}, #valueFields{{prefix}}').droppable({
+	drop:function(event, ui) {
+		var newId = ui.draggable.attr('id') + '-' + $(this).attr('id');
+		if ( $('#'+newId).length == 0) { 
+			var el = ui.draggable.clone(true, true);
+			el.attr("id",newId);
+			el.find("a").addClass("field-remove");
+			el.appendTo($(this));
+		}
+	}
+});
+{%endblock%}
+
+{%block onOK%}
+({%include resModule + ":chartOptionsDialogOnOK.js"%})()
+{%endblock%}

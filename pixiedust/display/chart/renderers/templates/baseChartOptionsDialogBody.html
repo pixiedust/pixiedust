@@ -1,0 +1,123 @@
+
+<style type="text/css">
+	.field-container {
+	}
+	.field-container ul {
+		overflow-y: auto;
+		border: 1px solid #ccc;
+		padding: 5px 0 0 0;
+		list-style-type: none;
+	}
+	.field-container label {
+		color: #008571;
+		font-weight: bold;
+	}
+	.field-container li {
+		margin: 0px 5px 5px 5px;
+		padding: 5px;
+		border: 1px solid #ccc;
+		border-radius: 5px;
+		background-color: #daffff;
+		width: auto;
+		min-width: 150px;
+	}
+	.field-remove {
+		color: #777;
+		font-size: 14px;
+		float: right;
+		margin: 0px;
+		cursor: pointer;
+	}
+	.field-remove:after {
+		content: "x";
+	}
+</style>
+<div class="container col-sm-12">
+	<div class="row">
+		<div class="form-group col-sm-10" style="padding-right:10px;">
+			<label for="title{{prefix}}">Chart Title:</label>
+			<input type="text" class="form-control" id="title{{prefix}}" name="title" value="{{this.options.get("title") or ""}}">
+		</div>
+		{%block staticFigure%}
+		<div class="form-group col-sm-2">
+			<label class="field">Static Figure:</label>
+			<select class="form-control" name="staticFigure" style="margin-left: 0px;">
+				<option value="true">Yes</option>
+				<option value="false"{{' selected' if "staticFigure" not in this.options or this.options.get("staticFigure") == "false"}}>No</option>
+			</select>
+		</div>
+		{%endblock%}
+	</div>
+	<div class="field-container row">
+		<div class="col-sm-4" style="padding: 0px 5px 0px 0px;">
+			<label>Fields:</label>
+			<ul id="allFields{{prefix}}" style="height: 215px;">
+				{%for fieldName in fieldNames%}
+				<li id="field{{prefix}}-f{{loop.index}}" class="field{{prefix}}">{{fieldName}}<a class="field{{prefix}}-remove"></a></li>
+				{%endfor%}
+			</ul>
+		</div>
+		<div class="col-sm-8" style="padding: 0px 0px 0px 5px;">
+			{%if keyFieldsSupported %}
+			<label>Keys:</label>
+			<ul id="keyFields{{prefix}}" style="height: 90px;">
+				{%if this.options.get("keyFields") is not none%}
+				{%for fieldName in this.options.get("keyFields").split(",")%}
+					{%if fieldName in fieldNames%}
+						<li id="field{{prefix}}-f{{fieldNames.index(fieldName)+1}}-keyFields{{prefix}}">{{fieldName}}<a class="field{{prefix}}-remove field-remove"></a></li>
+					{%endif%}
+				{%endfor%}
+				{%endif%}
+			</ul>
+			{%endif%}
+			<label>Values:</label>
+			{%if keyFieldsSupported %}
+			<ul id="valueFields{{prefix}}" style="height: 90px;">
+			{%else%}
+			<ul id="valueFields{{prefix}}" style="height: 215px;">
+			{%endif%}
+				{%if this.options.get("valueFields") is not none%}
+				{%for fieldName in this.options.get("valueFields").split(",")%}
+					{%if fieldName in fieldNames%}
+						<li id="field{{prefix}}-f{{fieldNames.index(fieldName)+1}}-valueFields{{prefix}}">{{fieldName}}<a class="field{{prefix}}-remove field-remove"></a></li>
+					{%endif%}
+				{%endfor%}
+				{%endif%}
+			</ul>
+		</div>
+	</div>
+	<div class="row">
+		{%block aggField%}
+		{%if aggregationSupported %}
+		<div class="col-sm-4" style="padding: 0px 0px 0px 5px;">
+			<div class="form-group">
+				<label class="field">Aggregation:</label>
+				<select class="form-control" name="aggregation" style="margin-left: 0px;">
+					{%for aggregationOption in aggregationOptions%}
+					<option value="{{aggregationOption}}"{{' selected' if this.options.get("aggregation") == aggregationOption}}>{{aggregationOption}}</option>
+					{%endfor%}
+				</select>
+			</div>
+		</div>
+		{%endif%}
+		{%endblock%}
+		<div class="col-sm-4" style="padding: 0px 5px 0px 5px;">
+			<div class="form-group">
+				<label class="field"># of Rows to Display:</label>
+				<input class="form-control" name="rowCount" type="number" min="1" max="1000" value="{{this.options.get("rowCount") or 100}}">
+			</div>
+		</div>
+		{%if legendSupported %}
+		<div class="col-sm-4" style="padding: 0px 0px 0px 5px;">
+			<div class="form-group">
+				<label class="field">Show Legend</label>
+				<select class="form-control" name="showLegend" style="margin-left: 0px;">
+					<option value="true">Yes</option>
+					<option value="false"{{' selected' if this.options.get("showLegend") == "false"}}>No</option>
+				</select>
+			</div>
+		</div>
+		{%endif%}
+		{%block customFormFields%}{%endblock%}
+	</div>
+</div>

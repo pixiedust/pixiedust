@@ -31,27 +31,24 @@ import pixiedust.display.chart.renderers.altair
 import pixiedust.display.chart.renderers.mapbox
 
 @PixiedustDisplayMeta()
-class ChartDisplayMeta2(DisplayHandlerMeta):
-    def createCategories(self):
-        return [{"id":"Chart2","title":"Chart2", "icon-class": "fa-line-chart"}]
-
+class ChartDisplayMeta(DisplayHandlerMeta):
     @addId
     def getMenuInfo(self, entity, dataHandler):
         if dataHandler is not None:
             return [
-                {"categoryId": "Chart2", "title": "Bar Chart", "icon": "fa-bar-chart", "id": "barChart2"},
-                {"categoryId": "Chart2", "title": "Line Chart", "icon": "fa-line-chart", "id": "lineChart2"},
-                {"categoryId": "Chart2", "title": "Scatter Plot", "icon": "fa-circle", "id": "scatterPlot2"},
-                {"categoryId": "Chart2", "title": "Pie Chart", "icon": "fa-pie-chart", "id": "pieChart2"},
-                {"categoryId": "Chart2", "title": "Map", "icon": "fa-globe", "id": "mapChart2"},
-                {"categoryId": "Chart2", "title": "Histogram", "icon": "fa-table", "id": "histogram2"}
+                {"categoryId": "Chart", "title": "Bar Chart", "icon": "fa-bar-chart", "id": "barChart"},
+                {"categoryId": "Chart", "title": "Line Chart", "icon": "fa-line-chart", "id": "lineChart"},
+                {"categoryId": "Chart", "title": "Scatter Plot", "icon": "fa-circle", "id": "scatterPlot"},
+                {"categoryId": "Chart", "title": "Pie Chart", "icon": "fa-pie-chart", "id": "pieChart"},
+                {"categoryId": "Chart", "title": "Map", "icon": "fa-globe", "id": "mapChart"},
+                {"categoryId": "Chart", "title": "Histogram", "icon": "fa-table", "id": "histogram"}
             ]
         return []
 
     def newDisplayHandler(self, options, entity):
         return PixiedustRenderer.getRenderer(options, entity)
 
-@PixiedustDisplayMeta()
+"""@PixiedustDisplayMeta()
 class ChartDisplayMeta(DisplayHandlerMeta):
     @addId
     def getMenuInfo(self, entity, dataHandler):
@@ -81,3 +78,4 @@ class ChartDisplayMeta(DisplayHandlerMeta):
             return MapChartDisplay(options,entity)
         elif handlerId=="histogram":
             return HistogramDisplay(options,entity)
+"""

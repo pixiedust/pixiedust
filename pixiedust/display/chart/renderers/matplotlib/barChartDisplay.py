@@ -27,7 +27,7 @@ from functools import reduce
 
 myLogger = pixiedust.getLogger(__name__)
 
-@PixiedustRenderer(id="barChart2")
+@PixiedustRenderer(id="barChart")
 class BarChartRenderer(MatplotlibBaseDisplay):
 
     def getChartContext(self, handlerId):
