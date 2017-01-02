@@ -236,10 +236,6 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
         # go
         try:
             keyFields = self.getKeyFields()
-            #keyFieldValues = self.getKeyFieldValues(keyFields)
-            #keyFieldLabels = self.getKeyFieldLabels(handlerId, aggregation, keyFields)
-            #valueFields = self.getValueFields(handlerId, aggregation, fieldNames)
-            #valueFieldValues = self.getValueFieldValueLists(handlerId, aggregation, keyFields, valueFields)
         except ShowChartOptionDialog:
             self.dialogBody = self.renderTemplate(dialogTemplate, **dialogOptions)
             self._addJavascriptTemplate("chartOptions.dialog", optionsDialogBody=self.dialogBody)
@@ -265,7 +261,6 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
         
         # render
         try:
-            #self.doRenderChart(handlerId, dialogTemplate, dialogOptions, aggregation, keyFields, keyFieldValues, keyFieldLabels, valueFields, valueFieldValues)
             self.dialogBody = self.renderTemplate(dialogTemplate, **dialogOptions)
             chartFigure = self.doRenderChart()
             self._addHTMLTemplate("renderer.html", chartFigure=chartFigure, optionsDialogBody=self.dialogBody)

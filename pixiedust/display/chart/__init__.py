@@ -28,6 +28,7 @@ from pixiedust.display.chart.renderers import PixiedustRenderer
 import pixiedust.display.chart.renderers.matplotlib
 import pixiedust.display.chart.renderers.bokeh
 import pixiedust.display.chart.renderers.altair
+import pixiedust.display.chart.renderers.mapbox
 
 @PixiedustDisplayMeta()
 class ChartDisplayMeta2(DisplayHandlerMeta):

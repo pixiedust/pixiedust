@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------------
-# Copyright IBM Corp. 2017
+# Copyright IBM Corp. 2016
 # 
 # Licensed under the Apache License, Version 2.0 (the 'License');
 # you may not use this file except in compliance with the License.
@@ -14,5 +14,13 @@
 # limitations under the License.
 # -------------------------------------------------------------------------------
 
-from .bokehBaseDisplay import *
-from .barChartDisplay import *
+from pixiedust.display.chart.renderers import PixiedustRenderer
+from .mapBoxBaseDisplay import MapBoxBaseDisplay
+import pixiedust
+
+myLogger = pixiedust.getLogger(__name__)
+
+@PixiedustRenderer(id="barChart2")
+class BarChartRenderer(MapBoxBaseDisplay):
+    def doRenderChart(self):
+        return "<b>Bar chart powered by MapBox not yet implemented</b>"

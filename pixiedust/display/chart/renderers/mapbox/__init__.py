@@ -14,5 +14,5 @@
 # limitations under the License.
 # -------------------------------------------------------------------------------
 
-from .bokehBaseDisplay import *
+from .mapBoxBaseDisplay import *
 from .barChartDisplay import *
