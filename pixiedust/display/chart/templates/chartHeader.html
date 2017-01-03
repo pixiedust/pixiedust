@@ -4,7 +4,6 @@ $("#mapOptions{{prefix}}").click(function(){
     {%include resModule + ":chartOptions.dialog" %}
 });
 $("#downloadSVG{{prefix}}").click(function(){
-    // debugger;
     var svg = $("#wrapperHTML{{prefix}} svg.mpld3-figure")[0].outerHTML;
     var URL = (window.webkitURL || window.URL);
     var url = URL.createObjectURL(new Blob([svg], {type : "image/svg+xml"}));

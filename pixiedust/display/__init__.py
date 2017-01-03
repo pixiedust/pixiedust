@@ -62,7 +62,7 @@ def display(entity, **kwargs):
 
         callerText = traceback.extract_stack(limit=2)[0][3]
         scalaKernel = False
-        if callerText is None and hasattr(display, "fetchEntity"):
+        if callerText is None or callerText == "" and hasattr(display, "fetchEntity"):
             callerText, entity = display.fetchEntity(entity)
             entity = toPython(entity)
             scalaKernel = True

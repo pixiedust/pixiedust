@@ -20,7 +20,7 @@ import matplotlib.pyplot as plt
 import mpld3
 import numpy as np
 
-@PixiedustRenderer(id="scatterPlot2")
+@PixiedustRenderer(id="scatterPlot")
 class ScatterPlotDisplay(MatplotlibBaseDisplay):
     
 	def supportsAggregation(self, handlerId):

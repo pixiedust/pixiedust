@@ -20,7 +20,7 @@ import matplotlib.pyplot as plt
 import mpld3
 import numpy as np
 
-@PixiedustRenderer(id="lineChart2")
+@PixiedustRenderer(id="lineChart")
 class LineChartDisplay(MatplotlibBaseDisplay):
     def matplotlibRender(self, fig, ax):
         keyFieldValues = self.getKeyFieldValues()
