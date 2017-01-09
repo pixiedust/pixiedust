@@ -9,6 +9,15 @@ function() {
     var startWallToWall;
     //Resend the display command
     var callbacks = {
+        shell : {
+            payload : {
+                set_next_input : function(payload){
+                    if (curCell){
+                        curCell._handle_set_next_input(payload);
+                    }
+                }
+            }
+        },
         iopub:{
             output:function(msg){
                 console.log("msg", msg);
@@ -32,7 +41,11 @@ function() {
                     }
                                                     
                     if (!!content.data["application/javascript"]){
-                        curCell.output_area.handle_output.apply(curCell.output_area, arguments);
+                        try {
+                            eval(content.data["application/javascript"]);
+                        } catch(err) {
+                            curCell.output_area.handle_output.apply(curCell.output_area, arguments);
+                        }                        
                         return;
                     }
                     
