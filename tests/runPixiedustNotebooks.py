@@ -95,7 +95,7 @@ class PixieDustTestExecutePreprocessor( ExecutePreprocessor ):
             raise
 
     def compareOutputs(self, beforeOutputs, afterOutputs, useRatio=False):
-        #return a measure of the sequences’ similarity as a float in the range [0, 1]
+        #return a measure of the sequences similarity as a float in the range [0, 1]
         seqmatcher = SequenceMatcher(None, '', '')
 
         #filter transient data from output
