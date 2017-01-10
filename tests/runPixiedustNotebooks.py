@@ -23,6 +23,7 @@ from ipykernel.kernelspec import KernelSpecManager, write_kernel_spec
 from jupyter_client.manager import KernelManager
 from jupyter_client.kernelspec import NoSuchKernel
 import shutil
+from difflib import SequenceMatcher
 
 __TEST_KERNEL_NAME__ = "PixiedustTravisTest"
 
@@ -70,13 +71,18 @@ class PixieDustTestExecutePreprocessor( ExecutePreprocessor ):
     def preprocess_cell(self, cell, resources, cell_index):
         beforeOutputs = cell.outputs
         skipCompareOutput = "#SKIP_COMPARE_OUTPUT" in cell.source
+        pixiedustDisplay = "display(" in cell.source
         try:
             cell, resources = super(PixieDustTestExecutePreprocessor, self).preprocess_cell(cell, resources, cell_index)
             for output in cell.outputs:
                 if "text" in output and "restart kernel" in output["text"].lower():
                     raise RestartKernelException()
             if not skipCompareOutput:
-                self.compareOutputs(beforeOutputs, cell.outputs)
+                if not pixiedustDisplay:
+                    self.compareOutputs(beforeOutputs, cell.outputs)
+                else:
+                    print("Processing cell {0}".format(cell.source))
+                    self.compareOutputs(beforeOutputs, cell.outputs, True)
             return cell, resources
         except CellExecutionError:
             cell.source="%pixiedustLog -l debug"
@@ -88,24 +94,41 @@ class PixieDustTestExecutePreprocessor( ExecutePreprocessor ):
                 print("Pixiedust Log is empty")
             raise
 
-    def compareOutputs(self, beforeOutputs, afterOutputs):
-        #filter transient data from afterOutputs
+    def compareOutputs(self, beforeOutputs, afterOutputs, useRatio=False):
+        #return a measure of the sequences’ similarity as a float in the range [0, 1]
+        seqmatcher = SequenceMatcher(None, '', '')
+
+        #filter transient data from output
         def filterOutput(output):
             return "data" in output and "application/javascript" in output["data"]
-
+            
         afterOutputs = [output for output in afterOutputs if not filterOutput(output)]
 
         if ( len(beforeOutputs) != len(afterOutputs)):
-            raise CompareOutputException("Output do not match. Expected {0} got {1}".format(beforeOutputs, afterOutputs))
+            raise CompareOutputException("Output (len) does not match. \r\nExpected:\r\n {0} \r\n\r\nActual:\r\n {1}".format(beforeOutputs, afterOutputs))
 
         for beforeOutput, afterOutput in list(zip(beforeOutputs,afterOutputs)):
             if "output_type" in beforeOutput and beforeOutput["output_type"] != "execute_result":
                 if len(beforeOutput) != len(afterOutput):
-                    raise CompareOutputException("Output do not match. Expected {0} got {1}".format(beforeOutputs, afterOutputs))
+                    raise CompareOutputException("Output (type) does not match. \r\nExpected:\r\n {0} \r\n\r\nActual:\r\n {1}".format(beforeOutputs, afterOutputs))
                 skip = ["execution_count"]
+                expected = 0
+                actual = 0
+                longest = 0
                 for key in beforeOutput:
-                    if beforeOutput[key] != afterOutput[key] and key not in skip:
-                        raise CompareOutputException("Output do not match for {0}. Expected {1} got {2}".format(key, beforeOutput, afterOutput))
+                    if key not in skip:
+                        before = str(beforeOutput[key])
+                        after = str(afterOutput[key])
+                        if useRatio:
+                            seqmatcher.set_seqs(before, after)
+                            expected = len(before)
+                            actual = len(after)
+                            ratio = seqmatcher.quick_ratio()
+                            print("expected_length: {0}, actual_length: {1}, sequence_ratio: {2}".format(expected, actual, ratio))
+                            if ratio < 0.98:
+                                raise CompareOutputException("Output (ratio: {3}) does not match for {0}. \r\nExpected:\r\n {1} \r\n\r\nActual:\r\n {2}".format(key, before, after, ratio))
+                        elif beforeOutput[key] != afterOutput[key]:
+                            raise CompareOutputException("Output (key) does not match for {0}. \r\nExpected:\r\n {1} \r\n\r\nActual:\r\n {2}".format(key, before, after))
 
 def runNotebook(path):
     ep = PixieDustTestExecutePreprocessor(timeout=3600, kernel_name= __TEST_KERNEL_NAME__)
