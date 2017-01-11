@@ -17,14 +17,18 @@
 from ..display import *
 from pixiedust.utils.dataFrameAdapter import *
 from pixiedust.display.chart.renderers import PixiedustRenderer
+import pixiedust
+
+myLogger = pixiedust.getLogger(__name__ )
 
 #bootstrap all the renderers
-import pixiedust.display.chart.renderers.matplotlib
-#import pixiedust.display.chart.renderers.bokeh
-#import pixiedust.display.chart.renderers.altair
-import pixiedust.display.chart.renderers.google
-#import pixiedust.display.chart.renderers.mapbox
-import pixiedust.display.chart.renderers.seaborn
+#renderers = ["matplotlib", "bokeh", "altair", "google", "seaborn"]
+renderers = ["matplotlib", "seaborn"]
+for renderer in renderers:
+    try:
+        __import__("pixiedust.display.chart.renderers." + renderer)
+    except ImportError as e:
+        myLogger.warn("Unable to import renderer {0}: {1}".format(renderer, str(e)))
 
 @PixiedustDisplayMeta()
 class ChartDisplayMeta(DisplayHandlerMeta):
