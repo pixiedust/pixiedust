@@ -24,6 +24,7 @@ import pixiedust.display.chart.renderers.matplotlib
 #import pixiedust.display.chart.renderers.altair
 import pixiedust.display.chart.renderers.google
 #import pixiedust.display.chart.renderers.mapbox
+import pixiedust.display.chart.renderers.seaborn
 
 @PixiedustDisplayMeta()
 class ChartDisplayMeta(DisplayHandlerMeta):

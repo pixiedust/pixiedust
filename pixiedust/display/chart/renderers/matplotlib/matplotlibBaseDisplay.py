@@ -73,11 +73,14 @@ class MatplotlibBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
                         line.set_color(self.colormap(1.*i/numColumns))
                         line.set_linewidth(10)
 
+    def createFigure(self):
+        return plt.subplots(figsize=(6,4))
+        
     def doRenderChart(self):
         self.colormap = cm.jet
 
         # go
-        fig, ax = plt.subplots(figsize=(6,4))
+        fig, ax = self.createFigure()
 
         keyFieldLabels = self.getKeyFieldLabels()
 
