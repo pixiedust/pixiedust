@@ -138,8 +138,6 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
         if valueFieldStr is not None:
             valueFields = valueFieldStr.split(",")
             valueFields = [val for val in valueFields if val in fieldNames]
-        if len(valueFields) == 0:
-            raise ShowChartOptionDialog()
         numericValueFields = []
         for valueField in valueFields:
             if self.dataHandler.isNumericField(valueField) or aggregation == "COUNT":
@@ -214,7 +212,7 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
             dialogTemplate = context[0]
             dialogOptions.update(context[1])
         else:
-            dialogTemplate = ChartDisplay.__module__ + ":baseChartOptionsDialogBody.html"
+            dialogTemplate = BaseChartDisplay.__module__ + ":baseChartOptionsDialogBody.html"
 
         return (dialogTemplate, dialogOptions)
 
@@ -244,6 +242,7 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
         # go
         try:
             keyFields = self.getKeyFields()
+            valueFields = self.getValueFields()
         except ShowChartOptionDialog:
             self.dialogBody = self.renderTemplate(dialogTemplate, **dialogOptions)
             self._addJavascriptTemplate("chartOptions.dialog", optionsDialogBody=self.dialogBody)

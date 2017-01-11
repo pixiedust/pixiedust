@@ -23,6 +23,7 @@ from .datahandler import getDataHandler
 from pixiedust.utils.printEx import *
 import traceback
 import warnings
+import uuid
 import pixiedust
 from six import string_types
 from IPython.core.getipython import get_ipython
@@ -68,6 +69,11 @@ def display(entity, **kwargs):
             m = re.search(",\\s*gen_tests\\s*=\\s*'((\\\\'|[^'])*)'", str(callerText), re.IGNORECASE)
             if m is not None:
                 callerText = callerText.replace(m.group(0),"")
+            #generate new prefix
+            p = re.search(",\\s*prefix\\s*=\\s*'((\\\\'|[^'])*)'", str(callerText), re.IGNORECASE)
+            if p is not None:
+                prefix = ''.join([",prefix='", str(uuid.uuid4())[:8], "'"])
+                callerText = callerText.replace(p.group(0), prefix)
             get_ipython().set_next_input(callerText)
 
         scalaKernel = False

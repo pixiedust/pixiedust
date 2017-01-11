@@ -170,6 +170,7 @@ if __name__ == '__main__':
                     except RestartKernelException:
                         print("Restarting kernel...")
                         processed = False
+                print("Finished processing notebook {0}".format(path))
     finally:
         if kernelPath:
             shutil.rmtree(kernelPath)

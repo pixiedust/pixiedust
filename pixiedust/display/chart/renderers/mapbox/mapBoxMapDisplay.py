@@ -14,9 +14,14 @@
 # limitations under the License.
 # -------------------------------------------------------------------------------
 
-from .matplotlibBaseDisplay import *
-from .barChartDisplay import *
-from .lineChartDisplay import *
-from .scatterPlotDisplay import *
-from .pieChartDisplay import *
-from .histogramDisplay import *
+from pixiedust.display.chart.renderers import PixiedustRenderer
+from .mapBoxBaseDisplay import MapBoxBaseDisplay
+
+import pixiedust
+
+myLogger = pixiedust.getLogger(__name__)
+
+@PixiedustRenderer(id="mapView")
+class MapViewDisplay(MapBoxBaseDisplay):
+    def doRenderChart(self):
+        return "<br/><b>Map view powered by MapBox not yet implemented</b><br/><br/>"

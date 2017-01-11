@@ -17,9 +17,10 @@
 from pixiedust.display.chart.renderers import PixiedustRenderer
 from ..baseChartDisplay import BaseChartDisplay
 from six import with_metaclass
-from abc import abstractmethod, ABCMeta
+from abc import ABCMeta
 
 import pixiedust
+
 myLogger = pixiedust.getLogger(__name__)
 
 @PixiedustRenderer(rendererId="mapbox")

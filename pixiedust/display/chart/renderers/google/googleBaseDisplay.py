@@ -14,9 +14,16 @@
 # limitations under the License.
 # -------------------------------------------------------------------------------
 
-from .matplotlibBaseDisplay import *
-from .barChartDisplay import *
-from .lineChartDisplay import *
-from .scatterPlotDisplay import *
-from .pieChartDisplay import *
-from .histogramDisplay import *
+from pixiedust.display.chart.renderers import PixiedustRenderer
+from ..baseChartDisplay import BaseChartDisplay
+from six import with_metaclass
+from abc import ABCMeta
+
+import pixiedust
+
+myLogger = pixiedust.getLogger(__name__)
+
+@PixiedustRenderer(rendererId="google")
+class GoogleBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
+    pass
+  

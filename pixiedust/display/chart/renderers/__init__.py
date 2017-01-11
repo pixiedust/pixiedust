@@ -58,8 +58,8 @@ class PixiedustRenderer(object):
             if renderer._rendererId == rendererId:
                 myLogger.debug("Found renderer: {0} - {1}".format(renderer._rendererId, renderer._id))
                 return renderer(options, entity)
-        myLogger.debug("Defaulting to first renderer {0} - {1}".format(renderers(0)._rendererId, renderers(0)._id))
-        return renderers(0)(options, entity)
+        myLogger.debug("Defaulting to first renderer {0} - {1}".format(renderers[0]._rendererId, renderers[0]._id))
+        return renderers[0](options, entity)
 
     @staticmethod
     def getRendererList(options, entity):

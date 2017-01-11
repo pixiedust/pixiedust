@@ -14,21 +14,16 @@
 # limitations under the License.
 # -------------------------------------------------------------------------------
 
-from .barChartDisplay import BarChartDisplay
-from .lineChartDisplay import LineChartDisplay
-from .scatterPlotDisplay import ScatterPlotDisplay
-from .pieChartDisplay import PieChartDisplay
-from .mapChartDisplay import MapChartDisplay
-from .histogramDisplay import HistogramDisplay
 from ..display import *
 from pixiedust.utils.dataFrameAdapter import *
 from pixiedust.display.chart.renderers import PixiedustRenderer
 
 #bootstrap all the renderers
 import pixiedust.display.chart.renderers.matplotlib
-import pixiedust.display.chart.renderers.bokeh
-import pixiedust.display.chart.renderers.altair
-import pixiedust.display.chart.renderers.mapbox
+#import pixiedust.display.chart.renderers.bokeh
+#import pixiedust.display.chart.renderers.altair
+import pixiedust.display.chart.renderers.google
+#import pixiedust.display.chart.renderers.mapbox
 
 @PixiedustDisplayMeta()
 class ChartDisplayMeta(DisplayHandlerMeta):
@@ -40,7 +35,7 @@ class ChartDisplayMeta(DisplayHandlerMeta):
                 {"categoryId": "Chart", "title": "Line Chart", "icon": "fa-line-chart", "id": "lineChart"},
                 {"categoryId": "Chart", "title": "Scatter Plot", "icon": "fa-circle", "id": "scatterPlot"},
                 {"categoryId": "Chart", "title": "Pie Chart", "icon": "fa-pie-chart", "id": "pieChart"},
-                {"categoryId": "Chart", "title": "Map", "icon": "fa-globe", "id": "mapChart"},
+                {"categoryId": "Chart", "title": "Map", "icon": "fa-globe", "id": "mapView"},
                 {"categoryId": "Chart", "title": "Histogram", "icon": "fa-table", "id": "histogram"}
             ]
         return []

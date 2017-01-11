@@ -15,4 +15,4 @@
 # -------------------------------------------------------------------------------
 
 from .mapBoxBaseDisplay import *
-from .barChartDisplay import *
+from .mapBoxMapDisplay import *

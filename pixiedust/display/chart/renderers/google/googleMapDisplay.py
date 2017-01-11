@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------------
-# Copyright IBM Corp. 2016
+# Copyright IBM Corp. 2017
 # 
 # Licensed under the Apache License, Version 2.0 (the 'License');
 # you may not use this file except in compliance with the License.
@@ -15,13 +15,14 @@
 # -------------------------------------------------------------------------------
 
 from pixiedust.display.chart.renderers import PixiedustRenderer
-from .matplotlibBaseDisplay import MatplotlibBaseDisplay
-import matplotlib.pyplot as plt
-import mpld3
-import numpy as np
+from .googleBaseDisplay import GoogleBaseDisplay
 
-@PixiedustRenderer(id="mapChart")
-class MapChartDisplay(MatplotlibBaseDisplay):
+import pixiedust
+
+myLogger = pixiedust.getLogger(__name__)
+
+@PixiedustRenderer(id="mapView")
+class MapViewDisplay(GoogleBaseDisplay):
 
     def supportsKeyFieldLabels(self, handlerId):
         return False
@@ -37,10 +38,11 @@ class MapChartDisplay(MatplotlibBaseDisplay):
         if (len(fields) > 0):
             return fields
         else:
-            return super(MapChartDisplay, self).getDefaultKeyFields(handlerId, aggregation) # no relevant fields found - defer to superclass
+            return super(MapViewDisplay, self).getDefaultKeyFields(handlerId, aggregation) # no relevant fields found - defer to superclass
     
     def getChartContext(self, handlerId):
-        return ('mapChartOptionsDialogBody.html', {})
+        diagTemplate = GoogleBaseDisplay.__module__ + ":mapViewOptionsDialogBody.html"
+        return (diagTemplate, {})
     
     def canRenderChart(self):
         keyFields = self.getKeyFields()
@@ -49,7 +51,7 @@ class MapChartDisplay(MatplotlibBaseDisplay):
         else:
             return (False, "No location field found ('country', 'province', 'state', 'city', or 'latitude'/'longitude').<br>Use the Chart Options dialog to specify a location field.")
 
-    def matplotlibRender(self, fig, ax):
+    def doRenderChart(self):
         keyFields = self.getKeyFields()
         keyFieldLabels = self.getKeyFieldLabels()
         valueFieldValues = self.getValueFieldValueLists()
@@ -90,8 +92,8 @@ class MapChartDisplay(MatplotlibBaseDisplay):
         mapData = mapData + "]"
         self.options["mapData"] = mapData.replace("'",'"')
         self._addScriptElement("https://www.gstatic.com/charts/loader.js")
-        self._addScriptElement("https://www.google.com/jsapi", callback=self.renderTemplate("mapChart.js"))
-        return self.renderTemplate("mapChart.html")
+        self._addScriptElement("https://www.google.com/jsapi", callback=self.renderTemplate("mapView.js"))
+        return self.renderTemplate("mapView.html")
 
     def _getDefaultKeyFields(self):
         for field in self.entity.schema.fields:
