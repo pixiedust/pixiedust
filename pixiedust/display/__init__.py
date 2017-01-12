@@ -14,21 +14,8 @@
 # limitations under the License.
 # -------------------------------------------------------------------------------
 
-from .display import *
-from .chart import *
-from .graph import *
-from .table import *
-from .download import *
-from .datahandler import getDataHandler
-from pixiedust.utils.printEx import *
-import traceback
 import warnings
-import uuid
-import pixiedust
-from six import string_types
 from IPython.core.getipython import get_ipython
-
-myLogger=pixiedust.getLogger(__name__ )
 
 #Make sure that matplotlib is running inline
 with warnings.catch_warnings():
@@ -37,7 +24,21 @@ with warnings.catch_warnings():
         get_ipython().run_line_magic("matplotlib", "inline")
     except NameError:
         #IPython not available we must be in a spark executor
-        pass    
+        pass
+
+from .display import *
+from .chart import *
+from .graph import *
+from .table import *
+from .download import *
+from .datahandler import getDataHandler
+from pixiedust.utils.printEx import *
+import traceback
+import uuid
+import pixiedust
+from six import string_types
+
+myLogger=pixiedust.getLogger(__name__ )
 
 def display(entity, **kwargs):
     with warnings.catch_warnings():
