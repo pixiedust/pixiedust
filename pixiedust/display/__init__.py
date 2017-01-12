@@ -14,18 +14,8 @@
 # limitations under the License.
 # -------------------------------------------------------------------------------
 
-from .display import *
-from .chart import *
-from .graph import *
-from .table import *
-from .download import *
-from pixiedust.utils.printEx import *
-import traceback
 import warnings
-import pixiedust
-from six import string_types
-
-myLogger=pixiedust.getLogger(__name__ )
+from IPython.core.getipython import get_ipython
 
 #Make sure that matplotlib is running inline
 with warnings.catch_warnings():
@@ -34,7 +24,21 @@ with warnings.catch_warnings():
         get_ipython().run_line_magic("matplotlib", "inline")
     except NameError:
         #IPython not available we must be in a spark executor
-        pass    
+        pass
+
+from .display import *
+from .chart import *
+from .graph import *
+from .table import *
+from .download import *
+from .datahandler import getDataHandler
+from pixiedust.utils.printEx import *
+import traceback
+import uuid
+import pixiedust
+from six import string_types
+
+myLogger=pixiedust.getLogger(__name__ )
 
 def display(entity, **kwargs):
     with warnings.catch_warnings():
@@ -59,13 +63,29 @@ def display(entity, **kwargs):
             return entity
 
         callerText = traceback.extract_stack(limit=2)[0][3]
+
+        if "gen_tests" in kwargs and "cell_id" in kwargs and "showchrome" not in kwargs and "handlerId" in kwargs:
+            #remove gen_tests from command line
+            import re
+            m = re.search(",\\s*gen_tests\\s*=\\s*'((\\\\'|[^'])*)'", str(callerText), re.IGNORECASE)
+            if m is not None:
+                callerText = callerText.replace(m.group(0),"")
+            #generate new prefix
+            p = re.search(",\\s*prefix\\s*=\\s*'((\\\\'|[^'])*)'", str(callerText), re.IGNORECASE)
+            if p is not None:
+                prefix = ''.join([",prefix='", str(uuid.uuid4())[:8], "'"])
+                callerText = callerText.replace(p.group(0), prefix)
+            get_ipython().set_next_input(callerText)
+
         scalaKernel = False
-        if callerText is None and hasattr(display, "fetchEntity"):
+        if callerText is None or callerText == "" and hasattr(display, "fetchEntity"):
             callerText, entity = display.fetchEntity(entity)
             entity = toPython(entity)
             scalaKernel = True
 
-        selectedHandler=getSelectedHandler(kwargs, entity)
+        #get a datahandler and displayhandler for this entity
+        dataHandler = getDataHandler(kwargs, entity)
+        selectedHandler = getSelectedHandler(kwargs, entity, dataHandler)
 
         #check if we have a job monitor id
         from pixiedust.utils.sparkJobProgressMonitor import progressMonitor
@@ -79,6 +99,7 @@ def display(entity, **kwargs):
             return
         
         displayHandler.handlerMetadata = selectedHandler
+        displayHandler.dataHandler = dataHandler
         displayHandler.callerText = callerText
         if scalaKernel:
             displayHandler.scalaKernel = True
@@ -86,4 +107,5 @@ def display(entity, **kwargs):
         if displayHandler.callerText is None:
             printEx("Unable to get entity information")
             return
+
         displayHandler.render()

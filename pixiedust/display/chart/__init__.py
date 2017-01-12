@@ -14,20 +14,44 @@
 # limitations under the License.
 # -------------------------------------------------------------------------------
 
-from .barChartDisplay import BarChartDisplay
-from .lineChartDisplay import LineChartDisplay
-from .scatterPlotDisplay import ScatterPlotDisplay
-from .pieChartDisplay import PieChartDisplay
-from .mapChartDisplay import MapChartDisplay
-from .histogramDisplay import HistogramDisplay
 from ..display import *
 from pixiedust.utils.dataFrameAdapter import *
-import pixiedust.utils.dataFrameMisc as dataFrameMisc
+from pixiedust.display.chart.renderers import PixiedustRenderer
+import pixiedust
 
-@PixiedustDisplay()
+myLogger = pixiedust.getLogger(__name__ )
+
+#bootstrap all the renderers
+#renderers = ["matplotlib", "bokeh", "altair", "google", "seaborn"]
+renderers = ["matplotlib", "seaborn"]
+for renderer in renderers:
+    try:
+        __import__("pixiedust.display.chart.renderers." + renderer)
+    except ImportError as e:
+        myLogger.warn("Unable to import renderer {0}: {1}".format(renderer, str(e)))
+
+@PixiedustDisplayMeta()
 class ChartDisplayMeta(DisplayHandlerMeta):
     @addId
-    def getMenuInfo(self,entity):
+    def getMenuInfo(self, entity, dataHandler):
+        if dataHandler is not None:
+            return [
+                {"categoryId": "Chart", "title": "Bar Chart", "icon": "fa-bar-chart", "id": "barChart"},
+                {"categoryId": "Chart", "title": "Line Chart", "icon": "fa-line-chart", "id": "lineChart"},
+                {"categoryId": "Chart", "title": "Scatter Plot", "icon": "fa-circle", "id": "scatterPlot"},
+                {"categoryId": "Chart", "title": "Pie Chart", "icon": "fa-pie-chart", "id": "pieChart"},
+                {"categoryId": "Chart", "title": "Map", "icon": "fa-globe", "id": "mapView"},
+                {"categoryId": "Chart", "title": "Histogram", "icon": "fa-table", "id": "histogram"}
+            ]
+        return []
+
+    def newDisplayHandler(self, options, entity):
+        return PixiedustRenderer.getRenderer(options, entity)
+
+"""@PixiedustDisplayMeta()
+class ChartDisplayMeta(DisplayHandlerMeta):
+    @addId
+    def getMenuInfo(self, entity, dataHandler):
         if dataFrameMisc.isPySparkDataFrame(entity) or dataFrameMisc.isPandasDataFrame(entity):
             return [
                 {"categoryId": "Chart", "title": "Bar Chart", "icon": "fa-bar-chart", "id": "barChart"},
@@ -54,3 +78,4 @@ class ChartDisplayMeta(DisplayHandlerMeta):
             return MapChartDisplay(options,entity)
         elif handlerId=="histogram":
             return HistogramDisplay(options,entity)
+"""

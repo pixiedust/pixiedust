@@ -6,8 +6,8 @@ var addValueToCommand = function(name, value) {
         var startIndex, endIndex;
         startIndex = command.indexOf(","+name+"=");
         if (startIndex >= 0) {
-            commaIndex = command.indexOf(",", startIndex+1);
-            quoteIndex = command.indexOf("'", startIndex+1);
+            var commaIndex = command.indexOf(",", startIndex+1);
+            var quoteIndex = command.indexOf("'", startIndex+1);
             if (quoteIndex >=0 && quoteIndex < commaIndex) {
                 // value is enclosed in quotes - end of value will be second quote
                 endIndex = command.indexOf("'", quoteIndex+1) + 1;
@@ -32,8 +32,8 @@ var addValueToCommand = function(name, value) {
         var startIndex, endIndex;
         startIndex = command.indexOf(","+name+"=");
         if (startIndex >= 0) {
-            commaIndex = command.indexOf(",", startIndex+1);
-            quoteIndex = command.indexOf("'", startIndex+1);
+            var commaIndex = command.indexOf(",", startIndex+1);
+            var quoteIndex = command.indexOf("'", startIndex+1);
             if (quoteIndex >=0 && quoteIndex < commaIndex) {
                 // value is enclosed in quotes - end of value will be second quote
                 endIndex = command.indexOf("'", quoteIndex+1) + 1;

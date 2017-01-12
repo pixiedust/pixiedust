@@ -9,6 +9,15 @@ function() {
     var startWallToWall;
     //Resend the display command
     var callbacks = {
+        shell : {
+            payload : {
+                set_next_input : function(payload){
+                    if (curCell){
+                        curCell._handle_set_next_input(payload);
+                    }
+                }
+            }
+        },
         iopub:{
             output:function(msg){
                 console.log("msg", msg);
@@ -32,7 +41,11 @@ function() {
                     }
                                                     
                     if (!!content.data["application/javascript"]){
-                        curCell.output_area.handle_output.apply(curCell.output_area, arguments);
+                        try {
+                            eval(content.data["application/javascript"]);
+                        } catch(err) {
+                            curCell.output_area.handle_output.apply(curCell.output_area, arguments);
+                        }                        
                         return;
                     }
                     
@@ -166,7 +179,6 @@ function() {
         '<div style="text-align:center">Loading your data. Please wait...</div>');
         startWallToWall = new Date().getTime();
         {% if this.scalaKernel %}
-        debugger;
         command=command.replace(/(\w*?)\s*=\s*('(\\'|[^'])*'?)/g, function(a, b, c){
             return '("' + b + '","' + c.substring(1, c.length-1) + '")';
         })
@@ -178,5 +190,8 @@ function() {
 {% endmacro %}
 
 {% macro executeDisplay(options="{}",useCellMetadata=False) -%}
-    !{%call executeDisplayfunction(options, useCellMetadata)%}{%endcall%}()
+    {% set content=caller() %}
+    !{%call executeDisplayfunction(options, useCellMetadata)%}
+        {{content}}
+    {%endcall%}()
 {%- endmacro %}

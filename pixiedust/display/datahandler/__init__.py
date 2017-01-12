@@ -14,20 +14,10 @@
 # limitations under the License.
 # -------------------------------------------------------------------------------
 
-from ..display import DisplayHandlerMeta,PixiedustDisplay,addId
-from .downloadFile import DownloadFileHandler
-from pixiedust.utils.dataFrameAdapter import createDataframeAdapter
+from .pysparkDataFrameHandler import PySparkDataFrameDataHandler
 import pixiedust.utils.dataFrameMisc as dataFrameMisc
 
-@PixiedustDisplay(system=True)
-class DownloadMeta(DisplayHandlerMeta):
-    @addId
-    def getMenuInfo(self, entity, dataHandler):
-        if dataFrameMisc.isPySparkDataFrame(entity) or dataFrameMisc.isPandasDataFrame(entity):
-            return [
-                {"categoryId": "Download", "title": "Download as File", "icon": "fa-download", "id": "downloadFile"}
-            ]
-        else:
-            return []
-    def newDisplayHandler(self,options,entity):
-        return DownloadFileHandler(options, createDataframeAdapter(entity))
+def getDataHandler(options, entity):
+    if dataFrameMisc.isPySparkDataFrame(entity):
+        return PySparkDataFrameDataHandler(options, entity)
+    return None

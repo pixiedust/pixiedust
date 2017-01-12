@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------------
-# Copyright IBM Corp. 2016
+# Copyright IBM Corp. 2017
 # 
 # Licensed under the Apache License, Version 2.0 (the 'License');
 # you may not use this file except in compliance with the License.
@@ -14,21 +14,25 @@
 # limitations under the License.
 # -------------------------------------------------------------------------------
 
-from .mpld3ChartDisplay import Mpld3ChartDisplay
-import matplotlib.cm as cm
+from pixiedust.display.chart.renderers import PixiedustRenderer
+from .matplotlibBaseDisplay import MatplotlibBaseDisplay
 import matplotlib.pyplot as plt
 import mpld3
 import numpy as np
 
-class LineChartDisplay(Mpld3ChartDisplay):
-
-    def doRenderMpld3(self, handlerId, fig, ax, colormap, keyFields, keyFieldValues, keyFieldLabels, valueFields, valueFieldValues):
+@PixiedustRenderer(id="lineChart")
+class LineChartDisplay(MatplotlibBaseDisplay):
+    def matplotlibRender(self, fig, ax):
+        keyFieldValues = self.getKeyFieldValues()
+        valueFields = self.getValueFields()
+        valueFieldValues = self.getValueFieldValueLists()
         numColumns = len(keyFieldValues)
         for i, valueField in enumerate(valueFields):
             xs = keyFieldValues
             ys = valueFieldValues[i]
-            lines = ax.plot(xs, ys, color=colormap(1.*i/numColumns), label=valueField, marker='o')
+            lines = ax.plot(xs, ys, color=self.colormap(1.*i/numColumns), label=valueField, marker='o')
             tooltip = mpld3.plugins.PointLabelTooltip(lines[0], labels=ys)
-            mpld3.plugins.connect(fig, tooltip)
-        plt.xticks(np.arange(numColumns),keyFieldLabels)
-        plt.xlabel(", ".join(keyFields), fontsize=18)
+            if self.has_mpld3:
+                mpld3.plugins.connect(fig, tooltip)
+        plt.xticks(np.arange(numColumns),self.getKeyFieldLabels())
+        plt.xlabel(", ".join(self.getKeyFields()), fontsize=18)

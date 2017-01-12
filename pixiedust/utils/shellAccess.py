@@ -14,6 +14,7 @@
 # limitations under the License.
 # -------------------------------------------------------------------------------
 from six import iteritems, with_metaclass
+from IPython.core.getipython import get_ipython
 '''
 Provide easy access to the Shell user variables
 Sample use:

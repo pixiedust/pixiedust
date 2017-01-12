@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------------
-# Copyright IBM Corp. 2016
+# Copyright IBM Corp. 2017
 # 
 # Licensed under the Apache License, Version 2.0 (the 'License');
 # you may not use this file except in compliance with the License.
@@ -14,9 +14,15 @@
 # limitations under the License.
 # -------------------------------------------------------------------------------
 
-from .baseChartDisplay import BaseChartDisplay
-    
-class MapChartDisplay(BaseChartDisplay):
+from pixiedust.display.chart.renderers import PixiedustRenderer
+from .googleBaseDisplay import GoogleBaseDisplay
+
+import pixiedust
+
+myLogger = pixiedust.getLogger(__name__)
+
+@PixiedustRenderer(id="mapView")
+class MapViewDisplay(GoogleBaseDisplay):
 
     def supportsKeyFieldLabels(self, handlerId):
         return False
@@ -32,20 +38,25 @@ class MapChartDisplay(BaseChartDisplay):
         if (len(fields) > 0):
             return fields
         else:
-            return super(MapChartDisplay, self).getDefaultKeyFields(handlerId, aggregation) # no relevant fields found - defer to superclass
+            return super(MapViewDisplay, self).getDefaultKeyFields(handlerId, aggregation) # no relevant fields found - defer to superclass
     
     def getChartContext(self, handlerId):
-        return ('mapChartOptionsDialogBody.html', {})
+        diagTemplate = GoogleBaseDisplay.__module__ + ":mapViewOptionsDialogBody.html"
+        return (diagTemplate, {})
     
-    def canRenderChart(self, handlerId, aggregation, fieldNames):
-        keyFields = self.options.get("keyFields")
+    def canRenderChart(self):
+        keyFields = self.getKeyFields()
         if ((keyFields is not None and len(keyFields) > 0) or len(self._getDefaultKeyFields()) > 0):
             return (True, None)
         else:
             return (False, "No location field found ('country', 'province', 'state', 'city', or 'latitude'/'longitude').<br>Use the Chart Options dialog to specify a location field.")
 
-    def doRenderChart(self, handlerId, dialogTemplate, dialogOptions, aggregation, keyFields, keyFieldValues, keyFieldLabels, valueFields, valueFieldValues):
-        latLong = super(MapChartDisplay, self).isNumericField(keyFields[0])
+    def doRenderChart(self):
+        keyFields = self.getKeyFields()
+        keyFieldLabels = self.getKeyFieldLabels()
+        valueFieldValues = self.getValueFieldValueLists()
+        valueFields = self.getValueFields()
+        latLong = self.dataHandler.isNumericField(keyFields[0])
         if self.options.get("mapRegion") is None:
             if keyFields[0].lower() == "state":
                 self.options["mapRegion"] = "US"
@@ -60,7 +71,6 @@ class MapChartDisplay(BaseChartDisplay):
             self.options["mapResolution"] = "provinces"
         else:
             self.options["mapResolution"] = "countries"
-        dialogBody = self.renderTemplate(dialogTemplate, **dialogOptions)
         mapData = "[["
         for i, keyField in enumerate(keyFields):
             if i is not 0:
@@ -82,8 +92,8 @@ class MapChartDisplay(BaseChartDisplay):
         mapData = mapData + "]"
         self.options["mapData"] = mapData.replace("'",'"')
         self._addScriptElement("https://www.gstatic.com/charts/loader.js")
-        self._addScriptElement("https://www.google.com/jsapi", callback=self.renderTemplate("mapChart.js"))
-        self._addHTMLTemplate("mapChart.html", optionsDialogBody=dialogBody)
+        self._addScriptElement("https://www.google.com/jsapi", callback=self.renderTemplate("mapView.js"))
+        return self.renderTemplate("mapView.html")
 
     def _getDefaultKeyFields(self):
         for field in self.entity.schema.fields:

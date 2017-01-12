@@ -14,11 +14,14 @@
 # limitations under the License.
 # -------------------------------------------------------------------------------
 
-from .mpld3ChartDisplay import Mpld3ChartDisplay
-import math
+from pixiedust.display.chart.renderers import PixiedustRenderer
+from .matplotlibBaseDisplay import MatplotlibBaseDisplay
+import matplotlib.pyplot as plt
+import mpld3
 import numpy as np
 
-class PieChartDisplay(Mpld3ChartDisplay):
+@PixiedustRenderer(id="pieChart")
+class PieChartDisplay(MatplotlibBaseDisplay):
 
     def supportsKeyFieldLabels(self, handlerId):
         return False
@@ -40,12 +43,15 @@ class PieChartDisplay(Mpld3ChartDisplay):
     def getDefaultValueFields(self, handlerId, aggregation):
         return self.getDefaultKeyFields(handlerId, aggregation)
 
-    def setChartGrid(self, handlerId, fig, ax, colormap, keyFields, keyFieldValues, keyFieldLabels, valueFields, valueFieldValues):
+    def setChartGrid(self, fig, ax):
         pass
 
-    def doRenderMpld3(self, handlerId, fig, ax, colormap, keyFields, keyFieldValues, keyFieldLabels, valueFields, valueFieldValues):
+    def matplotlibRender(self, fig, ax):
+        valueFields = self.getValueFields()
+        keyFieldValues = self.getKeyFieldValues()
+        keyFieldLabels = self.getKeyFieldLabels()
         numPieCharts = len(valueFields)
-        colors = colormap(np.linspace(0., 1., len(keyFieldValues)))
+        colors = self.colormap(np.linspace(0., 1., len(keyFieldValues)))
         if numPieCharts > 1:
             fig.delaxes(ax)
             if numPieCharts < 3:
@@ -65,9 +71,11 @@ class PieChartDisplay(Mpld3ChartDisplay):
                 ax2.get_xaxis().set_alpha(0)
                 ax2.get_yaxis().set_alpha(0)
         else:
+            valueFieldValues = self.getValueFieldValueLists()
             patches, texts, autotexts = ax.pie(valueFieldValues[0], labels=keyFieldLabels, colors=colors, explode=None, autopct='%1.1f%%')
-            for j, patch in enumerate(patches):
-                self.connectElementInfo(patch, valueFieldValues[0][j])
+            if self.has_mpld3:
+                for j, patch in enumerate(patches):
+                    self.connectElementInfo(patch, valueFieldValues[0][j])
             ax.set_title(valueFields[0], fontsize=18);
             ax.axis("equal")
             # TODO: hide the x and y axis - this is not working

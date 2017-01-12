@@ -20,7 +20,7 @@ from ..display import *
 @PixiedustDisplay()
 class GraphDisplayMeta(DisplayHandlerMeta):
     @addId
-    def getMenuInfo(self,entity):
+    def getMenuInfo(self,entity, dataHandler):
         clazz = entity.__class__.__name__
         if clazz == "GraphFrame":
             #Check that we have a longitude and latitude in the vertices dataframe

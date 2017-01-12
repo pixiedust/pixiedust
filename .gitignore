@@ -102,3 +102,6 @@ scala/.classpath
 
 scala/.project
 !lib/
+
+.vscode/
+tests/metastore_db

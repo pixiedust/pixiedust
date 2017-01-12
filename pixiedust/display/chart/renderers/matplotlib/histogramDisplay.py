@@ -14,11 +14,15 @@
 # limitations under the License.
 # -------------------------------------------------------------------------------
 
-from .mpld3ChartDisplay import Mpld3ChartDisplay
-import math
+from pixiedust.display.chart.renderers import PixiedustRenderer
+from .matplotlibBaseDisplay import MatplotlibBaseDisplay
+import matplotlib.pyplot as plt
+import mpld3
 import numpy as np
-    
-class HistogramDisplay(Mpld3ChartDisplay):
+import math
+
+@PixiedustRenderer(id="histogram")
+class HistogramDisplay(MatplotlibBaseDisplay):
     
     def supportsAggregation(self, handlerId):
         return False
@@ -37,10 +41,13 @@ class HistogramDisplay(Mpld3ChartDisplay):
     def getDefaultKeyFields(self, handlerId, aggregation):
         return []
 
-    def doRenderMpld3(self, handlerId, fig, ax, colormap, keyFields, keyFieldValues, keyFieldLabels, valueFields, valueFieldValues):
+    def matplotlibRender(self, fig, ax):
+        keyFieldValues = self.getKeyFieldValues()
+        valueFields = self.getValueFields()
+        valueFieldValues = self.getValueFieldValueLists()
         # TODO: add support for keys
         numHistograms = max(len(keyFieldValues),1) * len(valueFields)
-        colors = colormap(np.linspace(0., 1., numHistograms))
+        colors = self.colormap(np.linspace(0., 1., numHistograms))
         if numHistograms > 1:
             fig.delaxes(ax)
             if numHistograms < 3:
@@ -49,12 +56,13 @@ class HistogramDisplay(Mpld3ChartDisplay):
                 histogramGridPrefix = str(int(math.ceil(numHistograms//2))) + "2"
             for i, valueField in enumerate(valueFields):
                 ax2 = fig.add_subplot(histogramGridPrefix + str(i+1))
-                n, bins, patches = ax2.hist(valueFieldValues[i], 30, histtype='bar', fc=colors[i], alpha=0.5);
+                n, bins, patches = ax2.hist(valueFieldValues[i], 30, histtype='bar', fc=colors[i], alpha=0.5)
                 for j, patch in enumerate(patches):
                     self.connectElementInfo(patch, n[j])
                 ax2.set_xlabel(valueFields[i], fontsize=18)
         else:
-            n, bins, patches = ax.hist(valueFieldValues[0], 30, histtype='bar', fc=colors[0], alpha=0.5);
-            for j, patch in enumerate(patches):
-                self.connectElementInfo(patch, n[j])
+            n, bins, patches = ax.hist(valueFieldValues[0], 30, histtype='bar', fc=colors[0], alpha=0.5)
+            if self.has_mpld3:
+                for j, patch in enumerate(patches):
+                    self.connectElementInfo(patch, n[j])
             ax.set_xlabel(valueFields[0], fontsize=18)

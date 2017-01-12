@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------------
-# Copyright IBM Corp. 2016
+# Copyright IBM Corp. 2017
 # 
 # Licensed under the Apache License, Version 2.0 (the 'License');
 # you may not use this file except in compliance with the License.
@@ -14,11 +14,14 @@
 # limitations under the License.
 # -------------------------------------------------------------------------------
 
-from .mpld3ChartDisplay import Mpld3ChartDisplay
-import mpld3
+from pixiedust.display.chart.renderers import PixiedustRenderer
+from .seabornBaseDisplay import SeabornBaseDisplay
+import pandas as pd
+import numpy as np
+import seaborn as sns
 
-class ScatterPlotDisplay(Mpld3ChartDisplay):
-    
+@PixiedustRenderer(id="scatterPlot")
+class ScatterPlotDisplay(SeabornBaseDisplay):
 	def supportsAggregation(self, handlerId):
 		return False
 
@@ -28,8 +31,8 @@ class ScatterPlotDisplay(Mpld3ChartDisplay):
 	def supportsKeyFields(self, handlerId):
 		return False
     
-	def canRenderChart(self, handlerId, aggregation, fieldNames):
-		valueFields = self.getValueFields(handlerId, aggregation, fieldNames)
+	def canRenderChart(self):
+		valueFields = self.getValueFields()
 		if len(valueFields) < 2:
 			return (False, "At least two numerical columns required.")
 		else:
@@ -38,12 +41,10 @@ class ScatterPlotDisplay(Mpld3ChartDisplay):
 	def getPreferredDefaultValueFieldCount(self, handlerId):
 		return 2
 
-	def doRenderMpld3(self, handlerId, fig, ax, colormap, keyFields, keyFieldValues, keyFieldLabels, valueFields, valueFieldValues):
-		paths = ax.scatter(valueFieldValues[0],valueFieldValues[1],c=valueFieldValues[1],marker='o',alpha=0.7,s=124,cmap=colormap)
-		labels = []
-		for i in range(len(valueFieldValues[0])):
-			labels.append('({0},{1})'.format(valueFieldValues[0][i],valueFieldValues[1][i]))
-		tooltip = mpld3.plugins.PointLabelTooltip(paths, labels=labels)
-		mpld3.plugins.connect(fig, tooltip)
-		ax.set_xlabel(valueFields[0], size=14)
-		ax.set_ylabel(valueFields[1], size=14)
+	def createFigure(self):
+		valueFields = self.getValueFields()
+		facetGrid = sns.jointplot(x=valueFields[0], y=valueFields[1], data=self.getPandasDataFrame())
+		return facetGrid.fig, facetGrid.fig.axes[0]
+
+	def matplotlibRender(self, fig, ax):
+		pass
