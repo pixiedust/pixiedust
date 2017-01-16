@@ -45,6 +45,12 @@ class MatplotlibBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
     def has_mpld3(self):
         return mpld3Available
 
+    """
+        Subclass can override: return an array of option metadata
+    """
+    def getChartOptions(self):
+        return []
+
     def setChartSize(self, fig, ax):
         params = plt.gcf()
         plSize = params.get_size_inches()
@@ -112,7 +118,7 @@ class MatplotlibBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
             png=pngIO()
             plt.savefig(png)
             try:
-                return """<img src="data:image/png;base64,{0}"  class="pd_save">""".format(
+                return """<img width='100%' src="data:image/png;base64,{0}"  class="pd_save">""".format(
                     base64.b64encode(png.getvalue()).decode("ascii")
                 )
             finally:
