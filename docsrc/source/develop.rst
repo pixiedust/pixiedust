@@ -16,3 +16,4 @@ Read how to install and get started with our detailed development guide:
    contribute
    writeviz
    renderer
+   test
