@@ -270,7 +270,10 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
         try:
             self.dialogBody = self.renderTemplate(dialogTemplate, **dialogOptions)
             chartFigure = self.doRenderChart()
-            self._addHTMLTemplate("renderer.html", chartFigure=chartFigure, optionsDialogBody=self.dialogBody)
+            if self.options.get("nostore_figureOnly", None):
+                self._addHTML(chartFigure)
+            else:
+                self._addHTMLTemplate("renderer.html", chartFigure=chartFigure, optionsDialogBody=self.dialogBody)
         except Exception as e:
             myLogger.exception("Unexpected error while trying to render BaseChartDisplay")
             self.dialogBody = self.getChartErrorDialogBody(handlerId, dialogTemplate, dialogOptions)

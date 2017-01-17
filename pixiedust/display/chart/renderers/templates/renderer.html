@@ -1,4 +1,34 @@
+{%import "executePythonDisplayMacro.js" as display with context%}
 {%include resModule + ":chartHeader.html"%}
-<div class="pd_save">
-{{chartFigure}}
+<div class="row">
+    <div class="form-group col-sm-10" style="padding-right:10px;">
+        <div id="chartFigure{{prefix}}" class="pd_save">
+            {{chartFigure}}
+        </div>
+    </div>
+    <div class="form-group col-sm-2">
+        {%for option in this.getChartOptions() %}
+            {% if option.metadata.type == 'dropdown' %}
+                <label class="field">{{option.name}}:</label>
+                <select class="form-control" id="optionselect{{option.name}}{{prefix}}" name="{{option.name}}" style="margin-left: 0px;">
+                    {% for value in option.metadata['values'] %}
+                        <option value="{{value}}" {{'selected' if value==this.options.get("kind",None) or value==option.metadata.default else ''}}>{{value}}</option>
+                    {% endfor %}
+                </select>
+            {%endif%}
+        {%endfor%}
+    </div>
 </div>
+
+<script>
+$("[id^=optionselect][id$={{prefix}}]").change(function(){
+    var thisOption = $(this).attr('name');
+    var thisValue = $(this).val();
+    {% call display.executeDisplay( useCellMetadata=True, divId="chartFigure" + prefix ) %}
+        var o = {};
+        o[thisOption] = thisValue;
+        o["nostore_figureOnly"] = "true";
+        addOptions(o);
+    {% endcall %}    
+});
+</script>

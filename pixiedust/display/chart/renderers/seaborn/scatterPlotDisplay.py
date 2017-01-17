@@ -43,8 +43,19 @@ class ScatterPlotDisplay(SeabornBaseDisplay):
 
 	def createFigure(self):
 		valueFields = self.getValueFields()
-		facetGrid = sns.jointplot(x=valueFields[0], y=valueFields[1], data=self.getPandasDataFrame())
+		facetGrid = sns.jointplot(x=valueFields[0], y=valueFields[1], kind=self.options.get("kind","scatter"), data=self.getPandasDataFrame())
 		return facetGrid.fig, facetGrid.fig.axes[0]
 
 	def matplotlibRender(self, fig, ax):
 		pass
+
+	def getChartOptions(self):
+		return [
+			{ 'name': 'kind',
+			  'metadata': {
+					'type': "dropdown",
+					'values': ["scatter", "reg", "resid", "kde", "hex"],
+					'default': "scatter"
+				}
+			}
+		]
