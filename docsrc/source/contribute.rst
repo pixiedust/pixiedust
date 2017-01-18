@@ -44,23 +44,49 @@ Where we need help
 
 Here are the visualizations and renderers we have so far: 
 
- ::
 
-+------------+------------+-----------+------------+--------------+------+
-|            | Bar Chart  | Pie Chart | Line Graph | Scatter Plot | Map  |
-+============+============+===========+============+==============+======+
-| matplotlib |     x      |     x     |     x      |      x       |      |
-+------------+------------+-----------+------------+--------------+------+
-| other      |            |           |            |              |      |
-+------------+------------+-----------+------------+--------------+------+
-| other      |            |           |            |              |      |
-+------------+------------+-----------+------------+--------------+------+
-| other      |            |           |            |              |      |
-+------------+------------+-----------+------------+--------------+------+
+.. raw:: html
 
-Choose a project, pitch in, and help us complete every component. 
+    <html>
+    <table width="100%">
+    <tr>
+    <td style="border-bottom: 1px solid gray;">&nbsp;</td>
+    <td style="border-bottom: 1px solid gray;"><strong>Bar Chart</strong></td>
+    <td style="border-bottom: 1px solid gray;"><strong>Pie Chart</strong></td>
+    <td style="border-bottom: 1px solid gray;"><strong>Line Graph</strong></td>
+    <td style="border-bottom: 1px solid gray;"><strong>Scatter Plot</strong></td>
+    <td style="border-bottom: 1px solid gray;"><strong>Map</strong></td>
+    </tr>
+ <tr>
+    <td>matplotlib</td>
+    <td><img src="_images/chmk.png"></td>
+    <td><img src="_images/chmk.png"></td>
+    <td><img src="_images/chmk.png"></td>
+    <td><img src="_images/chmk.png"></td>
+    <td><img src="_images/chmk.png"></td>
+   
+    </tr>
+    <tr>
+    <td>other</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    </tr>
+
+    <table>
+    </html>
+
+
+    Choose a project, pitch in, and help us complete every component here. Or come up with your own enhancement. Let us know. We'd love to see your work.
 
 
 
+
+
+
+ 
 
 

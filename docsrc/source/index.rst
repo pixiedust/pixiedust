@@ -11,16 +11,25 @@ Welcome to PixieDust
 
 There are 2 ways to dive into PixieDust:
 
-1. :doc:`/use`
---------------
 
-Start by trying PixieDust online in a Python notebook. Or, install and work locally if you prefer. 
- 
+.. raw:: html
 
-2. :doc:`/develop`
----------------------  
-
-Create your own visualizations or apps using the pixiedust extensibility APIs. If you know HTML and CSS, you can write and deliver amazing graphics and make them available to notebook users. 
+    <html>
+    <div style="width: 100%; display: table;">
+      <div style="padding:20px; display: table-row">
+    <div style="background-color:powderblue;color:darkblue;padding:20px; width: 300px; display: table-cell;">
+    <h2><a href="use.html">Use</a></h2>
+    <p>Start by trying PixieDust online in a Python notebook. Or, install and work locally if you prefer. </p>
+    </div>
+    <div style="background-color:white; width: 5px; display: table-cell;">&nbsp;
+    </div>
+    <div style="background-color:powderblue;color:darkblue;padding:20px; display: table-cell;">
+    <h2><a href="develop.html">Develop</a></h2>
+    <p>Create your own visualizations or apps using the pixiedust extensibility APIs. If you know HTML and CSS, you can write and deliver amazing graphics and make them available to notebook users. </p>
+    </div>
+    </div>
+    </div>
+    </html>
 
 
 Get Started
