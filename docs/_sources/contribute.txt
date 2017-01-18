@@ -42,7 +42,6 @@ Here are the visualizations and renderers we have so far:
 
 .. raw:: html
 
-    <html>
     <table width="100%">
     <tr>
     <td style="border-bottom: 1px solid gray;">&nbsp;</td>
@@ -72,7 +71,6 @@ Here are the visualizations and renderers we have so far:
     </tr>
 
     <table>
-    </html>
 
 
 

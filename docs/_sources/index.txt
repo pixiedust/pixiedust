@@ -14,7 +14,6 @@ There are 2 ways to dive into PixieDust:
 
 .. raw:: html
 
-    <html>
     <div class='main-panel'>
     <h2><a href="use.html">Use</a></h2>
     <p>&nbsp;</p>
@@ -33,8 +32,7 @@ There are 2 ways to dive into PixieDust:
    
     </div>
 
-    <div style="clear: both"/>
-    </html>
+
     
 
 Get Started
