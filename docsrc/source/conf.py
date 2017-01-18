@@ -111,6 +111,10 @@ todo_include_todos = False
 html_theme_path = [better_theme_path]
 html_theme = 'better'
 
+def setup(app):
+  app.add_stylesheet( "custom.css" )
+
+
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.

@@ -15,22 +15,27 @@ There are 2 ways to dive into PixieDust:
 .. raw:: html
 
     <html>
-    <div style="width: 100%; display: table;">
-      <div style="padding:20px; display: table-row">
-    <div style="background-color:#e6eeff;color:darkblue;padding:20px; width: 300px; display: table-cell;">
+    <div class='main-panel'>
     <h2><a href="use.html">Use</a></h2>
-    <p>Start by trying PixieDust online in a Python notebook. Or, install and work locally if you prefer. </p>
+    <p>&nbsp;</p>
+    <p>Start by trying PixieDust online in a Python notebook. Or, install and work locally if you prefer. <br></p>
+    <a class='default-link' href='javascript:void(0)' onclick='window.location = "use.html"'>
+    </a>
+    
     </div>
-    <div style="background-color:white; width: 5px; display: table-cell;">&nbsp;
-    </div>
-    <div style="background-color:#e6eeff;color:darkblue;padding:20px; display: table-cell;">
+
+    <div class='main-panel'>
     <h2><a href="develop.html">Develop</a></h2>
     <p>Create your own visualizations or apps using the pixiedust extensibility APIs. If you know HTML and CSS, you can write and deliver amazing graphics and make them available to notebook users. </p>
+    <a href='javascript:void(0)' onclick='window.location = "develop.html"'>
+        <span class='default-link'></span>
+    </a>
+   
     </div>
-    </div>
-    </div>
-    </html>
 
+    <div style="clear: both"/>
+    </html>
+    
 
 Get Started
 -----------
@@ -41,6 +46,11 @@ Get Started
 
    use
    develop
+
+
+
+
+
 
 
 

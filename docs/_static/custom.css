@@ -1,0 +1,58 @@
+
+
+/* main styles */
+
+.hatnote
+{
+    border-color: #c8c8c8 ;
+    border-style: solid ;
+    border-width: 1px ;
+    font-size: x-small ;
+    font-style: italic ;
+    margin-left: auto ;
+    margin-right: auto ;
+    padding: 3px 2em ;
+}
+.hatnote-gray { background-color: #e8e8e8 ; color: #000000 ; }
+.hatnote-yellow { background-color: #ffffe8 ; color: #000000 ; }
+.hatnote-red { background-color: #ffe8e8 ; color: #000000 ; }
+.hatnote-icon { height: 16px ; width: 16px ; }
+
+.main-panel{
+    /* only required rule to make this work */
+    position: relative;
+    
+    /* just my formatting rules */
+    width: 300px;
+    min-height: 150px;
+    background-color: #e6eeff;
+    color: #0000A0;
+    padding: 20px;
+    float: left;
+    margin-right: 10px;
+}
+
+.main-panel:hover{
+    background-color: #ccdcff;
+}
+
+.default-link{
+  /* all rules required to make the whole div clickable */ 
+  position:absolute; 
+  width:100%;
+  height:100%;
+  top:0;
+  left: 0;
+  z-index: 1;
+  /* this is a fix for IE7-9 */
+  background-color:#ffffff;
+  -ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";  
+  filter: alpha(opacity=0);  
+  opacity:0;  
+}
+
+.independent-link{
+    /* all rules required to make other links to work */ 
+    position: relative;
+    z-index: 100;
+}
