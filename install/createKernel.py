@@ -15,18 +15,30 @@
 # Inherited from maven-artifact https://github.com/hamnis/maven-artifact
 # -------------------------------------------------------------------------------
 import os
-from traitlets.config.application import Application
-from jupyter_client.kernelspec import NoSuchKernel
+import requests
+import shutil
+import sys
+import tarfile
+import tempfile
 from ipykernel.kernelspec import KernelSpecManager, write_kernel_spec
+from jupyter_client.kernelspec import NoSuchKernel
 from jupyter_client.manager import KernelManager
 from jupyter_client.kernelspecapp  import InstallKernelSpec
 from six.moves import input
-import shutil
+from traitlets.config.application import Application
+
 
 class PixiedustInstall(InstallKernelSpec):
     def __init__(self, **kwargs):
         super(PixiedustInstall, self).__init__(**kwargs)
-        self.step = 1
+        self.pixiedust_home = None
+        self.spark_home = None
+        self.spark_download_versions = ['1.6.3', '2.0.2', '2.1.0']
+        self.spark_download_urls = [
+            'http://d3kbcqa49mib13.cloudfront.net/spark-1.6.3-bin-hadoop2.7.tgz',
+            'http://d3kbcqa49mib13.cloudfront.net/spark-2.0.2-bin-hadoop2.7.tgz',
+            'http://d3kbcqa49mib13.cloudfront.net/spark-2.1.0-bin-hadoop2.7.tgz'
+        ]
 
     def parse_command_line(self, argv):
         super(InstallKernelSpec, self).parse_command_line(argv)
@@ -36,7 +48,7 @@ class PixiedustInstall(InstallKernelSpec):
             "Step 1: PIXIEDUST_HOME: {0}".format(self.pixiedust_home)
         )
 
-        if ( answer != 'y'):
+        if answer != 'y':
             self.pixiedust_home = input(self.hilite("Please enter a PIXIEDUST_HOME location: "))
             if not os.path.exists(self.pixiedust_home):
                 create = self.confirm("Directory {0} does not exist".format(self.pixiedust_home), "Create")
@@ -45,20 +57,66 @@ class PixiedustInstall(InstallKernelSpec):
                 else:
                     os.makedirs(self.pixiedust_home)
 
-        self.spark_home = os.environ.get("SPARK_HOME", None) 
-        if self.spark_home:
-            answer = self.confirm(
-                "Step 2: SPARK_HOME: {0}".format(self.spark_home)
-            )
-            if answer != 'y':
-                self.spark_home = None
+        download_spark = False
+        while True:
+            self.spark_home = os.environ.get("SPARK_HOME", None)
+            if self.spark_home:
+                answer = self.confirm(
+                    "Step 2: SPARK_HOME: {0}".format(self.spark_home)
+                )
+                if answer != 'y':
+                    self.spark_home = input(self.hilite("Step 2: Please enter a SPARK_HOME location: "))
+            else:
+                self.spark_home = input(self.hilite("Step 2: Please enter a SPARK_HOME location: "))
+            if not os.path.exists(self.spark_home):
+                print("{0} does not exist".format(self.spark_home))
+                continue
+            elif not os.path.exists('{}{}bin{}pyspark'.format(self.spark_home, os.sep, os.sep)):
+                download = self.confirm("Directory {0} does not contain a valid SPARK install".format(self.spark_home), "Download Spark")
+                if download == 'y':
+                    download_spark = True
+                    break
+            else:
+                break
 
-        if self.spark_home is None:
-            self.spark_home = input(self.hilite("Step 2: Please enter a SPARK_HOME location: "))
-        
-        if not os.path.exists(self.spark_home):
-            print("{0} does not exist".format(self.spark_home))
-            self.exit(1)
+        if download_spark:
+            while True:
+                spark_download_versions_str = ', '.join(self.spark_download_versions) + ' [{}]'.format(self.spark_download_versions[len(self.spark_download_versions)-1])
+                spark_version = input(self.hilite("What version would you like to download? {}: ".format(spark_download_versions_str)))
+                if len(spark_version.strip()) == 0:
+                    spark_version = self.spark_download_versions[len(self.spark_download_versions)-1]
+                elif spark_version not in self.spark_download_versions:
+                    print("{0} is not a valid version".format(self.spark_home))
+                    continue
+                spark_download_url = self.spark_download_urls[len(self.spark_download_versions)-1]
+                spark_download_file = spark_download_url[spark_download_url.rfind('/')+1:spark_download_url.rfind('.')]
+                f = tempfile.NamedTemporaryFile(suffix=spark_download_url[spark_download_url.rfind('.'):])
+                print("SPARK_HOME will be set to {}/{}".format(self.spark_home, spark_download_file))
+                print("Downloading Spark {}".format(spark_version))
+                r = requests.get(spark_download_url, stream=True)
+                total_bytes = int(r.headers["content-length"])
+                bytes_read = 0
+                for chunk in r.iter_content(chunk_size=1048576):
+                    f.write(chunk)
+                    f.flush()
+                    bytes_read += len(chunk)
+                    print("{} %".format(int(((bytes_read*1.0)/total_bytes)*100)))
+                    sys.stdout.write("\033[F")
+                    sys.stdout.flush()
+                print("Extracting Spark {} to {}".format(spark_version, self.spark_home))
+                tar = tarfile.open(f.name, "r:gz")
+                for i, member in enumerate(tar.getmembers()):
+                    tar.extract(member, self.spark_home)
+                    print("{} %".format(int(((i*1.0)/len(tar.getmembers()))*100)))
+                    sys.stdout.write("\033[F")
+                    sys.stdout.flush()
+                print("     ")
+                sys.stdout.write("\033[F")
+                sys.stdout.flush()
+                tar.close()
+                f.close()
+                os.environ["SPARK_HOME"] = self.spark_home
+                break
 
         self.scala_home = os.environ.get("SCALA_HOME", None)
         if self.scala_home:
