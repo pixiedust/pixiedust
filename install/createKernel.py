@@ -15,8 +15,10 @@
 # Inherited from maven-artifact https://github.com/hamnis/maven-artifact
 # -------------------------------------------------------------------------------
 import os
+import re
 import requests
 import shutil
+import subprocess
 import sys
 import tarfile
 import tempfile
@@ -34,11 +36,16 @@ class PixiedustInstall(InstallKernelSpec):
         self.pixiedust_home = None
         self.spark_home = None
         self.spark_download_versions = ['1.6.3', '2.0.2', '2.1.0']
-        self.spark_download_urls = [
-            'http://d3kbcqa49mib13.cloudfront.net/spark-1.6.3-bin-hadoop2.7.tgz',
-            'http://d3kbcqa49mib13.cloudfront.net/spark-2.0.2-bin-hadoop2.7.tgz',
-            'http://d3kbcqa49mib13.cloudfront.net/spark-2.1.0-bin-hadoop2.7.tgz'
-        ]
+        self.spark_download_urls = {
+            '1.6.3': 'http://d3kbcqa49mib13.cloudfront.net/spark-1.6.3-bin-hadoop2.7.tgz',
+            '2.0.2': 'http://d3kbcqa49mib13.cloudfront.net/spark-2.0.2-bin-hadoop2.7.tgz',
+            '2.1.0': 'http://d3kbcqa49mib13.cloudfront.net/spark-2.1.0-bin-hadoop2.7.tgz'
+        }
+        self.scala_home = None
+        self.scala_download_urls = {
+            '2.10': 'http://downloads.lightbend.com/scala/2.10.6/scala-2.10.6.tgz',
+            '2.11': 'http://downloads.lightbend.com/scala/2.11.8/scala-2.11.8.tgz'
+        }
 
     def parse_command_line(self, argv):
         super(InstallKernelSpec, self).parse_command_line(argv)
@@ -68,6 +75,8 @@ class PixiedustInstall(InstallKernelSpec):
                     self.spark_home = input(self.hilite("Step 2: Please enter a SPARK_HOME location: "))
             else:
                 self.spark_home = input(self.hilite("Step 2: Please enter a SPARK_HOME location: "))
+            while self.spark_home.rfind(os.sep) == len(self.spark_home) - 1:
+                self.spark_home = self.spark_home[0:len(self.spark_home)-1]
             if not os.path.exists(self.spark_home):
                 print("{0} does not exist".format(self.spark_home))
                 continue
@@ -80,58 +89,55 @@ class PixiedustInstall(InstallKernelSpec):
                 break
 
         if download_spark:
-            while True:
-                spark_download_versions_str = ', '.join(self.spark_download_versions) + ' [{}]'.format(self.spark_download_versions[len(self.spark_download_versions)-1])
-                spark_version = input(self.hilite("What version would you like to download? {}: ".format(spark_download_versions_str)))
-                if len(spark_version.strip()) == 0:
-                    spark_version = self.spark_download_versions[len(self.spark_download_versions)-1]
-                elif spark_version not in self.spark_download_versions:
-                    print("{0} is not a valid version".format(self.spark_home))
-                    continue
-                spark_download_url = self.spark_download_urls[len(self.spark_download_versions)-1]
-                spark_download_file = spark_download_url[spark_download_url.rfind('/')+1:spark_download_url.rfind('.')]
-                f = tempfile.NamedTemporaryFile(suffix=spark_download_url[spark_download_url.rfind('.'):])
-                print("SPARK_HOME will be set to {}/{}".format(self.spark_home, spark_download_file))
-                print("Downloading Spark {}".format(spark_version))
-                r = requests.get(spark_download_url, stream=True)
-                total_bytes = int(r.headers["content-length"])
-                bytes_read = 0
-                for chunk in r.iter_content(chunk_size=1048576):
-                    f.write(chunk)
-                    f.flush()
-                    bytes_read += len(chunk)
-                    print("{} %".format(int(((bytes_read*1.0)/total_bytes)*100)))
-                    sys.stdout.write("\033[F")
-                    sys.stdout.flush()
-                print("Extracting Spark {} to {}".format(spark_version, self.spark_home))
-                tar = tarfile.open(f.name, "r:gz")
-                for i, member in enumerate(tar.getmembers()):
-                    tar.extract(member, self.spark_home)
-                    print("{} %".format(int(((i*1.0)/len(tar.getmembers()))*100)))
-                    sys.stdout.write("\033[F")
-                    sys.stdout.flush()
-                print("     ")
-                sys.stdout.write("\033[F")
-                sys.stdout.flush()
-                tar.close()
-                f.close()
-                os.environ["SPARK_HOME"] = self.spark_home
-                break
+            self.download_spark()
 
-        self.scala_home = os.environ.get("SCALA_HOME", None)
-        if self.scala_home:
-            answer = self.confirm(
-                "Step 3: SCALA_HOME: {0}".format(self.scala_home)
-            )
-            if answer != 'y':
-                self.scala_home = None
-
-        if self.scala_home is None:
-            self.scala_home = input(self.hilite("Step 3: Please enter a SCALA_HOME location: "))
-
-        if not os.path.exists(self.scala_home):
-            print("{0} does not exist".format(self.scala_home))
+        scala_version = None
+        spark_version = self.get_spark_version()
+        if spark_version is None:
+            print("Unable to obtain Spark version")
             self.exit(1)
+        elif spark_version[0] == 1:
+            scala_version = '2.10'  # Spark 1.x = Scala 2.10
+        elif spark_version[0] == 2:
+            scala_version = '2.11'  # Spark 2.x = Scala 2.11
+        else:
+            print("Invalid Spark version {}".format(spark_version))
+            self.exit(1)
+
+        download_scala = False
+        while True:
+            self.scala_home = os.environ.get("SCALA_HOME", None)
+            if self.scala_home:
+                answer = self.confirm(
+                    "Step 3: SCALA_HOME: {0}".format(self.scala_home)
+                )
+                if answer != 'y':
+                    self.scala_home = input(self.hilite("Step 3: Please enter a SCALA_HOME location: "))
+            else:
+                self.scala_home = input(self.hilite("Step 3: Please enter a SCALA_HOME location: "))
+            while self.scala_home.rfind(os.sep) == len(self.scala_home) - 1:
+                self.scala_home = self.scala_home[0:len(self.scala_home)-1]
+            if not os.path.exists(self.scala_home):
+                print("{0} does not exist".format(self.scala_home))
+                continue
+            elif not os.path.exists('{}{}bin{}scala'.format(self.scala_home, os.sep, os.sep)):
+                download = self.confirm(
+                    "Directory {0} does not contain a valid SCALA install".format(self.scala_home),
+                    "Download Scala"
+                )
+                if download == 'y':
+                    download_scala = True
+                    break
+            else:
+                installed_scala_version = self.get_scala_version()
+                if not installed_scala_version or installed_scala_version.join('.') != scala_version:
+                    print("Invalid Scala version {0}".format(installed_scala_version))
+                    continue
+                else:
+                    break
+
+        if download_scala:
+            self.download_scala(scala_version)
 
         self.kernelName = "Python with Pixiedust"
         answer = self.confirm(
@@ -153,6 +159,99 @@ class PixiedustInstall(InstallKernelSpec):
 
         dest = self.createKernelSpec()
         print("Kernel {0} successfully created in {1}".format(self.kernelName, dest))
+
+    def get_spark_version(self):
+        pyspark = "{}{}bin{}pyspark".format(self.spark_home, os.sep, os.sep)
+        pyspark_out = subprocess.check_output([pyspark, "--version"], stderr=subprocess.STDOUT)
+        match = re.search('.*version[^0-9]*([0-9]*[^.])\.([0-9]*[^.]).*', pyspark_out)
+        if match and match.groups > 2:
+            return int(match.group(1)), int(match.group(2))
+        else:
+            return None
+
+    def download_spark(self):
+        while True:
+            spark_default_version = self.spark_download_versions[len(self.spark_download_versions)-1]
+            spark_download_versions_str = ', '.join(self.spark_download_versions) + ' [{}]'.format(spark_default_version)
+            spark_version = input(
+                self.hilite("What version would you like to download? {}: ".format(spark_download_versions_str))
+            )
+            if len(spark_version.strip()) == 0:
+                spark_version = self.spark_download_versions[len(self.spark_download_versions)-1]
+            elif spark_version not in self.spark_download_versions:
+                print("{0} is not a valid version".format(self.spark_home))
+                continue
+            spark_download_url = self.spark_download_urls[spark_version]
+            spark_download_file = spark_download_url[spark_download_url.rfind('/')+1:spark_download_url.rfind('.')]
+            print("SPARK_HOME will be set to {}{}{}".format(self.spark_home, os.sep, spark_download_file))
+            print("Downloading Spark {}".format(spark_version))
+            temp_file = self.download_file(spark_download_url)
+            print("Extracting Spark {} to {}".format(spark_version, self.spark_home))
+            self.extract_temp_file(temp_file, self.spark_home)
+            self.delete_temp_file(temp_file)
+            self.spark_home = "{}{}{}".format(self.spark_home, os.sep, spark_download_file)
+            os.environ["SPARK_HOME"] = self.spark_home
+            break
+
+    def get_scala_version(self):
+        scala = "{}{}bin{}scala".format(self.scala_home, os.sep, os.sep)
+        scala_out = subprocess.check_output([scala, "-version"], stderr=subprocess.STDOUT)
+        match = re.search('.*version[^0-9]*([0-9]*[^.])\.([0-9]*[^.]).*', scala_out)
+        if match and match.groups > 2:
+            return int(match.group(1)), int(match.group(2))
+        else:
+            return None
+
+    def download_scala(self, scala_version):
+        while True:
+            scala_download_url = self.scala_download_urls[scala_version]
+            scala_download_file = scala_download_url[scala_download_url.rfind('/')+1:scala_download_url.rfind('.')]
+            print("SCALA_HOME will be set to {}/{}".format(self.scala_home, scala_download_file))
+            print("Downloading Scala {}".format(scala_version))
+            temp_file = self.download_file(scala_download_url)
+            print("Extracting Scala {} to {}".format(scala_version, self.scala_home))
+            self.extract_temp_file(temp_file, self.scala_home)
+            self.delete_temp_file(temp_file)
+            self.scala_home = "{}{}{}".format(self.scala_home, os.sep, scala_download_file)
+            os.environ["SCALA_HOME"] = self.scala_home
+            break
+
+    @staticmethod
+    def download_file(url, suffix=None):
+        if suffix is None:
+            suffix = url[url.rfind('.'):]
+        temp_file = tempfile.NamedTemporaryFile(suffix=suffix)
+        response = requests.get(url, stream=True)
+        total_bytes = int(response.headers["content-length"])
+        bytes_read = 0
+        for chunk in response.iter_content(chunk_size=1048576):
+            temp_file.write(chunk)
+            temp_file.flush()
+            bytes_read += len(chunk)
+            print("{} %".format(int(((bytes_read*1.0)/total_bytes)*100)))
+            sys.stdout.write("\033[F")
+            sys.stdout.flush()
+        print("     ")
+        sys.stdout.write("\033[F")
+        sys.stdout.flush()
+        return temp_file
+
+    @staticmethod
+    def delete_temp_file(temp_file):
+        temp_file.close()
+
+    @staticmethod
+    def extract_temp_file(temp_file, path):
+        tar = tarfile.open(temp_file.name, "r:gz")
+        for i, member in enumerate(tar.getmembers()):
+            tar.extract(member, path)
+            print("{} %".format(int(((i*1.0)/len(tar.getmembers()))*100)))
+            sys.stdout.write("\033[F")
+            sys.stdout.flush()
+        print("     ")
+        sys.stdout.write("\033[F")
+        sys.stdout.flush()
+        tar.close()
 
     def createKernelSpec(self):
         try:
