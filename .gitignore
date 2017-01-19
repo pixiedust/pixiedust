@@ -107,3 +107,5 @@ scala/.project
 tests/metastore_db
 
 **/.DS_Store
+
+scala/.settings

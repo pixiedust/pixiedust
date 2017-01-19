@@ -23,7 +23,7 @@ myLogger = pixiedust.getLogger(__name__ )
 
 #bootstrap all the renderers
 #renderers = ["matplotlib", "bokeh", "altair", "google", "seaborn"]
-renderers = ["matplotlib", "seaborn"]
+renderers = ["matplotlib", "seaborn", "google"]
 for renderer in renderers:
     try:
         __import__("pixiedust.display.chart.renderers." + renderer)
@@ -47,35 +47,3 @@ class ChartDisplayMeta(DisplayHandlerMeta):
 
     def newDisplayHandler(self, options, entity):
         return PixiedustRenderer.getRenderer(options, entity)
-
-"""@PixiedustDisplayMeta()
-class ChartDisplayMeta(DisplayHandlerMeta):
-    @addId
-    def getMenuInfo(self, entity, dataHandler):
-        if dataFrameMisc.isPySparkDataFrame(entity) or dataFrameMisc.isPandasDataFrame(entity):
-            return [
-                {"categoryId": "Chart", "title": "Bar Chart", "icon": "fa-bar-chart", "id": "barChart"},
-                {"categoryId": "Chart", "title": "Line Chart", "icon": "fa-line-chart", "id": "lineChart"},
-                {"categoryId": "Chart", "title": "Scatter Plot", "icon": "fa-circle", "id": "scatterPlot"},
-                {"categoryId": "Chart", "title": "Pie Chart", "icon": "fa-pie-chart", "id": "pieChart"},
-                {"categoryId": "Chart", "title": "Map", "icon": "fa-globe", "id": "mapChart"},
-                {"categoryId": "Chart", "title": "Histogram", "icon": "fa-table", "id": "histogram"}
-            ]
-        else:
-            return []
-    def newDisplayHandler(self,options,entity):
-        handlerId=options.get("handlerId")
-        entity=createDataframeAdapter(entity)
-        if handlerId is None or handlerId=="barChart":
-            return BarChartDisplay(options,entity)
-        elif handlerId=="lineChart":
-            return LineChartDisplay(options,entity)
-        elif handlerId=="scatterPlot":
-            return ScatterPlotDisplay(options,entity)
-        elif handlerId=="pieChart":
-            return PieChartDisplay(options,entity)
-        elif handlerId=="mapChart":
-            return MapChartDisplay(options,entity)
-        elif handlerId=="histogram":
-            return HistogramDisplay(options,entity)
-"""
