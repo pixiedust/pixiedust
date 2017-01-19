@@ -10,7 +10,7 @@ object PixiedustScalaRun {
     var sqlContext:SQLContext = null;
 
     {%for var,value in variables | iteritems %}
-    @scala.reflect.BeanProperty
+    {%if scalaVersion[1] >= 11%}@scala.beans.BeanProperty{%else%}@scala.reflect.BeanProperty{%endif%}
     var {{var}}:{{value["type"]}} = {{value["codeValue"] or "null"}};
     {%endfor%}
 

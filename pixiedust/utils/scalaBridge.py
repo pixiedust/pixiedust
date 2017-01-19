@@ -135,16 +135,11 @@ class PixiedustScalaMagics(Magics):
             print("Error Cannot run scala code: SCALA_HOME environment variable not set")
             return
 
-        scalaTemplate = "scalaCell.template"
-        scalaVersion = self.get_scala_version()
-        if scalaVersion and len(scalaVersion) > 1 and scalaVersion[1] >= 11:
-            scalaTemplate = "scalaCell-211.template"
-        
         #generate the code
         clSlot = self.getLineOption(line, "cl")
         clExt = "." + clSlot if clSlot is not None else ""
-        scalaCode = self.env.getTemplate(scalaTemplate).render(
-            cell=cell, variables=self.interactiveVariables.getVarsDict(), returnVars=self.getReturnVars(cell), cl=clExt
+        scalaCode = self.env.getTemplate("scalaCell.template").render(
+            cell=cell, variables=self.interactiveVariables.getVarsDict(), returnVars=self.getReturnVars(cell), cl=clExt, scalaVersion=self.get_scala_version()
         )
         if self.hasLineOption(line, "debug"):
             print(scalaCode)
