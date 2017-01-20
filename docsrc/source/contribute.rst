@@ -39,10 +39,11 @@ Where we need help
 
 Here are the visualizations and renderers we have so far: 
 
+.. container:: 
 
 .. raw:: html
 
-    <table width="100%">
+    <table width="96%">
     <tr>
     <td style="border-bottom: 1px solid gray;">&nbsp;</td>
     <td style="border-bottom: 1px solid gray;"><strong>Bar Chart</strong></td>
@@ -69,9 +70,7 @@ Here are the visualizations and renderers we have so far:
     <td>&nbsp;</td>
     <td>&nbsp;</td>
     </tr>
-
-    <table>
-
+    </table>
 
 
 Choose a project, pitch in, and help us complete every component here. Or come up with your own enhancement. Let us know. We'd love to see your work.
