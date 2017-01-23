@@ -15,6 +15,7 @@
 import sys
 import os
 from better import better_theme_path
+import sphinxmark
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
@@ -29,7 +30,11 @@ from better import better_theme_path
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = []
+extensions = [
+   'sphinx.ext.autodoc',
+   'sphinx.ext.doctest',
+   'sphinxmark',
+]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['.templates']
@@ -294,6 +299,11 @@ texinfo_documents = [
 # If true, do not generate a @detailmenu in the "Top" node's menu.
 #texinfo_no_detailmenu = False
 
+watermark_enable = True
+watermark_image = 'default'
+watermark_debug = False
+
 html_sidebars = { '**': ['globaltoc.html', 'searchbox.html'], }
+
 
 
