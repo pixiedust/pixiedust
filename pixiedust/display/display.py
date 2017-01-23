@@ -342,6 +342,10 @@ class CellHandshakeMeta(DisplayHandlerMeta):
         return CellHandshake(options,entity)
         
 class CellHandshake(Display):
+    snifferCallbacks = []
+    @staticmethod
+    def addCallbackSniffer(sniffer):
+        CellHandshake.snifferCallbacks.append(sniffer)
     def render(self):
         ipythonDisplay(HTML(
             self.renderTemplate("handshake.html")

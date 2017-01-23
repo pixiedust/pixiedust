@@ -17,31 +17,17 @@
 from pixiedust.display.chart.renderers import PixiedustRenderer
 from .bokehBaseDisplay import BokehBaseDisplay
 import pixiedust
-from bokeh.charts import Bar
+from bokeh.charts import Line
 
 myLogger = pixiedust.getLogger(__name__)
 
-@PixiedustRenderer(id="barChart")
-class BarChartRenderer(BokehBaseDisplay):
-    def getChartContext(self, handlerId):
-        return ('barChartOptionsDialogBody.html', {})
+@PixiedustRenderer(id="lineChart")
+class LineChartRenderer(BokehBaseDisplay):
 
     def createBokehChart(self):
-        pandaList = self.getPandasValueFieldValueLists()
-        data = pandaList[0] if len(pandaList) >= 1 else []
-
-        stacked = self.options.get("stacked", "true") == "true"
-        group = None
-        stack = None
-        if len(self.getKeyFields())>1:
-            if stacked:
-                stack = self.getKeyFields()
-            else:
-                group = self.getKeyFields()
-        
+        data = self.cleanList(self.getValueFieldValueLists())
         agg=(self.getAggregation() or "count").lower()
         if agg == 'avg':
             agg = 'mean'
 
-        return Bar(data, values='agg', agg=agg, label=self.getKeyFields()[0], group=group, stack=stack, legend=None, 
-            color=self.getKeyFields()[1], plot_width=800)
+        return Line(data, xlabel="/".join(self.getKeyFields()), legend=None, plot_width=800)

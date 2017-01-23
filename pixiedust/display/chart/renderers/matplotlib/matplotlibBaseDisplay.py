@@ -45,12 +45,6 @@ class MatplotlibBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
     def has_mpld3(self):
         return mpld3Available
 
-    """
-        Subclass can override: return an array of option metadata
-    """
-    def getChartOptions(self):
-        return []
-
     def setChartSize(self, fig, ax):
         params = plt.gcf()
         plSize = params.get_size_inches()

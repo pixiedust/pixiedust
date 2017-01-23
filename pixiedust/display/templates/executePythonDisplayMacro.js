@@ -128,7 +128,7 @@ function() {
                 }
                 return "'" + v + "'";
             }
-            for (var key in options){
+            for (var key in (options||{})){
                 var value = options[key];
                 var hasValue = value != null && typeof value !== 'undefined' && value !== '';
                 var replaceValue = hasValue ? (key+"=" + getStringRep(value) ) : "";
