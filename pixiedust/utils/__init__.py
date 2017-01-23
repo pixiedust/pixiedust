@@ -51,3 +51,19 @@ if os.path.isfile(jarFilePath):
 
 if copyFile:
     installPixiedustJar()
+
+"""
+Helper decorator that automatically cache results of a class method into a field
+"""
+from . import pdLogging
+myLogger = pdLogging.getLogger(__name__)
+def cache(fieldName):
+    def outer(func):
+        def inner(cls, *args, **kwargs):
+            if hasattr(cls, fieldName) and getattr(cls, fieldName) is not None:
+                return getattr(cls, fieldName)
+            retValue = func(cls, *args, **kwargs)
+            setattr(cls, fieldName, retValue)
+            return retValue
+        return inner
+    return outer

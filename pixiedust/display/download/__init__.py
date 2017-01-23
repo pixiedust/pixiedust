@@ -22,7 +22,7 @@ import pixiedust.utils.dataFrameMisc as dataFrameMisc
 @PixiedustDisplay(system=True)
 class DownloadMeta(DisplayHandlerMeta):
     @addId
-    def getMenuInfo(self,entity):
+    def getMenuInfo(self, entity, dataHandler):
         if dataFrameMisc.isPySparkDataFrame(entity) or dataFrameMisc.isPandasDataFrame(entity):
             return [
                 {"categoryId": "Download", "title": "Download as File", "icon": "fa-download", "id": "downloadFile"}

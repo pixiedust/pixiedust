@@ -23,7 +23,7 @@ from collections import OrderedDict
 import time
 import re
 import pixiedust
-from six import iteritems
+from six import iteritems, with_metaclass
 from functools import reduce
 
 myLogger = pixiedust.getLogger(__name__)
@@ -73,7 +73,7 @@ def registerDisplayHandler(handlerMetadata, isDefault=False, system=False):
         #resort the registry by position
         ActionCategories.sort()
     
-def getSelectedHandler(options, entity):
+def getSelectedHandler(options, entity, dataHandler):
     if "cell_id" not in options:
         #No cellid, trigger handshake with the browser to get the cellId
         return CellHandshakeMeta()
@@ -85,15 +85,15 @@ def getSelectedHandler(options, entity):
         else:
             #we need to find it
             for handler in (handlers+systemHandlers):
-                for menuInfo in handler.getMenuInfo(entity):
+                for menuInfo in handler.getMenuInfo(entity, dataHandler):
                     if handlerId in globalMenuInfos:
                         return globalMenuInfos[handlerId]['handler']
     else:
-        if defaultHandler is not None and len(defaultHandler.getMenuInfo(entity))>0:
+        if defaultHandler is not None and len(defaultHandler.getMenuInfo(entity, dataHandler))>0:
             return defaultHandler
         #get the first handler that can render this object
         for handler in handlers:
-            menuInfos = handler.getMenuInfo(entity)
+            menuInfos = handler.getMenuInfo(entity, dataHandler)
             if ( menuInfos is not None and len(menuInfos)>0 ):
                 return handler
     #we didn't find any, return the first
@@ -112,13 +112,18 @@ def safeCompare(entity1, entity2):
 """
 PixieDust display class decorator
 """
-class PixiedustDisplay(object):
+class PixiedustDisplayMeta(object):
     def __init__(self, **kwArgs):
         self.keywordArgs = kwArgs
 
     def __call__(self, cls, *args, **kwargs):
         registerDisplayHandler(cls(), **self.keywordArgs)
         return cls
+"""
+For backward compatibility only. Deprecated
+"""
+class PixiedustDisplay(PixiedustDisplayMeta):
+    pass
 
 def addId(func):
     def wrapper(*args,**kwargs):
@@ -132,11 +137,10 @@ def addId(func):
         return menuInfos
     return wrapper
 
-class DisplayHandlerMeta(object):
-    __metaclass__ = ABCMeta
+class DisplayHandlerMeta(with_metaclass(ABCMeta)):
     @abstractmethod
     @addId
-    def getMenuInfo(self):
+    def getMenuInfo(self, entity, dataHandler):
         pass
     @abstractmethod
     def newDisplayHandler(self,options,entity):
@@ -145,15 +149,15 @@ class DisplayHandlerMeta(object):
     def createCategories(self):
         return []
     
-class Display(object):
-    __metaclass__ = ABCMeta
+class Display(with_metaclass(ABCMeta)):
 
     #global jinja2 Environment
     env = PixiedustTemplateEnvironment()
     
-    def __init__(self, options, entity):
+    def __init__(self, options, entity, dataHandler=None):
         self.entity=entity
         self.options=options
+        self.dataHandler=dataHandler
         self.html=""
         self.scripts=list()
         self.noChrome="handlerId" in options and "showchrome" not in options
@@ -180,7 +184,7 @@ class Display(object):
             #get the first menuInfo for this handler and generate a js call
             menuInfo = globalMenuInfos[handlerId] if handlerId is not None and handlerId in globalMenuInfos else None
             if menuInfo is None:
-                menuInfos = self.handlerMetadata.getMenuInfo(self.entity)
+                menuInfos = self.handlerMetadata.getMenuInfo(self.entity, self.dataHandler)
                 if len(menuInfos)>0:
                     menuInfo = menuInfos[0]
             if menuInfo is not None:
@@ -201,7 +205,7 @@ class Display(object):
     @abstractmethod
     def doRender(self, handlerId):
         raise Exception("doRender method not implemented")
-        
+
     def _addHTML(self, fragment):
         self.html+=fragment
 
@@ -212,6 +216,12 @@ class Display(object):
         self._addHTML(
             self.env.from_string(source).render(self._getTemplateArgs(**kwargs))
         )
+
+    def _addJavascript(self, javascript):
+        ipythonDisplay( Javascript(javascript) )
+
+    def _addJavascriptTemplate(self, templateName, **kwargs):
+        self._addJavascript(self.renderTemplate(templateName, **kwargs))
     
     def _safeString(self, s):
         if not isinstance(s, str if sys.version >= '3' else basestring):
@@ -238,7 +248,7 @@ class Display(object):
         for catId in ActionCategories.CAT_INFOS.keys():
             menuTree[catId]=[]
         for handler in (handlers+systemHandlers):
-            for menuInfo in handler.getMenuInfo(self.entity):
+            for menuInfo in handler.getMenuInfo(self.entity, self.dataHandler):
                 #fix the icon-path if available
                 if "icon-path" in menuInfo and ":" not in menuInfo["icon-path"]:
                     menuInfo["icon-path"] = handler.__module__ + ":" + menuInfo["icon-path"]
@@ -284,6 +294,8 @@ class Display(object):
             return retCommand
 
         command = self.callerText
+        if command is None:
+            raise ValueError("command is None")
         if menuInfo:
             command = updateCommand(command, "handlerId", menuInfo['id'])
             command = updateCommand(command, "prefix", self.getPrefix())
@@ -324,12 +336,16 @@ class Display(object):
 
 #Special handler for fetching the id of the cell being executed 
 class CellHandshakeMeta(DisplayHandlerMeta):
-    def getMenuInfo(self,entity):
+    def getMenuInfo(self,entity, dataHandler):
        return []
     def newDisplayHandler(self,options,entity):
         return CellHandshake(options,entity)
         
 class CellHandshake(Display):
+    snifferCallbacks = []
+    @staticmethod
+    def addCallbackSniffer(sniffer):
+        CellHandshake.snifferCallbacks.append(sniffer)
     def render(self):
         ipythonDisplay(HTML(
             self.renderTemplate("handshake.html")
@@ -340,7 +356,7 @@ class CellHandshake(Display):
 
 #Special handler used when no handlers was found to process the entity 
 class UnknownEntityMeta(DisplayHandlerMeta):
-    def getMenuInfo(self,entity):
+    def getMenuInfo(self,entity, dataHandler):
        return []
     def newDisplayHandler(self,options,entity):
         return UnknownEntityDisplay(options,entity)

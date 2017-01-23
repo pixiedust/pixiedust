@@ -15,6 +15,7 @@
 # -------------------------------------------------------------------------------
 
 __all__=['packageManager','display','services','utils']
+
 import warnings
 with warnings.catch_warnings():
     warnings.simplefilter("ignore")
@@ -23,6 +24,13 @@ with warnings.catch_warnings():
     import pixiedust.utils.pdLogging
     logger = utils.pdLogging.getPixiedustLogger()
     getLogger = utils.pdLogging.getLogger
+
+    try:
+        #Check if we have an python shell available, if not, use our ProxyShell
+        get_ipython()
+    except NameError:
+        from pixiedust.utils.proxyShell import ProxyInteractiveShell
+        ProxyInteractiveShell.instance()   
 
     #shortcut to packageManager
     import pixiedust.packageManager as packageManager
@@ -35,6 +43,7 @@ with warnings.catch_warnings():
 
     #automated import into the user namespace
     try:
+        from IPython.core.getipython import get_ipython
         get_ipython().user_ns["display"]=display.display
 
         #javaBridge and scalaBridge only work in the driver, not an executor
