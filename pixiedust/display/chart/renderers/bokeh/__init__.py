@@ -14,5 +14,7 @@
 # limitations under the License.
 # -------------------------------------------------------------------------------
 
+import bokeh
 from .bokehBaseDisplay import *
 from .barChartDisplay import *
+from .lineChartDisplay import *

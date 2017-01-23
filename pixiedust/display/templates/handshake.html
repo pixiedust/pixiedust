@@ -1,3 +1,4 @@
+{%import "executePythonDisplayMacro.js" as display with context%}
 <script>
     //Marker {{prefix}}
     setTimeout(function(){
@@ -21,7 +22,15 @@
             if (old_msg_id) {
                 cell.kernel.clear_callbacks_for_msg(old_msg_id);
             }
-            !{{this._getExecutePythonDisplayScript()}}()
+            var snifferOptions = [];
+            {%for cb in this.snifferCallbacks%}
+                snifferOptions.push({{cb()}})
+            {%endfor%}
+            {% call display.executeDisplay() %}
+                for (var o in snifferOptions){
+                    addOptions(snifferOptions[o]);
+                }
+            {% endcall %}
         }else{
             alert("An error occurred, unable to access cell id");
         }

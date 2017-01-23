@@ -61,7 +61,6 @@ def cache(fieldName):
     def outer(func):
         def inner(cls, *args, **kwargs):
             if hasattr(cls, fieldName) and getattr(cls, fieldName) is not None:
-                myLogger.debug("Found Cache!!! {0}".format(fieldName))
                 return getattr(cls, fieldName)
             retValue = func(cls, *args, **kwargs)
             setattr(cls, fieldName, retValue)
