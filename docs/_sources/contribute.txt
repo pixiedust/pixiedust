@@ -50,6 +50,7 @@ Here are the visualizations and renderers we have so far:
     <td style="border-bottom: 1px solid gray;"><strong>Pie Chart</strong></td>
     <td style="border-bottom: 1px solid gray;"><strong>Line Graph</strong></td>
     <td style="border-bottom: 1px solid gray;"><strong>Scatter Plot</strong></td>
+     <td style="border-bottom: 1px solid gray;"><strong>Histogram</strong></td>
     <td style="border-bottom: 1px solid gray;"><strong>Map</strong></td>
     </tr>
     <tr>
@@ -59,10 +60,12 @@ Here are the visualizations and renderers we have so far:
     <td><img src="_images/chmk.png"></td>
     <td><img src="_images/chmk.png"></td>
     <td><img src="_images/chmk.png"></td>
+    <td><img src="_images/chmk.png"></td>
    
     </tr>
     <tr>
     <td>other</td>
+    <td>&nbsp;</td>
     <td>&nbsp;</td>
     <td>&nbsp;</td>
     <td>&nbsp;</td>
