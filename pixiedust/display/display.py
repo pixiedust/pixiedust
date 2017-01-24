@@ -161,7 +161,7 @@ class Display(with_metaclass(ABCMeta)):
         self.html=""
         self.scripts=list()
         self.noChrome="handlerId" in options and "showchrome" not in options
-        self.addProfilingTime = True
+        self.addProfilingTime = False
         self.executionTime=None
         self.extraTemplateArgs={}
 

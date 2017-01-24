@@ -120,6 +120,9 @@ object Pixiedust{
   }
   
   def parse(message:String):Config={
+    if (message.trim.isEmpty ){
+      return null;
+    }
     val options = ConfigParseOptions.defaults().setSyntax(ConfigSyntax.JSON)
     try{
       return ConfigFactory.parseString(message,options)
@@ -144,7 +147,7 @@ object Pixiedust{
   def sendContent(msg:String):Unit = {
     logger.trace(s"processing message ${msg}")
     val payload = parse( msg )
-    if (payload.hasPath("data")){
+    if (payload != null && payload.hasPath("data")){
       val data = payload.getConfig("data")
       var found = false
       val mimeTypes = Array(MIMEType.ImagePng,MIMEType.TextHtml,MIMEType.ApplicationJson,MIMEType.ApplicationJavaScript, MIMEType.PlainText)
