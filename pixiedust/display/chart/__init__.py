@@ -23,7 +23,7 @@ myLogger = pixiedust.getLogger(__name__ )
 
 #bootstrap all the renderers
 #renderers = ["matplotlib", "bokeh", "altair", "google", "seaborn"]
-renderers = ["matplotlib", "seaborn", "google"]
+renderers = ["matplotlib", "seaborn", "google", "mapbox"]
 for renderer in renderers:
     try:
         __import__("pixiedust.display.chart.renderers." + renderer)
