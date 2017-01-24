@@ -1,2 +1,2 @@
-<link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/v0.31.0/mapbox-gl.css">
-<div id="map{{prefix}}"/></div>
+<iframe style="width:800px;height:400px" srcdoc="<script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.31.0/mapbox-gl.js'></script><link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.31.0/mapbox-gl.css' rel='stylesheet'/><div id='map{{prefix}}' style='width:760px;height:360px;' /><script>mapboxgl.accessToken='{{this.options.get('mapbox_token')}}'; var map=new mapboxgl.Map({container: 'map{{prefix}}',style: 'mapbox://styles/mapbox/streets-v9'});</script>"
+</iframe>

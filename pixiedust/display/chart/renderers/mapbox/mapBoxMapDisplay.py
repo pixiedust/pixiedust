@@ -25,20 +25,23 @@ myLogger = pixiedust.getLogger(__name__)
 class MapViewDisplay(MapBoxBaseDisplay):
     def doRenderChart(self):
         # return "<br/><b>Map view powered by MapBox not yet implemented</b><br/><br/>"
-        geojs = {
-            'type':'Feature', 
-            'properties': {
-                'name': 'Philadelphia', 
-                'pop': 6000000
-            }, 
-            'geometry': {
-                'type': 'Point', 
-                'coordinates': [102.0, 0.5]
-            }
-        }
-        self.options["mapData"] = geojs
+        # geojs = {
+        #     'type':'Feature', 
+        #     'properties': {
+        #         'name': 'Philadelphia', 
+        #         'pop': 6000000
+        #     }, 
+        #     'geometry': {
+        #         'type': 'Point', 
+        #         'coordinates': [102.0, 0.5]
+        #     }
+        # }
+        # self.options["mapData"] = geojs
         self.options["mapbox_token"] = 'pk.eyJ1IjoicmFqcnNpbmdoIiwiYSI6ImpzeDhXbk0ifQ.VeSXCxcobmgfLgJAnsK3nw'
-        self._addScriptElement("https://api.mapbox.com/mapbox-gl-js/v0.31.0/mapbox-gl.js", callback=self.renderTemplate("mapView.js"))
+        # self.renderTemplate("mapbox-gl.js")
+        # self.renderTemplate("mapView.js")
+        # self._addScriptElement("https://api.mapbox.com/mapbox-gl-js/v0.31.0/mapbox-gl.js", checkJSVar="mapboxgl", callback= self.renderTemplate("mapView.js"))
+        # self._addScriptElement("http://localhost/mapbox-gl.js", checkJSVar="mapboxgl", callback=self.renderTemplate("mapView.js"))
         return self.renderTemplate("mapView.html")
 
     def df_to_geojson(df, properties, lat='latitude', lon='longitude'):
