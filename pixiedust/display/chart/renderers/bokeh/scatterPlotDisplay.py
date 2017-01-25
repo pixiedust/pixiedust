@@ -14,9 +14,19 @@
 # limitations under the License.
 # -------------------------------------------------------------------------------
 
-import bokeh
-from .bokehBaseDisplay import *
-from .barChartDisplay import *
-from .lineChartDisplay import *
-from .scatterPlotDisplay import *
-from .histogramDisplay import *
+from pixiedust.display.chart.renderers import PixiedustRenderer
+from .bokehBaseDisplay import BokehBaseDisplay
+import pixiedust
+from bokeh.charts import Scatter
+
+myLogger = pixiedust.getLogger(__name__)
+
+@PixiedustRenderer(id="scatterPlot")
+class ScatterPlotRenderer(BokehBaseDisplay):
+
+    def createBokehChart(self):
+        
+        pandaList = self.getPandasValueFieldValueLists()
+        data = pandaList[0] if len(pandaList) >= 1 else []
+       
+        return Scatter(data, xlabel="/".join(self.getKeyFields()),ylabel="/".join(self.getValueFields()),legend=None, plot_width=800)
