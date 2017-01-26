@@ -99,12 +99,12 @@ class PixiedustScalaMagics(Magics):
         self.class_path = JavaWrapper("java.lang.System").getProperty("java.class.path")
         self.env = PixiedustTemplateEnvironment()
 
-    def getLineOption(self, line, optionName):
+    def getLineOption(self, line, optionName, defaultValue=None):
         m=re.search(r"\b" + optionName + r"=(\S+)",line)
-        return m.group(1) if m is not None else None
+        return m.group(1) if m is not None else defaultValue
 
     def hasLineOption(self, line, optionName):
-        return re.match(r"\b" + optionName + r"\b", line) is not None
+        return re.search(r"\b" + optionName + r"\b", line) is not None
 
     def getReturnVars(self, code):
         vars=set()
@@ -176,7 +176,7 @@ class PixiedustScalaMagics(Magics):
 
         runnerObject = JavaWrapper(cls.getField("MODULE$").get(None), True, 
             self.getLineOption(line, "channel"), self.getLineOption(line, "receiver"))
-        runnerObject.callMethod("init", pd_getJavaSparkContext(), self.interactiveVariables.getVar("sqlContext")._ssql_ctx )
+        runnerObject.callMethod("init", pd_getJavaSparkContext(), None if self.hasLineOption(line, "noSqlContext") else self.interactiveVariables.getVar("sqlContext")._ssql_ctx )
         
         #Init the variables
         for key, val in iteritems(self.interactiveVariables.getVarsDict()):
