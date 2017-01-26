@@ -45,7 +45,7 @@
 <div class="section" id="introduction">
 <h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
 <p>PixieDust provides a simple display() API that lets you visualize and chart your data in different ways. You can invoke the display API on any object (e.g. Spark DataFrame, Pandas DataFrame, etc...). Pixiedust display then introspects the object, determines what visualizations are capable of handling the data, and make them available as menus within the output of the cell. If no visualization is found, then Pixiedust display shows an error message. Pixiedust display comes with a set of built-in visualizations like tables, bar charts, line charts, scatter plots, maps, and more.</p>
-<p>PixieDust display is also extensible, it provides a simple API that lets you write your own visualization plugin, using HTML, JavaScript and CSS. Read how to <code class="xref doc docutils literal"><span class="pre">/Write</span> <span class="pre">a</span> <span class="pre">new</span> <span class="pre">PixieDust</span> <span class="pre">Visualization</span></code>.</p>
+<p>PixieDust display is also extensible, it provides a simple API that lets you write your own visualization plugin, using HTML, JavaScript and CSS. Read how to <a class="reference external" href="writeviz.html">write your own PixieDust visualization</a>.</p>
 </div>
 <div class="section" id="get-started">
 <h2>Get Started<a class="headerlink" href="#get-started" title="Permalink to this headline">¶</a></h2>
@@ -85,8 +85,7 @@
 </div>
 </div></blockquote>
 <p>In the case above, display() looks up into its internal registry to build a list of visualizations that can handle a Spark DataFrame and generates the a menu toobar for each of them. The cell output looks like this:</p>
-<img alt="https://github.com/DTAIEB/demos/raw/master/resources/PixieDustSampleDisplay.png" src="https://github.com/DTAIEB/demos/raw/master/resources/PixieDustSampleDisplay.png" />
-<p>The table above display extended information about the Spark DataFrame:</p>
+<img src="https://github.com/DTAIEB/demos/raw/master/resources/PixieDust Sample Display.png" width="615"><p>The table above display extended information about the Spark DataFrame:</p>
 <blockquote>
 <div><ul class="simple">
 <li>Schema: give detailed information about the DataFrame schema</li>
@@ -122,8 +121,7 @@ You can configure the content of the chart by calling the options dialog availab
 </li>
 </ul>
 <p>For example, Bar Chart shows the following options dialog:</p>
-<img alt="../DTAIEB/demos/raw/master/resources/PixieDustOptionsDialog.png" src="../DTAIEB/demos/raw/master/resources/PixieDustOptionsDialog.png" />
-<div class="section" id="bar-charts">
+<img src="https://github.com/DTAIEB/demos/raw/master/resources/PixieDust Options Dialog.png" width="615"><div class="section" id="bar-charts">
 <h3>Bar Charts<a class="headerlink" href="#bar-charts" title="Permalink to this headline">¶</a></h3>
 <p>Bar charts are frequently used because they make it easy to compare between each item. When you select more than one key or value, you have the option to choose between 2 types of bar chart:</p>
 <ul class="simple">
@@ -131,12 +129,10 @@ You can configure the content of the chart by calling the options dialog availab
 <li>Grouped: items in a category are displayed side by side, making it easier to compare between each other.</li>
 </ul>
 <p>In our example, we use a Grouped bar chart showing the quarterly number of unique customers grouped by year:</p>
-<img alt="https://github.com/DTAIEB/demos/raw/master/resources/PixieDustBarChart.png" src="https://github.com/DTAIEB/demos/raw/master/resources/PixieDustBarChart.png" />
-</div>
+<img src="https://github.com/DTAIEB/demos/raw/master/resources/PixieDust Bar Chart.png" width="615"></div>
 <div class="section" id="line-charts">
 <h3>Line Charts<a class="headerlink" href="#line-charts" title="Permalink to this headline">¶</a></h3>
-<img alt="https://github.com/DTAIEB/demos/raw/master/resources/PixieDustLineChart.png" src="https://github.com/DTAIEB/demos/raw/master/resources/PixieDustLineChart.png" />
-</div>
+<img src="https://github.com/DTAIEB/demos/raw/master/resources/PixieDust Line Chart.png" width="615"></div>
 <div class="section" id="scatter-plots">
 <h3>Scatter Plots<a class="headerlink" href="#scatter-plots" title="Permalink to this headline">¶</a></h3>
 </div>

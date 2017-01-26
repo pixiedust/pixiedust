@@ -7,7 +7,7 @@ Introduction
 
 PixieDust provides a simple display() API that lets you visualize and chart your data in different ways. You can invoke the display API on any object (e.g. Spark DataFrame, Pandas DataFrame, etc...). Pixiedust display then introspects the object, determines what visualizations are capable of handling the data, and make them available as menus within the output of the cell. If no visualization is found, then Pixiedust display shows an error message. Pixiedust display comes with a set of built-in visualizations like tables, bar charts, line charts, scatter plots, maps, and more. 
 
-PixieDust display is also extensible, it provides a simple API that lets you write your own visualization plugin, using HTML, JavaScript and CSS. Read how to :doc:`/Write a new PixieDust Visualization`.
+PixieDust display is also extensible, it provides a simple API that lets you write your own visualization plugin, using HTML, JavaScript and CSS. Read how to `write your own PixieDust visualization <writeviz.html>`_.
 
 
 Get Started
@@ -51,7 +51,11 @@ To get started, let's look at some sample code that create a data frame with sim
 
 In the case above, display() looks up into its internal registry to build a list of visualizations that can handle a Spark DataFrame and generates the a menu toobar for each of them. The cell output looks like this:
 
-.. image:: https://github.com/DTAIEB/demos/raw/master/resources/PixieDust Sample Display.png
+.. container:: 
+
+.. raw:: html
+
+     <img src="https://github.com/DTAIEB/demos/raw/master/resources/PixieDust Sample Display.png" width="615">
 
 The table above display extended information about the Spark DataFrame:  
 
@@ -79,7 +83,12 @@ Here are the commons options for every charts:
 
 For example, Bar Chart shows the following options dialog:
 
-.. image:: ../DTAIEB/demos/raw/master/resources/PixieDust Options Dialog.png
+.. container:: 
+
+.. raw:: html
+
+     <img src="https://github.com/DTAIEB/demos/raw/master/resources/PixieDust Options Dialog.png" width="615">
+
 
 Bar Charts
 **********
@@ -91,12 +100,21 @@ Bar charts are frequently used because they make it easy to compare between each
 
 In our example, we use a Grouped bar chart showing the quarterly number of unique customers grouped by year:
 
-.. image:: https://github.com/DTAIEB/demos/raw/master/resources/PixieDust Bar Chart.png
+.. container:: 
+
+.. raw:: html
+
+     <img src="https://github.com/DTAIEB/demos/raw/master/resources/PixieDust Bar Chart.png" width="615">
+
 
 Line Charts
 ***********
 
-.. image:: https://github.com/DTAIEB/demos/raw/master/resources/PixieDust Line Chart.png
+.. container:: 
+
+.. raw:: html
+
+     <img src="https://github.com/DTAIEB/demos/raw/master/resources/PixieDust Line Chart.png" width="615">
 
 
 Scatter Plots
