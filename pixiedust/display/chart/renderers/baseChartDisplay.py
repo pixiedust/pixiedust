@@ -228,7 +228,7 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
                     valueDf = valueDf.sort(keyField)
                 valueDf = valueDf.dropna()
                 numRows = min(maxRows,valueDf.count())
-                valueLists.append(valueDf.map(lambda r:r["agg"]).take(numRows))
+                valueLists.append(valueDf.rdd.map(lambda r:r["agg"]).take(numRows))
         return valueLists
     
     def canRenderChart(self):

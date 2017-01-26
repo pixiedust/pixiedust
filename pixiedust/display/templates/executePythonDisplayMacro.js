@@ -123,9 +123,6 @@ function() {
         var command = "{{this._genDisplayScript(menuInfo)}}".replace("cellId",cellId);
         function addOptions(options){
             function getStringRep(v) {
-                if (!isNaN(parseFloat(v)) && isFinite(v)){
-                    return v.toString();
-                }
                 return "'" + v + "'";
             }
             for (var key in (options||{})){
