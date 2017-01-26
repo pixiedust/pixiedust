@@ -19,4 +19,3 @@ from .bokehBaseDisplay import *
 from .barChartDisplay import *
 from .lineChartDisplay import *
 from .scatterPlotDisplay import *
-from .histogramDisplay import *
