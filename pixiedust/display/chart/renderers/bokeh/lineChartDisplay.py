@@ -24,6 +24,9 @@ myLogger = pixiedust.getLogger(__name__)
 @PixiedustRenderer(id="lineChart")
 class LineChartRenderer(BokehBaseDisplay):
 
+    def supportsAggregation(self, handlerId):
+        return False
+
     def createBokehChart(self):
         data = self.cleanList(self.getValueFieldValueLists())
         agg=(self.getAggregation() or "count").lower()
