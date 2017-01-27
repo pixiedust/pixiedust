@@ -52,6 +52,7 @@ with warnings.catch_warnings():
 
         #shortcut to Spark job monitoring
         from pixiedust.utils.sparkJobProgressMonitor import enableSparkJobProgressMonitor
+        from pixiedust.utils.sampleData import sampleData
         enableJobMonitor = enableSparkJobProgressMonitor
     except NameError:
         #IPython not available we must be in a spark executor
