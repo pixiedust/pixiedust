@@ -188,7 +188,11 @@ function() {
 {% endmacro %}
 
 {% macro executeDisplay(options="{}",useCellMetadata=False, divId=None) -%}
-    {% set content=caller() %}
+    {%if caller%}
+        {% set content=caller() %}
+    {%else%}
+        {% set content="" %}
+    {%endif%}
     !{%call executeDisplayfunction(options, useCellMetadata, divId)%}
         {{content}}
     {%endcall%}()

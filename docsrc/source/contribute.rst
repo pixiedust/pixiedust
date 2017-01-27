@@ -22,12 +22,12 @@ If you're pitching in and fixed an issue or added a new feature (bravo!) please 
 
 If you're new to GitHub or unfamiliar with pull requests, watch the `How to Contribute to an Open Source Project on GitHub <https://egghead.io/courses/how-to-contribute-to-an-open-source-project-on-github>`_  video series.
 
-Here are the steps for working with the `PixieDust GitHub repository <https://github.com/ibm-cds-labs/pixiedust/issues>`_. (These instructs assume you have PixieDust set up and are ready to :doc:`/develop`.
+Here are the steps for working with the `PixieDust GitHub repository <https://github.com/ibm-cds-labs/pixiedust/issues>`_. (These instructs assume you have PixieDust set up and are ready to `start development <develop.html>`_.
  
 1. If you haven't already, `fork <https://guides.github.com/activities/forking/>`_ the PixieDust repository.
 2. Create a `branch <http://guides.github.com/introduction/flow/>`_ for your changes.
 3. Make the edits in your branch.
-4. :doc:`/test` to make sure your changes do not break existing behavior.
+4. `Test <test.html>`_ to make sure your changes do not break existing behavior.
 5. Repeat steps 3 and 4 until you are ready to submit your updates.
 6. Submit a `pull request <https://help.github.com/articles/creating-a-pull-request/>`_.
 

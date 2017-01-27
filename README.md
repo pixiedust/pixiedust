@@ -47,7 +47,7 @@ PixieDust's current capabilities include:
 
 - **Spark progress monitor.** Track the status of your Spark job. No more waiting in the dark. Notebook users can now see how a cell's code is running behind the scenes.
 
->**What about Scala?** This is a Python library but you can use it in a Scala notebook too. _--more on how--_  
+>**What about Scala?** This is a Python library but you can use it in a Scala notebook too. [Learn more](https://ibm-cds-labs.github.io/pixiedust/scalabridge.html).  
 
 Check out this detailed presentation of PixieDust: 
 
