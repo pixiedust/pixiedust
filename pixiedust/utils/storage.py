@@ -25,6 +25,7 @@ from pkg_resources import get_distribution
 from re import search
 from requests import post
 from os import environ as env
+from pixiedust.utils.printEx import *
 
 from . import pdLogging
 logger = pdLogging.getPixiedustLogger()
@@ -180,9 +181,9 @@ def _trackDeploymentIfVersionChange(deploymenTrackerStorage, existingVersion):
         if existingVersion is None or existingVersion != version:
             myLogger.info("Change in version detected: {0} -> {1}.".format(existingVersion,version))
             if existingVersion is None:
-                print("Pixiedust version {0}".format(version))
+                printWithLogo("Pixiedust version {0}".format(version))
             else:
-                print("Pixiedust version upgraded from {0} to {1}".format(existingVersion,version))
+                printWithLogo("Pixiedust version upgraded from {0} to {1}".format(existingVersion,version))
             # create dictionary and register
             event = dict()
             event['date_sent'] = time.strftime("%Y-%m-%dT%H:%M:%S.000Z", time.gmtime())
@@ -201,6 +202,6 @@ def _trackDeploymentIfVersionChange(deploymenTrackerStorage, existingVersion):
             response = post(url, data=json.dumps(event), headers=headers)
         else:
             myLogger.info("No change in version: {0} -> {1}.".format(existingVersion,version))
-            print("Pixiedust version {0}".format(version)) 
+            printWithLogo("Pixiedust version {0}".format(version)) 
     except:
         myLogger.error("Error registering with deployment tracker:\n" + str(sys.exc_info()[0]) + "\n" + str(sys.exc_info()[1]))

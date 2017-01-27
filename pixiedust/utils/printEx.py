@@ -13,8 +13,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # -------------------------------------------------------------------------------
+from IPython.display import display, HTML
 
-__all__=['printEx','PrintColors']
+__all__=['printEx','PrintColors', 'printWithLogo']
 
 class PrintColors(object):
     PURPLE = '\x1b[35m'
@@ -34,3 +35,16 @@ def printEx(message, color=None):
         print(message)
     else:
         print( color + message + PrintColors.END)
+
+def printWithLogo(message):
+    display(HTML(
+        """
+        <div style="margin:10px">
+            <a href="https://github.com/ibm-cds-labs/pixiedust" target="_new">
+                <img src="https://github.com/ibm-cds-labs/pixiedust/raw/master/docs/_static/pd_icon32.png" style="float:left;margin-right:10px"/>
+            </a>
+            <span>{0}</span>
+        </div>
+        """.format(message)
+    ))
+
