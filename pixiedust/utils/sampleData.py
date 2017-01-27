@@ -30,7 +30,7 @@ except ImportError:
 dataDefs = OrderedDict([
     ("1", {
         "displayName": "Car performance data", 
-        "url": "https://apsportal.ibm.com/exchange-api/v1/entries/c81e9be8daf6941023b9dc86f303053b/data?accessKey=21818d62c8eee8fb329cc401ea263033",
+        "url": "https://github.com/ibm-cds-labs/open-data/raw/master/cars/cars.csv",
         "topic": "transportation",
         "publisher": "IBM",
         "schema2": [('mpg','int'),('cylinders','int'),('engine','double'),('horsepower','int'),('weight','int'),
@@ -53,7 +53,15 @@ dataDefs = OrderedDict([
         "url": "https://apsportal.ibm.com/exchange-api/v1/entries/8044492073eb964f46597b4be06ff5ea/data?accessKey=bec2ed69d9c84bed53826348cdc5690b",
         "topic": "Leisure",
         "publisher": "IBM"
+    }),
+    ("5", {
+        "displayName": "Election results by County", 
+        "url": "https://openobjectstore.mybluemix.net/Election/county_election_results.csv",
+        "topic": "Society",
+        "publisher": "IBM"
     })
+
+    
 ])
 
 def sampleData(dataId=None):
