@@ -35,6 +35,12 @@ dataDefs = OrderedDict([
         "publisher": "IBM",
         "schema2": [('mpg','int'),('cylinders','int'),('engine','double'),('horsepower','int'),('weight','int'),
             ('acceleration','double'),('year','int'),('origin','string'),('name','string')]
+    }),
+    ("2", {
+        "displayName": "Airbnb Data for Analytics: Washington D.C. Listings", 
+        "url": "https://apsportal.ibm.com/exchange-api/v1/entries/c3af8034bd7f7374f87b3df6420865d5/data?accessKey=693121eff3eb97c917c5ac9987ee3095",
+        "topic": "Economy & Business",
+        "publisher": "IBM Cloud Data Services"
     })
 ])
 
