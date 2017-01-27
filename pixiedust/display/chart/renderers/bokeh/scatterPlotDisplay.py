@@ -24,6 +24,15 @@ myLogger = pixiedust.getLogger(__name__)
 @PixiedustRenderer(id="scatterPlot")
 class ScatterPlotRenderer(BokehBaseDisplay):
 
+    def supportsAggregation(self, handlerId):
+        return False
+    
+    def supportsLegend(self, handlerId):
+        return False
+
+    def supportsKeyFields(self, handlerId):
+        return False
+
     def createBokehChart(self):
         
         pandaList = self.getPandasValueFieldValueLists()
