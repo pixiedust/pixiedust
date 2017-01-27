@@ -1,4 +1,4 @@
-Assign to a Renderer
+Build a Renderer
 ========================
 
 

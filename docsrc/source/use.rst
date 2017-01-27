@@ -21,6 +21,8 @@ To use locally, just  :doc:`/install` and....
 
 
    install
+   sampledata
    displayapi
    packagemanager
    scalabridge
+   progressmonitor

@@ -26,9 +26,9 @@ PixieDust is an open source Python helper library that works as an add-on to Jup
 
 PixieDust's current capabilities include:
 
-- **[packageManager](https://github.com/ibm-cds-labs/pixiedust/wiki/Package-Manager)** lets you install spark packages inside a python notebook. This is something that you can't do today on hosted Jupyter notebooks, which prevents developers from using a large number of spark package add-ons.
+- **[packageManager](https://ibm-cds-labs.github.io/pixiedust/packagemanager.html)** lets you install spark packages inside a python notebook. This is something that you can't do today on hosted Jupyter notebooks, which prevents developers from using a large number of spark package add-ons.
 
-- **Visualizations.** One single API called `display()` lets you visualize your spark object in different ways: table, charts, maps, etc.... This module is designed to be extensible, providing an API that lets anyone easily [contribute a new visualization plugin](https://github.com/ibm-cds-labs/pixiedust/wiki/How-to-write-a-new-PixieDust-visualization). 
+- **Visualizations.** One single API called `display()` lets you visualize your spark object in different ways: table, charts, maps, etc.... This module is designed to be extensible, providing an API that lets anyone easily [contribute a new visualization plugin](https://ibm-cds-labs.github.io/pixiedust/writeviz.html). 
    
    This sample visualization plugin uses d3 to show the different flight routes for each airport:
 
