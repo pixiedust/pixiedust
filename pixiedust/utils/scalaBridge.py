@@ -122,9 +122,12 @@ class PixiedustScalaMagics(Magics):
 
     def get_scala_version(self):
         scala = "{}{}bin{}scala".format(self.scala_home, os.sep, os.sep)
-        scala_out = subprocess.check_output([scala, "-version"], stderr=subprocess.STDOUT)
-        match = re.search('.*version[^0-9]*([0-9]*[^.])\.([0-9]*[^.]).*', scala_out)
-        if match and match.groups > 2:
+        try:
+            scala_out = subprocess.check_output([scala, "-version"], stderr=subprocess.STDOUT).decode("utf-8")
+        except subprocess.CalledProcessError as cpe:
+            scala_out = cpe.output
+        match = re.search('.*version[^0-9]*([0-9]*[^.])\.([0-9]*[^.])\.([0-9]*[^.]).*', scala_out)
+        if match and len(match.groups()) > 2:
             return int(match.group(1)), int(match.group(2))
         else:
             return None
