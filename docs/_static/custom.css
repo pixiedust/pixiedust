@@ -30,6 +30,7 @@
     padding: 20px;
     float: left;
     margin-right: 10px;
+    border-radius: 15px;
 }
 
 .main-panel:hover{
@@ -55,4 +56,20 @@
     /* all rules required to make other links to work */ 
     position: relative;
     z-index: 100;
+}
+
+#pageheader {
+    background: url(pd_icon32.png) no-repeat top left;
+    padding-left: 36px;
+}
+
+.docutils.literal {
+    font-family: Monaco, Consolas, "Lucida Console", monospace;
+    margin: 3px;
+    padding: 5px;
+    border-left: 5px;
+    border-right: 5px;
+    font-size: .8rem;
+    line-height: 1rem;
+    background-color: #f1f1f1
 }

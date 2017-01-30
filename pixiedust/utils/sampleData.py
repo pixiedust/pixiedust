@@ -30,7 +30,7 @@ except ImportError:
 dataDefs = OrderedDict([
     ("1", {
         "displayName": "Car performance data", 
-        "url": "https://apsportal.ibm.com/exchange-api/v1/entries/c81e9be8daf6941023b9dc86f303053b/data?accessKey=21818d62c8eee8fb329cc401ea263033",
+        "url": "https://github.com/ibm-cds-labs/open-data/raw/master/cars/cars.csv",
         "topic": "transportation",
         "publisher": "IBM",
         "schema2": [('mpg','int'),('cylinders','int'),('engine','double'),('horsepower','int'),('weight','int'),
@@ -41,7 +41,27 @@ dataDefs = OrderedDict([
         "url": "https://apsportal.ibm.com/exchange-api/v1/entries/c3af8034bd7f7374f87b3df6420865d5/data?accessKey=693121eff3eb97c917c5ac9987ee3095",
         "topic": "Economy & Business",
         "publisher": "IBM Cloud Data Services"
+    }),
+    ("3", {
+        "displayName": "Total population by country", 
+        "url": "https://apsportal.ibm.com/exchange-api/v1/entries/889ca053a19986a4445839358a91963e/data?accessKey=657b130d504ab539947e51b50f0e338e",
+        "topic": "Society",
+        "publisher": "IBM Cloud Data Services"
+    }),
+    ("4", {
+        "displayName": "GoSales Transactions for Naive Bayes Model", 
+        "url": "https://apsportal.ibm.com/exchange-api/v1/entries/8044492073eb964f46597b4be06ff5ea/data?accessKey=bec2ed69d9c84bed53826348cdc5690b",
+        "topic": "Leisure",
+        "publisher": "IBM"
+    }),
+    ("5", {
+        "displayName": "Election results by County", 
+        "url": "https://openobjectstore.mybluemix.net/Election/county_election_results.csv",
+        "topic": "Society",
+        "publisher": "IBM"
     })
+
+    
 ])
 
 def sampleData(dataId=None):
@@ -92,15 +112,21 @@ class Downloader(object):
         self.prefix = str(uuid.uuid4())[:8]
     
     def download(self, dataLoader):
-        url = self.dataDef["url"]
         displayName = self.dataDef["displayName"]
-        req = Request(url, None, self.headers)
-        print("Downloading '{0}' from {1}".format(displayName, url))
-        with tempfile.NamedTemporaryFile(delete=False) as f:
-            self.write(urlopen(req), f)
+        if "path" in self.dataDef:
+            path = self.dataDef["path"]
+        else:
+            url = self.dataDef["url"]
+            req = Request(url, None, self.headers)
+            print("Downloading '{0}' from {1}".format(displayName, url))
+            with tempfile.NamedTemporaryFile(delete=False) as f:
+                self.write(urlopen(req), f)
+                path = f.name
+                self.dataDef["path"] = path = f.name
+        if path:
             try:
                 print("Creating pySpark DataFrame for '{0}'. Please wait...".format(displayName))
-                return dataLoader(f.name, self.dataDef.get("schema", None))
+                return dataLoader(path, self.dataDef.get("schema", None))
             finally:
                 print("Successfully created pySpark DataFrame for '{0}'".format(displayName))
             
