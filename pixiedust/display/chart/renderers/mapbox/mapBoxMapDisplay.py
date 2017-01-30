@@ -25,7 +25,7 @@ myLogger = pixiedust.getLogger(__name__)
 
 @PixiedustRenderer(id="mapView")
 class MapViewDisplay(MapBoxBaseDisplay):
-    def isMap(self, handlerId):
+        def isMap(self, handlerId):
         return True
 
     def supportsAggregation(self, handlerId):
@@ -82,8 +82,8 @@ class MapViewDisplay(MapBoxBaseDisplay):
             if i == 0 or y < min[1]: min[1] = y
             if i == 0 or y > max[1]: max[1] = y
             feature['geometry']['coordinates'] = [x,y]
-            for valueField in valueFields:
-                feature['properties'][valueField] = valueFieldValues[0][i]
+            for j, valueFieldRow in enumerate(valueFields):
+                feature['properties'][valueFields[j]] = valueFieldValues[j][i]
                 if i == 0 or valueFieldValues[0][i] < minval: minval = valueFieldValues[0][i]
                 if i == 0 or valueFieldValues[0][i] > maxval: maxval = valueFieldValues[0][i]
             pygeojson['features'].append(feature)

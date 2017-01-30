@@ -55,7 +55,12 @@ body { background-color:#333; margin:0px !important; overflow: hidden;font-famil
         map.getCanvas().style.cursor=(fs.length)?"pointer":"";
         if (!fs.length) {popup.remove();return;};
         var f = fs[0];
-        popup.setLngLat(f.geometry.coordinates).setHTML(f.properties.{{this.options.get("mapValueField")}}).addTo(map);
+        var keylength = Object.keys(f.properties).length;
+        popuphtml = "";
+        for (var key in f.properties) {
+            popuphtml += "<b>"+key+": </b> "+f.properties[key]+"<br/>"
+        }
+        popup.setLngLat(f.geometry.coordinates).setHTML(popuphtml).addTo(map);
     });
         
     map.on("load", function() {
