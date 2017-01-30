@@ -27,7 +27,7 @@ $("#renderer{{prefix}}").change(function(){
 <div class="row">
     <div class="form-group col-sm-10" style="padding-right:10px;">
         <button id="mapOptions{{prefix}}">Options</button>
-        {% if this.options.get('staticFigure') != 'true' %}
+        {% if this.options.get('staticFigure') != 'true' and this.options.get("handlerId") != 'mapView' %}
             <button id="downloadSVG{{prefix}}">Download SVG</button>
         {% endif %}
     </div>
