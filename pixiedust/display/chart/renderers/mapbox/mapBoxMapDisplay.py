@@ -25,6 +25,9 @@ myLogger = pixiedust.getLogger(__name__)
 
 @PixiedustRenderer(id="mapView")
 class MapViewDisplay(MapBoxBaseDisplay):
+    def isMap(self, handlerId):
+        return True
+
     def supportsAggregation(self, handlerId):
         return True
 
@@ -58,7 +61,6 @@ class MapViewDisplay(MapBoxBaseDisplay):
         if keyFields[0] == self.getLatField(): 
             lonFieldIdx = 1
             latFieldIdx = 0
-        myLogger.info("lat field idx: "+str(latFieldIdx))
         keyFieldValues = self.getKeyFieldValues()
         valueFields = self.getValueFields()
         valueFieldValues = self.getValueFieldValueLists()
@@ -92,12 +94,11 @@ class MapViewDisplay(MapBoxBaseDisplay):
         paint = {'circle-radius':8,'circle-color':'#ff0000'}
         bins = []
 
-        # if there's a numeric value field paint the data as a chloropleth map
-        myLogger.info("mapTYpe: "+self.options.get("mapType"))
-        if self.options.get("mapType") != "simple" and len(valueFields) > 0:
-            myLogger.info("making BINS...") 
+        if len(valueFields) > 0:
             mapValueField = valueFields[0]
             self.options["mapValueField"] = mapValueField
+        # if there's a numeric value field paint the data as a chloropleth map
+        if self.options.get("mapType") != "simple" and len(valueFields) > 0:
             binrange = (maxval - minval) * 0.25
             bins = [ (minval,'#ffffcc'), (minval+binrange,'#a1dab4'), (minval+(binrange*2),'#41b6c4'), (minval+(binrange*3),'#2c7fb8'), (maxval,'#253494') ]
             paint['circle-opacity'] = 0.85

@@ -62,6 +62,9 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
     def doRenderChart(self):
         pass
 
+    def isMap(self, handlerId):
+        return False
+
     def supportsKeyFields(self, handlerId):
         return True
 
@@ -124,8 +127,9 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
         if len(keyFields) == 1 and self.dataHandler.isNumericField(keyFields[0]):
             numericKeyField = True
         df = self.dataHandler.groupBy(keyFields).count().dropna()
-        for keyField in keyFields:
-            df = df.sort(keyField)
+        if self.isMap(self.handlerId) is False: 
+            for keyField in keyFields:
+                df = df.sort(keyField)
         maxRows = int(self.options.get("rowCount","100"))
         numRows = min(maxRows,df.count())
         rows = df.take(numRows)
@@ -244,8 +248,9 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
                     valueDf = df.agg({valueField:"max"}).withColumnRenamed("max("+valueField+")", "agg")
                 else:
                     valueDf = df.agg({valueField:"count"}).withColumnRenamed("count("+valueField+")", "agg")
-                for keyField in keyFields:
-                    valueDf = valueDf.sort(keyField)
+                if self.isMap(self.handlerId) is False: 
+                    for keyField in keyFields:
+                        valueDf = valueDf.sort(keyField)
                 valueDf = valueDf.dropna()
                 numRows = min(maxRows,valueDf.count())
                 valueLists.append(valueDf.map(lambda r:r["agg"]).take(numRows))
