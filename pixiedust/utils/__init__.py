@@ -21,7 +21,7 @@ import binascii
 import shutil
 from . import pdLogging
 
-storage._initStorage();
+storage._initStorage()
 
 #Misc helper methods
 def fqName(entity):
@@ -55,8 +55,6 @@ if copyFile:
 """
 Helper decorator that automatically cache results of a class method into a field
 """
-from . import pdLogging
-myLogger = pdLogging.getLogger(__name__)
 def cache(fieldName):
     def outer(func):
         def inner(cls, *args, **kwargs):

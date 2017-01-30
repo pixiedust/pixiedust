@@ -33,7 +33,9 @@ class BarChartRenderer(BokehBaseDisplay):
         stacked = self.options.get("stacked", "true") == "true"
         group = None
         stack = None
+        color = self.getKeyFields()[0]
         if len(self.getKeyFields())>1:
+            color = self.getKeyFields()[1]
             if stacked:
                 stack = self.getKeyFields()
             else:
@@ -44,4 +46,4 @@ class BarChartRenderer(BokehBaseDisplay):
             agg = 'mean'
 
         return Bar(data, values='agg', agg=agg, label=self.getKeyFields()[0], group=group, stack=stack, legend=None, 
-            color=self.getKeyFields()[1], plot_width=800)
+            color=color, plot_width=800)
