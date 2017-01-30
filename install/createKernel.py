@@ -48,9 +48,13 @@ class PixiedustInstall(InstallKernelSpec):
         }
 
     def parse_command_line(self, argv):
+        print("BEFORE")
+        print(argv)
         silent = "--silent" in argv
         if silent:
             argv.remove("--silent")
+        print("AFTER")
+        print(argv)
         super(InstallKernelSpec, self).parse_command_line(argv)
 
         self.pixiedust_home = os.environ.get("PIXIEDUST_HOME", "{}{}pixiedust".format(os.path.expanduser('~'), os.sep))
