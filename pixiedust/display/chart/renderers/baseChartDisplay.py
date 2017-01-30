@@ -182,8 +182,8 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
                     valueDf = df.agg({valueField:"max"}).withColumnRenamed("max("+valueField+")", "agg")
                 else:
                     valueDf = df.agg({valueField:"count"}).withColumnRenamed("count("+valueField+")", "agg")
-                for keyField in keyFields:
-                    valueDf = valueDf.sort(keyField)
+                #for keyField in keyFields:
+                #    valueDf = valueDf.sort(keyField)
                 valueDf = valueDf.dropna()
                 numRows = min(maxRows,valueDf.count())
                 pandasValueLists.append( valueDf.toPandas().head(numRows) )
@@ -329,8 +329,14 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
             myLogger.info("Unexpected Error:\n"+str(e)+"\n\n"+traceback.format_exc())
 
     def logStuff(self):
-        myLogger.debug("Key Fields: {0}".format(self.getKeyFields()) )
-        myLogger.debug("Key Fields Values: {0}".format(self.getKeyFieldValues()))
-        myLogger.debug("Key Fields Labels: {0}".format(self.getKeyFieldLabels()))
-        myLogger.debug("Value Fields: {0}".format(self.getValueFields()))
-        myLogger.debug("Value Field Values List: {0}".format(self.getValueFieldValueLists()))
+        try:
+            myLogger.debug("Key Fields: {0}".format(self.getKeyFields()) )
+            myLogger.debug("Key Fields Values: {0}".format(self.getKeyFieldValues()))
+            myLogger.debug("Key Fields Labels: {0}".format(self.getKeyFieldLabels()))
+        except:
+            pass
+        try:
+            myLogger.debug("Value Fields: {0}".format(self.getValueFields()))
+            myLogger.debug("Value Field Values List: {0}".format(self.getValueFieldValueLists()))
+        except:
+            pass

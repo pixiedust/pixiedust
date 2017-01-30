@@ -31,11 +31,14 @@ import time
 myLogger = pixiedust.getLogger(__name__)
 _env = PixiedustTemplateEnvironment()
 progressMonitor = None
+loadingProgressMonitor = False
 
 def enableSparkJobProgressMonitor():
-    global progressMonitor
-    if progressMonitor is None:
+    global progressMonitor, loadingProgressMonitor
+    if progressMonitor is None and not loadingProgressMonitor:
+        loadingProgressMonitor = True
         def startSparkJobProgressMonitor():
+            global progressMonitor
             progressMonitor = SparkJobProgressMonitor()
         t = Thread(target=startSparkJobProgressMonitor)
         t.daemon = True
