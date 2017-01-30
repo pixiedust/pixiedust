@@ -91,8 +91,13 @@ class PixiedustInstall(InstallKernelSpec):
                 while self.spark_home.rfind(os.sep) == len(self.spark_home) - 1:
                     self.spark_home = self.spark_home[0:len(self.spark_home)-1]
                 if not os.path.exists(self.spark_home):
-                    print("{0} does not exist".format(self.spark_home))
-                    continue
+                    create = self.confirm("Directory {0} does not exist".format(self.spark_home), "Create")
+                    if create != 'y':
+                        continue
+                    else:
+                        os.makedirs(self.spark_home)
+                        download_spark = True
+                        break
                 elif not os.path.exists('{}{}bin{}pyspark'.format(self.spark_home, os.sep, os.sep)):
                     download = self.confirm("Directory {0} does not contain a valid SPARK install".format(self.spark_home), "Download Spark")
                     if download == 'y':
@@ -137,8 +142,13 @@ class PixiedustInstall(InstallKernelSpec):
                 while self.scala_home.rfind(os.sep) == len(self.scala_home) - 1:
                     self.scala_home = self.scala_home[0:len(self.scala_home)-1]
                 if not os.path.exists(self.scala_home):
-                    print("{0} does not exist".format(self.scala_home))
-                    continue
+                    create = self.confirm("Directory {0} does not exist".format(self.scala_home), "Create")
+                    if create != 'y':
+                        continue
+                    else:
+                        os.makedirs(self.scala_home)
+                        download_scala = True
+                        break
                 elif not os.path.exists('{}{}bin{}scala'.format(self.scala_home, os.sep, os.sep)):
                     download = self.confirm(
                         "Directory {0} does not contain a valid SCALA install".format(self.scala_home),
