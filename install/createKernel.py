@@ -18,6 +18,7 @@ import os
 import re
 import requests
 import shutil
+import string
 import subprocess
 import sys
 import tarfile
@@ -309,7 +310,7 @@ class PixiedustInstall(InstallKernelSpec):
             }
         }
         path = write_kernel_spec(overrides=overrides)
-        dest = KernelSpecManager().install_kernel_spec(path, kernel_name=self.kernelName, user=True)
+        dest = KernelSpecManager().install_kernel_spec(path, kernel_name=self.kernelName.join(ch for ch in string.printable if ch.isalnum()), user=True)
         # cleanup afterward
         shutil.rmtree(path)
         return dest
