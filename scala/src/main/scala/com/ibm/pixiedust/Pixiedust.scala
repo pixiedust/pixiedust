@@ -77,6 +77,9 @@ class Pixiedust extends Plugin{
       |def display(entity:Any, options: (String,Any)*){
       |  Pixiedust.display(entity, options:_*);
       |}
+      |def getPixiedustLog(args:String=""){
+      |  Pixiedust.getPixiedustLog(args)
+      |}
       """.stripMargin
         
     logger.trace(s"Running Scala Initialization code ${scalaInitCode}");        
@@ -117,6 +120,9 @@ object Pixiedust{
   }
   
   def parse(message:String):Config={
+    if (message.trim.isEmpty ){
+      return null;
+    }
     val options = ConfigParseOptions.defaults().setSyntax(ConfigSyntax.JSON)
     try{
       return ConfigFactory.parseString(message,options)
@@ -136,10 +142,12 @@ object Pixiedust{
     }
   }
   
+  val pixiedustOutputStream = new PixiedustOutputStream
+  
   def sendContent(msg:String):Unit = {
     logger.trace(s"processing message ${msg}")
     val payload = parse( msg )
-    if (payload.hasPath("data")){
+    if (payload != null && payload.hasPath("data")){
       val data = payload.getConfig("data")
       var found = false
       val mimeTypes = Array(MIMEType.ImagePng,MIMEType.TextHtml,MIMEType.ApplicationJson,MIMEType.ApplicationJavaScript, MIMEType.PlainText)
@@ -180,7 +188,16 @@ object Pixiedust{
       |  display.fetchEntity=None
     """.stripMargin
     
-    runPythonCode( code, Some(new PixiedustOutputStream() ))
+    runPythonCode( code, Some(pixiedustOutputStream))
+  }
+  
+  def getPixiedustLog(args:String=""){
+    val code = s"""
+      |from pixiedust.utils.pdLogging import *
+      |PixiedustLoggingMagics().pixiedustLog("${args}") 
+    """.stripMargin
+    
+    runPythonCode( code, Some(pixiedustOutputStream))
   }
   
   def runPythonCode(code:String, outputStream: Option[OutputStream] = None):Unit={    

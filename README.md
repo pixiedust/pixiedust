@@ -26,9 +26,9 @@ PixieDust is an open source Python helper library that works as an add-on to Jup
 
 PixieDust's current capabilities include:
 
-- **[packageManager](https://github.com/ibm-cds-labs/pixiedust/wiki/Package-Manager)** lets you install spark packages inside a python notebook. This is something that you can't do today on hosted Jupyter notebooks, which prevents developers from using a large number of spark package add-ons.
+- **[packageManager](https://ibm-cds-labs.github.io/pixiedust/packagemanager.html)** lets you install spark packages inside a python notebook. This is something that you can't do today on hosted Jupyter notebooks, which prevents developers from using a large number of spark package add-ons.
 
-- **Visualizations.** One single API called `display()` lets you visualize your spark object in different ways: table, charts, maps, etc.... This module is designed to be extensible, providing an API that lets anyone easily [contribute a new visualization plugin](https://github.com/ibm-cds-labs/pixiedust/wiki/How-to-write-a-new-PixieDust-visualization). 
+- **Visualizations.** One single API called `display()` lets you visualize your spark object in different ways: table, charts, maps, etc.... This module is designed to be extensible, providing an API that lets anyone easily [contribute a new visualization plugin](https://ibm-cds-labs.github.io/pixiedust/writeviz.html). 
    
    This sample visualization plugin uses d3 to show the different flight routes for each airport:
 
@@ -47,7 +47,7 @@ PixieDust's current capabilities include:
 
 - **Spark progress monitor.** Track the status of your Spark job. No more waiting in the dark. Notebook users can now see how a cell's code is running behind the scenes.
 
->**What about Scala?** This is a Python library but you can use it in a Scala notebook too. _--more on how--_  
+>**What about Scala?** This is a Python library but you can use it in a Scala notebook too. [Learn more](https://ibm-cds-labs.github.io/pixiedust/scalabridge.html).  
 
 Check out this detailed presentation of PixieDust: 
 
@@ -90,4 +90,7 @@ Dive into the [PixieDust developer docs](https://ibm-cds-labs.github.io/pixiedus
 We can't wait to see what you build.
 
 ##License
-details to follow...
+
+**Apache License, Version 2.0**. 
+
+For details and all the legalese, [read LICENSE](https://github.com/ibm-cds-labs/pixiedust/blob/master/LICENSE).

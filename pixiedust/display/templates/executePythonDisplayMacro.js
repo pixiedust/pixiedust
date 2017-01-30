@@ -123,12 +123,9 @@ function() {
         var command = "{{this._genDisplayScript(menuInfo)}}".replace("cellId",cellId);
         function addOptions(options){
             function getStringRep(v) {
-                if (!isNaN(parseFloat(v)) && isFinite(v)){
-                    return v.toString();
-                }
                 return "'" + v + "'";
             }
-            for (var key in options){
+            for (var key in (options||{})){
                 var value = options[key];
                 var hasValue = value != null && typeof value !== 'undefined' && value !== '';
                 var replaceValue = hasValue ? (key+"=" + getStringRep(value) ) : "";
@@ -191,7 +188,11 @@ function() {
 {% endmacro %}
 
 {% macro executeDisplay(options="{}",useCellMetadata=False, divId=None) -%}
-    {% set content=caller() %}
+    {%if caller%}
+        {% set content=caller() %}
+    {%else%}
+        {% set content="" %}
+    {%endif%}
     !{%call executeDisplayfunction(options, useCellMetadata, divId)%}
         {{content}}
     {%endcall%}()

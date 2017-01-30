@@ -69,10 +69,10 @@ $('#chartOptions{{prefix}} *').filter(':input').each(function(){
         addValueToCommand($(this).attr('name'),$(this).is(':checked')+'');	
     }
     else {
-        addValueToCommand($(this).attr('name'),$(this).val());
+        addValueToCommand($(this).attr('name'),$(this).val() + '');
     }
 });
 $('#chartOptions{{prefix}} *').filter('select').each(function(){
-    addValueToCommand($(this).attr('name'),$(this).val());
+    addValueToCommand($(this).attr('name'),$(this).val() + '');
 });
 {%endblock%}
