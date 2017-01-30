@@ -90,4 +90,7 @@ Dive into the [PixieDust developer docs](https://ibm-cds-labs.github.io/pixiedus
 We can't wait to see what you build.
 
 ##License
-details to follow...
+
+**Apache License, Version 2.0**. 
+
+For details and all the legalese, [read LICENSE](https://github.com/ibm-cds-labs/pixiedust/blob/master/LICENSE).
