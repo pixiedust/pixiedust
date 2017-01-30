@@ -43,10 +43,6 @@ class MapViewDisplay(MapBoxBaseDisplay):
     def getPreferredDefaultValueFieldCount(self, handlerId):
         return 1
 
-    def getChartContext(self, handlerId):
-        diagTemplate = MapBoxBaseDisplay.__module__ + ":mapViewOptionsDialogBody.html"
-        return (diagTemplate, {})
-    
     def canRenderChart(self):
         keyFields = self.getKeyFields()
         if ((keyFields is not None and len(keyFields) > 0) or len(self._getDefaultKeyFields()) > 0):
@@ -54,6 +50,10 @@ class MapViewDisplay(MapBoxBaseDisplay):
         else:
             return (False, "No location field found ('latitude'/'longitude', 'lat/lon', 'y/x').<br>Use the Chart Options dialog to specify location fields.")
 
+    def getChartContext(self, handlerId):
+        diagTemplate = MapBoxBaseDisplay.__module__ + ":mapViewOptionsDialogBody.html"
+        return (diagTemplate, {})
+    
     def doRenderChart(self):
         keyFields = self.getKeyFields()
         lonFieldIdx = 0
@@ -98,7 +98,7 @@ class MapViewDisplay(MapBoxBaseDisplay):
             mapValueField = valueFields[0]
             self.options["mapValueField"] = mapValueField
         # if there's a numeric value field paint the data as a chloropleth map
-        if self.options.get("mapType") != "simple" and len(valueFields) > 0:
+        if self.options.get("kind") != "simple" and len(valueFields) > 0:
             binrange = (maxval - minval) * 0.25
             bins = [ (minval,'#ffffcc'), (minval+binrange,'#a1dab4'), (minval+(binrange*2),'#41b6c4'), (minval+(binrange*3),'#2c7fb8'), (maxval,'#253494') ]
             paint['circle-opacity'] = 0.85

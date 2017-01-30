@@ -33,7 +33,7 @@ body { background-color:#333; margin:0px !important; overflow: hidden;font-famil
 </style>
 <div id="map{{prefix}}" style="width:780px;height:412px;" />
 
-{%if this.options.get("showLegend") == "true" and this.options.get("mapType") != "simple"%}
+{%if this.options.get("showLegend") == "true" and this.options.get("kind") != "simple"%}
 <div class="legend">
     <h4>{{this.options.get("mapValueField")}}</h4>
     {% for bin in bins %}
@@ -60,7 +60,7 @@ body { background-color:#333; margin:0px !important; overflow: hidden;font-famil
         
     map.on("load", function() {
         var mapdata={{this.options.get("mapData")}};
-        {% if this.options.get("mapType") != "heatmap" %}
+        {% if this.options.get("kind") != "heatmap" %}
         map.addLayer({
             "id":"pxlayer",
             "type":"circle", 

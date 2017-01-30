@@ -6,12 +6,4 @@
 	<label for="title{{prefix}}">Mapbox Access Token:</label>
 	<input type="text" class="form-control" id="mapboxtoken{{prefix}}" name="mapboxtoken" value="{{this.options.get("mapboxtoken") or ""}}">
 </div>
-<div class="form-group col-sm-4" style="padding: 0px 0px 0px 5px;">
-	<label class="field" for="title{{prefix}}">Map type:</label>
-	<select class="form-control" name="mapType" style="margin-left: 0px;">
-		<option value="simple"{{' selected' if this.options.get("mapType") == "simple"}}>Simple</option>
-		<option value="chloropleth"{{' selected' if this.options.get("mapType") == "chloropleth"}}>Chloropleth</option>
-		<option value="heatmap"{{' selected' if this.options.get("mapType") == "heatmap"}}>Heatmap</option>
-	</select>
-</div>
 {%endblock%}
