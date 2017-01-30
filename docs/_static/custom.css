@@ -30,6 +30,7 @@
     padding: 20px;
     float: left;
     margin-right: 10px;
+    border-radius: 15px;
 }
 
 .main-panel:hover{
@@ -72,5 +73,3 @@
     line-height: 1rem;
     background-color: #f1f1f1
 }
-
-
