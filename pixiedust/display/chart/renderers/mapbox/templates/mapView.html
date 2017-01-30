@@ -1,2 +1,119 @@
-<iframe style="width:800px;height:400px" srcdoc="<script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.31.0/mapbox-gl.js'></script><link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.31.0/mapbox-gl.css' rel='stylesheet'/><div id='map{{prefix}}' style='width:760px;height:360px;' /><script>mapboxgl.accessToken='{{this.options.get('mapbox_token')}}'; var map=new mapboxgl.Map({container: 'map{{prefix}}',style: 'mapbox://styles/mapbox/streets-v9'});</script>"
-</iframe>
+<script src="https://api.tiles.mapbox.com/mapbox-gl-js/v0.31.0/mapbox-gl.js"></script>
+<link href="https://api.tiles.mapbox.com/mapbox-gl-js/v0.31.0/mapbox-gl.css" rel="stylesheet"/>
+<style>
+.mapboxgl-popup {
+    max-width: 200px;
+}
+#map canvas {
+    cursor: crosshair;
+}
+.legend {
+    background-color: rgba(255,255,255, 0.75);
+    border-radius: 3px;
+    position: absolute;
+    right: 14px;
+    top: 14px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.10);
+    font-size: 12px;
+    line-height: 18px;
+    padding: 10px;
+    z-index: 1;
+}
+.legend h4 {
+    margin: 0 0 10px;
+}
+.legend div span {
+    border-radius: 50%;
+    display: inline-block;
+    height: 10px;
+    margin-right: 5px;
+    width: 10px;
+}
+body { background-color:#333; margin:0px !important; overflow: hidden;font-family: "Helvetica Neue", Arial, Helvetica, sans-serif;}
+</style>
+<div id="map{{prefix}}" style="width:780px;height:412px;" />
+
+{%if this.options.get("showLegend") == "true" and this.options.get("mapType") != "simple"%}
+<div class="legend">
+    <h4>{{this.options.get("mapValueField")}}</h4>
+    {% for bin in bins %}
+    <div><span style="background-color: {{bin[1]}}"></span>{{bin[0]}}</div>
+    {% endfor %}
+</div>
+{%endif%}
+
+<script>
+    mapboxgl.accessToken="{{this.options.get("mapboxtoken")}}";
+    var map = new mapboxgl.Map({
+        container: "map{{prefix}}",
+        style: "mapbox://styles/mapbox/light-v9"
+    });
+    var popup = new mapboxgl.Popup({closeButton: false,closeOnClick: true});
+    
+    map.on("mousemove", function (e) {
+        var fs = map.queryRenderedFeatures(e.point,{layers:["pxlayer"]});
+        map.getCanvas().style.cursor=(fs.length)?"pointer":"";
+        if (!fs.length) {popup.remove();return;};
+        var f = fs[0];
+        popup.setLngLat(f.geometry.coordinates).setHTML(f.properties.{{this.options.get("mapValueField")}}).addTo(map);
+    });
+        
+    map.on("load", function() {
+        var mapdata={{this.options.get("mapData")}};
+        {% if this.options.get("mapType") != "heatmap" %}
+        map.addLayer({
+            "id":"pxlayer",
+            "type":"circle", 
+            "source": {
+                "type":"geojson",
+                "data":mapdata
+            }, 
+            "paint": {{this.options.get("mapStyle")}}
+        });
+        {% else %}
+        map.addSource("pxdatasource", {
+            "type":"geojson",
+            "data":mapdata,
+            "cluster": true, 
+            "clusterMaxZoom": 11, 
+            "clusterRadius": 20
+        });
+        var layers = [];
+        {% for bin in bins %}
+        layers.push([{{bin[0]}}, "{{bin[1]}}"]);
+        {% endfor %}
+
+        layers.forEach(function(layer,i) {
+            debugger;
+            map.addLayer({
+                "id": "cluster-" + i, 
+                "type": "circle", 
+                "source": "pxdatasource", 
+                "paint": {
+                    "circle-color": layer[1],
+                    "circle-radius": 70, 
+                    "circle-blur": 1
+                }, 
+                "filter": i === layers.length-1 ? [">=", "{{this.options.get("mapValueField")}}", layer[0]] : 
+                    ["all", [">=", "{{this.options.get("mapValueField")}}", layer[0]], ["<", "{{this.options.get("mapValueField")}}", layers[i+1][0]]]
+
+            }, "waterway-label");
+        });
+
+        map.addLayer({
+            "id": "pxlayer", 
+            "type": "circle", 
+            "source": "pxdatasource", 
+            "paint": {
+                "circle-color": "rgba(0,255,0,0.5)", 
+                "circle-radius": 20, 
+                "circle-blur": 1
+            }, 
+            "filter": ["!=", "cluster", true]
+        }, "waterway-label");
+
+        {% endif %}
+
+        map.fitBounds({{this.options.get("mapBounds")}});
+    });
+</script>
