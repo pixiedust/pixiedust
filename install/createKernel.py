@@ -38,7 +38,7 @@ class PixiedustInstall(InstallKernelSpec):
         self.spark_home = None
         self.spark_download_versions = ['1.6.3', '2.0.2', '2.1.0']
         self.spark_download_urls = {
-            '1.6.3': 'http://d3kbcqa49mib13.cloudfront.net/spark-1.6.3-bin-hadoop2.7.tgz',
+            '1.6.3': 'http://d3kbcqa49mib13.cloudfront.net/spark-1.6.3-bin-hadoop2.6.tgz',
             '2.0.2': 'http://d3kbcqa49mib13.cloudfront.net/spark-2.0.2-bin-hadoop2.7.tgz',
             '2.1.0': 'http://d3kbcqa49mib13.cloudfront.net/spark-2.1.0-bin-hadoop2.7.tgz'
         }
@@ -283,10 +283,10 @@ class PixiedustInstall(InstallKernelSpec):
         tar = tarfile.open(temp_file.name, "r:gz")
         for i, member in enumerate(tar.getmembers()):
             tar.extract(member, path)
-            print("{} %".format(int(((i*1.0)/len(tar.getmembers()))*100)))
+            print(" {} %".format(int(((i*1.0)/len(tar.getmembers()))*100)))
             sys.stdout.write("\033[F")
             sys.stdout.flush()
-        print("     ")
+        print("      ")
         sys.stdout.write("\033[F")
         sys.stdout.flush()
         tar.close()
