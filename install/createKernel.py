@@ -255,10 +255,10 @@ class PixiedustInstall(InstallKernelSpec):
             temp_file.write(chunk)
             temp_file.flush()
             bytes_read += len(chunk)
-            print("{} %".format(int(((bytes_read*1.0)/total_bytes)*100)))
+            print(" {} %".format(int(((bytes_read*1.0)/total_bytes)*100)))
             sys.stdout.write("\033[F")
             sys.stdout.flush()
-        print("     ")
+        print("      ")
         sys.stdout.write("\033[F")
         sys.stdout.flush()
         return temp_file
