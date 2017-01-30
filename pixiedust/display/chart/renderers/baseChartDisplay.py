@@ -82,7 +82,19 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
 
     @cache(fieldName="keyFields")
     def getKeyFields(self):
-        fieldNames = self.getFieldNames()
+        """ Get the dataframe field names from metadata (usually specified by the user 
+        as key fields in the chart option dialog)
+
+        Args: 
+            self (class): class that extends BaseChartDisplay
+
+        Returns: 
+            List of strings: dataframe field names
+
+        Raises:
+            Calls ShowChartOptionDialog() if array is empty
+        """
+        fieldNames = self.getFieldNames() # get all field names in data format-independent way
         if self.supportsKeyFields(self.handlerId) == False:
             return []
         keyFields = []
@@ -97,6 +109,14 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
 
     @cache(fieldName="keyFieldValues")
     def getKeyFieldValues(self):
+        """ Get the DATA for the dataframe key fields
+
+        Args: 
+            self (class): class that extends BaseChartDisplay
+
+        Returns: 
+            List of lists: data for the key fields
+        """
         keyFields = self.getKeyFields()
         if (len(keyFields) == 0):
             return []
