@@ -25,6 +25,7 @@ import pixiedust
 import warnings
 from six import iteritems
 from IPython.core.getipython import get_ipython
+from .environment import Environment
 
 myLogger = pixiedust.getLogger(__name__)
 
@@ -130,7 +131,7 @@ class PixiedustScalaMagics(Magics):
         clSlot = self.getLineOption(line, "cl")
         clExt = "." + clSlot if clSlot is not None else ""
         scalaCode = self.env.getTemplate("scalaCell.template").render(
-            cell=cell, variables=self.interactiveVariables.getVarsDict(), returnVars=self.getReturnVars(cell), cl=clExt
+            scalaVersion=Environment.scalaVersion, cell=cell, variables=self.interactiveVariables.getVarsDict(), returnVars=self.getReturnVars(cell), cl=clExt
         )
         if self.hasLineOption(line, "debug"):
             print(scalaCode)
