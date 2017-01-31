@@ -25,9 +25,9 @@ myLogger = pixiedust.getLogger(__name__)
 
 @PixiedustRenderer(rendererId="mapbox")
 class MapBoxBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
-    pass
+	pass
 
-    def getChartOptions(self):
+	def getChartOptions(self):
 		return [
 			{ 'name': 'kind',
 			  'metadata': {
