@@ -1,0 +1,9 @@
+{%extends resModule + ":baseChartOptionsDialogBody.html"%}
+{%block staticFigure%}
+{%endblock%}
+{%block customFormFields%}
+<div class="form-group col-sm-8" style="padding: 0px 0px 0px 5px;">
+	<label for="title{{prefix}}">Mapbox Access Token:</label>
+	<input type="text" class="form-control" id="mapboxtoken{{prefix}}" name="mapboxtoken" value="{{this.options.get("mapboxtoken") or ""}}">
+</div>
+{%endblock%}
