@@ -132,7 +132,7 @@ class JavaWrapper(object):
         jMethodParams = None if argLen == 0 else sc._gateway.new_array(sc._jvm.Class, argLen )
         jMethodArgs = None if argLen == 0 else sc._gateway.new_array(sc._jvm.Object, argLen )
         for i,arg in enumerate(args):
-            jMethodParams[i] = (arg if arg.__class__.__name__ == "JavaClass" else arg.getClass())
+            jMethodParams[i] = None if arg is None else (arg if arg.__class__.__name__ == "JavaClass" else arg.getClass())
             jMethodArgs[i] = arg
         #find the method and invoke it
         for m in self.jHandle.getClass().getMethods():
@@ -142,7 +142,7 @@ class JavaWrapper(object):
                 match=True
                 if argLen > 0:
                     for m1,m2 in zip( m.getParameterTypes(), jMethodParams ):
-                        if not m1.isAssignableFrom(m2):
+                        if m2 is not None and not m1.isAssignableFrom(m2):
                             myLogger.debug("Found method {0} with arguments that are not matching: {1} => {2}".format(methodName, m1, m2))
                             match = False
                             break;

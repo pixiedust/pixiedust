@@ -31,11 +31,18 @@ import time
 myLogger = pixiedust.getLogger(__name__)
 _env = PixiedustTemplateEnvironment()
 progressMonitor = None
+loadingProgressMonitor = False
 
 def enableSparkJobProgressMonitor():
-    global progressMonitor
-    if progressMonitor is None:
-        progressMonitor = SparkJobProgressMonitor()
+    global progressMonitor, loadingProgressMonitor
+    if progressMonitor is None and not loadingProgressMonitor:
+        loadingProgressMonitor = True
+        def startSparkJobProgressMonitor():
+            global progressMonitor
+            progressMonitor = SparkJobProgressMonitor()
+        t = Thread(target=startSparkJobProgressMonitor)
+        t.daemon = True
+        t.start()
 
 class SparkJobProgressMonitorOutput(Thread):
     class Java:
@@ -181,18 +188,22 @@ class SparkJobProgressMonitor(object):
         self.newDisplayRun=False
 
     def addSparkListener(self):
-        get_ipython().run_cell_magic(
-            "scala",
-            "cl=sparkProgressMonitor",
-            _env.getTemplate("sparkJobProgressMonitor/addSparkListener.scala").render()
-        )
+        try:
+            get_ipython().run_cell_magic(
+                "scala",
+                "cl=sparkProgressMonitor noSqlContext",
+                _env.getTemplate("sparkJobProgressMonitor/addSparkListener.scala").render()
+            )
 
-        listener = get_ipython().user_ns.get("__pixiedustSparkListener")
+            listener = get_ipython().user_ns.get("__pixiedustSparkListener")
 
-        #access the listener object from the namespace
-        if listener:
-            self.monitorOutput = SparkJobProgressMonitorOutput()
-            self.monitorOutput.start()
-            #Add pre_run_cell event handler
-            get_ipython().events.register('pre_run_cell',lambda: self.monitorOutput.onRunCell() )
-            listener.setChannelListener( self.monitorOutput )
+            #access the listener object from the namespace
+            if listener:
+                self.monitorOutput = SparkJobProgressMonitorOutput()
+                self.monitorOutput.start()
+                #Add pre_run_cell event handler
+                get_ipython().events.register('pre_run_cell',lambda: self.monitorOutput.onRunCell() )
+                listener.setChannelListener( self.monitorOutput )
+        except:
+            myLogger.exception("Unexpected error while adding Spark Listener")
+            raise

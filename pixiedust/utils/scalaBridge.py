@@ -25,6 +25,7 @@ import pixiedust
 import warnings
 from six import iteritems
 from IPython.core.getipython import get_ipython
+from .environment import Environment
 
 myLogger = pixiedust.getLogger(__name__)
 
@@ -99,12 +100,12 @@ class PixiedustScalaMagics(Magics):
         self.class_path = JavaWrapper("java.lang.System").getProperty("java.class.path")
         self.env = PixiedustTemplateEnvironment()
 
-    def getLineOption(self, line, optionName):
+    def getLineOption(self, line, optionName, defaultValue=None):
         m=re.search(r"\b" + optionName + r"=(\S+)",line)
-        return m.group(1) if m is not None else None
+        return m.group(1) if m is not None else defaultValue
 
     def hasLineOption(self, line, optionName):
-        return re.match(r"\b" + optionName + r"\b", line) is not None
+        return re.search(r"\b" + optionName + r"\b", line) is not None
 
     def getReturnVars(self, code):
         vars=set()
@@ -120,18 +121,6 @@ class PixiedustScalaMagics(Magics):
                 return SQLContext(SparkContext.getOrCreate(),stuff)
         return stuff
 
-    def get_scala_version(self):
-        scala = "{}{}bin{}scala".format(self.scala_home, os.sep, os.sep)
-        try:
-            scala_out = subprocess.check_output([scala, "-version"], stderr=subprocess.STDOUT).decode("utf-8")
-        except subprocess.CalledProcessError as cpe:
-            scala_out = cpe.output
-        match = re.search('.*version[^0-9]*([0-9]*[^.])\.([0-9]*[^.])\.([0-9]*[^.]).*', scala_out)
-        if match and len(match.groups()) > 2:
-            return int(match.group(1)), int(match.group(2))
-        else:
-            return None
-
     @cell_magic
     def scala(self, line, cell):
         if not self.scala_home:
@@ -142,7 +131,7 @@ class PixiedustScalaMagics(Magics):
         clSlot = self.getLineOption(line, "cl")
         clExt = "." + clSlot if clSlot is not None else ""
         scalaCode = self.env.getTemplate("scalaCell.template").render(
-            cell=cell, variables=self.interactiveVariables.getVarsDict(), returnVars=self.getReturnVars(cell), cl=clExt, scalaVersion=self.get_scala_version()
+            scalaVersion=Environment.scalaVersion, cell=cell, variables=self.interactiveVariables.getVarsDict(), returnVars=self.getReturnVars(cell), cl=clExt
         )
         if self.hasLineOption(line, "debug"):
             print(scalaCode)
@@ -188,7 +177,7 @@ class PixiedustScalaMagics(Magics):
 
         runnerObject = JavaWrapper(cls.getField("MODULE$").get(None), True, 
             self.getLineOption(line, "channel"), self.getLineOption(line, "receiver"))
-        runnerObject.callMethod("init", pd_getJavaSparkContext(), self.interactiveVariables.getVar("sqlContext")._ssql_ctx )
+        runnerObject.callMethod("init", pd_getJavaSparkContext(), None if self.hasLineOption(line, "noSqlContext") else self.interactiveVariables.getVar("sqlContext")._ssql_ctx )
         
         #Init the variables
         for key, val in iteritems(self.interactiveVariables.getVarsDict()):

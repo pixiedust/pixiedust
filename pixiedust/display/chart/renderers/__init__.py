@@ -15,6 +15,7 @@
 # -------------------------------------------------------------------------------
 
 import pixiedust
+from pixiedust.utils.userPreferences import *
 
 myLogger = pixiedust.getLogger(__name__)
 
@@ -47,8 +48,12 @@ class PixiedustRenderer(object):
 
     @staticmethod
     def getRenderer(options, entity):
-        rendererId = options.get('rendererId', 'matplotlib')
         handlerId = options.get("handlerId")
+        rendererId = options.get('rendererId', None )
+        if rendererId is not None:
+            setUserPreference(handlerId, rendererId)
+        else:
+            rendererId = getUserPreference( handlerId, 'matplotlib')
         renderers = _renderers.get(handlerId)
         if renderers is None or len(renderers)==0:
             myLogger.debug("Couldn't find a renderer for {0} in {1}".format(handlerId, _renderers))

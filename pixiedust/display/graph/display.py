@@ -18,6 +18,9 @@ from ..display import Display
 from pyspark.sql import DataFrame
 from pyspark.sql import functions as F
 import yaml
+import pixiedust
+
+myLogger = pixiedust.getLogger(__name__)
 
 class GraphDisplay(Display):
     def doRender(self,handlerId):
@@ -25,8 +28,8 @@ class GraphDisplay(Display):
         
         if ( handlerId == "nodeLinkGraph"):
             import json
-            ar = g.edges.select("src","dst").map(lambda s,d: (s,[d]))\
-                .reduceByKey(lambda d1,d2: d1+d2).map(lambda src, arTargets: (src, list(set(arTargets))))\
+            ar = g.edges.select("src","dst").map(lambda row: (row[0],[row[1]]))\
+                .reduceByKey(lambda d1,d2: d1+d2).map(lambda row: (row[0], list(set(row[1]))))\
                 .collect()
 
             dic = {item[0] : item[1] for item in ar}
@@ -72,16 +75,16 @@ class GraphDisplay(Display):
         else:
             graphNodesJson="{"
             for r in g.vertices.map(lambda row: """"{0}":{{"id":"{0}","name":"{1}","latitude":{2},"longitude":{3}}}"""
-                .format(row.id, row.name.encode("ascii","ignore"),0.0 if row.latitude is None else row.latitude,0.0 if row.longitude is None else row.longitude)).collect():
+                .format(row.id, row.name.encode("ascii","ignore").decode("ascii"),0.0 if row.latitude is None else row.latitude,0.0 if row.longitude is None else row.longitude)).collect():
                 graphNodesJson+=("," if len(graphNodesJson)>1 else "") + str(r)
             graphNodesJson+="}"        
             graphLinksJson=str(g.edges.select("src","dst").groupBy("src","dst").agg(F.count("src").alias("count")).toJSON().map(lambda j: yaml.safe_load(j)).collect())
-    
+            
             self._addScriptElement("https://d3js.org/d3.v3.js", checkJSVar="d3",
                 callback= self.renderTemplate("graphMap.js", graphNodesJson=graphNodesJson, graphLinksJson=graphLinksJson))
             #self._addScriptElement("https://mbostock.github.io/d3/talk/20111116/d3/d3.geo.js")
             #self._addScriptElement(
             #    "https://mbostock.github.io/d3/talk/20111116/d3/d3.geom.js", 
             #    callback= self.renderTemplate("graphMap.js", graphNodesJson=graphNodesJson, graphLinksJson=graphLinksJson)
-            #)        
+            #)
             self._addHTMLTemplate("graphMap.html")

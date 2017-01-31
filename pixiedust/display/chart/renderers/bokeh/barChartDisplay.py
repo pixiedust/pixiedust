@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------------
-# Copyright IBM Corp. 2016
+# Copyright IBM Corp. 2017
 # 
 # Licensed under the Apache License, Version 2.0 (the 'License');
 # you may not use this file except in compliance with the License.
@@ -17,10 +17,33 @@
 from pixiedust.display.chart.renderers import PixiedustRenderer
 from .bokehBaseDisplay import BokehBaseDisplay
 import pixiedust
+from bokeh.charts import Bar
 
 myLogger = pixiedust.getLogger(__name__)
 
 @PixiedustRenderer(id="barChart")
 class BarChartRenderer(BokehBaseDisplay):
-    def doRenderChart(self):
-        return "<b>Bar chart powered by Bokeh not yet implemented</b>"
+    def getChartContext(self, handlerId):
+        return ('barChartOptionsDialogBody.html', {})
+
+    def createBokehChart(self):
+        pandaList = self.getPandasValueFieldValueLists()
+        data = pandaList[0] if len(pandaList) >= 1 else []
+
+        stacked = self.options.get("stacked", "true") == "true"
+        group = None
+        stack = None
+        color = self.getKeyFields()[0]
+        if len(self.getKeyFields())>1:
+            color = self.getKeyFields()[1]
+            if stacked:
+                stack = self.getKeyFields()
+            else:
+                group = self.getKeyFields()
+        
+        agg=(self.getAggregation() or "count").lower()
+        if agg == 'avg':
+            agg = 'mean'
+
+        return Bar(data, values='agg', agg=agg, label=self.getKeyFields()[0], group=group, stack=stack, legend=None, 
+            color=color, plot_width=800)

@@ -1,4 +1,137 @@
 Display API
 ===========
 
-all about it
+
+Introduction
+------------
+
+PixieDust provides a simple display() API that lets you visualize and chart your data in different ways. You can invoke the display API on any object (e.g. Spark DataFrame, Pandas DataFrame, etc...). Pixiedust display then introspects the object, determines what visualizations are capable of handling the data, and make them available as menus within the output of the cell. If no visualization is found, then Pixiedust display shows an error message. Pixiedust display comes with a set of built-in visualizations like tables, bar charts, line charts, scatter plots, maps, and more. 
+
+PixieDust display is also extensible, it provides a simple API that lets you write your own visualization plugin, using HTML, JavaScript and CSS. Read how to `write your own PixieDust visualization <writeviz.html>`_.
+
+
+Get Started
+-----------
+
+To get started, let's look at some sample code that create a data frame with simple data.
+
+   ::
+
+     #import pixiedust display module
+     from pixiedust.display import *
+
+     #Create a dataframe with Quarterly sales results
+     sqlContext = SQLContext(sc)
+     dd = sqlContext.createDataFrame(
+          [(2010, 'Camping Equipment', 3),
+          (2010, 'Golf Equipment', 1),
+          (2010, 'Mountaineering Equipment', 1),
+          (2010, 'Outdoor Protection', 2),
+          (2010, 'Personal Accessories', 2),
+          (2011, 'Camping Equipment', 4),
+          (2011, 'Golf Equipment', 5),
+          (2011, 'Mountaineering Equipment',2),
+          (2011, 'Outdoor Protection', 4),
+          (2011, 'Personal Accessories', 2),
+          (2012, 'Camping Equipment', 5),
+          (2012, 'Golf Equipment', 5),
+          (2012, 'Mountaineering Equipment', 3),
+          (2012, 'Outdoor Protection', 5),
+          (2012, 'Personal Accessories', 3),
+          (2013, 'Camping Equipment', 8),
+          (2013, 'Golf Equipment', 5),
+          (2013, 'Mountaineering Equipment', 3),
+          (2013, 'Outdoor Protection', 8),
+          (2013, 'Personal Accessories', 4)],
+          ["year", "zone", "unique_customers"])
+	
+     #call a simple display api to visualize the data
+     display(dd)
+
+
+In the case above, display() looks up into its internal registry to build a list of visualizations that can handle a Spark DataFrame and generates the a menu toobar for each of them. The cell output looks like this:
+
+.. container:: 
+
+.. raw:: html
+
+     <img src="https://github.com/DTAIEB/demos/raw/master/resources/PixieDust Sample Display.png" width="615">
+
+The table above display extended information about the Spark DataFrame:  
+
+ * Schema: give detailed information about the DataFrame schema
+ * Table: display a sample of the data
+
+Charts
+------
+
+As mentioned before, Pixiedust display provides an extensive set of chart visualizations. Under the cover, it uses matplotlib to generate the charts and then mpld3 to transform these chart into D3 generated interactive charts that allow zooming, toolips, etc...  
+You can configure the content of the chart by calling the options dialog available for each chart, using the Options button. The options dialog is composed of a set of commons options for every chart plus a set of additional options relevant to the currently selected chart.  
+
+Here are the commons options for every charts:  
+
+* Chart Title: display a title  
+* Fields: available field name derived from the DataFrame schema  
+* Keys: Name of the fields that will be used for the X-Axis  
+* Values: Name of fields that will be user for the Y-Axis  
+* Aggregation: Type of aggregation to be performed on the data  
+	* SUM: sum of values for the key
+	* AVG: average of values for the key
+	* MIN: Min of values for the key
+	* MAX: Max of values for the key
+	* COUNT: number of times the key occurs
+
+For example, Bar Chart shows the following options dialog:
+
+.. container:: 
+
+.. raw:: html
+
+     <img src="https://github.com/DTAIEB/demos/raw/master/resources/PixieDust Options Dialog.png" width="615">
+
+
+Bar Charts
+**********
+
+Bar charts are frequently used because they make it easy to compare between each item. When you select more than one key or value, you have the option to choose between 2 types of bar chart: 
+
+* Stacked: items in a category are represented in a single column with different color for each segment  
+* Grouped: items in a category are displayed side by side, making it easier to compare between each other.  
+
+In our example, we use a Grouped bar chart showing the quarterly number of unique customers grouped by year:
+
+.. container:: 
+
+.. raw:: html
+
+     <img src="https://github.com/DTAIEB/demos/raw/master/resources/PixieDust Bar Chart.png" width="615">
+
+
+Line Charts
+***********
+
+.. container:: 
+
+.. raw:: html
+
+     <img src="https://github.com/DTAIEB/demos/raw/master/resources/PixieDust Line Chart.png" width="615">
+
+
+Scatter Plots
+*************
+
+Pie Charts
+**********
+
+Map
+***
+
+Histograms
+**********
+
+
+Conclusion
+----------
+
+Pixiedust display has a built-in set of chart visualizations that can render Spark and Pandas dataframe. The generated charts are easy to configure and also offer interactivity like Panning, zooming and tooltip. Pixiedust display() is also extensible and provide an API to let you write your own vizualizations.
+

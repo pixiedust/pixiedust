@@ -6,10 +6,11 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Develop for PixieDust &mdash; PixieDust 1.0 documentation</title>
+    <title>Develop for PixieDust &mdash; PixieDust Documentation</title>
     
     <link rel="stylesheet" href="_static/better.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/custom.css" type="text/css" />
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
@@ -23,14 +24,15 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="PixieDust 1.0 documentation" href="index.html" />
+    <link rel="shortcut icon" href="_static/pd_icon.ico"/>
+    <link rel="top" title="PixieDust Documentation" href="index.html" />
     <link rel="next" title="Contribute" href="contribute.html" />
-    <link rel="prev" title="Use Scala in a Python Notebook" href="scalabridge.html" />
+    <link rel="prev" title="Spark Progress Monitor" href="progressmonitor.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   </head>
   <body role="document">
     <header id="pageheader"><h1><a href="index.html ">
-        PixieDust 1.0 documentation
+        PixieDust Documentation
     </a></h1></header>  
 
     <div class="document">
@@ -40,20 +42,28 @@
             
   <div class="section" id="develop-for-pixiedust">
 <h1>Develop for PixieDust<a class="headerlink" href="#develop-for-pixiedust" title="Permalink to this headline">¶</a></h1>
-<p>Welcome to the PixieDust development community. We&#8217;re glad you&#8217;re here.</p>
-<p>lots more...</p>
-<p>Read how to install and get started with our detailed development guide:</p>
+<p>Welcome to the PixieDust development community!</p>
+<p>PixieDust is extensible. You can create a new app to help your notebook users work with data, or build a custom visualization. Use it yourself or contribute it to this project. We&#8217;re glad you&#8217;re here and welcome your enhancements.</p>
+<p>Read how to install and get started:</p>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="install.html">Install PixieDust</a></li>
 <li class="toctree-l1"><a class="reference internal" href="contribute.html">Contribute</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="contribute.html#how-to-contribute">How to Contribute</a></li>
+<li class="toctree-l2"><a class="reference internal" href="contribute.html#create-an-issue">Create an Issue</a></li>
+<li class="toctree-l2"><a class="reference internal" href="contribute.html#create-a-pull-request">Create a Pull Request</a></li>
 <li class="toctree-l2"><a class="reference internal" href="contribute.html#where-we-need-help">Where we need help</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="writeviz.html">Write a new PixieDust Visualization</a></li>
-<li class="toctree-l1"><a class="reference internal" href="renderer.html">Assign to a Renderer</a></li>
-<li class="toctree-l1"><a class="reference internal" href="test.html">Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="writeviz.html">Write a new PixieDust Visualization</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="writeviz.html#code-walk-through-display-a-dataframe-as-a-table">Code walk-through: Display a DataFrame as a table</a></li>
+<li class="toctree-l2"><a class="reference internal" href="writeviz.html#build-your-own-table-display-plugin">Build your own table display plugin</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="renderer.html">Build a Renderer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="test.html">Test</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="test.html#locally-running-the-tests">Locally Running the Tests</a></li>
+</ul>
+</li>
 </ul>
 </div>
 </div>
@@ -71,7 +81,7 @@
 <li class="toctree-l2"><a class="reference internal" href="install.html">Install PixieDust</a></li>
 <li class="toctree-l2"><a class="reference internal" href="contribute.html">Contribute</a></li>
 <li class="toctree-l2"><a class="reference internal" href="writeviz.html">Write a new PixieDust Visualization</a></li>
-<li class="toctree-l2"><a class="reference internal" href="renderer.html">Assign to a Renderer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="renderer.html">Build a Renderer</a></li>
 <li class="toctree-l2"><a class="reference internal" href="test.html">Test</a></li>
 </ul>
 </li>

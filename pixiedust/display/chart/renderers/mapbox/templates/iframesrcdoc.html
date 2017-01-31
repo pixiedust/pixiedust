@@ -1,0 +1,3 @@
+{%block title%}<h1 style="padding:0 0 8px 0">{{this.options.get("title", "PixieDust map with Mapbox")}}</h1>{%endblock%}
+
+<iframe style='width:784px;height:416px' srcdoc='{{body|oneline|replace("'","\\'")}}'></iframe>

@@ -25,4 +25,17 @@ myLogger = pixiedust.getLogger(__name__)
 
 @PixiedustRenderer(rendererId="mapbox")
 class MapBoxBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
-    pass
+	pass
+
+	def getChartOptions(self):
+		return [
+			{ 'name': 'kind',
+			  'metadata': {
+					'type': "dropdown",
+					'values': ["simple","chloropleth","heatmap"],
+					'default': "simple"
+				}
+			}
+		]
+
+    

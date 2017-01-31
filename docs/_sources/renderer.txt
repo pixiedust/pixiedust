@@ -1,5 +1,7 @@
-Assign to a Renderer
+Build a Renderer
 ========================
 
 
-instructs...
+Detailed instructions coming soon...
+
+.. image:: _images/draft-watermark.png

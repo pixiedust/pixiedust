@@ -6,10 +6,11 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Use PixieDust &mdash; PixieDust 1.0 documentation</title>
+    <title>Use PixieDust &mdash; PixieDust Documentation</title>
     
     <link rel="stylesheet" href="_static/better.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/custom.css" type="text/css" />
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
@@ -23,14 +24,15 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="PixieDust 1.0 documentation" href="index.html" />
+    <link rel="shortcut icon" href="_static/pd_icon.ico"/>
+    <link rel="top" title="PixieDust Documentation" href="index.html" />
     <link rel="next" title="Install PixieDust" href="install.html" />
     <link rel="prev" title="Welcome to PixieDust" href="index.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   </head>
   <body role="document">
     <header id="pageheader"><h1><a href="index.html ">
-        PixieDust 1.0 documentation
+        PixieDust Documentation
     </a></h1></header>  
 
     <div class="document">
@@ -40,20 +42,45 @@
             
   <div class="section" id="use-pixiedust">
 <h1>Use PixieDust<a class="headerlink" href="#use-pixiedust" title="Permalink to this headline">¶</a></h1>
-<p>Pixiedust brings you the power to create compelling visuals fast, no coding necessary. You can use PixieDust immediately online in the IBM Cloud, or on your local machine.</p>
+<p>PixieDust brings you the power to create compelling visuals fast, no coding necessary. You can use PixieDust immediately online in the IBM Cloud, or on your local machine.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">PixieDust makes data visualization much easier, but does require basic knowledge of how to load/access and manipulate data within a Python notebook.</p>
+</div>
 <div class="section" id="use-online">
 <h2>Use online<a class="headerlink" href="#use-online" title="Permalink to this headline">¶</a></h2>
-<p>Start by trying PixieDust in a Python notebook. PixieDust is built-in to IBM&#8217;s <a class="reference external" href="http://datascience.ibm.com/">Data Science Experience</a>. Sign up for a free trial there, and create a new notebook from URL using this sample: <code class="docutils literal"><span class="pre">https://github.com/ibm-cds-labs/pixiedust/raw/master/notebook/Intro%20to%20PixieDust.ipynb</span></code></p>
+<p>Start by trying PixieDust in a Python notebook. PixieDust is built-in to IBM&#8217;s <a class="reference external" href="http://datascience.ibm.com/">Data Science Experience</a>. Sign up for a free trial there, and create a new notebook from URL using this sample:</p>
+<p><code class="docutils literal"><span class="pre">https://github.com/ibm-cds-labs/pixiedust/raw/master/notebook/Intro%20to%20PixieDust.ipynb</span></code></p>
 </div>
 <div class="section" id="use-locally">
 <h2>Use locally<a class="headerlink" href="#use-locally" title="Permalink to this headline">¶</a></h2>
-<p>To use locally, just  <a class="reference internal" href="install.html"><em>Install PixieDust</em></a> and....</p>
+<p>To use locally:</p>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="install.html">Install PixieDust</a></li>
-<li class="toctree-l1"><a class="reference internal" href="displayapi.html">Display API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="packagemanager.html">Package Manager</a></li>
-<li class="toctree-l1"><a class="reference internal" href="scalabridge.html">Use Scala in a Python Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sampledata.html">Load Sample Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="displayapi.html">Display API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="displayapi.html#introduction">Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="displayapi.html#get-started">Get Started</a></li>
+<li class="toctree-l2"><a class="reference internal" href="displayapi.html#charts">Charts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="displayapi.html#conclusion">Conclusion</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="packagemanager.html">Package Manager</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="packagemanager.html#introduction">Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="packagemanager.html#install-a-spark-package">Install a spark package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="packagemanager.html#install-from-maven-search-repository">Install from maven search repository</a></li>
+<li class="toctree-l2"><a class="reference internal" href="packagemanager.html#install-a-jar-file-directly-from-an-addressable-location">Install a jar file directly from an addressable location</a></li>
+<li class="toctree-l2"><a class="reference internal" href="packagemanager.html#managing-your-packages">Managing your packages</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="scalabridge.html">Use Scala in a Python Notebook</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="scalabridge.html#introduction">Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="scalabridge.html#using-scala-cell-magic">Using Scala cell magic</a></li>
+<li class="toctree-l2"><a class="reference internal" href="scalabridge.html#variable-transfer">Variable transfer</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="progressmonitor.html">Spark Progress Monitor</a></li>
 </ul>
 </div>
 </div>

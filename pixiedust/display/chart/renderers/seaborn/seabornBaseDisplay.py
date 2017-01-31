@@ -19,14 +19,10 @@ from pixiedust.display.chart.renderers.matplotlib import MatplotlibBaseDisplay
 from ..baseChartDisplay import BaseChartDisplay
 from six import with_metaclass
 from abc import abstractmethod, ABCMeta
-import pandas as pd
 
 import pixiedust
 myLogger = pixiedust.getLogger(__name__)
 
 @PixiedustRenderer(rendererId="seaborn")
 class SeabornBaseDisplay(with_metaclass(ABCMeta, MatplotlibBaseDisplay)):
-	def getPandasDataFrame(self):
-		valueFieldValues = self.getValueFieldValueLists()
-		valueFields = self.getValueFields()
-		return pd.DataFrame([list(a) for a in zip( valueFieldValues[0], valueFieldValues[1]) ], columns=[valueFields[0], valueFields[1]])
+	pass

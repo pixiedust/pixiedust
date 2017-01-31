@@ -1,4 +1,5 @@
-{% macro executeDisplayfunction(options="{}", useCellMetadata=False) -%}
+{% macro executeDisplayfunction(options="{}", useCellMetadata=False, divId=None) -%}
+{% set targetId=divId if divId else "wrapperHTML" + prefix %}
 function() {
     cellId = typeof cellId === "undefined" ? "" : cellId;
     var curCell=IPython.notebook.get_cells().filter(function(cell){
@@ -30,7 +31,7 @@ function() {
                 var content = msg.content;
                 var executionTime = $("#execution{{prefix}}");
                 if(msg_type==="stream"){
-                    $('#wrapperHTML{{prefix}}').html(content.text);
+                    $('#{{targetId}}').html(content.text);
                 }else if (msg_type==="display_data" || msg_type==="execute_result"){
                     var html=null;
                     if (!!content.data["text/html"]){
@@ -51,10 +52,10 @@ function() {
                     
                     if (html){
                         try{
-                            $('#wrapperHTML{{prefix}}').html(html);
+                            $('#{{targetId}}').html(html);
                         }catch(e){
                             console.log("Invalid html output", e, html);
-                            $('#wrapperHTML{{prefix}}').html( "Invalid html output. <pre>" 
+                            $('#{{targetId}}').html( "Invalid html output. <pre>" 
                                 + html.replace(/>/g,'&gt;').replace(/</g,'&lt;').replace(/"/g,'&quot;') + "<pre>");
                         }
 
@@ -103,14 +104,14 @@ function() {
                             data = utils.fixConsole(data);
                             data = utils.fixCarriageReturn(data);
                             data = utils.autoLinkUrls(data);
-                            $('#wrapperHTML{{prefix}}').html("<pre>" + data +"</pre>");
+                            $('#{{targetId}}').html("<pre>" + data +"</pre>");
                         }
                     });
                 }
 
                 //Append profiling info
                 if (executionTime.length > 0 && $("#execution{{prefix}}").length == 0 ){
-                    $('#wrapperHTML{{prefix}}').append(executionTime);
+                    $('#{{targetId}}').append(executionTime);
                 }else if (startWallToWall && $("#execution{{prefix}}").length > 0 ){
                     $("#execution{{prefix}}").append($("<div/>").text("Wall to Wall time: " + ( (new Date().getTime() - startWallToWall)/1000 ) + "s"));
                 }
@@ -122,12 +123,9 @@ function() {
         var command = "{{this._genDisplayScript(menuInfo)}}".replace("cellId",cellId);
         function addOptions(options){
             function getStringRep(v) {
-                if (!isNaN(parseFloat(v)) && isFinite(v)){
-                    return v.toString();
-                }
                 return "'" + v + "'";
             }
-            for (var key in options){
+            for (var key in (options||{})){
                 var value = options[key];
                 var hasValue = value != null && typeof value !== 'undefined' && value !== '';
                 var replaceValue = hasValue ? (key+"=" + getStringRep(value) ) : "";
@@ -175,7 +173,7 @@ function() {
             console.log("couldn't find the cell");
         }
         $('#wrapperJS{{prefix}}').html("")
-        $('#wrapperHTML{{prefix}}').html('<div style="width:100px;height:60px;left:47%;position:relative"><i class="fa fa-circle-o-notch fa-spin" style="font-size:48px"></i></div>'+
+        $('#{{targetId}}').html('<div style="width:100px;height:60px;left:47%;position:relative"><i class="fa fa-circle-o-notch fa-spin" style="font-size:48px"></i></div>'+
         '<div style="text-align:center">Loading your data. Please wait...</div>');
         startWallToWall = new Date().getTime();
         {% if this.scalaKernel %}
@@ -189,9 +187,13 @@ function() {
 }
 {% endmacro %}
 
-{% macro executeDisplay(options="{}",useCellMetadata=False) -%}
-    {% set content=caller() %}
-    !{%call executeDisplayfunction(options, useCellMetadata)%}
+{% macro executeDisplay(options="{}",useCellMetadata=False, divId=None) -%}
+    {%if caller%}
+        {% set content=caller() %}
+    {%else%}
+        {% set content="" %}
+    {%endif%}
+    !{%call executeDisplayfunction(options, useCellMetadata, divId)%}
         {{content}}
     {%endcall%}()
 {%- endmacro %}

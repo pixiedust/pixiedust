@@ -57,6 +57,10 @@ class ProxyShellCaptureOutput(object):
 
 class ProxyDisplayPublisher(DisplayPublisher):
     def publish(self, data, metadata=None, source=None):
+        if not isinstance(data, dict):
+            raise TypeError('data must be a dict, got: %r' % data)
+        if metadata is not None and not isinstance(metadata, dict):
+            raise TypeError('metadata must be a dict, got: %r' % data)
         content = {}
         content['data'] = encode_images(data)
         content['metadata'] = metadata

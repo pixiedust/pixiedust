@@ -6,10 +6,11 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Display API &mdash; PixieDust 1.0 documentation</title>
+    <title>Display API &mdash; PixieDust Documentation</title>
     
     <link rel="stylesheet" href="_static/better.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/custom.css" type="text/css" />
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
@@ -23,15 +24,16 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="PixieDust 1.0 documentation" href="index.html" />
+    <link rel="shortcut icon" href="_static/pd_icon.ico"/>
+    <link rel="top" title="PixieDust Documentation" href="index.html" />
     <link rel="up" title="Use PixieDust" href="use.html" />
     <link rel="next" title="Package Manager" href="packagemanager.html" />
-    <link rel="prev" title="Install PixieDust" href="install.html" />
+    <link rel="prev" title="Load Sample Data" href="sampledata.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   </head>
   <body role="document">
     <header id="pageheader"><h1><a href="index.html ">
-        PixieDust 1.0 documentation
+        PixieDust Documentation
     </a></h1></header>  
 
     <div class="document">
@@ -41,7 +43,114 @@
             
   <div class="section" id="display-api">
 <h1>Display API<a class="headerlink" href="#display-api" title="Permalink to this headline">¶</a></h1>
-<p>all about it</p>
+<div class="section" id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
+<p>PixieDust provides a simple display() API that lets you visualize and chart your data in different ways. You can invoke the display API on any object (e.g. Spark DataFrame, Pandas DataFrame, etc...). Pixiedust display then introspects the object, determines what visualizations are capable of handling the data, and make them available as menus within the output of the cell. If no visualization is found, then Pixiedust display shows an error message. Pixiedust display comes with a set of built-in visualizations like tables, bar charts, line charts, scatter plots, maps, and more.</p>
+<p>PixieDust display is also extensible, it provides a simple API that lets you write your own visualization plugin, using HTML, JavaScript and CSS. Read how to <a class="reference external" href="writeviz.html">write your own PixieDust visualization</a>.</p>
+</div>
+<div class="section" id="get-started">
+<h2>Get Started<a class="headerlink" href="#get-started" title="Permalink to this headline">¶</a></h2>
+<p>To get started, let&#8217;s look at some sample code that create a data frame with simple data.</p>
+<blockquote>
+<div><div class="highlight-python"><div class="highlight"><pre><span></span><span class="c1">#import pixiedust display module</span>
+<span class="kn">from</span> <span class="nn">pixiedust.display</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="c1">#Create a dataframe with Quarterly sales results</span>
+<span class="n">sqlContext</span> <span class="o">=</span> <span class="n">SQLContext</span><span class="p">(</span><span class="n">sc</span><span class="p">)</span>
+<span class="n">dd</span> <span class="o">=</span> <span class="n">sqlContext</span><span class="o">.</span><span class="n">createDataFrame</span><span class="p">(</span>
+     <span class="p">[(</span><span class="mi">2010</span><span class="p">,</span> <span class="s1">&#39;Camping Equipment&#39;</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
+     <span class="p">(</span><span class="mi">2010</span><span class="p">,</span> <span class="s1">&#39;Golf Equipment&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+     <span class="p">(</span><span class="mi">2010</span><span class="p">,</span> <span class="s1">&#39;Mountaineering Equipment&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+     <span class="p">(</span><span class="mi">2010</span><span class="p">,</span> <span class="s1">&#39;Outdoor Protection&#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+     <span class="p">(</span><span class="mi">2010</span><span class="p">,</span> <span class="s1">&#39;Personal Accessories&#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+     <span class="p">(</span><span class="mi">2011</span><span class="p">,</span> <span class="s1">&#39;Camping Equipment&#39;</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span>
+     <span class="p">(</span><span class="mi">2011</span><span class="p">,</span> <span class="s1">&#39;Golf Equipment&#39;</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span>
+     <span class="p">(</span><span class="mi">2011</span><span class="p">,</span> <span class="s1">&#39;Mountaineering Equipment&#39;</span><span class="p">,</span><span class="mi">2</span><span class="p">),</span>
+     <span class="p">(</span><span class="mi">2011</span><span class="p">,</span> <span class="s1">&#39;Outdoor Protection&#39;</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span>
+     <span class="p">(</span><span class="mi">2011</span><span class="p">,</span> <span class="s1">&#39;Personal Accessories&#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+     <span class="p">(</span><span class="mi">2012</span><span class="p">,</span> <span class="s1">&#39;Camping Equipment&#39;</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span>
+     <span class="p">(</span><span class="mi">2012</span><span class="p">,</span> <span class="s1">&#39;Golf Equipment&#39;</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span>
+     <span class="p">(</span><span class="mi">2012</span><span class="p">,</span> <span class="s1">&#39;Mountaineering Equipment&#39;</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
+     <span class="p">(</span><span class="mi">2012</span><span class="p">,</span> <span class="s1">&#39;Outdoor Protection&#39;</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span>
+     <span class="p">(</span><span class="mi">2012</span><span class="p">,</span> <span class="s1">&#39;Personal Accessories&#39;</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
+     <span class="p">(</span><span class="mi">2013</span><span class="p">,</span> <span class="s1">&#39;Camping Equipment&#39;</span><span class="p">,</span> <span class="mi">8</span><span class="p">),</span>
+     <span class="p">(</span><span class="mi">2013</span><span class="p">,</span> <span class="s1">&#39;Golf Equipment&#39;</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span>
+     <span class="p">(</span><span class="mi">2013</span><span class="p">,</span> <span class="s1">&#39;Mountaineering Equipment&#39;</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
+     <span class="p">(</span><span class="mi">2013</span><span class="p">,</span> <span class="s1">&#39;Outdoor Protection&#39;</span><span class="p">,</span> <span class="mi">8</span><span class="p">),</span>
+     <span class="p">(</span><span class="mi">2013</span><span class="p">,</span> <span class="s1">&#39;Personal Accessories&#39;</span><span class="p">,</span> <span class="mi">4</span><span class="p">)],</span>
+     <span class="p">[</span><span class="s2">&quot;year&quot;</span><span class="p">,</span> <span class="s2">&quot;zone&quot;</span><span class="p">,</span> <span class="s2">&quot;unique_customers&quot;</span><span class="p">])</span>
+
+<span class="c1">#call a simple display api to visualize the data</span>
+<span class="n">display</span><span class="p">(</span><span class="n">dd</span><span class="p">)</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>In the case above, display() looks up into its internal registry to build a list of visualizations that can handle a Spark DataFrame and generates the a menu toobar for each of them. The cell output looks like this:</p>
+<img src="https://github.com/DTAIEB/demos/raw/master/resources/PixieDust Sample Display.png" width="615"><p>The table above display extended information about the Spark DataFrame:</p>
+<blockquote>
+<div><ul class="simple">
+<li>Schema: give detailed information about the DataFrame schema</li>
+<li>Table: display a sample of the data</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="charts">
+<h2>Charts<a class="headerlink" href="#charts" title="Permalink to this headline">¶</a></h2>
+<p>As mentioned before, Pixiedust display provides an extensive set of chart visualizations. Under the cover, it uses matplotlib to generate the charts and then mpld3 to transform these chart into D3 generated interactive charts that allow zooming, toolips, etc...
+You can configure the content of the chart by calling the options dialog available for each chart, using the Options button. The options dialog is composed of a set of commons options for every chart plus a set of additional options relevant to the currently selected chart.</p>
+<p>Here are the commons options for every charts:</p>
+<ul>
+<li><p class="first">Chart Title: display a title</p>
+</li>
+<li><p class="first">Fields: available field name derived from the DataFrame schema</p>
+</li>
+<li><p class="first">Keys: Name of the fields that will be used for the X-Axis</p>
+</li>
+<li><p class="first">Values: Name of fields that will be user for the Y-Axis</p>
+</li>
+<li><dl class="first docutils">
+<dt>Aggregation: Type of aggregation to be performed on the data</dt>
+<dd><ul class="first last simple">
+<li>SUM: sum of values for the key</li>
+<li>AVG: average of values for the key</li>
+<li>MIN: Min of values for the key</li>
+<li>MAX: Max of values for the key</li>
+<li>COUNT: number of times the key occurs</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+<p>For example, Bar Chart shows the following options dialog:</p>
+<img src="https://github.com/DTAIEB/demos/raw/master/resources/PixieDust Options Dialog.png" width="615"><div class="section" id="bar-charts">
+<h3>Bar Charts<a class="headerlink" href="#bar-charts" title="Permalink to this headline">¶</a></h3>
+<p>Bar charts are frequently used because they make it easy to compare between each item. When you select more than one key or value, you have the option to choose between 2 types of bar chart:</p>
+<ul class="simple">
+<li>Stacked: items in a category are represented in a single column with different color for each segment</li>
+<li>Grouped: items in a category are displayed side by side, making it easier to compare between each other.</li>
+</ul>
+<p>In our example, we use a Grouped bar chart showing the quarterly number of unique customers grouped by year:</p>
+<img src="https://github.com/DTAIEB/demos/raw/master/resources/PixieDust Bar Chart.png" width="615"></div>
+<div class="section" id="line-charts">
+<h3>Line Charts<a class="headerlink" href="#line-charts" title="Permalink to this headline">¶</a></h3>
+<img src="https://github.com/DTAIEB/demos/raw/master/resources/PixieDust Line Chart.png" width="615"></div>
+<div class="section" id="scatter-plots">
+<h3>Scatter Plots<a class="headerlink" href="#scatter-plots" title="Permalink to this headline">¶</a></h3>
+</div>
+<div class="section" id="pie-charts">
+<h3>Pie Charts<a class="headerlink" href="#pie-charts" title="Permalink to this headline">¶</a></h3>
+</div>
+<div class="section" id="map">
+<h3>Map<a class="headerlink" href="#map" title="Permalink to this headline">¶</a></h3>
+</div>
+<div class="section" id="histograms">
+<h3>Histograms<a class="headerlink" href="#histograms" title="Permalink to this headline">¶</a></h3>
+</div>
+</div>
+<div class="section" id="conclusion">
+<h2>Conclusion<a class="headerlink" href="#conclusion" title="Permalink to this headline">¶</a></h2>
+<p>Pixiedust display has a built-in set of chart visualizations that can render Spark and Pandas dataframe. The generated charts are easy to configure and also offer interactivity like Panning, zooming and tooltip. Pixiedust display() is also extensible and provide an API to let you write your own vizualizations.</p>
+</div>
 </div>
 
 
@@ -53,10 +162,8 @@
 <h3><a href="index.html">Table Of Contents</a></h3>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="use.html">Use PixieDust</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="install.html">Install PixieDust</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="">Display API</a></li>
-<li class="toctree-l2"><a class="reference internal" href="packagemanager.html">Package Manager</a></li>
-<li class="toctree-l2"><a class="reference internal" href="scalabridge.html">Use Scala in a Python Notebook</a></li>
+<li class="toctree-l2"><a class="reference internal" href="use.html#use-online">Use online</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="use.html#use-locally">Use locally</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="develop.html">Develop for PixieDust</a></li>
