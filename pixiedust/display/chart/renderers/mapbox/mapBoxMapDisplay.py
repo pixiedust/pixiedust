@@ -25,7 +25,7 @@ myLogger = pixiedust.getLogger(__name__)
 
 @PixiedustRenderer(id="mapView")
 class MapViewDisplay(MapBoxBaseDisplay):
-        def isMap(self, handlerId):
+    def isMap(self, handlerId):
         return True
 
     def supportsAggregation(self, handlerId):
