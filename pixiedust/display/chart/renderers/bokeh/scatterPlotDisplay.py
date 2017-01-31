@@ -35,21 +35,21 @@ class ScatterPlotRenderer(BokehBaseDisplay):
 
     def getChartOptions(self):
         return [
-			{ 'name': 'color',
-			  'metadata': {
-					'type': "dropdown",
+            { 'name': 'color',
+              'metadata': {
+                    'type': "dropdown",
                     'values': self.getFieldNames(),
-					'default': ""
-				}
-			}
-		]
+                    'default': ""
+                }
+            }
+        ]
 
     def canRenderChart(self):
-		valueFields = self.getValueFields()
-		if len(valueFields) < 2:
-			return (False, "At least two numerical columns required.")
-		else:
-			return (True, None)
+        valueFields = self.getValueFields()
+        if len(valueFields) < 2:
+            return (False, "At least two numerical columns required.")
+        else:
+            return (True, None)
 
     def getPandasDataFrame(self):
         valueFields = self.getValueFields()
