@@ -57,6 +57,8 @@ Helper decorator that automatically cache results of a class method into a field
 """
 def cache(fieldName):
     def outer(func):
+        if fieldName == func.__name__:
+            raise AttributeError("cached fieldName cannot have the same name as the function: {}".format(fieldName))
         def inner(cls, *args, **kwargs):
             if hasattr(cls, fieldName) and getattr(cls, fieldName) is not None:
                 return getattr(cls, fieldName)
