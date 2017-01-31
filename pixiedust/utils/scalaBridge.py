@@ -126,7 +126,7 @@ class PixiedustScalaMagics(Magics):
         if not self.scala_home:
             print("Error Cannot run scala code: SCALA_HOME environment variable not set")
             return
-        
+
         #generate the code
         clSlot = self.getLineOption(line, "cl")
         clExt = "." + clSlot if clSlot is not None else ""
