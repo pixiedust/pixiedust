@@ -16,9 +16,6 @@
 
 from pixiedust.display.chart.renderers import PixiedustRenderer
 from .matplotlibBaseDisplay import MatplotlibBaseDisplay
-import matplotlib.pyplot as plt
-import mpld3
-import numpy as np
 
 @PixiedustRenderer(id="scatterPlot")
 class ScatterPlotDisplay(MatplotlibBaseDisplay):
@@ -43,14 +40,4 @@ class ScatterPlotDisplay(MatplotlibBaseDisplay):
 		return 2
 
 	def matplotlibRender(self, fig, ax):
-		valueFieldValues = self.getValueFieldValueLists()
-		valueFields = self.getValueFields()
-		paths = ax.scatter(valueFieldValues[0],valueFieldValues[1],c=valueFieldValues[1],marker='o',alpha=0.7,s=124,cmap=self.colormap)
-		labels = []
-		for i in range(len(valueFieldValues[0])):
-			labels.append('({0},{1})'.format(valueFieldValues[0][i],valueFieldValues[1][i]))
-		if self.has_mpld3:
-			tooltip = mpld3.plugins.PointLabelTooltip(paths, labels=labels)
-			mpld3.plugins.connect(fig, tooltip)
-		ax.set_xlabel(valueFields[0], size=14)
-		ax.set_ylabel(valueFields[1], size=14)
+		self.getWorkingPandasDataFrame().plot(kind='scatter', x=self.getValueFields()[0], y=self.getValueFields()[1], ax=ax)

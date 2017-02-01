@@ -51,17 +51,12 @@ class ScatterPlotRenderer(BokehBaseDisplay):
         else:
             return (True, None)
 
-    def getPandasDataFrame(self):
-        valueFields = self.getValueFields()
-        maxRows = int(self.options.get("rowCount","100"))
+    def getExtraFields(self):
         color = self.options.get("color")
-        if color:
-            valueFields.append(color)
-        return self.dataHandler.select(valueFields).toPandas().dropna().head(maxRows)
+        return [color] if color is not None else []
 
     def createBokehChart(self):        
-        data = self.getPandasDataFrame()
-        myLogger.debug(data)
+        data = self.getWorkingPandasDataFrame()
         return Scatter(data, 
             x = self.getValueFields()[0], y = self.getValueFields()[1],
             xlabel=self.getValueFields()[0],ylabel=self.getValueFields()[1],legend="top_left", plot_width=800,color=self.options.get("color"))

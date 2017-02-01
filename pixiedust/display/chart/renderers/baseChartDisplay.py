@@ -22,6 +22,7 @@ from six import PY2, with_metaclass
 from pixiedust.display.chart.renderers import PixiedustRenderer
 from pixiedust.utils import cache
 import pandas as pd
+import time
 
 myLogger = pixiedust.getLogger(__name__)
 
@@ -40,6 +41,32 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
     """
     def getChartOptions(self):
         return []
+
+    def getExtraFields(self):
+        return []
+
+    @cache(fieldName="workingPandasDataFrame")
+    def getWorkingPandasDataFrame(self):
+        xFields = self.getKeyFields()
+        yFields = self.getValueFields()
+        workingDF = self.dataHandler.getWorkingPandasDataFrame(xFields, yFields, extraFields = self.getExtraFields(), aggregation=self.getAggregation(), maxRows = self.getMaxRows() )
+        
+        if self.options.get("debug", None):
+            myLogger.debug("getWorkingPandasDataFrame returns: {0}".format(workingDF) )
+
+        return workingDF
+
+    def getWorkingDataSlice( self, col1, col2, sort = False ):
+        col1Data = self.getWorkingPandasDataFrame()[col1].values.tolist()
+        col2Data = self.getWorkingPandasDataFrame()[col2].values.tolist()
+        if sort:
+            return zip(*sorted(zip(col1Data, col2Data )))
+        else:
+            return [col1Data, col2Data]
+
+    @cache(fieldName="maxRows")
+    def getMaxRows(self):
+        return int(self.options.get("rowCount","100"))
 
     def getPandasDataFrame(self):
         valueFieldValues = self.getValueFieldValueLists()
@@ -362,6 +389,6 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
             pass
         try:
             myLogger.debug("Value Fields: {0}".format(self.getValueFields()))
-            myLogger.debug("Value Field Values List: {0}".format(self.getValueFieldValueLists()))
+            #myLogger.debug("Value Field Values List: {0}".format(self.getValueFieldValueLists()))
         except:
             pass
