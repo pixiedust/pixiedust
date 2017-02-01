@@ -59,6 +59,12 @@ dataDefs = OrderedDict([
         "url": "https://openobjectstore.mybluemix.net/Election/county_election_results.csv",
         "topic": "Society",
         "publisher": "IBM"
+    }),
+    ("6", {
+        "displayName": "Million dollar home sales in NE Mass late 2016", 
+        "url": "https://openobjectstore.mybluemix.net/misc/milliondollarhomes.csv",
+        "topic": "Economy & Business",
+        "publisher": "IBM"
     })
 
     
