@@ -20,23 +20,21 @@ import matplotlib.pyplot as plt
 import mpld3
 import numpy as np
 
+import pixiedust
+myLogger = pixiedust.getLogger(__name__)
+
 @PixiedustRenderer(id="lineChart")
 class LineChartDisplay(MatplotlibBaseDisplay):
-    def matplotlibRender(self, fig, ax):
-        for valueField in self.getValueFields():
-            self.getWorkingPandasDataFrame().plot(kind='line', x=self.getKeyFields()[0], y=valueField, ax=ax)
-
-        """keyFieldValues = self.getKeyFieldValues()
+    def matplotlibRender(self, fig, ax):        
+        keyFields = self.getKeyFields()
         valueFields = self.getValueFields()
-        valueFieldValues = self.getValueFieldValueLists()
-        numColumns = len(keyFieldValues)
+        numColumns = len(keyFields)
         for i, valueField in enumerate(valueFields):
-            xs = keyFieldValues
-            ys = valueFieldValues[i]
+            data = self.getWorkingDataSlice( keyFields[0], valueField, sort = True )
+            xs = data[0]
+            ys = data[1]
             lines = ax.plot(xs, ys, color=self.colormap(1.*i/numColumns), label=valueField, marker='o')
             tooltip = mpld3.plugins.PointLabelTooltip(lines[0], labels=ys)
             if self.has_mpld3:
                 mpld3.plugins.connect(fig, tooltip)
-        plt.xticks(np.arange(numColumns),self.getKeyFieldLabels())
         plt.xlabel(", ".join(self.getKeyFields()), fontsize=18)
-        """

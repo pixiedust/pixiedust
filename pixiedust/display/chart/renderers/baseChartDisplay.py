@@ -56,6 +56,14 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
 
         return workingDF
 
+    def getWorkingDataSlice( self, col1, col2, sort = False ):
+        col1Data = self.getWorkingPandasDataFrame()[col1].values.tolist()
+        col2Data = self.getWorkingPandasDataFrame()[col2].values.tolist()
+        if sort:
+            return zip(*sorted(zip(col1Data, col2Data )))
+        else:
+            return [col1Data, col2Data]
+
     @cache(fieldName="maxRows")
     def getMaxRows(self):
         return int(self.options.get("rowCount","100"))
@@ -139,16 +147,9 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
         Returns: 
             List of lists: data for the key fields
         """
-        start = time.time()
-        myLogger.debug("In getKeyFieldValues()")
         keyFields = self.getKeyFields()
         if (len(keyFields) == 0):
-            myLogger.debug("getPandasValueFieldValueLists() took {0} time to finish".format(time.time() - start))
             return []
-        
-        if True:
-            return self.getWorkingPandasDataFrame()[keyFields[0]].values.tolist()
-
         numericKeyField = False
         if len(keyFields) == 1 and self.dataHandler.isNumericField(keyFields[0]):
             numericKeyField = True
@@ -165,8 +166,6 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
                 values.append(row[keyFields[0]])
             else:
                 values.append(i)
-
-        myLogger.debug("getKeyFieldValues() took {0} time to finish".format(time.time() - start))
         return values
 
     @cache(fieldName="keyFieldLabels")
@@ -209,8 +208,6 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
         return numericValueFields
 
     def getPandasValueFieldValueLists(self):
-        start = time.time()
-        myLogger.debug("In getPandasValueFieldValueLists()")
         keyFields = self.getKeyFields()
         valueFields = self.getValueFields()
         aggregation = self.getAggregation()
@@ -241,7 +238,6 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
                 valueDf = valueDf.dropna()
                 numRows = min(maxRows,valueDf.count())
                 pandasValueLists.append( valueDf.toPandas().head(numRows) )
-        myLogger.debug("getPandasValueFieldValueLists() took {0} time to finish".format(time.time() - start))
         return pandasValueLists
 
     @cache(fieldName="valueFieldValueLists")

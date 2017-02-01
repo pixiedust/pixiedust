@@ -57,7 +57,6 @@ class ScatterPlotRenderer(BokehBaseDisplay):
 
     def createBokehChart(self):        
         data = self.getWorkingPandasDataFrame()
-        myLogger.debug(data)
         return Scatter(data, 
             x = self.getValueFields()[0], y = self.getValueFields()[1],
             xlabel=self.getValueFields()[0],ylabel=self.getValueFields()[1],legend="top_left", plot_width=800,color=self.options.get("color"))

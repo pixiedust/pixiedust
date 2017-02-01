@@ -63,8 +63,6 @@ class PySparkDataFrameDataHandler(object):
         Return a cleaned up Pandas Dataframe that will be used as working input to the chart
     """
     def getWorkingPandasDataFrame(self, xFields, yFields, extraFields=[], aggregation=None, maxRows = 100):
-        start = time.time()
-        myLogger.debug("In getWorkingPandasDataFrame")
         if xFields is None or len(xFields)==0:
             #swap the yFields with xFields
             xFields = yFields
@@ -77,19 +75,15 @@ class PySparkDataFrameDataHandler(object):
         workingDF = self.entity.select(xFields+yFields)
         if aggregation and len(yFields)>0:
             aggMapper = {"SUM":"sum", "AVG": "avg", "MIN": "min", "MAX": "max"}
-            aggregation = aggMapper.get("aggregation", "count")
+            aggregation = aggMapper.get(aggregation, "count")
 
             workingDF = workingDF.groupBy(xFields).agg(dict([(yField, aggregation) for yField in yFields]))            
             for yField in yFields:
                 workingDF = workingDF.withColumnRenamed("{0}({1})".format(aggregation,yField), yField)
 
-        #workingDF = workingDF.dropna()
-        #count = workingDF.count()
-        #if count > maxRows:
-        if True:
-            #workingDF = workingDF.sample(False, (float(maxRows) / float(count)))
-            myLogger.debug("getWorkingPandasDataFrame() took {0} time to finish".format(time.time() - start))
-            return workingDF.toPandas().dropna().head(maxRows)
-        myLogger.debug("getWorkingPandasDataFrame() took {0} time to finish".format(time.time() - start))
+        workingDF = workingDF.dropna()
+        count = workingDF.count()
+        if count > maxRows:
+            workingDF = workingDF.sample(False, (float(maxRows) / float(count)))
         return workingDF.toPandas()
 
