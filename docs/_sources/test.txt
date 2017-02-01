@@ -1,9 +1,9 @@
 Test
 ===========
 
-PixieDust provides several `notebooks <https://github.com/ibm-cds-labs/pixiedust/tree/master/tests>`_ that can be run to test and check stability of various features. Tests are maintained using `Travis CI <https://travis-ci.org/ibm-cds-labs/pixiedust>`_.
+PixieDust provides several `notebooks <https://github.com/ibm-cds-labs/pixiedust/tree/master/tests>`_ that you can run to test and check stability of various features. Tests are maintained using `Travis CI <https://travis-ci.org/ibm-cds-labs/pixiedust>`_.
 
-The test script, `runPixiedustNotebooks.py <https://github.com/ibm-cds-labs/pixiedust/blob/master/tests/runPixiedustNotebooks.py>`_, is run whenever an update is pushed to the repository or a pull request is made. The test script runs through each of the notebooks in the `tests <https://github.com/ibm-cds-labs/pixiedust/tree/master/tests>`_ directory. 
+The test script, `runPixiedustNotebooks.py <https://github.com/ibm-cds-labs/pixiedust/blob/master/tests/runPixiedustNotebooks.py>`_, runs whenever an update is pushed to the repository or a pull request is made. The test script runs through each of the notebooks in the `tests <https://github.com/ibm-cds-labs/pixiedust/tree/master/tests>`_ directory. 
 
 Locally Running the Tests
 -------------------------
@@ -38,7 +38,7 @@ Using VSCode
 	  }
 	}
 
-Update the ``SPARK_HOME`` and ``SCALA_HOME`` accordingly and if desired update ``PIXIEDUST_TEST_INPUT`` to where tests notebooks to run are located
+Update the ``SPARK_HOME`` and ``SCALA_HOME`` entries accordingly. If you want, update ``PIXIEDUST_TEST_INPUT`` to where test notebooks to run are located
 	
 5. Select the newly created or updated **pixiedust test** configuration from dropdown in the Debug view
 6. Click on the Debug green arrow, to run the configuration

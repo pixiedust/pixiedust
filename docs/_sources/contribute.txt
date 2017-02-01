@@ -22,7 +22,7 @@ If you're pitching in and fixed an issue or added a new feature (bravo!) please 
 
 If you're new to GitHub or unfamiliar with pull requests, watch the `How to Contribute to an Open Source Project on GitHub <https://egghead.io/courses/how-to-contribute-to-an-open-source-project-on-github>`_  video series.
 
-Here are the steps for working with the `PixieDust GitHub repository <https://github.com/ibm-cds-labs/pixiedust/issues>`_. (These instructs assume you have PixieDust set up and are ready to `start development <develop.html>`_.
+Here are the steps for working with the `PixieDust GitHub repository <https://github.com/ibm-cds-labs/pixiedust/issues>`_. (These instructs assume you have PixieDust set up and are ready to `start development <develop.html>`_).
  
 1. If you haven't already, `fork <https://guides.github.com/activities/forking/>`_ the PixieDust repository.
 2. Create a `branch <http://guides.github.com/introduction/flow/>`_ for your changes.
@@ -64,7 +64,37 @@ Here are the visualizations and renderers we have so far:
    
     </tr>
     <tr>
-    <td>other</td>
+    <td>Seaborn</td>
+    <td><img src="_images/chmk.png"></td>
+    <td><img src="_images/chmk.png"></td>
+    <td><img src="_images/chmk.png"></td>
+    <td><img src="_images/chmk.png"></td>
+    <td><img src="_images/chmk.png"></td>
+    <td><img src="_images/chmk.png"></td>
+   
+    </tr>
+    <tr>
+    <td>Bokeh</td>
+    <td><img src="_images/chmk.png"></td>
+    <td><img src="_images/chmk.png"></td>
+    <td><img src="_images/chmk.png"></td>
+    <td><img src="_images/chmk.png"></td>
+    <td><img src="_images/chmk.png"></td>
+    <td><img src="_images/chmk.png"></td>
+   
+    </tr>
+    <tr>
+    <td>MapBox</td>
+    <td>NA</td>
+    <td>NA</td>
+    <td>NA</td>
+    <td>NA</td>
+    <td>NA</td>
+    <td><img src="_images/chmk.png"></td>
+   
+    </tr>
+    <tr>
+    <td>Pandas</td>
     <td>&nbsp;</td>
     <td>&nbsp;</td>
     <td>&nbsp;</td>

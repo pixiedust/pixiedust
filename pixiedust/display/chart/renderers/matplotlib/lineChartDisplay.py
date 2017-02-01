@@ -23,7 +23,10 @@ import numpy as np
 @PixiedustRenderer(id="lineChart")
 class LineChartDisplay(MatplotlibBaseDisplay):
     def matplotlibRender(self, fig, ax):
-        keyFieldValues = self.getKeyFieldValues()
+        for valueField in self.getValueFields():
+            self.getWorkingPandasDataFrame().plot(kind='line', x=self.getKeyFields()[0], y=valueField, ax=ax)
+
+        """keyFieldValues = self.getKeyFieldValues()
         valueFields = self.getValueFields()
         valueFieldValues = self.getValueFieldValueLists()
         numColumns = len(keyFieldValues)
@@ -36,3 +39,4 @@ class LineChartDisplay(MatplotlibBaseDisplay):
                 mpld3.plugins.connect(fig, tooltip)
         plt.xticks(np.arange(numColumns),self.getKeyFieldLabels())
         plt.xlabel(", ".join(self.getKeyFields()), fontsize=18)
+        """

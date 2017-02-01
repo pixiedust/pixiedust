@@ -22,6 +22,7 @@ from six import PY2, with_metaclass
 from pixiedust.display.chart.renderers import PixiedustRenderer
 from pixiedust.utils import cache
 import pandas as pd
+import time
 
 myLogger = pixiedust.getLogger(__name__)
 
@@ -40,6 +41,24 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
     """
     def getChartOptions(self):
         return []
+
+    def getExtraFields(self):
+        return []
+
+    @cache(fieldName="workingPandasDataFrame")
+    def getWorkingPandasDataFrame(self):
+        xFields = self.getKeyFields()
+        yFields = self.getValueFields()
+        workingDF = self.dataHandler.getWorkingPandasDataFrame(xFields, yFields, extraFields = self.getExtraFields(), aggregation=self.getAggregation(), maxRows = self.getMaxRows() )
+        
+        if self.options.get("debug", None):
+            myLogger.debug("getWorkingPandasDataFrame returns: {0}".format(workingDF) )
+
+        return workingDF
+
+    @cache(fieldName="maxRows")
+    def getMaxRows(self):
+        return int(self.options.get("rowCount","100"))
 
     def getPandasDataFrame(self):
         valueFieldValues = self.getValueFieldValueLists()
@@ -62,6 +81,9 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
     def doRenderChart(self):
         pass
 
+    def isMap(self, handlerId):
+        return False
+
     def supportsKeyFields(self, handlerId):
         return True
 
@@ -82,7 +104,19 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
 
     @cache(fieldName="keyFields")
     def getKeyFields(self):
-        fieldNames = self.getFieldNames()
+        """ Get the dataframe field names from metadata (usually specified by the user 
+        as key fields in the chart option dialog)
+
+        Args: 
+            self (class): class that extends BaseChartDisplay
+
+        Returns: 
+            List of strings: dataframe field names
+
+        Raises:
+            Calls ShowChartOptionDialog() if array is empty
+        """
+        fieldNames = self.getFieldNames() # get all field names in data format-independent way
         if self.supportsKeyFields(self.handlerId) == False:
             return []
         keyFields = []
@@ -97,15 +131,31 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
 
     @cache(fieldName="keyFieldValues")
     def getKeyFieldValues(self):
+        """ Get the DATA for the dataframe key fields
+
+        Args: 
+            self (class): class that extends BaseChartDisplay
+
+        Returns: 
+            List of lists: data for the key fields
+        """
+        start = time.time()
+        myLogger.debug("In getKeyFieldValues()")
         keyFields = self.getKeyFields()
         if (len(keyFields) == 0):
+            myLogger.debug("getPandasValueFieldValueLists() took {0} time to finish".format(time.time() - start))
             return []
+        
+        if True:
+            return self.getWorkingPandasDataFrame()[keyFields[0]].values.tolist()
+
         numericKeyField = False
         if len(keyFields) == 1 and self.dataHandler.isNumericField(keyFields[0]):
             numericKeyField = True
         df = self.dataHandler.groupBy(keyFields).count().dropna()
-        for keyField in keyFields:
-            df = df.sort(keyField)
+        if self.isMap(self.handlerId) is False: 
+            for keyField in keyFields:
+                df = df.sort(keyField)
         maxRows = int(self.options.get("rowCount","100"))
         numRows = min(maxRows,df.count())
         rows = df.take(numRows)
@@ -115,6 +165,8 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
                 values.append(row[keyFields[0]])
             else:
                 values.append(i)
+
+        myLogger.debug("getKeyFieldValues() took {0} time to finish".format(time.time() - start))
         return values
 
     @cache(fieldName="keyFieldLabels")
@@ -157,6 +209,8 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
         return numericValueFields
 
     def getPandasValueFieldValueLists(self):
+        start = time.time()
+        myLogger.debug("In getPandasValueFieldValueLists()")
         keyFields = self.getKeyFields()
         valueFields = self.getValueFields()
         aggregation = self.getAggregation()
@@ -187,6 +241,7 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
                 valueDf = valueDf.dropna()
                 numRows = min(maxRows,valueDf.count())
                 pandasValueLists.append( valueDf.toPandas().head(numRows) )
+        myLogger.debug("getPandasValueFieldValueLists() took {0} time to finish".format(time.time() - start))
         return pandasValueLists
 
     @cache(fieldName="valueFieldValueLists")
@@ -224,8 +279,9 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
                     valueDf = df.agg({valueField:"max"}).withColumnRenamed("max("+valueField+")", "agg")
                 else:
                     valueDf = df.agg({valueField:"count"}).withColumnRenamed("count("+valueField+")", "agg")
-                for keyField in keyFields:
-                    valueDf = valueDf.sort(keyField)
+                if self.isMap(self.handlerId) is False: 
+                    for keyField in keyFields:
+                        valueDf = valueDf.sort(keyField)
                 valueDf = valueDf.dropna()
                 numRows = min(maxRows,valueDf.count())
                 valueLists.append(valueDf.rdd.map(lambda r:r["agg"]).take(numRows))
@@ -337,6 +393,6 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
             pass
         try:
             myLogger.debug("Value Fields: {0}".format(self.getValueFields()))
-            myLogger.debug("Value Field Values List: {0}".format(self.getValueFieldValueLists()))
+            #myLogger.debug("Value Field Values List: {0}".format(self.getValueFieldValueLists()))
         except:
             pass
