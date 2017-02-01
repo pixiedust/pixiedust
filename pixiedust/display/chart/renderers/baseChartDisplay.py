@@ -173,7 +173,8 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
         keyFields = self.getKeyFields()
         if (len(keyFields) == 0):
             return []
-        df = self.dataHandler.groupBy(keyFields).count().dropna()
+        return self.getWorkingPandasDataFrame().groupby(keyFields).groups.keys()
+        """df = self.dataHandler.groupBy(keyFields).count().dropna()
         for keyField in keyFields:
             df = df.sort(keyField)
         maxRows = int(self.options.get("rowCount","100"))
@@ -187,7 +188,7 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
                     label += ", "
                 label += str(row[keyField])
             labels.append(label)
-        return labels
+        return labels"""
 
     def getPreferredDefaultValueFieldCount(self, handlerId):
         return 2
