@@ -33,9 +33,35 @@ class ScatterPlotRenderer(BokehBaseDisplay):
     def supportsKeyFields(self, handlerId):
         return False
 
-    def createBokehChart(self):
-        
-        pandaList = self.getPandasValueFieldValueLists()
-        data = pandaList[0] if len(pandaList) >= 1 else []
-       
-        return Scatter(data, xlabel="/".join(self.getKeyFields()),ylabel="/".join(self.getValueFields()),legend=None, plot_width=800)
+    def getChartOptions(self):
+        return [
+            { 'name': 'color',
+              'metadata': {
+                    'type': "dropdown",
+                    'values': self.getFieldNames(),
+                    'default': ""
+                }
+            }
+        ]
+
+    def canRenderChart(self):
+        valueFields = self.getValueFields()
+        if len(valueFields) < 2:
+            return (False, "At least two numerical columns required.")
+        else:
+            return (True, None)
+
+    def getPandasDataFrame(self):
+        valueFields = self.getValueFields()
+        maxRows = int(self.options.get("rowCount","100"))
+        color = self.options.get("color")
+        if color:
+            valueFields.append(color)
+        return self.dataHandler.select(valueFields).toPandas().dropna().head(maxRows)
+
+    def createBokehChart(self):        
+        data = self.getPandasDataFrame()
+        myLogger.debug(data)
+        return Scatter(data, 
+            x = self.getValueFields()[0], y = self.getValueFields()[1],
+            xlabel=self.getValueFields()[0],ylabel=self.getValueFields()[1],legend="top_left", plot_width=800,color=self.options.get("color"))

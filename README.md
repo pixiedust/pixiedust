@@ -43,11 +43,9 @@ PixieDust's current capabilities include:
 - **Export.** Notebook users can download data to .csv, html, json, etc. locally on your laptop or into a variety of back-end data sources, like Cloudant, dashDB, GraphDB, etc...
 
    ![save as options](http://developer.ibm.com/clouddataservices/wp-content/uploads/sites/47/2016/07/pd_download.png)
-- **Scala Bridge.** Use scala directly in your Python notebook. Variables are automatically transfered from Python to Scala and vice-versa. 
+- **Scala Bridge.** Use scala directly in your Python notebook. Variables are automatically transfered from Python to Scala and vice-versa. You can also use all these PixieDust features in a Scala notebook, empowering you to leverage robust python visualization options within Scala too.  [Learn more](https://ibm-cds-labs.github.io/pixiedust/scalabridge.html).
 
 - **Spark progress monitor.** Track the status of your Spark job. No more waiting in the dark. Notebook users can now see how a cell's code is running behind the scenes.
-
->**What about Scala?** This is a Python library but you can use it in a Scala notebook too. [Learn more](https://ibm-cds-labs.github.io/pixiedust/scalabridge.html).  
 
 Check out this detailed presentation of PixieDust: 
 
@@ -90,4 +88,7 @@ Dive into the [PixieDust developer docs](https://ibm-cds-labs.github.io/pixiedus
 We can't wait to see what you build.
 
 ##License
-details to follow...
+
+**Apache License, Version 2.0**. 
+
+For details and all the legalese, [read LICENSE](https://github.com/ibm-cds-labs/pixiedust/blob/master/LICENSE).
