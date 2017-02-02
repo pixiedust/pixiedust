@@ -31,7 +31,8 @@ class LineChartDisplay(MatplotlibBaseDisplay):
         numColumns = len(keyFields)
         for i, valueField in enumerate(valueFields):
             data = self.getWorkingDataSlice( keyFields[0], valueField, sort = True )
-            xs = data[0]
+            # xs = data[0]
+            xs = xrange(len(data[1]))
             ys = data[1]
             lines = ax.plot(xs, ys, color=self.colormap(1.*i/numColumns), label=valueField, marker='o')
             tooltip = mpld3.plugins.PointLabelTooltip(lines[0], labels=ys)
