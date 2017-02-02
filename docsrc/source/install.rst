@@ -125,3 +125,27 @@ The output will look similar to the following:
     Available kernels:
         pythonwithpixiedustspark20    /Users/USERNAME/Library/Jupyter/kernels/pythonwithpixiedustspark20
         pythonwithpixiedustspark21    /Users/USERNAME/Library/Jupyter/kernels/pythonwithpixiedustspark21
+
+
+Try It Out!
+===========
+
+The PixieDust GitHub repo includes a sample notebook (*Intro to Pixiedust.ipynb*) that you can use to try out your PixieDust install.
+If you installed PixieDust from source you can find this notebook in *pixiedust/notebook*.
+Otherwise, you can download the notebook `here <https://github.com/ibm-cds-labs/pixiedust/blob/master/notebook/Intro%20to%20PixieDust.ipynb>`_
+
+After you have downloaded the *Intro to Pixiedust.ipynb* notebook run the following command:
+::
+
+    jupyter notebook directory/containing/notebook
+
+This should automatically open a web browser that looks similar to the following:
+
+.. image:: _images/install-notebook1.png
+
+Click *Intro to Pixiedust.ipynb*. You may be prompted to select a kernel. Select the kernel you created using the installer.
+Alternatively, click *Kernel > Change Kernel* from the menu to select the appropriate kernel:
+
+.. image:: _images/install-notebook2.png
+
+This notebook will show you how to import the PixieDust library and run a handful of PixieDust features.
