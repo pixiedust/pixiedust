@@ -21,13 +21,11 @@ from IPython.core.magic import (Magics, magics_class, cell_magic)
 from pixiedust.utils.javaBridge import *
 from pixiedust.utils.template import *
 from pixiedust.utils.shellAccess import ShellAccess
-import pixiedust
+from pixiedust.utils import Logger
 import warnings
 from six import iteritems
 from IPython.core.getipython import get_ipython
 from .environment import Environment
-
-myLogger = pixiedust.getLogger(__name__)
 
 '''
 Manages the variables defined interactively in the Notebook
@@ -92,6 +90,7 @@ def toJavaConverter(func):
 runningClassLoaders = {}
 
 @magics_class
+@Logger()
 class PixiedustScalaMagics(Magics):
     def __init__(self, shell):
         super(PixiedustScalaMagics,self).__init__(shell=shell)
@@ -149,7 +148,7 @@ class PixiedustScalaMagics(Magics):
             f.write(scalaCode.encode("utf-8","ignore"))
         #Compile the code
         commands = [self.scala_home + "/bin/scalac","-classpath", self.class_path, source]
-        myLogger.debug("Calling scala compiler with command: {0}".format( " ".join(commands)))
+        self.debug("Calling scala compiler with command: {0}".format( " ".join(commands)))
         proc = subprocess.Popen(commands,stdout=subprocess.PIPE,stderr=subprocess.PIPE, cwd=dir)
         code = proc.wait()
         if code != 0:

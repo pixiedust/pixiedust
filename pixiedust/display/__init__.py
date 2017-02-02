@@ -64,48 +64,63 @@ def display(entity, **kwargs):
 
         callerText = traceback.extract_stack(limit=2)[0][3]
 
-        if "gen_tests" in kwargs and "cell_id" in kwargs and "showchrome" not in kwargs and "handlerId" in kwargs:
-            #remove gen_tests from command line
-            import re
-            m = re.search(",\\s*gen_tests\\s*=\\s*'((\\\\'|[^'])*)'", str(callerText), re.IGNORECASE)
-            if m is not None:
-                callerText = callerText.replace(m.group(0),"")
-            #generate new prefix
-            p = re.search(",\\s*prefix\\s*=\\s*'((\\\\'|[^'])*)'", str(callerText), re.IGNORECASE)
-            if p is not None:
-                prefix = ''.join([",prefix='", str(uuid.uuid4())[:8], "'"])
-                callerText = callerText.replace(p.group(0), prefix)
-            get_ipython().set_next_input(callerText)
+        pr = None
+        try:
+            if "cell_id" in kwargs and "showchrome" not in kwargs and "handlerId" in kwargs:
+                if "gen_tests" in kwargs:
+                    #remove gen_tests from command line
+                    import re
+                    m = re.search(",\\s*gen_tests\\s*=\\s*'((\\\\'|[^'])*)'", str(callerText), re.IGNORECASE)
+                    if m is not None:
+                        callerText = callerText.replace(m.group(0),"")
+                    #generate new prefix
+                    p = re.search(",\\s*prefix\\s*=\\s*'((\\\\'|[^'])*)'", str(callerText), re.IGNORECASE)
+                    if p is not None:
+                        prefix = ''.join([",prefix='", str(uuid.uuid4())[:8], "'"])
+                        callerText = callerText.replace(p.group(0), prefix)
+                    get_ipython().set_next_input(callerText)
+                elif "profile" in kwargs:
+                    import cProfile
+                    pr = cProfile.Profile()
+                    pr.enable()
 
-        scalaKernel = False
-        if callerText is None or callerText == "" and hasattr(display, "fetchEntity"):
-            callerText, entity = display.fetchEntity(entity)
-            entity = toPython(entity)
-            scalaKernel = True
+            scalaKernel = False
+            if callerText is None or callerText == "" and hasattr(display, "fetchEntity"):
+                callerText, entity = display.fetchEntity(entity)
+                entity = toPython(entity)
+                scalaKernel = True
 
-        #get a datahandler and displayhandler for this entity
-        dataHandler = getDataHandler(kwargs, entity)
-        selectedHandler = getSelectedHandler(kwargs, entity, dataHandler)
+            #get a datahandler and displayhandler for this entity
+            dataHandler = getDataHandler(kwargs, entity)
+            selectedHandler = getSelectedHandler(kwargs, entity, dataHandler)
 
-        #check if we have a job monitor id
-        from pixiedust.utils.sparkJobProgressMonitor import progressMonitor
-        if progressMonitor:
-            progressMonitor.onDisplayRun(kwargs.get("cell_id"))
-        
-        myLogger.debug("Creating a new display handler with options {0}: {1}".format(kwargs, selectedHandler))
-        displayHandler = selectedHandler.newDisplayHandler(kwargs,entity)
-        if displayHandler is None:
-            printEx("Unable to obtain handler")
-            return
-        
-        displayHandler.handlerMetadata = selectedHandler
-        displayHandler.dataHandler = dataHandler
-        displayHandler.callerText = callerText
-        if scalaKernel:
-            displayHandler.scalaKernel = True
+            #check if we have a job monitor id
+            from pixiedust.utils.sparkJobProgressMonitor import progressMonitor
+            if progressMonitor:
+                progressMonitor.onDisplayRun(kwargs.get("cell_id"))
+            
+            myLogger.debug("Creating a new display handler with options {0}: {1}".format(kwargs, selectedHandler))
+            displayHandler = selectedHandler.newDisplayHandler(kwargs,entity)
+            if displayHandler is None:
+                printEx("Unable to obtain handler")
+                return
+            
+            displayHandler.handlerMetadata = selectedHandler
+            displayHandler.dataHandler = dataHandler
+            displayHandler.callerText = callerText
+            if scalaKernel:
+                displayHandler.scalaKernel = True
 
-        if displayHandler.callerText is None:
-            printEx("Unable to get entity information")
-            return
+            if displayHandler.callerText is None:
+                printEx("Unable to get entity information")
+                return
 
-        displayHandler.render()
+            displayHandler.render()
+        finally:
+            if pr is not None:
+                import pstats, StringIO
+                pr.disable()
+                s = StringIO.StringIO()
+                ps = pstats.Stats(pr, stream=s).sort_stats('cumulative')
+                ps.print_stats()
+                myLogger.debug(s.getvalue())
