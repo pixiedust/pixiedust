@@ -73,7 +73,7 @@ You may choose to keep the default path, or select a new one:
         Keep y/n [y]? y
 
 After you have configured PIXIEDUST_HOME you will be prompted to specify the location of your Apache Spark install.
-If you do not have Apach Spark installed the installer will download one for you:
+If you do not have Apach Spark installed the installer will download it for you:
 ::
 
     Step 2: Please enter a SPARK_HOME location: /Users/USERNAME/spark
