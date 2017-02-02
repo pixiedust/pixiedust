@@ -17,3 +17,5 @@
 import seaborn
 from .seabornBaseDisplay import *
 from .scatterPlotDisplay import *
+from .sbBarChartDisplay import *
+from .sbHistogramDisplay import *

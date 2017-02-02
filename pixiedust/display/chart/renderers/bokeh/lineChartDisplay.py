@@ -16,21 +16,21 @@
 
 from pixiedust.display.chart.renderers import PixiedustRenderer
 from .bokehBaseDisplay import BokehBaseDisplay
-import pixiedust
+from pixiedust.utils import Logger
 from bokeh.charts import Line
 
-myLogger = pixiedust.getLogger(__name__)
-
 @PixiedustRenderer(id="lineChart")
+@Logger()
 class LineChartRenderer(BokehBaseDisplay):
-
     def supportsAggregation(self, handlerId):
         return False
 
     def createBokehChart(self):
-        data = self.cleanList(self.getValueFieldValueLists())
-        agg=(self.getAggregation() or "count").lower()
-        if agg == 'avg':
-            agg = 'mean'
+        keyFields = self.getKeyFields()
+        valueFields = self.getValueFields()
+        data = self.getWorkingPandasDataFrame().sort_values(keyFields[0])
+        figs = []
+        for valueField in valueFields:
+            figs.append(Line(data, x = self.getKeyFields()[0], y=valueField, legend=None, plot_width=int(800/len(valueFields))))
 
-        return Line(data, xlabel="/".join(self.getKeyFields()), legend=None, plot_width=800)
+        return figs

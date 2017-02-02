@@ -16,6 +16,10 @@
                     {% endfor %}
                 </select>
             {%endif%}
+            {% if option.metadata.type == 'checkbox' %}
+                <input id="optionchecked{{option.name}}{{prefix}}" type="checkbox" name="{{option.name}}" style="margin-top: 20px;"
+                    {{'checked' if this.options.get("dropna","false")=="true"}}> {{option.name}}
+            {%endif%}
         {%endfor%}
     </div>
 </div>
@@ -24,6 +28,16 @@
 $("[id^=optionselect][id$={{prefix}}]").change(function(){
     var thisOption = $(this).attr('name');
     var thisValue = $(this).val();
+    {% call display.executeDisplay( useCellMetadata=True, divId="chartFigure" + prefix ) %}
+        var o = {};
+        o[thisOption] = thisValue;
+        o["nostore_figureOnly"] = "true";
+        addOptions(o);
+    {% endcall %}    
+});
+$("[id^=optionchecked][id$={{prefix}}]").change(function(){
+    var thisOption = $(this).attr('name');
+    var thisValue = $(this).prop('checked').toString();
     {% call display.executeDisplay( useCellMetadata=True, divId="chartFigure" + prefix ) %}
         var o = {};
         o[thisOption] = thisValue;

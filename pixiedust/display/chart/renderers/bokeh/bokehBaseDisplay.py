@@ -45,10 +45,13 @@ class BokehBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
         clientHasBokeh = self.options.get("nostore_bokeh", "false") == "true"
         if not clientHasBokeh:          
             output_notebook(hide_banner=True)
-        chart = self.createBokehChart()
+        charts = self.createBokehChart()
 
-        chart.add_tools(ResizeTool())
-        chart.title = self.options.get("title", "")
-        chart.grid.grid_line_alpha=0.3
-
-        return notebook_div(chart)
+        if not isinstance(charts, list):
+            charts.add_tools(ResizeTool())
+            charts.title = self.options.get("title", "")
+            charts.grid.grid_line_alpha=0.3
+            return notebook_div(charts)
+        else:
+            from bokeh.layouts import gridplot
+            return notebook_div(gridplot(charts, ncols=2))
