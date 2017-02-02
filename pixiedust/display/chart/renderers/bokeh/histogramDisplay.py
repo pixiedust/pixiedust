@@ -42,6 +42,8 @@ class HistogramRenderer(BokehBaseDisplay):
     
     def createBokehChart(self):
        
-        valueFieldValues = self.getPandasValueFieldValueLists()
-        
-        return Histogram(valueFieldValues[0], legend=None,plot_width=600,bins=max(valueFieldValues[0]))
+       
+        valueField = self.getValueFields()[0]
+        valueFieldValues = self.getWorkingPandasDataFrame()[valueField].values.tolist()
+       
+        return Histogram(valueFieldValues, legend=None,plot_width=600,bins=max(valueFieldValues),color=self.options.get("color"))
