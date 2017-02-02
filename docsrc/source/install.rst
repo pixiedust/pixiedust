@@ -20,8 +20,8 @@ Install PixieDust
 Once you've installed Anaconda run the following commands in your Terminal or command-line interface to ensure your environment is configured properly:
 ::
 
-    `pip  --version`
-    `jupyter --version`
+    pip  --version
+    jupyter --version
 
 You can install the PixieDust library from source or from PyPI.
 If you plan on contributing to PixieDust it is recommended that you install from source.
@@ -70,7 +70,7 @@ You may choose to keep the default path, or select a new one:
 ::
 
     Step 1: PIXIEDUST_HOME: /Users/USERNAME/pixiedust
-    Keep y/n [y]? y
+        Keep y/n [y]? y
 
 After you have configured PIXIEDUST_HOME you will be prompted to specify the location of your Apache Spark install.
 If you do not have Apach Spark installed the installer will download one for you:
@@ -78,7 +78,7 @@ If you do not have Apach Spark installed the installer will download one for you
 
     Step 2: Please enter a SPARK_HOME location: /Users/USERNAME/spark
     Directory /Users/USERNAME/spark does not contain a valid SPARK install
-        Download Spark y/n [y]? y`
+        Download Spark y/n [y]? y
 
 If you choose to download Apache Spark the installer will prompt you for the version, download it, and configure your SPARK_HOME accordingly:
 ::
@@ -89,8 +89,8 @@ If you choose to download Apache Spark the installer will prompt you for the ver
     Extracting Spark 2.1.0 to /Users/USERNAME/spark
 
 
-Next, the installer will prompt you for the location Scala.
-If you do not have Scala installer, or you do not have the version of Scala supported by your Apache Spark install, the installer will download the appropriate version of Scala for you.
+Next, the installer will prompt you for the location of Scala.
+If you do not have Scala installed, or you do not have the version of Scala supported by your Apache Spark install, the installer will download the appropriate version of Scala for you.
 ::
 
     Step 3: Please enter a SCALA_HOME location: /Users/USERNAME/scala
