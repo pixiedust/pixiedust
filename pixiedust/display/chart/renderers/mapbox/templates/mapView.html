@@ -1,5 +1,7 @@
-<script src="https://api.tiles.mapbox.com/mapbox-gl-js/v0.31.0/mapbox-gl.js"></script>
-<link href="https://api.tiles.mapbox.com/mapbox-gl-js/v0.31.0/mapbox-gl.css" rel="stylesheet"/>
+<html>
+<head>
+<script src="https://api.tiles.mapbox.com/mapbox-gl-js/v0.32.1/mapbox-gl.js"></script>
+<link href="https://api.tiles.mapbox.com/mapbox-gl-js/v0.32.1/mapbox-gl.css" rel="stylesheet" />
 <style>
 .mapboxgl-popup {
     max-width: 200px;
@@ -31,6 +33,8 @@
 }
 body { background-color:#333; margin:0px !important; overflow: hidden;font-family: "Helvetica Neue", Arial, Helvetica, sans-serif;}
 </style>
+</head>
+<body>
 <div id="map{{prefix}}" style="width:780px;height:412px;" />
 
 {%if this.options.get("showLegend") == "true" and this.options.get("kind") != "simple"%}
@@ -43,6 +47,7 @@ body { background-color:#333; margin:0px !important; overflow: hidden;font-famil
 {%endif%}
 
 <script>
+    window.maploadtime = 1;
     mapboxgl.accessToken="{{this.options.get("mapboxtoken")}}";
     var map = new mapboxgl.Map({
         container: "map{{prefix}}",
@@ -65,7 +70,7 @@ body { background-color:#333; margin:0px !important; overflow: hidden;font-famil
         
     map.on("load", function() {
         var mapdata={{this.options.get("mapData")}};
-        {% if this.options.get("kind") != "heatmap" %}
+        {% if this.options.get("kind") != "densitymap" %}
         map.addLayer({
             "id":"pxlayer",
             "type":"circle", 
@@ -89,7 +94,6 @@ body { background-color:#333; margin:0px !important; overflow: hidden;font-famil
         {% endfor %}
 
         layers.forEach(function(layer,i) {
-            debugger;
             map.addLayer({
                 "id": "cluster-" + i, 
                 "type": "circle", 
@@ -104,7 +108,7 @@ body { background-color:#333; margin:0px !important; overflow: hidden;font-famil
 
             }, "waterway-label");
         });
-
+        
         map.addLayer({
             "id": "pxlayer", 
             "type": "circle", 
@@ -118,7 +122,8 @@ body { background-color:#333; margin:0px !important; overflow: hidden;font-famil
         }, "waterway-label");
 
         {% endif %}
-
         map.fitBounds({{this.options.get("mapBounds")}});
     });
 </script>
+</body>
+</html>
