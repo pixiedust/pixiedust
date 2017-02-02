@@ -119,6 +119,13 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
             ShellAccess["workingPDF"] = workingDF    
         return workingDF
 
+    def getWorkingDataSlice1( self, col1, sort = False ):
+        colData = self.getWorkingPandasDataFrame()[col].values.tolist()
+        if sort:
+            return sorted(colData)
+        else:
+            return colData
+
     def getWorkingDataSlice( self, col1, col2, sort = False ):
         col1Data = self.getWorkingPandasDataFrame()[col1].values.tolist()
         col2Data = self.getWorkingPandasDataFrame()[col2].values.tolist()

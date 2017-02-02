@@ -36,7 +36,7 @@ class BarChartRenderer(MatplotlibBaseDisplay):
     #Main rendering method
     def matplotlibRender(self, fig, ax):
         stacked = self.options.get("stacked", "true") == "true"
-        self.getWorkingPandasDataFrame().plot(kind="bar", stacked=stacked, ax=ax)
+        self.getWorkingPandasDataFrame().plot(kind="bar", stacked=stacked, ax=ax, x=",".join(self.getKeyFields()))
         
     #     stacked = self.options.get("stacked", "true") == "true"
     #     grouped = not stacked
