@@ -383,7 +383,7 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
         # get aggregation value (set to default if it doesn't exist)
         aggregation = self.options.get("aggregation")
         if aggregation is None:
-            aggregation = self.getDefaultAggregation(handlerId)
+            aggregation = self.getDefaultAggregation(self.handlerId)
             self.options["aggregation"] = aggregation
         return aggregation
 
