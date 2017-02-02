@@ -22,6 +22,7 @@ from six import PY2, with_metaclass
 from pixiedust.display import addDisplayRunListener
 from pixiedust.display.chart.renderers import PixiedustRenderer
 from pixiedust.utils import cache,Logger
+from pixiedust.utils.shellAccess import ShellAccess
 import pandas as pd
 import time
 
@@ -114,7 +115,8 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
             WorkingDataCache.putInCache(self.options, workingDF, constraints)
         
         if self.options.get("debug", None):
-            self.debug("getWorkingPandasDataFrame returns: {0}".format(workingDF) )        
+            self.debug("getWorkingPandasDataFrame returns: {0}".format(workingDF) )
+            ShellAccess["workingPDF"] = workingDF    
         return workingDF
 
     def getWorkingDataSlice( self, col1, col2, sort = False ):
@@ -376,9 +378,11 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
 
     @cache(fieldName="aggregation")
     def getAggregation(self):
+        if not self.supportsAggregation(self.handlerId):
+            return None
         # get aggregation value (set to default if it doesn't exist)
         aggregation = self.options.get("aggregation")
-        if (aggregation is None and self.supportsAggregation(self.handlerId)):
+        if aggregation is None:
             aggregation = self.getDefaultAggregation(handlerId)
             self.options["aggregation"] = aggregation
         return aggregation
