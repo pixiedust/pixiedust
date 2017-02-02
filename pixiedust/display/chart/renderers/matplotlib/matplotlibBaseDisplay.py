@@ -64,9 +64,8 @@ class MatplotlibBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
             if showLegend == "true":
                 l = ax.legend(title=self.titleLegend if hasattr(self, 'titleLegend') else '')
                 if l is not None:
-                    keyFieldValues = self.getKeyFieldValues()
                     l.get_frame().set_alpha(0)
-                    numColumns = len(keyFieldValues)
+                    numColumns = len(self.getKeyFields())
                     for i, text in enumerate(l.get_texts()):
                         text.set_color(self.colormap(1.*i/numColumns))
                     for i, line in enumerate(l.get_lines()):
