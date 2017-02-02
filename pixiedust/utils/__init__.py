@@ -67,3 +67,17 @@ def cache(fieldName):
             return retValue
         return inner
     return outer
+
+"""
+Helper decorator that automatically add Logging capability to a class
+"""
+class Logger(object):
+    def __call__(self, cls, *args, **kwargs):
+        if not hasattr(cls, "myLogger"):
+            cls.myLogger = pdLogging.getLogger(cls.__module__ + "." + cls.__name__)
+            cls.debug = cls.myLogger.debug
+            cls.warn = cls.myLogger.warn
+            cls.error = cls.myLogger.error
+            cls.info = cls.myLogger.info
+            cls.exception = cls.myLogger.exception
+        return cls
