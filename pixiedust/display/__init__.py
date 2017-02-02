@@ -17,6 +17,8 @@
 import warnings
 from IPython.core.getipython import get_ipython
 
+__all__ = ['addDisplayRunListener', 'display']
+
 #Make sure that matplotlib is running inline
 with warnings.catch_warnings():
     warnings.simplefilter("ignore")
@@ -25,6 +27,12 @@ with warnings.catch_warnings():
     except NameError:
         #IPython not available we must be in a spark executor
         pass
+
+displayRunListeners = []
+
+def addDisplayRunListener(listener):
+    global displayRunListeners
+    displayRunListeners.append(listener)
 
 from .display import *
 from .chart import *
@@ -79,7 +87,7 @@ def display(entity, **kwargs):
                         prefix = ''.join([",prefix='", str(uuid.uuid4())[:8], "'"])
                         callerText = callerText.replace(p.group(0), prefix)
                     get_ipython().set_next_input(callerText)
-                elif "profile" in kwargs:
+                if "profile" in kwargs:
                     import cProfile
                     pr = cProfile.Profile()
                     pr.enable()
@@ -94,6 +102,10 @@ def display(entity, **kwargs):
             dataHandler = getDataHandler(kwargs, entity)
             selectedHandler = getSelectedHandler(kwargs, entity, dataHandler)
 
+            #notify listeners of a new display Run
+            for displayRunListener in displayRunListeners:
+                displayRunListener(entity, kwargs)
+            
             #check if we have a job monitor id
             from pixiedust.utils.sparkJobProgressMonitor import progressMonitor
             if progressMonitor:

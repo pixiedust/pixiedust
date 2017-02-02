@@ -19,16 +19,69 @@ from abc import abstractmethod, ABCMeta
 import traceback
 import pixiedust
 from six import PY2, with_metaclass
+from pixiedust.display import addDisplayRunListener
 from pixiedust.display.chart.renderers import PixiedustRenderer
-from pixiedust.utils import cache
+from pixiedust.utils import cache,Logger
 import pandas as pd
 import time
-
-myLogger = pixiedust.getLogger(__name__)
 
 class ShowChartOptionDialog(Exception):
     pass
 
+class WorkingDataCache(with_metaclass( 
+        type("",(type,),{
+            "workingDataCache":{},
+            "__getitem__":lambda cls, key: cls.workingDataCache.get(key),
+            "__setitem__":lambda cls, key,val: cls.workingDataCache.update({key:val}),
+            "__getattr__":lambda cls, key: cls.workingDataCache.get(key),
+            "__setattr__":lambda cls, key, val: cls.workingDataCache.update({key:val})
+        }), object
+    )):
+
+    myLogger = pixiedust.getLogger(__name__)
+
+    @staticmethod
+    def onNewDisplayRun(entity, options):
+        if "cell_id" in options and "showchrome" in options:
+            #User is doing a new display run from the cell, clear the cache as we don't know if the entity has changed
+            WorkingDataCache.removeEntry(options["cell_id"])
+
+    @staticmethod
+    def removeEntry(key):
+        WorkingDataCache.workingDataCache.pop(key, None)
+
+    @staticmethod
+    def putInCache(options, data, constraints):
+        if "cell_id" not in options:
+            return
+        constraints.pop("self",None)
+        WorkingDataCache[options["cell_id"]] = {
+            "data": data,
+            "constraints": constraints
+        }
+
+    @staticmethod
+    def getFromCache(options, constraints ):
+        if "cell_id" not in options:
+            return None
+        constraints.pop("self",None)
+        cellId = options["cell_id"]
+        value = WorkingDataCache[cellId]
+        if value:
+            WorkingDataCache.myLogger.debug("Found cache data for {}. Validating integrity...".format(cellId))
+            for item in list(value["constraints"].items()):
+                if item[0] not in constraints or item[1] != constraints[item[0]]:
+                    WorkingDataCache.myLogger.debug("Cache data not validated for key {0}. Expected Value is {1}. Got {2}. Destroying it!...".format(item[0], item[1], constraints[item[0]]))
+                    WorkingDataCache.removeEntry(cellId)
+                    return None
+            WorkingDataCache.myLogger.debug("Cache data validated for {}. Using it!...".format(cellId))
+            return value["data"]
+        WorkingDataCache.myLogger.debug("No Cache Entry found for {}".format(cellId))
+
+#add a display Run Listener 
+addDisplayRunListener( lambda entity, options: WorkingDataCache.onNewDisplayRun(entity, options) )
+
+@Logger()
 class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
 
     def __init__(self, options, entity, dataHandler=None):
@@ -49,11 +102,19 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
     def getWorkingPandasDataFrame(self):
         xFields = self.getKeyFields()
         yFields = self.getValueFields()
-        workingDF = self.dataHandler.getWorkingPandasDataFrame(xFields, yFields, extraFields = self.getExtraFields(), aggregation=self.getAggregation(), maxRows = self.getMaxRows() )
+        extraFields = self.getExtraFields()
+        aggregation = self.getAggregation()
+        maxRows = self.getMaxRows()
+        #remember the constraints for this cache, they are the list of variables
+        constraints = locals()
+
+        workingDF = WorkingDataCache.getFromCache(self.options, constraints )
+        if workingDF is None:
+            workingDF = self.dataHandler.getWorkingPandasDataFrame(xFields, yFields, extraFields = extraFields, aggregation=aggregation, maxRows = maxRows )
+            WorkingDataCache.putInCache(self.options, workingDF, constraints)
         
         if self.options.get("debug", None):
-            myLogger.debug("getWorkingPandasDataFrame returns: {0}".format(workingDF) )
-
+            self.debug("getWorkingPandasDataFrame returns: {0}".format(workingDF) )        
         return workingDF
 
     def getWorkingDataSlice( self, col1, col2, sort = False ):
@@ -368,28 +429,28 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
             self.dialogBody = self.renderTemplate(dialogTemplate, **dialogOptions)
             chartFigure = self.doRenderChart()
             if self.options.get("debugFigure", None):
-                myLogger.debug(chartFigure)
+                self.debug(chartFigure)
             if self.options.get("nostore_figureOnly", None):
                 self._addHTML(chartFigure)
             else:
                 self._addHTMLTemplate("renderer.html", chartFigure=chartFigure, optionsDialogBody=self.dialogBody)
         except Exception as e:
-            myLogger.exception("Unexpected error while trying to render BaseChartDisplay")
+            self.exception("Unexpected error while trying to render BaseChartDisplay")
             self.dialogBody = self.getChartErrorDialogBody(handlerId, dialogTemplate, dialogOptions)
             if (self.dialogBody is None):
                 self.dialogBody = ""
             self._addHTMLTemplate("chartError.html", errorMessage="Unexpected Error:<br>"+str(e), optionsDialogBody=self.dialogBody)
-            myLogger.info("Unexpected Error:\n"+str(e)+"\n\n"+traceback.format_exc())
+            self.info("Unexpected Error:\n"+str(e)+"\n\n"+traceback.format_exc())
 
     def logStuff(self):
         try:
-            myLogger.debug("Key Fields: {0}".format(self.getKeyFields()) )
-            myLogger.debug("Key Fields Values: {0}".format(self.getKeyFieldValues()))
-            myLogger.debug("Key Fields Labels: {0}".format(self.getKeyFieldLabels()))
+            self.debug("Key Fields: {0}".format(self.getKeyFields()) )
+            self.debug("Key Fields Values: {0}".format(self.getKeyFieldValues()))
+            self.debug("Key Fields Labels: {0}".format(self.getKeyFieldLabels()))
         except:
             pass
         try:
-            myLogger.debug("Value Fields: {0}".format(self.getValueFields()))
-            #myLogger.debug("Value Field Values List: {0}".format(self.getValueFieldValueLists()))
+            self.debug("Value Fields: {0}".format(self.getValueFields()))
+            #self.debug("Value Field Values List: {0}".format(self.getValueFieldValueLists()))
         except:
             pass
