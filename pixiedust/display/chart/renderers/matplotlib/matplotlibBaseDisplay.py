@@ -82,9 +82,10 @@ class MatplotlibBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
         fig, ax = self.createFigure()
 
         if self.has_mpld3:
-            keyFieldLabels = self.getKeyFieldLabels()
-            if (len(keyFieldLabels) > 0 and self.supportsKeyFieldLabels(self.handlerId) and self.supportsAggregation(self.handlerId)):
-                plugins.connect(fig, ChartPlugin(self, keyFieldLabels))
+            #TODO: rework this piece
+            #keyFieldLabels = self.getKeyFieldLabels()
+            #if (len(keyFieldLabels) > 0 and self.supportsKeyFieldLabels(self.handlerId) and self.supportsAggregation(self.handlerId)):
+            #    plugins.connect(fig, ChartPlugin(self, keyFieldLabels))
             plugins.connect(fig, DialogPlugin(self, self.handlerId, self.dialogBody))
 
         #let subclass do the actual rendering
