@@ -78,27 +78,32 @@ class MatplotlibBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
     def doRenderChart(self):
         self.colormap = cm.jet
 
-        # go
-        fig, ax = self.createFigure()
+        fig = None
+        try:
+            # go
+            fig, ax = self.createFigure()
 
-        if self.has_mpld3:
-            keyFieldLabels = self.getKeyFieldLabels()
-            if (len(keyFieldLabels) > 0 and self.supportsKeyFieldLabels(self.handlerId) and self.supportsAggregation(self.handlerId)):
-                plugins.connect(fig, ChartPlugin(self, keyFieldLabels))
-            plugins.connect(fig, DialogPlugin(self, self.handlerId, self.dialogBody))
+            if self.has_mpld3:
+                #TODO: rework this piece
+                #keyFieldLabels = self.getKeyFieldLabels()
+                #if (len(keyFieldLabels) > 0 and self.supportsKeyFieldLabels(self.handlerId) and self.supportsAggregation(self.handlerId)):
+                #    plugins.connect(fig, ChartPlugin(self, keyFieldLabels))
+                plugins.connect(fig, DialogPlugin(self, self.handlerId, self.dialogBody))
 
-        #let subclass do the actual rendering
-        self.matplotlibRender(fig, ax)
+            #let subclass do the actual rendering
+            self.matplotlibRender(fig, ax)
 
-        self.setChartSize(fig, ax)
-        self.setChartGrid(fig, ax)
-        self.setChartLegend(fig, ax)
-        self.setChartTitle()
+            self.setChartSize(fig, ax)
+            self.setChartGrid(fig, ax)
+            self.setChartLegend(fig, ax)
+            self.setChartTitle()
 
-        fig.autofmt_xdate()
+            fig.autofmt_xdate()
 
-        #Render the figure
-        return self.renderFigure(fig)
+            #Render the figure
+            return self.renderFigure(fig)
+        finally:
+            plt.close(fig)
 
     def renderFigure(self, fig):
         if not self.has_mpld3 or self.options.get("staticFigure","false") is "true":
@@ -115,13 +120,11 @@ class MatplotlibBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
                 )
             finally:
                 png.close()
-                plt.close(fig)
         else:
             mpld3.enable_notebook()
             try:
                 return mpld3.fig_to_html(fig)
             finally:
-                plt.close(fig)
                 mpld3.disable_notebook()
 
     def connectElementInfo(self, element, data):

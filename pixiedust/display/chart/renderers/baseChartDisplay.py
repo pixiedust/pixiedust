@@ -119,7 +119,7 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
             ShellAccess["workingPDF"] = workingDF    
         return workingDF
 
-    def getWorkingDataSlice1( self, col1, sort = False ):
+    def getWorkingDataSlice1( self, col, sort = False ):
         colData = self.getWorkingPandasDataFrame()[col].values.tolist()
         if sort:
             return sorted(colData)
@@ -456,7 +456,7 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
     def logStuff(self):
         try:
             self.debug("Key Fields: {0}".format(self.getKeyFields()) )
-            self.debug("Key Fields Values: {0}".format(self.getKeyFieldValues()))
+            #self.debug("Key Fields Values: {0}".format(self.getKeyFieldValues()))
             self.debug("Key Fields Labels: {0}".format(self.getKeyFieldLabels()))
         except:
             pass
