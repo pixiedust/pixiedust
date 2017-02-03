@@ -34,17 +34,14 @@ class sbBarChartDisplay(SeabornBaseDisplay):
     data = self.sumDfList(valueFieldValues, [key], "agg")
 
     for i in range(1, len(self.getValueFields())):
-      # myLogger.info("data[{0}]:\r\n{1}".format(str(i), data))
       sns.barplot(x=key, y='agg', data=data, ax=ax, color=colors[i])
       data = self.minusDf(data, valueFieldValues[i], [key], "agg")
 
-    # myLogger.info("data[]:\r\n{0}\r\n{1} , {2}".format(data, x, y))
     sns.barplot(x=key, y='agg', data=valueFieldValues[0], ax=ax, color=colors[0])
 
   def renderGrouped(self, ax):
     keyFields = self.getKeyFields()
     valueFields = self.getValueFields()
-    orient = self.options.get("orientation", None)
 
     df = self.getWorkingPandasDataFrame()
     cols = df.columns.values.tolist()
@@ -57,14 +54,11 @@ class sbBarChartDisplay(SeabornBaseDisplay):
     df1 = pd.melt(df, id_vars=keyFields).sort_values(['variable','value'])
     sns.barplot(x=keyFields[0], y='value', hue='variable', ax=ax, data=df1)
 
-  def getChartContext(self, handlerId):
-    return ('barChartOptionsDialogBody.html', {})
-
   def matplotlibRender(self, fig, ax):
     data = None
     x = None
     y = None
-    stacked = self.options.get("stacked", "true") == "true"
+    stacked = self.options.get("stacked", "false") == "true"
     if len(self.getValueFields())>1 and stacked:
       self.renderStacked(ax)
     elif len(self.getValueFields())>1:
@@ -72,16 +66,21 @@ class sbBarChartDisplay(SeabornBaseDisplay):
     else:
       self.renderStacked(ax)
 
-  # def getChartOptions(self):
-  #   return [
-  #     { 'name': 'orientation',
-  #       'metadata': {
-  #         'type': "dropdown",
-  #         'values': ["h", "v"],
-  #         'default': "v"
-  #       }
-  #     }
-  #   ]
+  def getChartOptions(self):
+    options = []
+    if len(self.getValueFields()) > 1:
+      options.insert(0,
+        {
+          'name': 'stacked',
+          'description': 'Stacked Bar Chart',
+          'metadata': {
+            'type': 'checkbox',
+            'default': "false"
+          }
+        }
+      )
+
+    return options
 
   def sumDfList(self, list, groupby, column):
     data = None
@@ -94,15 +93,3 @@ class sbBarChartDisplay(SeabornBaseDisplay):
 
   def minusDf(self, minuend, subtrahend, groupby, column):
     return pd.concat([minuend, subtrahend]).groupby(groupby, as_index=False)[column].agg(np.subtract)
-
-  # def sumzip(self,x,y):
-  #   return [sum(values) for values in zip(x,y)]
-
-  # def minuszip(self,x,y):
-  #   return [values[0]-values[1] for values in zip(x,y)]
-
-  # def sumtotal(self, x):
-  #   y = np.zeros(len(x[0]))
-  #   for i in range(len(x)):
-  #     y = self.sumzip(y, x[i])
-  #   return y

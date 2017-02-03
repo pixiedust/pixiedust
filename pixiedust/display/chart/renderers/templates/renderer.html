@@ -6,7 +6,7 @@
             {{chartFigure}}
         </div>
     </div>
-    <div class="form-group col-sm-2">
+    <div class="form-group col-sm-2 rendererOpts">
         {%for option in this.getChartOptions() %}
             {% if option.metadata.type == 'dropdown' %}
                 <label class="field" style="margin-top: 12px;">{{option.description or option.name}}:</label>
@@ -17,9 +17,10 @@
                 </select>
             {%endif%}
             {% if option.metadata.type == 'checkbox' %}
-                <div class="checkbox">
-                    <label><input id="optionchecked{{option.name}}{{prefix}}" type="checkbox" name="{{option.name}}"
-                                {{'checked' if this.options.get(option.name,"false")=="true" else ''}}> {{option.description or option.name}}</label>
+                <div>
+                    <input id="optionchecked{{option.name}}{{prefix}}" type="checkbox" name="{{option.name}}"
+                                {{'checked' if this.options.get(option.name,"false")=="true" else ''}} style="height: 25px;margin: 0;vertical-align: top;width: 25px;">
+                    <label for="optionchecked{{option.name}}{{prefix}}" style="line-height: 25px;">{{option.description or option.name}}</label>
                 </div>
             {%endif%}
         {%endfor%}
