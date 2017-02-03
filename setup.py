@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 setup(name='pixiedust',
-	  version='0.76',
+	  version='0.77',
 	  description='Misc helpers for Spark Python Notebook',
 	  url='https://github.com/ibm-cds-labs/pixiedust',
 	  install_requires=['mpld3','lxml'],
