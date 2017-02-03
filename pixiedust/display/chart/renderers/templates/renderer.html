@@ -6,15 +6,22 @@
             {{chartFigure}}
         </div>
     </div>
-    <div class="form-group col-sm-2">
+    <div class="form-group col-sm-2 rendererOpts">
         {%for option in this.getChartOptions() %}
             {% if option.metadata.type == 'dropdown' %}
-                <label class="field">{{option.name}}:</label>
+                <label class="field" style="margin-top: 12px;">{{option.description or option.name}}:</label>
                 <select class="form-control" id="optionselect{{option.name}}{{prefix}}" name="{{option.name}}" style="margin-left: 0px;">
                     {% for value in option.metadata['values'] %}
-                        <option value="{{value}}" {{'selected' if value==this.options.get("kind",None) or value==option.metadata.default else ''}}>{{value}}</option>
+                        <option value="{{value}}" {{'selected' if value==this.options.get(option.name,None) or value==option.metadata.default else ''}}>{{value}}</option>
                     {% endfor %}
                 </select>
+            {%endif%}
+            {% if option.metadata.type == 'checkbox' %}
+                <div>
+                    <input id="optionchecked{{option.name}}{{prefix}}" type="checkbox" name="{{option.name}}"
+                                {{'checked' if this.options.get(option.name,"false")=="true" else ''}} style="height: 25px;margin: 0;vertical-align: top;width: 25px;">
+                    <label for="optionchecked{{option.name}}{{prefix}}" style="line-height: 25px;">{{option.description or option.name}}</label>
+                </div>
             {%endif%}
         {%endfor%}
     </div>
@@ -24,6 +31,16 @@
 $("[id^=optionselect][id$={{prefix}}]").change(function(){
     var thisOption = $(this).attr('name');
     var thisValue = $(this).val();
+    {% call display.executeDisplay( useCellMetadata=True, divId="chartFigure" + prefix ) %}
+        var o = {};
+        o[thisOption] = thisValue;
+        o["nostore_figureOnly"] = "true";
+        addOptions(o);
+    {% endcall %}    
+});
+$("[id^=optionchecked][id$={{prefix}}]").change(function(){
+    var thisOption = $(this).attr('name');
+    var thisValue = $(this).prop('checked').toString();
     {% call display.executeDisplay( useCellMetadata=True, divId="chartFigure" + prefix ) %}
         var o = {};
         o[thisOption] = thisValue;
