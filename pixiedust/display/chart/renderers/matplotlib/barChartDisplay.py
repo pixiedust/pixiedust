@@ -34,30 +34,45 @@ class BarChartRenderer(MatplotlibBaseDisplay):
     #    return ('barChartOptionsDialogBody.html', {})
 
     def getChartOptions(self):
+        options = [
+            {
+                'name': 'orientation',
+                'description': 'Orientation',
+                'metadata': {
+                    'type': 'dropdown',
+                    'values': ['vertical', 'horizontal'],
+                    'default': "vertical"
+                }
+            }
+        ]
         if len(self.getKeyFields()) > 1 or len(self.getValueFields()) > 1:
-            return [
+            options.insert(0,
                 {
-                    'name': 'stacked',
+                    'name': 'charttype',
+                    'description': 'Type',
                     'metadata': {
-                        'type': 'checkbox',
-                        'default': "false"
+                        'type': 'dropdown',
+                        'values': ['grouped', 'stacked', 'subplots'],
+                        'default': "grouped"
                     }
                 }
-            ]
+            )
 
-        return []
+        return options
 
     #Main rendering method
     def matplotlibRender(self, fig, ax):
         keyFields = self.getKeyFields()
         valueFields = self.getValueFields()
-        stacked = self.options.get("stacked", "true") == "true"
+        stacked = self.options.get("charttype", "grouped") == "stacked"
+        subplots = self.options.get("charttype", "grouped") == "subplots"
+        kind = "barh" if self.options.get("orientation", "vertical") == "horizontal" else "bar"
 
         if len(keyFields) == 1:
-            self.getWorkingPandasDataFrame().plot(kind="bar", stacked=stacked, ax=ax, x=keyFields[0], legend=True)
+            self.getWorkingPandasDataFrame().plot(kind=kind, stacked=stacked, ax=ax, x=keyFields[0], legend=True, subplots=subplots)
         elif len(valueFields) == 1:
             self.getWorkingPandasDataFrame().pivot(
-                index=keyFields[0], columns=keyFields[1], values=valueFields[0]).plot(kind="bar", stacked=stacked, ax=ax, legend=True
+                index=keyFields[0], columns=keyFields[1], values=valueFields[0]).plot(kind=kind, stacked=stacked, ax=ax, legend=True, subplots=subplots
             )
         else:
             raise Exception("Cannot have multiple keys and values at the same time")
