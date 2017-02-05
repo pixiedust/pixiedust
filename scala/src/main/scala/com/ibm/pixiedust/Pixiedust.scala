@@ -225,10 +225,9 @@ object Pixiedust{
   }
   
   def sampleData(dataId:Int=0):Any={
-    val args = if (dataId == 0) "" else dataId
     val code = s"""
       |from pixiedust.utils.sampleData import *
-      |sampleData("${args}") 
+      |sampleData(${if (dataId == 0) "" else ("\"" + dataId + "\",")} fromScala=True) 
     """.stripMargin
     
     runPythonCode( code, output => {
