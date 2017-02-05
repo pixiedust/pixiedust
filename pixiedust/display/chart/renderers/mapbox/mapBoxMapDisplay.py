@@ -55,37 +55,34 @@ class MapViewDisplay(MapBoxBaseDisplay):
         return (diagTemplate, {})
     
     def doRenderChart(self):
+        df = self.getWorkingPandasDataFrame()
+
         keyFields = self.getKeyFields()
         lonFieldIdx = 0
         latFieldIdx = 1
         if keyFields[0] == self.getLatField(): 
             lonFieldIdx = 1
             latFieldIdx = 0
-        keyFieldValues = self.getKeyFieldValues()
         valueFields = self.getValueFields()
-        valueFieldValues = self.getValueFieldValueLists()
+        valueFieldIdxs = []
+        for j, valueField in enumerate(valueFields):
+            valueFieldIdxs.append(df.columns.get_loc(valueField))
+        
 
-        min = [-180.00,-90.00]
-        max = [180.00,90.00]
-        minval = maxval = 0
+        min = [df[keyFields[lonFieldIdx]].min(), df[keyFields[latFieldIdx]].min()]
+        max = [df[keyFields[lonFieldIdx]].max(), df[keyFields[latFieldIdx]].max()]
+
         # Transform the data into GeoJSON for use in the Mapbox client API
         pygeojson = {'type':'FeatureCollection', 'features':[]}
-        for i, row in enumerate(keyFieldValues):
+
+        for row in df.itertuples():
             feature = {'type':'Feature',
                         'properties':{},
                         'geometry':{'type':'Point',
                                     'coordinates':[]}}
-            x = row[lonFieldIdx]
-            y = row[latFieldIdx]
-            if i == 0 or x < min[0]: min[0] = x
-            if i == 0 or x > max[0]: max[0] = x
-            if i == 0 or y < min[1]: min[1] = y
-            if i == 0 or y > max[1]: max[1] = y
-            feature['geometry']['coordinates'] = [x,y]
-            for j, valueFieldRow in enumerate(valueFields):
-                feature['properties'][valueFields[j]] = valueFieldValues[j][i]
-                if i == 0 or valueFieldValues[0][i] < minval: minval = valueFieldValues[0][i]
-                if i == 0 or valueFieldValues[0][i] > maxval: maxval = valueFieldValues[0][i]
+            feature['geometry']['coordinates'] = [row[lonFieldIdx+1], row[latFieldIdx+1]]
+            for idx, valueFieldIdx in enumerate(valueFieldIdxs):
+                feature['properties'][valueFields[idx]] = row[valueFieldIdx+1]
             pygeojson['features'].append(feature)
 
         self.options["mapBounds"] = json.dumps([min,max])
@@ -99,8 +96,9 @@ class MapViewDisplay(MapBoxBaseDisplay):
             self.options["mapValueField"] = mapValueField
         # if there's a numeric value field paint the data as a chloropleth map
         if self.options.get("kind") != "simple" and len(valueFields) > 0:
-            binrange = (maxval - minval) * 0.25
-            bins = [ (minval,'#ffffcc'), (minval+binrange,'#a1dab4'), (minval+(binrange*2),'#41b6c4'), (minval+(binrange*3),'#2c7fb8'), (maxval,'#253494') ]
+            minval = df[valueFields[0]].min()
+            maxval = df[valueFields[0]].max()
+            bins = [ (minval,'#ffffcc'), (df[valueFields[0]].quantile(0.25),'#a1dab4'), (df[valueFields[0]].quantile(0.5),'#41b6c4'), (df[valueFields[0]].quantile(0.75),'#2c7fb8'), (maxval,'#253494') ]
             paint['circle-opacity'] = 0.85
             paint['circle-color'] = {"property":mapValueField}
             paint['circle-color']['stops'] = []
