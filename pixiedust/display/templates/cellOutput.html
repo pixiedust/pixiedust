@@ -26,7 +26,10 @@
   }
   .pixiedust-toolbar .btn-default.focus,
   .pixiedust-toolbar .btn-default:focus,
-  .pixiedust-toolbar .btn-default:hover {
+  .pixiedust-toolbar .btn-default:hover,
+  .pixiedust .chart-button-group .btn-default.focus,
+  .pixiedust .chart-button-group .btn-default:focus,
+  .pixiedust .chart-button-group .btn-default:hover {
     background-color: #337ab7;
     border-color: #2e6da4;
     color: #ffffff;
@@ -122,10 +125,10 @@
     width: initial;
   }
   .pixiedust .expandButton > i.fa:before {
-    content: "\f065";
+    content: "\f066";
   }
   .pixiedust .expandButton.collapsed > i.fa:before {
-    content: "\f066";
+    content: "\f065";
   }
   .pixiedust .expandButton.collapsed:before {
     color: #999999;
@@ -134,6 +137,9 @@
     font-size: 14px;
     font-style: italic;
     font-weight: 300;
+  }
+  .pixiedust .chart-button-group {
+    border-bottom: 1px solid #ececec;
   }
 </style>
 
