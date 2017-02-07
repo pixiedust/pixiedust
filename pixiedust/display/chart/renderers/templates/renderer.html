@@ -31,6 +31,9 @@
 $("[id^=optionselect][id$={{prefix}}]").change(function(){
     var thisOption = $(this).attr('name');
     var thisValue = $(this).val();
+    if (thisValue == "None"){
+        thisValue = null
+    }
     {% call display.executeDisplay( useCellMetadata=True, divId="chartFigure" + prefix ) %}
         var o = {};
         o[thisOption] = thisValue;
