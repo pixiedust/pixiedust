@@ -39,11 +39,31 @@ class HistogramRenderer(BokehBaseDisplay):
 
     def getDefaultKeyFields(self, handlerId, aggregation):
         return []
+
+    def getChartOptions(self):
+        return [
+            { 'name': 'color',
+              'metadata': {
+                    'type': "dropdown",
+                    'values': ["None"] + self.getFieldNames(),
+                    'default': ""
+                }
+            }
+        ]
+
+    def canRenderChart(self):
+        valueFields = self.getValueFields()
+        if len(valueFields) != 1:
+            return (False, "You can only select one value")
+        else:
+            return (True, None)
+
+    def getExtraFields(self):
+        color = self.options.get("color")
+        return [color] if color is not None else []
     
-    def createBokehChart(self):
-       
-       
-        valueField = self.getValueFields()[0]
-        valueFieldValues = self.getWorkingPandasDataFrame()[valueField].values.tolist()
-       
-        return Histogram(valueFieldValues, legend=None,plot_width=600,bins=max(valueFieldValues),color=self.options.get("color"))
+    def createBokehChart(self):       
+        return Histogram(self.getWorkingPandasDataFrame(), values=self.getValueFields()[0],
+            plot_width=800,bins=self.options.get("bins"), color=self.options.get("color"), 
+            xgrid=True, ygrid=True
+        )
