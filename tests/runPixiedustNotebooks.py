@@ -24,7 +24,6 @@ from jupyter_client.manager import KernelManager
 from jupyter_client.kernelspec import NoSuchKernel
 import shutil
 from difflib import SequenceMatcher
-import time
 
 __TEST_KERNEL_NAME__ = "PixiedustTravisTest"
 
@@ -76,7 +75,6 @@ class PixieDustTestExecutePreprocessor( ExecutePreprocessor ):
         try:
             if pixiedustDisplay:
                 print("Processing display() cell:\n\r{0}".format(cell.source))
-                time.sleep(10)
             cell, resources = super(PixieDustTestExecutePreprocessor, self).preprocess_cell(cell, resources, cell_index)
             for output in cell.outputs:
                 if "text" in output and "restart kernel" in output["text"].lower():
