@@ -113,7 +113,7 @@ class MatplotlibBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
             except ImportError:
                 from StringIO import StringIO as pngIO
             png=pngIO()
-            plt.savefig(png)
+            plt.savefig(png, pad_inches=0.05, bbox_inches='tight')
             try:
                 return """<img width='100%' src="data:image/png;base64,{0}"  class="pd_save">""".format(
                     base64.b64encode(png.getvalue()).decode("ascii")

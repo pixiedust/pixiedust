@@ -27,23 +27,26 @@ class ScatterPlotDisplay(SeabornBaseDisplay):
 
 	def supportsLegend(self, handlerId):
 		return False
-
-	def supportsKeyFields(self, handlerId):
-		return False
     
 	def canRenderChart(self):
 		valueFields = self.getValueFields()
-		if len(valueFields) < 2:
-			return (False, "At least two numerical columns required.")
-		else:
-			return (True, None)
+		if len(valueFields) != 1:
+			return (False, "Can only specify one Value Field")
+
+		#Verify that all key field are numericals
+		for keyField in self.getKeyFields():
+			if not self.dataHandler.isNumericField(keyField):
+				return (False, "Column {0} is not numerical".format(keyField))
+		
+		return (True, None)
 
 	def getPreferredDefaultValueFieldCount(self, handlerId):
 		return 2
 
 	def createFigure(self):
 		valueFields = self.getValueFields()
-		facetGrid = sns.jointplot(x=valueFields[0], y=valueFields[1], kind=self.options.get("kind","scatter"), data=self.getWorkingPandasDataFrame())
+		keyFields = self.getKeyFields()
+		facetGrid = sns.jointplot(x=keyFields[0], y=valueFields[0], kind=self.options.get("kind","scatter"), data=self.getWorkingPandasDataFrame())
 		return facetGrid.fig, facetGrid.fig.axes[0]
 
 	def matplotlibRender(self, fig, ax):

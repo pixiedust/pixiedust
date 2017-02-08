@@ -30,9 +30,6 @@ class ScatterPlotRenderer(BokehBaseDisplay):
     def supportsLegend(self, handlerId):
         return False
 
-    def supportsKeyFields(self, handlerId):
-        return False
-
     def getChartOptions(self):
         return [
             { 'name': 'color',
@@ -44,12 +41,17 @@ class ScatterPlotRenderer(BokehBaseDisplay):
             }
         ]
 
-    def canRenderChart(self):
-        valueFields = self.getValueFields()
-        if len(valueFields) < 2:
-            return (False, "At least two numerical columns required.")
-        else:
-            return (True, None)
+	def canRenderChart(self):
+		valueFields = self.getValueFields()
+		if len(valueFields) != 1:
+			return (False, "Can only specify one Value Field")
+
+		#Verify that all key field are numericals
+		for keyField in self.getKeyFields():
+			if not self.dataHandler.isNumericField(keyField):
+				return (False, "Column {0} is not numerical".format(keyField))
+		
+		return (True, None)
 
     def getExtraFields(self):
         color = self.options.get("color")
@@ -58,5 +60,5 @@ class ScatterPlotRenderer(BokehBaseDisplay):
     def createBokehChart(self):        
         data = self.getWorkingPandasDataFrame()
         return Scatter(data, 
-            x = self.getValueFields()[0], y = self.getValueFields()[1],
-            xlabel=self.getValueFields()[0],ylabel=self.getValueFields()[1],legend="top_left", plot_width=800,color=self.options.get("color"))
+            x = self.getKeyFields()[0], y = self.getValueFields()[0],
+            xlabel=self.getKeyFields()[0],ylabel=self.getValueFields()[0],legend="top_left", plot_width=800,color=self.options.get("color"))
