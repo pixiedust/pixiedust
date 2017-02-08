@@ -14,8 +14,8 @@ Using VSCode
 1. Install the `python extension <http://donjayamanne.github.io/pythonVSCode/>`_ into VSCode
 2. Open the pixiedust repository/directory in VSCode
 3. Set the **python.pythonPath** in the *User Settings* of the VSCode Preferences to the appropriate location of your python directory
-3. From the Debug View, click on the Configure gear and select Python
-4. Edit the ``launch.json`` and add a new object (or edit an existing one) in *configurations*
+4. From the Debug View, click on the Configure gear and select Python
+5. Edit the ``launch.json`` and add a new object (or edit an existing one) in *configurations*
 
 ::
 
@@ -40,8 +40,8 @@ Using VSCode
 
 Update the ``SPARK_HOME`` and ``SCALA_HOME`` entries accordingly. If you want, update ``PIXIEDUST_TEST_INPUT`` to where test notebooks to run are located
 	
-5. Select the newly created or updated **pixiedust test** configuration from dropdown in the Debug view
-6. Click on the Debug green arrow, to run the configuration
+6. Select the newly created or updated **pixiedust test** configuration from dropdown in the Debug view
+7. Click on the Debug green arrow, to run the configuration
 
 The Integrated Terminal should show the test output as the tests are running.
 
