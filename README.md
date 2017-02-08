@@ -47,9 +47,9 @@ PixieDust's current capabilities include:
 
 - **Spark progress monitor.** Track the status of your Spark job. No more waiting in the dark. Notebook users can now see how a cell's code is running behind the scenes.
 
-Check out this detailed presentation of PixieDust: 
+Watch this video to see PixieDust in action: 
 
-[![about PixieDust](https://img.youtube.com/vi/JcMefQ_o9oU/0.jpg)](https://www.youtube.com/watch?v=JcMefQ_o9oU) 
+[![about PixieDust](https://img.youtube.com/vi/qetedQg8m3k/0.jpg)](https://www.youtube.com/watch?v=qetedQg8m3k) 
 
 ###Demo
 
