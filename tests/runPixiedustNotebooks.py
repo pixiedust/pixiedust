@@ -76,7 +76,7 @@ class PixieDustTestExecutePreprocessor( ExecutePreprocessor ):
         try:
             if pixiedustDisplay:
                 print("Processing display() cell:\n\r{0}".format(cell.source))
-                time.sleep(2)
+                time.sleep(10)
             cell, resources = super(PixieDustTestExecutePreprocessor, self).preprocess_cell(cell, resources, cell_index)
             for output in cell.outputs:
                 if "text" in output and "restart kernel" in output["text"].lower():
