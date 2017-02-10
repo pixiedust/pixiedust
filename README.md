@@ -24,7 +24,7 @@ PixieDust is an open source helper library that works as an add-on to Jupyter no
 
 ###Use in Python or Scala
 
-PixieDust works greatly simplifies working with Python display libraries like matplotlib, but works just as effectively in Scala notebooks too. You no longer have compromise your love of Scala to generate great charts. PixieDust lets you bring robust python visualization options to your Scala notebooks.
+PixieDust works greatly simplifies working with Python display libraries like matplotlib, but works just as effectively in Scala notebooks too. You no longer have compromise your love of Scala to generate great charts. PixieDust lets you bring robust python visualization options to your Scala notebooks. Installer and instructions to use Scala with PixieDust are coming soon... 
 
 ###Features
 
@@ -49,7 +49,7 @@ PixieDust's current capabilities include:
    ![save as options](http://developer.ibm.com/clouddataservices/wp-content/uploads/sites/47/2016/07/pd_download.png)
 - **Scala Bridge.** Use scala directly in your Python notebook. Variables are automatically transfered from Python to Scala and vice-versa.   [Learn more](https://ibm-cds-labs.github.io/pixiedust/scalabridge.html).
 
-  > **Or start in a Scala notebook.** As mentioned, all these PixieDust features work not only in Python, but in Scala too. So if you prefer Scala, start there and use PixieDust to insert sophisticated Python graphic options within your Scala notebook.
+  > **Or start in a Scala notebook.** As mentioned, all these PixieDust features work not only in Python, but in Scala too. So if you prefer Scala, you'll soon be able to start there and use PixieDust to insert sophisticated Python graphic options within your Scala notebook. Instructions coming soon.
 
 - **Spark progress monitor.** Track the status of your Spark job. No more waiting in the dark. Notebook users can now see how a cell's code is running behind the scenes.
 
@@ -59,7 +59,9 @@ Watch this video to see PixieDust in action:
 
 ###Demo
 
-Try a demo notebook. PixieDust is built-in to IBM's [Data Science Experience](http://datascience.ibm.com/). For a quick look at PixieDust, you can sign up for a free trial there, and create a new notebook from URL using this sample: `https://github.com/ibm-cds-labs/pixiedust/raw/master/notebook/Intro%20to%20PixieDust.ipynb` 
+Try a demo notebook. PixieDust is built-in to IBM's [Data Science Experience](http://datascience.ibm.com/) (DSX). For a quick look at PixieDust, you can sign up for a free trial there, and create a new notebook from URL using this sample: `https://github.com/ibm-cds-labs/pixiedust/raw/master/notebook/Intro%20to%20PixieDust.ipynb` 
+
+ >**Note:** DSX doesn't yet support use of PixieDust within Scala, so make sure you use a Python Notebook.
 
 To see an embedded app in action, run the following tutorial in Data Science Experience: [FlightPredict II: The Sequel](https://medium.com/ibm-watson-data-lab/flightpredict-ii-the-sequel-fb613afd6e91), which shows how to predict flight delays with PixieDust.
 
