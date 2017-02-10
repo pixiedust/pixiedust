@@ -138,10 +138,10 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
     def getMaxRows(self):
         return int(self.options.get("rowCount","100"))
 
-    def getPandasDataFrame(self):
-        valueFieldValues = self.getValueFieldValueLists()
-        valueFields = self.getValueFields()
-        return pd.DataFrame([list(a) for a in zip( valueFieldValues[0], valueFieldValues[1]) ], columns=[valueFields[0], valueFields[1]])
+    # def getPandasDataFrame(self):
+    #     valueFieldValues = self.getValueFieldValueLists()
+    #     valueFields = self.getValueFields()
+    #     return pd.DataFrame([list(a) for a in zip( valueFieldValues[0], valueFieldValues[1]) ], columns=[valueFields[0], valueFields[1]])
 
     #helper method
     def _getField(self, fieldName):

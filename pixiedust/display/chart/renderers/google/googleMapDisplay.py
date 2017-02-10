@@ -17,6 +17,7 @@
 from pixiedust.display.chart.renderers import PixiedustRenderer
 from .googleBaseDisplay import GoogleBaseDisplay
 
+import numpy as np
 import pixiedust
 
 myLogger = pixiedust.getLogger(__name__)
@@ -53,10 +54,10 @@ class MapViewDisplay(GoogleBaseDisplay):
 
     def doRenderChart(self):
         keyFields = self.getKeyFields()
-        keyFieldLabels = self.getKeyFieldLabels()
-        valueFieldValues = self.getValueFieldValueLists()
+        # keyFieldLabels = self.getKeyFieldLabels()
         valueFields = self.getValueFields()
         latLong = self.dataHandler.isNumericField(keyFields[0])
+
         if self.options.get("mapRegion") is None:
             if keyFields[0].lower() == "state":
                 self.options["mapRegion"] = "US"
@@ -71,26 +72,13 @@ class MapViewDisplay(GoogleBaseDisplay):
             self.options["mapResolution"] = "provinces"
         else:
             self.options["mapResolution"] = "countries"
-        mapData = "[["
-        for i, keyField in enumerate(keyFields):
-            if i is not 0:
-                mapData = mapData + ", "
-            mapData = mapData + "'" + keyFields[0].replace('"','') + "'"
-        for i, valueField in enumerate(valueFields):
-            mapData = mapData + ", '" + valueField.replace('"','') + "'"
-        mapData = mapData + "]"
-        for i, keyFieldLabel in enumerate(keyFieldLabels):
-            mapData = mapData + ", ["
-            if latLong == False:
-                mapData = mapData + "'"
-            mapData = mapData + keyFieldLabels[i].replace('"','')
-            if latLong == False:
-                 mapData = mapData + "'"
-            for j, valueFieldValue in enumerate(valueFieldValues):
-                mapData = mapData + ", " + str(valueFieldValues[j][i]).replace('"','')
-            mapData = mapData + "]"
-        mapData = mapData + "]"
-        self.options["mapData"] = mapData.replace("'",'"')
+
+        df = self.getWorkingPandasDataFrame()
+        colData = str(df.columns.values.tolist())
+        valData = str(df.values.tolist()).encode('utf-8')
+        mapData = "[" + valData.replace('[', (colData + ", "), 1)
+
+        self.options["mapData"] = mapData.replace("'",'"').replace('[u"', '["').replace(', u"', ', "')
         self._addScriptElement("https://www.gstatic.com/charts/loader.js")
         self._addScriptElement("https://www.google.com/jsapi", callback=self.renderTemplate("mapView.js"))
         return self.renderTemplate("mapView.html")
