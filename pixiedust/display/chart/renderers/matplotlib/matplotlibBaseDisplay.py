@@ -15,6 +15,7 @@
 # -------------------------------------------------------------------------------
 
 from pixiedust.display.chart.renderers import PixiedustRenderer
+from pixiedust.utils import Logger
 from ..baseChartDisplay import BaseChartDisplay
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
@@ -31,10 +32,8 @@ try:
 except ImportError:
     mpld3Available = False
 
-import pixiedust
-myLogger = pixiedust.getLogger(__name__)
-
 @PixiedustRenderer(rendererId="matplotlib")
+@Logger()
 class MatplotlibBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
 
     @abstractmethod
@@ -46,9 +45,9 @@ class MatplotlibBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
         return mpld3Available
 
     def setChartSize(self, fig, ax):
-        params = plt.gcf()
-        plSize = params.get_size_inches()
-        params.set_size_inches((plSize[0]*1.5, plSize[1]*1.5))
+        imageWidth = self.getPreferredOutputWidth()
+        fig.set_figwidth( imageWidth/ self.getDPI() )
+        fig.set_figheight( (imageWidth * 0.75) / self.getDPI() )
         
     def setChartGrid(self, fig, ax):
         ax.grid(color='lightgray', alpha=0.7)
@@ -98,7 +97,12 @@ class MatplotlibBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
             self.setChartLegend(fig, ax)
             self.setChartTitle()
 
-            fig.autofmt_xdate()
+            numChars = sum(len(s.get_text()) for s in ax.get_xticklabels()) * 5
+            if numChars > 1000:
+                ax.tick_params(axis='x', labelsize=8 if numChars < 1200 else 6)
+                plt.xticks(rotation=30)
+            else:
+                plt.xticks(rotation=0)
 
             #Render the figure
             return self.renderFigure(fig)
@@ -113,9 +117,9 @@ class MatplotlibBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
             except ImportError:
                 from StringIO import StringIO as pngIO
             png=pngIO()
-            plt.savefig(png, pad_inches=0.05, bbox_inches='tight')
+            plt.savefig(png, pad_inches=0.05, bbox_inches='tight', dpi=self.getDPI())
             try:
-                return """<img width='100%' src="data:image/png;base64,{0}"  class="pd_save">""".format(
+                return """<center><img src="data:image/png;base64,{0}"  class="pd_save"></center>""".format(
                     base64.b64encode(png.getvalue()).decode("ascii")
                 )
             finally:

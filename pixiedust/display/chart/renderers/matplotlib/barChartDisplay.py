@@ -72,7 +72,7 @@ class BarChartRenderer(MatplotlibBaseDisplay):
             self.getWorkingPandasDataFrame().plot(kind=kind, stacked=stacked, ax=ax, x=keyFields[0], legend=True, subplots=subplots)
         elif len(valueFields) == 1:
             self.getWorkingPandasDataFrame().pivot(
-                index=keyFields[0], columns=keyFields[1], values=valueFields[0]).plot(kind=kind, stacked=stacked, ax=ax, legend=True, subplots=subplots
-            )
+                index=keyFields[0], columns=keyFields[1], values=valueFields[0]
+            ).plot(kind=kind, stacked=stacked, ax=ax, legend=True, subplots=subplots)
         else:
             raise Exception("Cannot have multiple keys and values at the same time")

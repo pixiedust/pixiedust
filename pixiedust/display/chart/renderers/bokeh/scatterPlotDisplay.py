@@ -41,17 +41,17 @@ class ScatterPlotRenderer(BokehBaseDisplay):
             }
         ]
 
-	def canRenderChart(self):
-		valueFields = self.getValueFields()
-		if len(valueFields) != 1:
-			return (False, "Can only specify one Value Field")
+    def canRenderChart(self):
+        valueFields = self.getValueFields()
+        if len(valueFields) != 1:
+            return (False, "Can only specify one Value Field")
 
-		#Verify that all key field are numericals
-		for keyField in self.getKeyFields():
-			if not self.dataHandler.isNumericField(keyField):
-				return (False, "Column {0} is not numerical".format(keyField))
-		
-		return (True, None)
+        #Verify that all key field are numericals
+        for keyField in self.getKeyFields():
+            if not self.dataHandler.isNumericField(keyField):
+                return (False, "Column {0} is not numerical".format(keyField))
+        
+        return (True, None)
 
     def getExtraFields(self):
         color = self.options.get("color")

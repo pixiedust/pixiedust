@@ -244,21 +244,6 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
         if (len(keyFields) == 0):
             return []
         return self.getWorkingPandasDataFrame().groupby(keyFields).groups.keys()
-        """df = self.dataHandler.groupBy(keyFields).count().dropna()
-        for keyField in keyFields:
-            df = df.sort(keyField)
-        maxRows = int(self.options.get("rowCount","100"))
-        numRows = min(maxRows,df.count())
-        rows = df.take(numRows)
-        labels = []
-        for i, row in enumerate(rows):
-            label = ""
-            for keyField in keyFields:
-                if len(label) > 0:
-                    label += ", "
-                label += str(row[keyField])
-            labels.append(label)
-        return labels"""
 
     def getPreferredDefaultValueFieldCount(self, handlerId):
         return 2
@@ -277,82 +262,6 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
             if self.dataHandler.isNumericField(valueField) or aggregation == "COUNT":
                 numericValueFields.append(valueField)
         return numericValueFields
-
-    def getPandasValueFieldValueLists(self):
-        keyFields = self.getKeyFields()
-        valueFields = self.getValueFields()
-        aggregation = self.getAggregation()
-        pandasValueLists = []
-        maxRows = int(self.options.get("rowCount","100"))
-        if len(keyFields) == 0:
-            for valueField in valueFields:
-                pandasValueLists.append(
-                    self.dataHandler.select(valueField).toPandas()[valueField].dropna().head(maxRows)
-                )
-        else:
-            df = self.dataHandler.groupBy(keyFields)
-            maxRows = int(self.options.get("rowCount","100"))
-            for valueField in valueFields:
-                valueDf = None
-                if aggregation == "SUM":
-                    valueDf = df.agg({valueField:"sum"}).withColumnRenamed("sum("+valueField+")", "agg")
-                elif aggregation == "AVG":
-                    valueDf = df.agg({valueField:"avg"}).withColumnRenamed("avg("+valueField+")", "agg")
-                elif aggregation == "MIN":
-                    valueDf = df.agg({valueField:"min"}).withColumnRenamed("min("+valueField+")", "agg")
-                elif aggregation == "MAX":
-                    valueDf = df.agg({valueField:"max"}).withColumnRenamed("max("+valueField+")", "agg")
-                else:
-                    valueDf = df.agg({valueField:"count"}).withColumnRenamed("count("+valueField+")", "agg")
-                #for keyField in keyFields:
-                #    valueDf = valueDf.sort(keyField)
-                valueDf = valueDf.dropna()
-                numRows = min(maxRows,valueDf.count())
-                pandasValueLists.append( valueDf.toPandas().head(numRows) )
-        return pandasValueLists
-
-    @cache(fieldName="valueFieldValueLists")
-    def getValueFieldValueLists(self):
-        keyFields = self.getKeyFields()
-        valueFields = self.getValueFields()
-        aggregation = self.getAggregation()
-        valueLists = []
-        maxRows = int(self.options.get("rowCount","100"))
-        if len(keyFields) == 0:
-            valueLists = []
-            for valueField in valueFields:
-                valueLists.append(
-                    self.dataHandler.select(valueField).toPandas()[valueField].dropna().tolist()[:maxRows]
-                )
-        #elif self.supportsAggregation(handlerId) == False:
-        #    for valueField in valueFields:
-                # TODO: Need to get the list of values per unique key (not count, avg, etc)
-                # For example, SELECT distinct key1, key2 FROM table
-                # for each key1/key2 SELECT value1 FROM table WHERE key1=key1 AND key2=key2
-                # for each key1/key2 SELECT value2 FROM table WHERE key1=key1 AND key2=key2
-                # repeat for each value
-        else:
-            df = self.dataHandler.groupBy(keyFields)
-            maxRows = int(self.options.get("rowCount","100"))
-            for valueField in valueFields:
-                valueDf = None
-                if aggregation == "SUM":
-                    valueDf = df.agg({valueField:"sum"}).withColumnRenamed("sum("+valueField+")", "agg")
-                elif aggregation == "AVG":
-                    valueDf = df.agg({valueField:"avg"}).withColumnRenamed("avg("+valueField+")", "agg")
-                elif aggregation == "MIN":
-                    valueDf = df.agg({valueField:"min"}).withColumnRenamed("min("+valueField+")", "agg")
-                elif aggregation == "MAX":
-                    valueDf = df.agg({valueField:"max"}).withColumnRenamed("max("+valueField+")", "agg")
-                else:
-                    valueDf = df.agg({valueField:"count"}).withColumnRenamed("count("+valueField+")", "agg")
-                if self.isMap(self.handlerId) is False: 
-                    for keyField in keyFields:
-                        valueDf = valueDf.sort(keyField)
-                valueDf = valueDf.dropna()
-                numRows = min(maxRows,valueDf.count())
-                valueLists.append(valueDf.rdd.map(lambda r:r["agg"]).take(numRows))
-        return valueLists
     
     def canRenderChart(self):
         aggregation = self.getAggregation()
