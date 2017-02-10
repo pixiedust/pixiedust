@@ -24,7 +24,7 @@ PixieDust is an open source helper library that works as an add-on to Jupyter no
 
 ###Use in Python or Scala
 
-PixieDust works greatly simplifies working with Python display libraries like matplotlib, but works just as effectively in Scala notebooks too. You no longer have compromise your love of Scala to generate great charts. PixieDust lets you bring robust python visualization options to your Scala notebooks. Installer and instructions to use Scala with PixieDust are coming soon... 
+PixieDust greatly simplifies working with Python display libraries like matplotlib, but works just as effectively in Scala notebooks too. You no longer have compromise your love of Scala to generate great charts. PixieDust lets you bring robust python visualization options to your Scala notebooks. Installer and instructions to use Scala with PixieDust are coming soon... 
 
 ###Features
 
