@@ -3,13 +3,13 @@
 [![PyPI version](https://badge.fury.io/py/pixiedust.svg)](https://badge.fury.io/py/pixiedust)
 [![Build Status](https://travis-ci.org/ibm-cds-labs/pixiedust.svg?branch=master)](https://travis-ci.org/ibm-cds-labs/pixiedust)  
 
-PixieDust is a productivity tool for python notebooks, which lets a developer encapsulate business logic into something easy for your customers to consume.
+PixieDust is a productivity tool for Python or Scala notebooks, which lets a developer encapsulate business logic into something easy for your customers to consume.
 
 ##Why you need it
 
-Python notebooks are a powerful tool for fast and flexible data analysis. But the learning curve is steep.
+Notebooks are a powerful tool for fast and flexible data analysis. But the learning curve is steep.
 
-Data science notebooks were first popularized in academia, and there are some formalities to work through before you can get to your analysis. For example, in a Python interactive notebook, a mundane task like creating a simple chart or saving data into a persistence repository requires mastery of complex code like this [matplotlib](http://matplotlib.org/) snippet:
+Python data science notebooks were first popularized in academia, and there are some formalities to work through before you can get to your analysis. For example, in a Python interactive notebook, a mundane task like creating a simple chart or saving data into a persistence repository requires mastery of complex code like this [matplotlib](http://matplotlib.org/) snippet:
 
 ![All this for a chart?](https://developer.ibm.com/wp-content/uploads/sites/85/2016/10/hairymatplotlib.png)<br>
 *All this for a chart?*
@@ -20,7 +20,11 @@ PixieDust to the rescue.
 
 ##What is PixieDust?
 
-PixieDust is an open source Python helper library that works as an add-on to Jupyter notebooks to improve the user experience of working with data. It also fills a gap for users who have no access to configuration files when a notebook is hosted on the cloud.
+PixieDust is an open source helper library that works as an add-on to Jupyter notebooks to improve the user experience of working with data. It also fills a gap for users who have no access to configuration files when a notebook is hosted on the cloud. 
+
+###Use in Python or Scala
+
+PixieDust works greatly simplifies working with Python display libraries like matplotlib, but works just as effectively in Scala notebooks too. You no longer have compromise your love of Scala to generate great charts. PixieDust lets you bring robust python visualization options to your Scala notebooks.
 
 ###Features
 
@@ -43,7 +47,9 @@ PixieDust's current capabilities include:
 - **Export.** Notebook users can download data to .csv, html, json, etc. locally on your laptop or into a variety of back-end data sources, like Cloudant, dashDB, GraphDB, etc...
 
    ![save as options](http://developer.ibm.com/clouddataservices/wp-content/uploads/sites/47/2016/07/pd_download.png)
-- **Scala Bridge.** Use scala directly in your Python notebook. Variables are automatically transfered from Python to Scala and vice-versa. You can also use all these PixieDust features in a Scala notebook, empowering you to leverage robust python visualization options within Scala too.  [Learn more](https://ibm-cds-labs.github.io/pixiedust/scalabridge.html).
+- **Scala Bridge.** Use scala directly in your Python notebook. Variables are automatically transfered from Python to Scala and vice-versa.   [Learn more](https://ibm-cds-labs.github.io/pixiedust/scalabridge.html).
+
+  > **Or start in a Scala notebook.** As mentioned, all these PixieDust features work not only in Python, but in Scala too. So if you prefer Scala, start there and use PixieDust to insert sophisticated Python graphic options within your Scala notebook.
 
 - **Spark progress monitor.** Track the status of your Spark job. No more waiting in the dark. Notebook users can now see how a cell's code is running behind the scenes.
 
