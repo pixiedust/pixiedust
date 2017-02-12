@@ -22,7 +22,14 @@
             if (old_msg_id) {
                 cell.kernel.clear_callbacks_for_msg(old_msg_id);
             }
-            var snifferOptions = [];
+            function getCellWidth(){
+                try{
+                    return cell.input[0].clientWidth
+                }catch(e){
+                    console.log(e)
+                }
+            }
+            var snifferOptions = [{'nostore_cw':getCellWidth()}];
             {%for cb in this.snifferCallbacks%}
                 snifferOptions.push({{cb()}})
             {%endfor%}
