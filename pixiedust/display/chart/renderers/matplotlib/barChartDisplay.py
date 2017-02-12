@@ -16,49 +16,12 @@
 
 from pixiedust.display.chart.renderers import PixiedustRenderer
 from .matplotlibBaseDisplay import MatplotlibBaseDisplay
-import matplotlib.pyplot as plt
-import numpy as np
-import pandas as pd
-from itertools import product
 from pyspark.sql import functions as F
-import pixiedust
-from pixiedust.utils.shellAccess import ShellAccess
-from functools import reduce
-
-myLogger = pixiedust.getLogger(__name__)
+from pixiedust.utils import Logger
 
 @PixiedustRenderer(id="barChart")
+@Logger()
 class BarChartRenderer(MatplotlibBaseDisplay):
-
-    #def getChartContext(self, handlerId):
-    #    return ('barChartOptionsDialogBody.html', {})
-
-    def getChartOptions(self):
-        options = [
-            {
-                'name': 'orientation',
-                'description': 'Orientation',
-                'metadata': {
-                    'type': 'dropdown',
-                    'values': ['vertical', 'horizontal'],
-                    'default': "vertical"
-                }
-            }
-        ]
-        if len(self.getKeyFields()) > 1 or len(self.getValueFields()) > 1:
-            options.insert(0,
-                {
-                    'name': 'charttype',
-                    'description': 'Type',
-                    'metadata': {
-                        'type': 'dropdown',
-                        'values': ['grouped', 'stacked', 'subplots'],
-                        'default': "grouped"
-                    }
-                }
-            )
-
-        return options
 
     #Main rendering method
     def matplotlibRender(self, fig, ax):

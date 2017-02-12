@@ -16,80 +16,82 @@
 
 from pixiedust.display.chart.renderers import PixiedustRenderer
 from .seabornBaseDisplay import SeabornBaseDisplay
-import pixiedust
+from pixiedust.utils import Logger
 import numpy as np
 import pandas as pd
 import seaborn as sns
 
-myLogger = pixiedust.getLogger(__name__)
-
 @PixiedustRenderer(id="barChart")
+@Logger()
 class sbBarChartDisplay(SeabornBaseDisplay):
-  def renderStacked(self, ax):
-    pandaList = self.getPandasValueFieldValueLists()
-    valueFieldValues = pandaList if len(pandaList) >= 1 else []
-    key = self.getKeyFields()[0]
-    colors = ['#79c36a','#f1595f','#599ad3','#f9a65a','#9e66ab','#cd7058','#d77fb3','#727272']
+    def renderStacked(self, ax):
+        pandaList = self.getWorkingPandasDataFrame()
+        valueFieldValues = pandaList if len(pandaList) >= 1 else []
+        key = self.getKeyFields()[0]
+        colors = ['#79c36a','#f1595f','#599ad3','#f9a65a','#9e66ab','#cd7058','#d77fb3','#727272']
 
-    data = self.sumDfList(valueFieldValues, [key], "agg")
+        #data = self.sumDfList(valueFieldValues, [åkey], "agg")
 
-    for i in range(1, len(self.getValueFields())):
-      sns.barplot(x=key, y='agg', data=data, ax=ax, color=colors[i])
-      data = self.minusDf(data, valueFieldValues[i], [key], "agg")
+        for i, valueField in enumerate(self.getValueFields()):
+            sns.barplot(x=key, y=valueField, data=self.getWorkingPandasDataFrame(), ax=ax, color=colors[i], orient=self.getOrientation() )
+            #data = self.minusDf(data, valueFieldValues[i], [key], "agg")
 
-    sns.barplot(x=key, y='agg', data=valueFieldValues[0], ax=ax, color=colors[0])
+        #sns.barplot(x=key, y='agg', data=self.getWorkingPandasDataFrame(), ax=ax, color=colors[0])
 
-  def renderGrouped(self, ax):
-    keyFields = self.getKeyFields()
-    valueFields = self.getValueFields()
+    def renderGrouped(self, ax):
+        keyFields = self.getKeyFields()
+        valueFields = self.getValueFields()
 
-    df = self.getWorkingPandasDataFrame()
-    cols = df.columns.values.tolist()
-    selectedcols = np.concatenate([keyFields, valueFields])
+        df = self.getWorkingPandasDataFrame()
+        cols = df.columns.values.tolist()
+        selectedcols = np.concatenate([keyFields, valueFields])
 
-    for col in cols:
-      if col not in selectedcols:
-        df.drop(col, axis=1, inplace=True)
+        for col in cols:
+            if col not in selectedcols:
+                df.drop(col, axis=1, inplace=True)
 
-    df1 = pd.melt(df, id_vars=keyFields).sort_values(['variable','value'])
-    sns.barplot(x=keyFields[0], y='value', hue='variable', ax=ax, data=df1)
+        df1 = pd.melt(df, id_vars=keyFields).sort_values(['variable','value'])
+        sns.barplot(x=keyFields[0], y='value', hue='variable', ax=ax, data=df1, orient=self.getOrientation())
 
-  def matplotlibRender(self, fig, ax):
-    data = None
-    x = None
-    y = None
-    stacked = self.options.get("stacked", "false") == "true"
-    if len(self.getValueFields())>1 and stacked:
-      self.renderStacked(ax)
-    elif len(self.getValueFields())>1:
-      self.renderGrouped(ax)
-    else:
-      self.renderStacked(ax)
+    def matplotlibRender(self, fig, ax):
+        data = None
+        x = None
+        y = None
+        stacked = self.options.get("stacked", "false") == "true"
+        if len(self.getValueFields())>1 and stacked:
+            self.renderStacked(ax)
+        elif len(self.getValueFields())>1:
+            self.renderGrouped(ax)
+        else:
+            self.renderStacked(ax)
 
-  def getChartOptions(self):
-    options = []
-    if len(self.getValueFields()) > 1:
-      options.insert(0,
-        {
-          'name': 'stacked',
-          'description': 'Stacked Bar Chart',
-          'metadata': {
-            'type': 'checkbox',
-            'default': "false"
-          }
-        }
-      )
+    def getOrientation(self):
+        return "v" if self.options.get("orientation", "vertical") == "vertical" else "h"
+  
+    @SeabornBaseDisplay.commonChartOptions
+    def getChartOptions(self):
+        options = []
+        if len(self.getValueFields()) > 1:
+            options.insert(0,
+                {
+                'name': 'stacked',
+                'description': 'Stacked Bar Chart',
+                'metadata': {
+                    'type': 'checkbox',
+                    'default': "false"
+                }
+                }
+            )
+        return options
 
-    return options
+    def sumDfList(self, list, groupby, column):
+        data = None
+        for df in list:
+            if data is None:
+                data = df
+            else:
+                data = pd.concat([data, df]).groupby(groupby, as_index=False)[column].sum()
+        return data
 
-  def sumDfList(self, list, groupby, column):
-    data = None
-    for df in list:
-      if data is None:
-        data = df
-      else:
-        data = pd.concat([data, df]).groupby(groupby, as_index=False)[column].sum()
-    return data
-
-  def minusDf(self, minuend, subtrahend, groupby, column):
-    return pd.concat([minuend, subtrahend]).groupby(groupby, as_index=False)[column].agg(np.subtract)
+    def minusDf(self, minuend, subtrahend, groupby, column):
+        return pd.concat([minuend, subtrahend]).groupby(groupby, as_index=False)[column].agg(np.subtract)

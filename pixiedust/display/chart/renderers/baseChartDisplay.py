@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------------
-# Copyright IBM Corp. 2016
+# Copyright IBM Corp. 2017
 # 
 # Licensed under the Apache License, Version 2.0 (the 'License');
 # you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ from pixiedust.display import addDisplayRunListener
 from pixiedust.display.chart.renderers import PixiedustRenderer
 from pixiedust.utils import cache,Logger
 from pixiedust.utils.shellAccess import ShellAccess
+from .commonOptions import commonOptions as co
 import pandas as pd
 import time
 
@@ -85,14 +86,31 @@ addDisplayRunListener( lambda entity, options: WorkingDataCache.onNewDisplayRun(
 @Logger()
 class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
 
+    commonOptions = co
+
     def __init__(self, options, entity, dataHandler=None):
         super(BaseChartDisplay,self).__init__(options,entity,dataHandler)
         #note: since this class can be subclassed from other module, we need to mark the correct resource module with resModule so there is no mixup
         self.extraTemplateArgs["resModule"]=BaseChartDisplay.__module__
 
+    def commonChartOptions(func):
+        def wrapper(cls, *args, **kwargs):
+            commonOptions = []
+            if hasattr(cls, 'commonOptions'):
+                BaseChartDisplay.debug("cls {0}".format(cls))
+                BaseChartDisplay.debug("commonOptions {0}".format(getattr(cls, "commonOptions")))
+                BaseChartDisplay.debug("handlerId {0}".format(cls.handlerId))
+                handler = getattr(cls, "commonOptions").get(cls.handlerId, [])
+                if callable(handler):
+                    handler = handler(cls)
+                commonOptions += handler
+            return commonOptions + func(cls, *args, **kwargs )
+        return wrapper
+
     """
         Subclass can override: return an array of option metadata
     """
+    @commonChartOptions
     def getChartOptions(self):
         return []
 
@@ -240,10 +258,10 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
 
     @cache(fieldName="keyFieldLabels")
     def getKeyFieldLabels(self):
-        keyFields = self.getKeyFields()
-        if (len(keyFields) == 0):
+        k = self.getKeyFields()
+        if (len(k) == 0):
             return []
-        return self.getWorkingPandasDataFrame().groupby(keyFields).groups.keys()
+        return self.getWorkingPandasDataFrame().groupby(k).groups.keys()
 
     def getPreferredDefaultValueFieldCount(self, handlerId):
         return 2
@@ -326,27 +344,24 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
             self._addJavascriptTemplate("chartOptions.dialog", optionsDialogBody=self.dialogBody)
             return
         
-        # validate if we can render
-        canRender, errorMessage = self.canRenderChart()
-        if canRender == False:
-            self.dialogBody = self.getChartErrorDialogBody(handlerId, dialogTemplate, dialogOptions)
-            if (self.dialogBody is None):
-                self.dialogBody = ""
-            self._addHTMLTemplate("chartError.html", errorMessage=errorMessage, optionsDialogBody=self.dialogBody)
-            return
-
-        # set the keyFields and valueFields options if this is the first time
-        # do this after call to canRenderChart as some charts may need to know that they have not been set
-        setKeyFields = self.options.get("keyFields") is None
-        setValueFields = self.options.get("valueFields") is None
-        if setKeyFields and len(keyFields) > 0:
-            self.options["keyFields"] = ",".join(keyFields)
-        if setValueFields and len(valueFields) > 0:
-            self.options["valueFields"] = ",".join(valueFields)
-        
         # render
         try:
             self.dialogBody = self.renderTemplate(dialogTemplate, **dialogOptions)
+
+            # validate if we can render
+            canRender, errorMessage = self.canRenderChart()
+            if canRender == False:
+                raise Exception(errorMessage)
+
+            # set the keyFields and valueFields options if this is the first time
+            # do this after call to canRenderChart as some charts may need to know that they have not been set
+            setKeyFields = self.options.get("keyFields") is None
+            setValueFields = self.options.get("valueFields") is None
+            if setKeyFields and len(keyFields) > 0:
+                self.options["keyFields"] = ",".join(keyFields)
+            if setValueFields and len(valueFields) > 0:
+                self.options["valueFields"] = ",".join(valueFields)        
+
             chartFigure = self.doRenderChart()
             if self.options.get("debugFigure", None):
                 self.debug(chartFigure)
@@ -356,21 +371,20 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
                 self._addHTMLTemplate("renderer.html", chartFigure=chartFigure, optionsDialogBody=self.dialogBody)
         except Exception as e:
             self.exception("Unexpected error while trying to render BaseChartDisplay")
-            self.dialogBody = self.getChartErrorDialogBody(handlerId, dialogTemplate, dialogOptions)
-            if (self.dialogBody is None):
-                self.dialogBody = ""
-            self._addHTMLTemplate("chartError.html", errorMessage="Unexpected Error:<br>"+str(e), optionsDialogBody=self.dialogBody)
-            self.info("Unexpected Error:\n"+str(e)+"\n\n"+traceback.format_exc())
+            errorHTML = """
+                <div style="min-height: 50px;">
+                    <div style="color: red;position: absolute;bottom: 0;left: 0;">{0}</div>
+                </div>
+            """.format(str(e))
+            if self.options.get("nostore_figureOnly", None):
+                self._addHTML(errorHTML)
+            else:
+                self._addHTMLTemplate("renderer.html", chartFigure=errorHTML, optionsDialogBody=self.dialogBody)
 
     def logStuff(self):
         try:
             self.debug("Key Fields: {0}".format(self.getKeyFields()) )
-            #self.debug("Key Fields Values: {0}".format(self.getKeyFieldValues()))
             self.debug("Key Fields Labels: {0}".format(self.getKeyFieldLabels()))
-        except:
-            pass
-        try:
             self.debug("Value Fields: {0}".format(self.getValueFields()))
-            #self.debug("Value Field Values List: {0}".format(self.getValueFieldValueLists()))
         except:
             pass

@@ -68,11 +68,10 @@ class PySparkDataFrameDataHandler(object):
             xFields = yFields
             yFields = []
             aggregation = None
-        for extra in extraFields:
-            if extra not in xFields:
-                xFields.append(extra)
 
-        workingDF = self.entity.select(xFields+yFields)
+        xFields = xFields + [a for a in extraFields if a not in xFields]
+
+        workingDF = self.entity.select(xFields + yFields)
         if aggregation and len(yFields)>0:
             aggMapper = {"SUM":"sum", "AVG": "avg", "MIN": "min", "MAX": "max"}
             aggregation = aggMapper.get(aggregation, "count")

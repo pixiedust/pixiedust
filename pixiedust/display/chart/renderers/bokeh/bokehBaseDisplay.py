@@ -50,6 +50,8 @@ class BokehBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
         if not isinstance(charts, list):
             charts.add_tools(ResizeTool())
             charts.title = self.options.get("title", "")
+            charts.plot_width = int(self.getPreferredOutputWidth() - 10 )
+            charts.plot_height = int(self.getPreferredOutputHeight() - 10  )
             charts.grid.grid_line_alpha=0.3
             return notebook_div(charts)
         else:

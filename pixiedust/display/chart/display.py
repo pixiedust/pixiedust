@@ -31,6 +31,9 @@ class ChartDisplay(Display):
     def getPreferredOutputWidth(self):
         return float(self.options.get("nostore_cw", 1000)) * 0.75
 
+    def getPreferredOutputHeight(self):
+        return float(self.getPreferredOutputWidth() * 0.75)
+
     def doRender(self, handlerId):
         self._addHTML("""
             <p><b>Sorry, but this visualization is not yet implemented. Please check back often!</b></p>

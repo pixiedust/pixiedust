@@ -16,12 +16,11 @@
 
 from pixiedust.display.chart.renderers import PixiedustRenderer
 from .bokehBaseDisplay import BokehBaseDisplay
-import pixiedust
+from pixiedust.utils import Logger
 from bokeh.charts import Scatter
 
-myLogger = pixiedust.getLogger(__name__)
-
 @PixiedustRenderer(id="scatterPlot")
+@Logger()
 class ScatterPlotRenderer(BokehBaseDisplay):
 
     def supportsAggregation(self, handlerId):
@@ -30,6 +29,7 @@ class ScatterPlotRenderer(BokehBaseDisplay):
     def supportsLegend(self, handlerId):
         return False
 
+    @BokehBaseDisplay.commonChartOptions
     def getChartOptions(self):
         return [
             { 'name': 'color',
@@ -61,4 +61,4 @@ class ScatterPlotRenderer(BokehBaseDisplay):
         data = self.getWorkingPandasDataFrame()
         return Scatter(data, 
             x = self.getKeyFields()[0], y = self.getValueFields()[0],
-            xlabel=self.getKeyFields()[0],ylabel=self.getValueFields()[0],legend="top_left", plot_width=800,color=self.options.get("color"))
+            xlabel=self.getKeyFields()[0],ylabel=self.getValueFields()[0],legend="top_left", color=self.options.get("color"))
