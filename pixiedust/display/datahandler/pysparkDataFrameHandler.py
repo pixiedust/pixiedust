@@ -84,5 +84,8 @@ class PySparkDataFrameDataHandler(object):
         count = workingDF.count()
         if count > maxRows:
             workingDF = workingDF.sample(False, (float(maxRows) / float(count)))
-        return workingDF.toPandas()
+        pdf = workingDF.toPandas()
+        #sort by xFields
+        pdf.sort(xFields, inplace=True)
+        return pdf
 

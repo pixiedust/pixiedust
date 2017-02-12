@@ -1,6 +1,11 @@
 {%import "executePythonDisplayMacro.js" as display with context%}
 {%include resModule + ":chartHeader.html"%}
 <div class="row">
+    <div class="form-group col-sm-10" style="padding-right:10px;text-align: center;font-size: xx-large;font-weight: 500;color: coral;">
+        {{this.options.get("title", "")}}
+    </div>
+</div>
+<div class="row">
     <div class="form-group col-sm-10" style="padding-right:10px;">
         <div id="chartFigure{{prefix}}" class="pd_save">
             {{chartFigure}}
@@ -17,10 +22,10 @@
                 </select>
             {%endif%}
             {% if option.metadata.type == 'checkbox' %}
-                <div style="padding-top:5px">
+                <div style="padding-top:10px;display:table">
                     <input id="optionchecked{{option.name}}{{prefix}}" type="checkbox" name="{{option.name}}"
                                 {{'checked' if this.options.get(option.name,"false")=="true" else ''}} style="height: 20px;margin: 0;vertical-align: middle;width: 20px;">
-                    <label for="optionchecked{{option.name}}{{prefix}}" style="line-height: 25px;">{{option.description or option.name}}</label>
+                    <label for="optionchecked{{option.name}}{{prefix}}" style="line-height: 20px;display:table-cell">{{option.description or option.name}}</label>
                 </div>
             {%endif%}
         {%endfor%}

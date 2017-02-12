@@ -68,10 +68,24 @@ class MatplotlibBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
     def setChartGrid(self, fig, ax):
         ax.grid(color='lightgray', alpha=0.7)
 
-    def setChartTitle(self):
-        title = self.options.get("title")
-        if title is not None:
-            plt.title(title, fontsize=30)
+    def setTicks(self, fig, ax):
+        labels = [s.get_text() for s in ax.get_xticklabels()]
+        numChars = sum(len(s) for s in labels) * 5
+        if numChars > self.getPreferredOutputWidth():
+            #filter down the list to max 20        
+            xl = [(i,a) for i,a in enumerate(labels) if i % int(len(labels)/20) == 0]
+            ax.set_xticks([x[0] for x in xl])
+            ax.set_xticklabels([x[1] for x in xl])
+
+            #check if it still fits
+            numChars = sum(len(s[1]) for s in xl) * 5
+            if numChars > self.getPreferredOutputWidth():
+                ax.tick_params(axis='x', labelsize=8 if numChars < 1200 else 6)
+                plt.xticks(rotation=30)
+            else:
+                plt.xticks(rotation=0)
+        else:
+            plt.xticks(rotation=0)
 
     def setChartLegend(self, fig, ax):
         if self.supportsLegend(self.handlerId):
@@ -108,17 +122,11 @@ class MatplotlibBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
             #let subclass do the actual rendering
             self.matplotlibRender(fig, ax)
 
+            #finalize the chart
             self.setChartSize(fig, ax)
             self.setChartGrid(fig, ax)
             self.setChartLegend(fig, ax)
-            self.setChartTitle()
-
-            numChars = sum(len(s.get_text()) for s in ax.get_xticklabels()) * 5
-            if numChars > 1000:
-                ax.tick_params(axis='x', labelsize=8 if numChars < 1200 else 6)
-                plt.xticks(rotation=30)
-            else:
-                plt.xticks(rotation=0)
+            self.setTicks(fig, ax)
 
             #Render the figure
             return self.renderFigure(fig)
