@@ -15,6 +15,7 @@
 # -------------------------------------------------------------------------------
 
 from pixiedust.display.chart.renderers import PixiedustRenderer
+from pixiedust.display.chart.renderers.baseChartDisplay import commonChartOptions
 from .bokehBaseDisplay import BokehBaseDisplay
 from pixiedust.utils import Logger
 from bokeh.charts import Scatter
@@ -29,7 +30,7 @@ class ScatterPlotRenderer(BokehBaseDisplay):
     def supportsLegend(self, handlerId):
         return False
 
-    @BokehBaseDisplay.commonChartOptions
+    @commonChartOptions
     def getChartOptions(self):
         return [
             { 'name': 'color',

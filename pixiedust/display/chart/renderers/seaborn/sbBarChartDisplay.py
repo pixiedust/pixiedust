@@ -1,3 +1,4 @@
+# coding=utf-8
 # -------------------------------------------------------------------------------
 # Copyright IBM Corp. 2017
 # 
@@ -15,6 +16,7 @@
 # -------------------------------------------------------------------------------
 
 from pixiedust.display.chart.renderers import PixiedustRenderer
+from pixiedust.display.chart.renderers.baseChartDisplay import commonChartOptions
 from .seabornBaseDisplay import SeabornBaseDisplay
 from pixiedust.utils import Logger
 import numpy as np
@@ -68,7 +70,7 @@ class sbBarChartDisplay(SeabornBaseDisplay):
     def getOrientation(self):
         return "v" if self.options.get("orientation", "vertical") == "vertical" else "h"
   
-    @SeabornBaseDisplay.commonChartOptions
+    @commonChartOptions
     def getChartOptions(self):
         options = []
         if len(self.getValueFields()) > 1:

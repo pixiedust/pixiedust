@@ -83,6 +83,18 @@ class WorkingDataCache(with_metaclass(
 #add a display Run Listener 
 addDisplayRunListener( lambda entity, options: WorkingDataCache.onNewDisplayRun(entity, options) )
 
+#common Chart Options injection decorator
+def commonChartOptions(func):
+    def wrapper(cls, *args, **kwargs):
+        commonOptions = []
+        if hasattr(cls, "handlerId") and hasattr(cls, 'commonOptions'):
+            handler = cls.commonOptions.get(cls.handlerId, [])
+            if callable(handler):
+                handler = handler(cls)
+            commonOptions += handler
+        return commonOptions + func(cls, *args, **kwargs )
+    return wrapper
+
 @Logger()
 class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
 
@@ -92,20 +104,6 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
         super(BaseChartDisplay,self).__init__(options,entity,dataHandler)
         #note: since this class can be subclassed from other module, we need to mark the correct resource module with resModule so there is no mixup
         self.extraTemplateArgs["resModule"]=BaseChartDisplay.__module__
-
-    def commonChartOptions(func):
-        def wrapper(cls, *args, **kwargs):
-            commonOptions = []
-            if hasattr(cls, 'commonOptions'):
-                BaseChartDisplay.debug("cls {0}".format(cls))
-                BaseChartDisplay.debug("commonOptions {0}".format(getattr(cls, "commonOptions")))
-                BaseChartDisplay.debug("handlerId {0}".format(cls.handlerId))
-                handler = getattr(cls, "commonOptions").get(cls.handlerId, [])
-                if callable(handler):
-                    handler = handler(cls)
-                commonOptions += handler
-            return commonOptions + func(cls, *args, **kwargs )
-        return wrapper
 
     """
         Subclass can override: return an array of option metadata
