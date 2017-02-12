@@ -17,9 +17,9 @@
                 </select>
             {%endif%}
             {% if option.metadata.type == 'checkbox' %}
-                <div>
+                <div style="padding-top:5px">
                     <input id="optionchecked{{option.name}}{{prefix}}" type="checkbox" name="{{option.name}}"
-                                {{'checked' if this.options.get(option.name,"false")=="true" else ''}} style="height: 25px;margin: 0;vertical-align: top;width: 25px;">
+                                {{'checked' if this.options.get(option.name,"false")=="true" else ''}} style="height: 20px;margin: 0;vertical-align: middle;width: 20px;">
                     <label for="optionchecked{{option.name}}{{prefix}}" style="line-height: 25px;">{{option.description or option.name}}</label>
                 </div>
             {%endif%}

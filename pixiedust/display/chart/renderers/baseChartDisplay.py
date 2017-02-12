@@ -26,6 +26,7 @@ from pixiedust.utils.shellAccess import ShellAccess
 from .commonOptions import commonOptions as co
 import pandas as pd
 import time
+import inspect
 
 class ShowChartOptionDialog(Exception):
     pass
@@ -92,7 +93,19 @@ def commonChartOptions(func):
             if callable(handler):
                 handler = handler(cls)
             commonOptions += handler
+            fctSet = set()
+            for cl in reversed(inspect.getmro(cls.__class__)):
+                if hasattr(cl, func.__name__):
+                    f = getattr(cl, func.__name__)
+                    if f not in fctSet:
+                        fctSet.add(f)
+                        if hasattr(f, "func"):
+                            f = f.func
+                        opts = f(cls, *args, **kwargs)
+                        commonOptions += opts
+            return commonOptions
         return commonOptions + func(cls, *args, **kwargs )
+    wrapper.func = func
     return wrapper
 
 @Logger()
