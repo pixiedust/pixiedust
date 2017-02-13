@@ -16,6 +16,7 @@
             {% if option.metadata.type == 'slider' %}
                 <label class="field" style="margin-top: 12px;">{{option.description or option.name}}: <span id="slideval{{option.name}}{{prefix}}">{{option.metadata.default}}</span></label>
                 <div id="slider{{option.name}}{{prefix}}"
+                    name="{{option.name}}"
                     data-min={{option.metadata.min}}
                     data-max={{option.metadata.max}}
                     data-default={{option.metadata.default}}
@@ -66,6 +67,7 @@ $("[id^=optionchecked][id$={{prefix}}]").change(function(){
 });
 if ($("[id^=slider][id$={{prefix}}]").length > 0) {
     var sliderElt = $("[id^=slider][id$={{prefix}}]")
+    var thisOption = sliderElt.attr('name')
     var min = sliderElt.data("min")
     var max = sliderElt.data("max")
     var val = sliderElt.data("default")
@@ -75,7 +77,6 @@ if ($("[id^=slider][id$={{prefix}}]").length > 0) {
         value: isNaN(val) ? 50 : val,
         change: function(evt, ui) {
             $("[id^=slideval][id$={{prefix}}]").text(ui.value)
-            var thisOption = $("[id^=slideval][id$={{prefix}}]").attr('name');
             {% call display.executeDisplay( useCellMetadata=True, divId="chartFigure" + prefix ) %}
                 var o = {};
                 o[thisOption] = ui.value;
