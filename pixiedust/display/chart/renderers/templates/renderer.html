@@ -13,6 +13,14 @@
     </div>
     <div class="form-group col-sm-2 rendererOpts">
         {%for option in this.getChartOptions() %}
+            {% if option.metadata.type == 'slider' %}
+                <label class="field" style="margin-top: 12px;">{{option.description or option.name}}: <span id="slideval{{option.name}}{{prefix}}">{{option.metadata.default}}</span></label>
+                <div id="slider{{option.name}}{{prefix}}"
+                    data-min={{option.metadata.min}}
+                    data-max={{option.metadata.max}}
+                    data-default={{option.metadata.default}}
+                    style="margin: 0 0.6em;"></div>
+            {%endif%}
             {% if option.metadata.type == 'dropdown' %}
                 <label class="field" style="margin-top: 12px;">{{option.description or option.name}}:</label>
                 <select class="form-control" id="optionselect{{option.name}}{{prefix}}" name="{{option.name}}" style="margin-left: 0px;">
@@ -22,9 +30,9 @@
                 </select>
             {%endif%}
             {% if option.metadata.type == 'checkbox' %}
-                <div style="padding-top:10px;display:table">
+                <div style="padding-top:12px;display:table">
                     <input id="optionchecked{{option.name}}{{prefix}}" type="checkbox" name="{{option.name}}"
-                                {{'checked' if this.options.get(option.name,"false")=="true" else ''}} style="height: 20px;margin: 0;vertical-align: middle;width: 20px;">
+                                {{'checked' if this.options.get(option.name,"false")=="true" else ''}} style="height: 20px;margin: 0 5px 0 0;vertical-align: middle;width: 17px;">
                     <label for="optionchecked{{option.name}}{{prefix}}" style="line-height: 20px;display:table-cell">{{option.description or option.name}}</label>
                 </div>
             {%endif%}
@@ -56,4 +64,25 @@ $("[id^=optionchecked][id$={{prefix}}]").change(function(){
         addOptions(o);
     {% endcall %}    
 });
+if ($("[id^=slider][id$={{prefix}}]").length > 0) {
+    var sliderElt = $("[id^=slider][id$={{prefix}}]")
+    var min = sliderElt.data("min")
+    var max = sliderElt.data("max")
+    var val = sliderElt.data("default")
+    sliderElt.slider({
+        min: isNaN(min) ? 0 : min,
+        max: isNaN(max) ? 100 : max,
+        value: isNaN(val) ? 50 : val,
+        change: function(evt, ui) {
+            $("[id^=slideval][id$={{prefix}}]").text(ui.value)
+            var thisOption = $("[id^=slideval][id$={{prefix}}]").attr('name');
+            {% call display.executeDisplay( useCellMetadata=True, divId="chartFigure" + prefix ) %}
+                var o = {};
+                o[thisOption] = ui.value;
+                o["nostore_figureOnly"] = "true";
+                addOptions(o);
+            {% endcall %}    
+        }
+    });
+}
 </script>

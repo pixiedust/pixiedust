@@ -57,6 +57,16 @@ class MatplotlibBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
                     'type': 'checkbox',
                     'default': "false"
                 }
+            # },
+            # {
+            #     'name': 'binsize',
+            #     'description': 'Bin size',
+            #     'metadata': {
+            #         'type': 'slider',
+            #         'min': 0,
+            #         'max': 50,
+            #         'default': 15
+            #     }
             }
         ]
 
