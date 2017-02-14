@@ -17,13 +17,11 @@
 from pixiedust.display.chart.renderers import PixiedustRenderer
 from .mapBoxBaseDisplay import MapBoxBaseDisplay
 from pixiedust.utils import cache
-
-import pixiedust
+from pixiedust.utils import Logger
 import json 
 
-myLogger = pixiedust.getLogger(__name__)
-
 @PixiedustRenderer(id="mapView")
+@Logger()
 class MapViewDisplay(MapBoxBaseDisplay):
     def isMap(self, handlerId):
         return True
@@ -152,35 +150,3 @@ class MapViewDisplay(MapBoxBaseDisplay):
             if field.name.lower() == 'address':
                 return latLongFields.append(field.name)
         return []
-        
-    @cache(fieldName="keyFieldValues")
-    def getKeyFieldValues(self):
-        """ Get the DATA for the dataframe key fields
-
-        Args: 
-            self (class): class that extends BaseChartDisplay
-
-        Returns: 
-            List of lists: data for the key fields
-        """
-        keyFields = self.getKeyFields()
-        if (len(keyFields) == 0):
-            return []
-        numericKeyFields = True
-        for keyField in keyFields: 
-            if self.dataHandler.isNumericField(keyField) is not True: 
-                numericKeyFields = False
-        df = self.dataHandler.groupBy(keyFields).count().dropna()
-        maxRows = int(self.options.get("rowCount","100"))
-        numRows = min(maxRows,df.count())
-        rows = df.take(numRows)
-        values = []
-        for i, row in enumerate(rows):
-            if numericKeyFields:
-                vals = []
-                for keyField in keyFields: 
-                    vals.append(row[keyField])
-                values.append(vals)
-            else:
-                values.append(i)
-        return values

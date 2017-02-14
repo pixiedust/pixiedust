@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------------
-# Copyright IBM Corp. 2016
+# Copyright IBM Corp. 2017
 # 
 # Licensed under the Apache License, Version 2.0 (the 'License');
 # you may not use this file except in compliance with the License.
@@ -13,14 +13,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # -------------------------------------------------------------------------------
+from six import with_metaclass
+from matplotlib import cm
 
-from .pysparkDataFrameHandler import PySparkDataFrameDataHandler
-from .pandasDataFrameHandler import PandasDataFrameDataHandler
-import pixiedust.utils.dataFrameMisc as dataFrameMisc
+'''
+Static class that provides consistent color palette for all charts
+'''
+class Colors(with_metaclass( 
+        type("",(type,),{
+            "colormap":cm.jet,
+            "__getitem__":lambda cls, key: cls.colormap(key),
+            "__getattr__":lambda cls, key: cls.colormap(key)
+        }), object
+    )):
 
-def getDataHandler(options, entity):
-    if dataFrameMisc.isPySparkDataFrame(entity):
-        return PySparkDataFrameDataHandler(options, entity)
-    elif dataFrameMisc.isPandasDataFrame(entity):
-        return PandasDataFrameDataHandler(options, entity)
-    return None
+    #TODO: provide user configured colormap palette
+    pass

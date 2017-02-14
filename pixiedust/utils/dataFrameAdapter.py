@@ -82,7 +82,7 @@ class PandasDataFrameAdapter(object):
             def createObj(a,b):
                 return type("",(),{
                     "jsonValue":lambda self: {"type": b, "name": a}, "name":a,
-                    "dataType": IntegerType() if np.issubdtype(b, np.integer) else StringType()
+                    "dataType": IntegerType() if np.issubdtype(b, np.integer) or np.issubdtype(b, np.float) else StringType()
                 })()
             return [createObj(a,b) for a,b in zip(self.entity.columns, self.entity.dtypes)]
 
