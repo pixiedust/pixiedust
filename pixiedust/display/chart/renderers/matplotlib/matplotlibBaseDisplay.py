@@ -15,12 +15,14 @@
 # -------------------------------------------------------------------------------
 
 from pixiedust.display.chart.renderers import PixiedustRenderer
+from pixiedust.display.chart.renderers.baseChartDisplay import commonChartOptions
 from pixiedust.utils import Logger
 from ..baseChartDisplay import BaseChartDisplay
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 from six import with_metaclass
 from abc import abstractmethod, ABCMeta
+import numpy as np
 
 try:
     import mpld3
@@ -41,8 +43,33 @@ class MatplotlibBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
         pass
 
     @property
-    def has_mpld3(self):
-        return mpld3Available
+    def useMpld3(self):
+        return mpld3Available and self.options.get("mpld3", "false") == "true"
+
+    @commonChartOptions
+    def getChartOptions(self):
+        if not mpld3Available:
+            return []
+        return [
+            {
+                'name': 'mpld3',
+                'description': 'D3 Rendering (mpld3)',
+                'metadata': {
+                    'type': 'checkbox',
+                    'default': "false"
+                }
+            # },
+            # {
+            #     'name': 'binsize',
+            #     'description': 'Bin size',
+            #     'metadata': {
+            #         'type': 'slider',
+            #         'min': 0,
+            #         'max': 50,
+            #         'default': 15
+            #     }
+            }
+        ]
 
     def setChartSize(self, fig, ax):
         imageWidth = self.getPreferredOutputWidth()
@@ -52,10 +79,24 @@ class MatplotlibBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
     def setChartGrid(self, fig, ax):
         ax.grid(color='lightgray', alpha=0.7)
 
-    def setChartTitle(self):
-        title = self.options.get("title")
-        if title is not None:
-            plt.title(title, fontsize=30)
+    def setTicks(self, fig, ax):
+        labels = [s.get_text() for s in ax.get_xticklabels()]
+        numChars = sum(len(s) for s in labels) * 5
+        if numChars > self.getPreferredOutputWidth():
+            #filter down the list to max 20        
+            xl = [(i,a) for i,a in enumerate(labels) if i % int(len(labels)/20) == 0]
+            ax.set_xticks([x[0] for x in xl])
+            ax.set_xticklabels([x[1] for x in xl])
+
+            #check if it still fits
+            numChars = sum(len(s[1]) for s in xl) * 5
+            if numChars > self.getPreferredOutputWidth():
+                ax.tick_params(axis='x', labelsize=8 if numChars < 1200 else 6)
+                plt.xticks(rotation=30)
+            else:
+                plt.xticks(rotation=0)
+        else:
+            plt.xticks(rotation=0)
 
     def setChartLegend(self, fig, ax):
         if self.supportsLegend(self.handlerId):
@@ -82,7 +123,7 @@ class MatplotlibBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
             # go
             fig, ax = self.createFigure()
 
-            if self.has_mpld3:
+            if self.useMpld3:
                 #TODO: rework this piece
                 #keyFieldLabels = self.getKeyFieldLabels()
                 #if (len(keyFieldLabels) > 0 and self.supportsKeyFieldLabels(self.handlerId) and self.supportsAggregation(self.handlerId)):
@@ -92,17 +133,12 @@ class MatplotlibBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
             #let subclass do the actual rendering
             self.matplotlibRender(fig, ax)
 
-            self.setChartSize(fig, ax)
-            self.setChartGrid(fig, ax)
-            self.setChartLegend(fig, ax)
-            self.setChartTitle()
-
-            numChars = sum(len(s.get_text()) for s in ax.get_xticklabels()) * 5
-            if numChars > 1000:
-                ax.tick_params(axis='x', labelsize=8 if numChars < 1200 else 6)
-                plt.xticks(rotation=30)
-            else:
-                plt.xticks(rotation=0)
+            #finalize the chart
+            if not isinstance(ax, (list,np.ndarray)):
+                self.setChartSize(fig, ax)
+                self.setChartGrid(fig, ax)
+                self.setChartLegend(fig, ax)
+                self.setTicks(fig, ax)
 
             #Render the figure
             return self.renderFigure(fig)
@@ -110,7 +146,7 @@ class MatplotlibBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
             plt.close(fig)
 
     def renderFigure(self, fig):
-        if not self.has_mpld3 or self.options.get("staticFigure","false") is "true":
+        if not self.useMpld3:
             import base64
             try:
                 from io import BytesIO as pngIO

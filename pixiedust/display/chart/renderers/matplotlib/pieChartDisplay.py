@@ -15,12 +15,15 @@
 # -------------------------------------------------------------------------------
 
 from pixiedust.display.chart.renderers import PixiedustRenderer
+from pixiedust.display.chart.renderers.baseChartDisplay import commonChartOptions
 from .matplotlibBaseDisplay import MatplotlibBaseDisplay
+from pixiedust.utils import Logger
 import matplotlib.pyplot as plt
 import mpld3
 import numpy as np
 
 @PixiedustRenderer(id="pieChart")
+@Logger()
 class PieChartDisplay(MatplotlibBaseDisplay):
 
     def supportsKeyFieldLabels(self, handlerId):
@@ -46,8 +49,39 @@ class PieChartDisplay(MatplotlibBaseDisplay):
     def setChartGrid(self, fig, ax):
         pass
 
+    @commonChartOptions
+    def getChartOptions(self):
+        return [
+            {
+                'name': 'legend',
+                'description': 'Show legend',
+                'metadata': {
+                    'type': 'checkbox',
+                    'default': "false"
+                }
+            }
+        ]
+
+    def createFigure(self):
+        gridCols = 2 #number of columns for a multiplots
+        lenValues = len(self.getValueFields())
+        numRows = 1 if lenValues <=1 else (int( lenValues/2 ) + lenValues % 2)
+        numCols = 1 if lenValues<=1 else 2
+        width = self.getPreferredOutputWidth()
+        height = self.getPreferredOutputHeight() if numCols == 1 else (((self.getPreferredOutputWidth()/2) * 0.75) * numRows)
+        return plt.subplots(numRows, numCols, figsize=( int(width/self.getDPI()), int(height/self.getDPI() )))
+
     def matplotlibRender(self, fig, ax):
-        labels = self.getKeyFieldLabels()
-        subplots = len(self.getKeyFieldValues()) > 1
-        self.getWorkingPandasDataFrame().plot(kind="pie", ax=ax, labels=labels, autopct='%1.0f%%', subplots=subplots)
-        ax.axis("equal")
+        if not isinstance(ax, (list,np.ndarray)):
+            ax=np.array([ax])
+        keyFields = self.getKeyFields()
+        valueFields = self.getValueFields()
+        for i,valueField in enumerate(valueFields):
+            labels=[ "-".join(map(str, a)) for a in self.getWorkingPandasDataFrame()[keyFields].values.tolist() ]
+            self.getWorkingPandasDataFrame().plot(
+                kind="pie", y = valueField, ax=ax.item(i), labels=labels, 
+                autopct='%1.0f%%', subplots=False, legend = True if self.options.get("legend","false") == "true" else False
+            )
+        
+        if len(valueFields) > 1 and len(valueFields)%2 != 0:
+            fig.delaxes(ax.item(len(valueFields)))

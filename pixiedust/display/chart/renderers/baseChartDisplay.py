@@ -26,6 +26,7 @@ from pixiedust.utils.shellAccess import ShellAccess
 from .commonOptions import commonOptions as co
 import pandas as pd
 import time
+import inspect
 
 class ShowChartOptionDialog(Exception):
     pass
@@ -92,7 +93,19 @@ def commonChartOptions(func):
             if callable(handler):
                 handler = handler(cls)
             commonOptions += handler
+            fctSet = set()
+            for cl in reversed(inspect.getmro(cls.__class__)):
+                if hasattr(cl, func.__name__):
+                    f = getattr(cl, func.__name__)
+                    if f not in fctSet:
+                        fctSet.add(f)
+                        if hasattr(f, "func"):
+                            f = f.func
+                        opts = f(cls, *args, **kwargs)
+                        commonOptions += opts
+            return commonOptions
         return commonOptions + func(cls, *args, **kwargs )
+    wrapper.func = func
     return wrapper
 
 @Logger()
@@ -222,37 +235,6 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
             raise ShowChartOptionDialog()
         else:
             return keyFields
-
-    @cache(fieldName="keyFieldValues")
-    def getKeyFieldValues(self):
-        """ Get the DATA for the dataframe key fields
-
-        Args: 
-            self (class): class that extends BaseChartDisplay
-
-        Returns: 
-            List of lists: data for the key fields
-        """
-        keyFields = self.getKeyFields()
-        if (len(keyFields) == 0):
-            return []
-        numericKeyField = False
-        if len(keyFields) == 1 and self.dataHandler.isNumericField(keyFields[0]):
-            numericKeyField = True
-        df = self.dataHandler.groupBy(keyFields).count().dropna()
-        if self.isMap(self.handlerId) is False: 
-            for keyField in keyFields:
-                df = df.sort(keyField)
-        maxRows = int(self.options.get("rowCount","100"))
-        numRows = min(maxRows,df.count())
-        rows = df.take(numRows)
-        values = []
-        for i, row in enumerate(rows):
-            if numericKeyField:
-                values.append(row[keyFields[0]])
-            else:
-                values.append(i)
-        return values
 
     @cache(fieldName="keyFieldLabels")
     def getKeyFieldLabels(self):

@@ -15,9 +15,12 @@
 # -------------------------------------------------------------------------------
 
 from .pysparkDataFrameHandler import PySparkDataFrameDataHandler
+from .pandasDataFrameHandler import PandasDataFrameDataHandler
 import pixiedust.utils.dataFrameMisc as dataFrameMisc
 
 def getDataHandler(options, entity):
     if dataFrameMisc.isPySparkDataFrame(entity):
         return PySparkDataFrameDataHandler(options, entity)
+    elif dataFrameMisc.isPandasDataFrame(entity):
+        return PandasDataFrameDataHandler(options, entity)
     return None

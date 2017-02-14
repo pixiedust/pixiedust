@@ -16,10 +16,9 @@
 import pixiedust.utils.dataFrameMisc as dataFrameMisc
 from pyspark.sql import functions as F
 import time
+from pixiedust.utils import Logger
 
-import pixiedust
-myLogger = pixiedust.getLogger(__name__)
-
+@Logger()
 class PySparkDataFrameDataHandler(object):
     def __init__(self, options, entity):
         self.options = options
@@ -69,9 +68,7 @@ class PySparkDataFrameDataHandler(object):
             yFields = []
             aggregation = None
 
-        xFields = xFields + [a for a in extraFields if a not in xFields]
-
-        workingDF = self.entity.select(xFields + yFields)
+        workingDF = self.entity.select(xFields + [a for a in extraFields if a not in xFields] + yFields)
         if aggregation and len(yFields)>0:
             aggMapper = {"SUM":"sum", "AVG": "avg", "MIN": "min", "MAX": "max"}
             aggregation = aggMapper.get(aggregation, "count")
@@ -84,5 +81,8 @@ class PySparkDataFrameDataHandler(object):
         count = workingDF.count()
         if count > maxRows:
             workingDF = workingDF.sample(False, (float(maxRows) / float(count)))
-        return workingDF.toPandas()
+        pdf = workingDF.toPandas()
+        #sort by xFields
+        pdf.sort_values(xFields, inplace=True)
+        return pdf
 

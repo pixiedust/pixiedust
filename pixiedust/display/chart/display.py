@@ -17,6 +17,7 @@
 from ..display import Display
 from pyspark.sql import functions as F
 import pixiedust.utils.dataFrameMisc as dataFrameMisc
+from pixiedust.utils import cache
 from six import PY2
     
 class ChartDisplay(Display):
@@ -28,6 +29,7 @@ class ChartDisplay(Display):
     def getDPI(self):
         return int(self.options.get("nostore_dpi", 96))
 
+    @cache(fieldName="preferredOutputWidth")
     def getPreferredOutputWidth(self):
         return float(self.options.get("nostore_cw", 1000)) * 0.75
 
