@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # -------------------------------------------------------------------------------
+import math
 
 def barChart(displayObject):
     options = [
@@ -71,6 +72,21 @@ def lineChart(displayObject):
     })
     return options
 
+def histogram(displayObject):
+    count = len(displayObject.getWorkingPandasDataFrame().index)
+    return [
+        {
+            'name': 'binsize',
+            'description': 'Bin size',
+            'metadata': {
+                'type': 'slider',
+                'max': int(math.ceil(count / 2)),
+                'min': int(math.floor(count / 20)),
+                'default': int(math.ceil(count / 4))
+            }
+        }
+    ]
+
 commonOptions = {}
-for f in [barChart,lineChart]:
+for f in [barChart,lineChart,histogram]:
     commonOptions.update({f.__name__:f})
