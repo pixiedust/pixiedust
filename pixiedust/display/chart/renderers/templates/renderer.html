@@ -14,27 +14,31 @@
     <div class="form-group col-sm-2 rendererOpts">
         {%for option in this.getChartOptions() %}
             {% if option.metadata.type == 'slider' %}
-                <label class="field" style="margin-top: 12px;">{{option.description or option.name}}: <span id="slideval{{option.name}}{{prefix}}">{{option.metadata.default}}</span></label>
-                <div id="slider{{option.name}}{{prefix}}"
-                    name="{{option.name}}"
-                    data-min={{option.metadata.min}}
-                    data-max={{option.metadata.max}}
-                    data-default={{option.metadata.default}}
-                    style="margin: 0 0.6em;"></div>
+                <div class="rendererOpt">
+                    <label class="field">{{option.description or option.name}}: <span id="slideval{{option.name}}{{prefix}}">{{option.metadata.default}}</span></label>
+                    <div id="slider{{option.name}}{{prefix}}"
+                        name="{{option.name}}"
+                        data-min={{option.metadata.min}}
+                        data-max={{option.metadata.max}}
+                        data-default={{option.metadata.default}}
+                        style="margin: 0 0.6em;"></div>
+                </div>
             {%endif%}
             {% if option.metadata.type == 'dropdown' %}
-                <label class="field" style="margin-top: 12px;">{{option.description or option.name}}:</label>
-                <select class="form-control" id="optionselect{{option.name}}{{prefix}}" name="{{option.name}}" style="margin-left: 0px;">
-                    {% for value in option.metadata['values'] %}
-                        <option value="{{value}}" {{'selected' if value==this.options.get(option.name,None) or value==option.metadata.default else ''}}>{{value}}</option>
-                    {% endfor %}
-                </select>
+                <div class="rendererOpt">
+                    <label class="field">{{option.description or option.name}}:</label>
+                    <select class="form-control" id="optionselect{{option.name}}{{prefix}}" name="{{option.name}}" style="margin-left: 0px;">
+                        {% for value in option.metadata['values'] %}
+                            <option value="{{value}}" {{'selected' if value==this.options.get(option.name,None) or value==option.metadata.default else ''}}>{{value}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
             {%endif%}
             {% if option.metadata.type == 'checkbox' %}
-                <div style="padding-top:12px;display:table">
+                <div class="rendererOpt" style="display:table">
                     <input id="optionchecked{{option.name}}{{prefix}}" type="checkbox" name="{{option.name}}"
-                                {{'checked' if this.options.get(option.name,"false")=="true" else ''}} style="height: 20px;margin: 0 5px 0 0;vertical-align: middle;width: 17px;">
-                    <label for="optionchecked{{option.name}}{{prefix}}" style="line-height: 20px;display:table-cell">{{option.description or option.name}}</label>
+                                {{'checked' if this.options.get(option.name,"false")=="true" else ''}} style="height: 17px;margin: 0 5px 0 0;vertical-align: middle;width: 17px;">
+                    <label for="optionchecked{{option.name}}{{prefix}}" style="display:table-cell">{{option.description or option.name}}</label>
                 </div>
             {%endif%}
         {%endfor%}
