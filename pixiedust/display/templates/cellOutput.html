@@ -149,6 +149,60 @@
     margin-top: 0;
     padding-top: 0;
   }
+  .pixiedust .rendererOpt.checkbox { padding-left: 20px; }
+  .pixiedust .rendererOpt.checkbox label {
+    display: inline-block;
+    position: relative;
+    padding-left: 5px;
+  }
+  .pixiedust .rendererOpt.checkbox label::before {
+    content: "";
+    display: inline-block;
+    position: absolute;
+    width: 17px;
+    height: 17px;
+    left: 0;
+    margin-left: -20px;
+    border: 1px solid #cccccc;
+    background-color: #fff;
+    -webkit-transition: border 0.15s ease-in-out, color 0.15s ease-in-out;
+    -o-transition: border 0.15s ease-in-out, color 0.15s ease-in-out;
+    transition: border 0.15s ease-in-out, color 0.15s ease-in-out;
+  }
+  .pixiedust .rendererOpt.checkbox label::after {
+    display: inline-block;
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    left: 0;
+    top: 0;
+    margin-left: -20px;
+    padding-left: 2px;
+    padding-top: 1px;
+  }
+  .pixiedust .rendererOpt.checkbox input[type="checkbox"] {
+    opacity: 0;
+    z-index: 1;
+  }
+  .pixiedust .rendererOpt.checkbox input[type="checkbox"]:focus + label::before {
+    outline: thin dotted;
+    outline: 5px auto -webkit-focus-ring-color;
+    outline-offset: -2px;
+  }
+  .pixiedust .rendererOpt.checkbox input[type="checkbox"]:checked + label::after {
+    font-family: 'FontAwesome';
+    content: "\f00c";
+  }
+
+  .pixiedust .rendererOpt.checkbox.checkbox-inline { margin-top: 0; }
+
+  .pixiedust .rendererOpt.checkbox-primary input[type="checkbox"]:checked + label::before {
+    background-color: #337ab7;
+    border-color: #337ab7;
+  }
+  .pixiedust .rendererOpt.checkbox-primary input[type="checkbox"]:checked + label::after {
+    color: #fff;
+  }
 </style>
 
 <div class="pixiedust">

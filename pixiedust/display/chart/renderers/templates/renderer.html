@@ -35,10 +35,10 @@
                 </div>
             {%endif%}
             {% if option.metadata.type == 'checkbox' %}
-                <div class="rendererOpt" style="display:table">
+                <div class="rendererOpt checkbox checkbox-primary">
                     <input id="optionchecked{{option.name}}{{prefix}}" type="checkbox" name="{{option.name}}"
-                                {{'checked' if this.options.get(option.name,"false")=="true" else ''}} style="height: 17px;margin: 0 5px 0 0;vertical-align: middle;width: 17px;">
-                    <label for="optionchecked{{option.name}}{{prefix}}" style="display:table-cell">{{option.description or option.name}}</label>
+                                {{'checked' if this.options.get(option.name,"false")=="true" else ''}}>
+                    <label for="optionchecked{{option.name}}{{prefix}}">{{option.description or option.name}}</label>
                 </div>
             {%endif%}
         {%endfor%}
