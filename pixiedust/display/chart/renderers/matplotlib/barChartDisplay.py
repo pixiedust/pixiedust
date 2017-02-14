@@ -23,12 +23,18 @@ from pixiedust.utils import Logger
 @Logger()
 class BarChartRenderer(MatplotlibBaseDisplay):
 
+    def getNumFigures(self):
+        return len(self.getValueFields()) if self.isSubplot() else 1
+
+    def isSubplot(self):
+        return self.options.get("charttype", "grouped") == "subplots"
+
     #Main rendering method
     def matplotlibRender(self, fig, ax):
         keyFields = self.getKeyFields()
         valueFields = self.getValueFields()
         stacked = self.options.get("charttype", "grouped") == "stacked"
-        subplots = self.options.get("charttype", "grouped") == "subplots"
+        subplots = self.isSubplot()
         kind = "barh" if self.options.get("orientation", "vertical") == "horizontal" else "bar"
 
         if len(keyFields) == 1:

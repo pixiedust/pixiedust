@@ -15,6 +15,7 @@
 # -------------------------------------------------------------------------------
 
 from pixiedust.display.chart.renderers import PixiedustRenderer
+from pixiedust.display.chart.renderers.baseChartDisplay import commonChartOptions
 from .bokehBaseDisplay import BokehBaseDisplay
 import pixiedust
 from bokeh.charts import Histogram, show
@@ -40,6 +41,7 @@ class HistogramRenderer(BokehBaseDisplay):
     def getDefaultKeyFields(self, handlerId, aggregation):
         return []
 
+    @commonChartOptions
     def getChartOptions(self):
         return [
             { 'name': 'color',

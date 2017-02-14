@@ -62,14 +62,8 @@ class PieChartDisplay(MatplotlibBaseDisplay):
             }
         ]
 
-    def createFigure(self):
-        gridCols = 2 #number of columns for a multiplots
-        lenValues = len(self.getValueFields())
-        numRows = 1 if lenValues <=1 else (int( lenValues/2 ) + lenValues % 2)
-        numCols = 1 if lenValues<=1 else 2
-        width = self.getPreferredOutputWidth()
-        height = self.getPreferredOutputHeight() if numCols == 1 else (((self.getPreferredOutputWidth()/2) * 0.75) * numRows)
-        return plt.subplots(numRows, numCols, figsize=( int(width/self.getDPI()), int(height/self.getDPI() )))
+    def getNumFigures(self):
+        return len(self.getValueFields())
 
     def matplotlibRender(self, fig, ax):
         if not isinstance(ax, (list,np.ndarray)):
@@ -82,6 +76,3 @@ class PieChartDisplay(MatplotlibBaseDisplay):
                 kind="pie", y = valueField, ax=ax.item(i), labels=labels, 
                 autopct='%1.0f%%', subplots=False, legend = True if self.options.get("legend","false") == "true" else False
             )
-        
-        if len(valueFields) > 1 and len(valueFields)%2 != 0:
-            fig.delaxes(ax.item(len(valueFields)))
