@@ -46,12 +46,13 @@ class sbHistogramDisplay(SeabornBaseDisplay):
     hist=self.options.get("hist","false") == False
     rug=self.options.get("rug","true") == True
     kde=self.options.get("kde","true") == True
+    binsize = int(self.options.get('binsize', 10))
 
     df = self.getWorkingPandasDataFrame()
     keys = self.getValueFields()
 
     for key in keys:
-      sns.distplot(list(df[key]), ax=ax, kde_kws={"label":"{0} KDE Estim".format(key)}, hist_kws={"label":"{0} Freq".format(key)})
+      sns.distplot(list(df[key]), ax=ax, bins=binsize, kde_kws={"label":"{0} KDE Estim".format(key)}, hist_kws={"label":"{0} Freq".format(key)})
 
 
   # def getChartOptions(self):
