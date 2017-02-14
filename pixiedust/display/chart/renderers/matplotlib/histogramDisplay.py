@@ -19,7 +19,6 @@ from .matplotlibBaseDisplay import MatplotlibBaseDisplay
 import matplotlib.pyplot as plt
 import mpld3
 import numpy as np
-import math
 import pixiedust
 
 myLogger = pixiedust.getLogger(__name__)
@@ -42,8 +41,9 @@ class HistogramDisplay(MatplotlibBaseDisplay):
 
     # no keys by default
     def getDefaultKeyFields(self, handlerId, aggregation):
-        return []
+        return []        
 
     def matplotlibRender(self, fig, ax):
         stacked = len(self.getValueFields()) > 1
-        self.getWorkingPandasDataFrame().plot(kind="hist", stacked=stacked, ax=ax)
+        binsize = int(self.options.get('binsize', 10))
+        self.getWorkingPandasDataFrame().plot(kind="hist", stacked=stacked, ax=ax, bins=binsize)

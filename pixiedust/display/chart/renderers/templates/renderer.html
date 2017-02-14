@@ -83,6 +83,9 @@ if ($("[id^=slider][id$={{prefix}}]").length > 0) {
                 o["nostore_figureOnly"] = "true";
                 addOptions(o);
             {% endcall %}    
+        },
+        slide: function(evt, ui) {
+            $("[id^=slideval][id$={{prefix}}]").text(ui.value)
         }
     });
 }

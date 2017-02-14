@@ -364,7 +364,9 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
     def logStuff(self):
         try:
             self.debug("Key Fields: {0}".format(self.getKeyFields()) )
+            ShellAccess['keyFields'] = self.getKeyFields()
             self.debug("Key Fields Labels: {0}".format(self.getKeyFieldLabels()))
             self.debug("Value Fields: {0}".format(self.getValueFields()))
+            ShellAccess['valueFields'] = self.getValueFields()
         except:
             pass
