@@ -17,25 +17,28 @@
 from pixiedust.display.chart.renderers import PixiedustRenderer
 from .matplotlibBaseDisplay import MatplotlibBaseDisplay
 import matplotlib.pyplot as plt
-import mpld3
 import numpy as np
-
-import pixiedust
-myLogger = pixiedust.getLogger(__name__)
+from pixiedust.utils import Logger
 
 @PixiedustRenderer(id="lineChart")
+@Logger()
 class LineChartDisplay(MatplotlibBaseDisplay):
-    def matplotlibRender(self, fig, ax):        
-        keyFields = self.getKeyFields()
-        valueFields = self.getValueFields()
-        numColumns = len(keyFields)
-        for i, valueField in enumerate(valueFields):
-            data = self.getWorkingDataSlice( keyFields[0], valueField, sort = True )
-            # xs = data[0]
-            xs = xrange(len(data[1]))
-            ys = data[1]
-            lines = ax.plot(xs, ys, color=self.colormap(1.*i/numColumns), label=valueField, marker='o')
-            tooltip = mpld3.plugins.PointLabelTooltip(lines[0], labels=ys)
-            if self.has_mpld3:
-                mpld3.plugins.connect(fig, tooltip)
-        plt.xlabel(", ".join(self.getKeyFields()), fontsize=18)
+
+    def getNumFigures(self):
+        return len(self.getValueFields()) if self.isSubplot() else 1
+
+    def isSubplot(self):
+        return self.options.get("lineChartType", None) == "subplots"
+
+    def matplotlibRender(self, fig, ax):
+        subplots = self.isSubplot()
+        self.getWorkingPandasDataFrame().plot(
+            kind='line', x=self.getKeyFields(), y=self.getValueFields(), ax=ax, subplots=subplots, legend=True,
+            logx=self.getBooleanOption("logx", False), logy=self.getBooleanOption("logy",False)
+        )
+        if self.useMpld3:
+            #import mpld3
+            #tooltip = mpld3.plugins.PointLabelTooltip(lines[0], labels=ys)
+            #mpld3.plugins.connect(fig, tooltip)
+            #FIXME
+            pass

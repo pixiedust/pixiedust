@@ -165,6 +165,12 @@ class Display(with_metaclass(ABCMeta)):
         self.executionTime=None
         self.extraTemplateArgs={}
 
+    def getBooleanOption(self, key, defValue):
+        value = self.options.get(key, None)
+        if value is None:
+            return defValue
+        return value == "true"
+
     def _getTemplateArgs(self, **kwargs):
         args = {
             "this":self, "entity":self.entity, "prefix":self.getPrefix(),

@@ -38,11 +38,39 @@ def barChart(displayObject):
                 }
             }
         )
-
     return options
 
-funcs=[barChart]
+def lineChart(displayObject):
+    options = []
+    if len(displayObject.getValueFields()) > 1:
+        options.append({
+            'name': 'lineChartType',
+            'description': 'Type',
+            'metadata': {
+                'type': 'dropdown',
+                'values': ['grouped', 'subplots'],
+                'default': "grouped"
+            }
+        })
+
+    options.append({
+        'name': 'logx',
+        'description': 'log scale on x',
+        'metadata': {
+            'type': 'checkbox',
+            'default': "false"
+        }
+    })
+    options.append({
+        'name': 'logy',
+        'description': 'log scale on y',
+        'metadata': {
+            'type': 'checkbox',
+            'default': "false"
+        }
+    })
+    return options
 
 commonOptions = {}
-for f in funcs:
+for f in [barChart,lineChart]:
     commonOptions.update({f.__name__:f})

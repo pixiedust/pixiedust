@@ -60,11 +60,6 @@ class MatplotlibBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
                 }
             }
         ]
-
-    def setChartSize(self, fig, ax):
-        imageWidth = self.getPreferredOutputWidth()
-        fig.set_figwidth( imageWidth/ self.getDPI() )
-        fig.set_figheight( (imageWidth * 0.75) / self.getDPI() )
         
     def setChartGrid(self, fig, ax):
         ax.grid(color='lightgray', alpha=0.7)
@@ -102,8 +97,23 @@ class MatplotlibBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
                         line.set_color(self.colormap(1.*i/numColumns))
                         line.set_linewidth(10)
 
+    def getNumFigures(self):
+        return 1    #default, subclasses can override
+
     def createFigure(self):
-        return plt.subplots(figsize=(6,4))
+        numFigures = self.getNumFigures()
+        if numFigures <= 1:
+            return plt.subplots(figsize=( int(self.getPreferredOutputWidth()/ self.getDPI()), int(self.getPreferredOutputHeight() / self.getDPI()) ))
+
+        gridCols = 2 #number of columns for a multiplots, TODO make the layout configurable
+        numRows = int( numFigures/2 ) + numFigures % 2
+        numCols = 2
+        imageHeight =  ((self.getPreferredOutputWidth()/2) * 0.75) * numRows
+        fig,ax = plt.subplots(numRows, numCols, figsize=( int(self.getPreferredOutputWidth()/self.getDPI()), int(imageHeight/self.getDPI() )))
+        if numFigures%2 != 0:
+            fig.delaxes(ax.item(numFigures))
+            ax = np.delete(ax,numFigures)
+        return (fig,ax)
         
     def doRenderChart(self):
         self.colormap = cm.jet
@@ -125,7 +135,6 @@ class MatplotlibBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
 
             #finalize the chart
             if not isinstance(ax, (list,np.ndarray)):
-                self.setChartSize(fig, ax)
                 self.setChartGrid(fig, ax)
                 self.setChartLegend(fig, ax)
                 self.setTicks(fig, ax)
