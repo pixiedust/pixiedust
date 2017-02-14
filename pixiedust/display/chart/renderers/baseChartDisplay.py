@@ -236,37 +236,6 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
         else:
             return keyFields
 
-    @cache(fieldName="keyFieldValues")
-    def getKeyFieldValues(self):
-        """ Get the DATA for the dataframe key fields
-
-        Args: 
-            self (class): class that extends BaseChartDisplay
-
-        Returns: 
-            List of lists: data for the key fields
-        """
-        keyFields = self.getKeyFields()
-        if (len(keyFields) == 0):
-            return []
-        numericKeyField = False
-        if len(keyFields) == 1 and self.dataHandler.isNumericField(keyFields[0]):
-            numericKeyField = True
-        df = self.dataHandler.groupBy(keyFields).count().dropna()
-        if self.isMap(self.handlerId) is False: 
-            for keyField in keyFields:
-                df = df.sort(keyField)
-        maxRows = int(self.options.get("rowCount","100"))
-        numRows = min(maxRows,df.count())
-        rows = df.take(numRows)
-        values = []
-        for i, row in enumerate(rows):
-            if numericKeyField:
-                values.append(row[keyFields[0]])
-            else:
-                values.append(i)
-        return values
-
     @cache(fieldName="keyFieldLabels")
     def getKeyFieldLabels(self):
         k = self.getKeyFields()

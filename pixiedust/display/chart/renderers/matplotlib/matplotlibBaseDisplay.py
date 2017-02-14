@@ -22,6 +22,7 @@ import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 from six import with_metaclass
 from abc import abstractmethod, ABCMeta
+import numpy as np
 
 try:
     import mpld3
@@ -133,10 +134,11 @@ class MatplotlibBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
             self.matplotlibRender(fig, ax)
 
             #finalize the chart
-            self.setChartSize(fig, ax)
-            self.setChartGrid(fig, ax)
-            self.setChartLegend(fig, ax)
-            self.setTicks(fig, ax)
+            if not isinstance(ax, (list,np.ndarray)):
+                self.setChartSize(fig, ax)
+                self.setChartGrid(fig, ax)
+                self.setChartLegend(fig, ax)
+                self.setTicks(fig, ax)
 
             #Render the figure
             return self.renderFigure(fig)
