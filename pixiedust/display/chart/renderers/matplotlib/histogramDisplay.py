@@ -15,6 +15,7 @@
 # -------------------------------------------------------------------------------
 
 from pixiedust.display.chart.renderers import PixiedustRenderer
+from pixiedust.display.chart.renderers.baseChartDisplay import commonChartOptions
 from .matplotlibBaseDisplay import MatplotlibBaseDisplay
 import matplotlib.pyplot as plt
 import mpld3
@@ -44,6 +45,23 @@ class HistogramDisplay(MatplotlibBaseDisplay):
     def getDefaultKeyFields(self, handlerId, aggregation):
         return []
 
+    @commonChartOptions
+    def getChartOptions(self):
+        count = len(self.getWorkingPandasDataFrame().index)
+        return [
+            {
+                'name': 'binsize',
+                'description': 'Bin size',
+                'metadata': {
+                    'type': 'slider',
+                    'max': int(math.ceil(count / 2)),
+                    'min': int(math.floor(count / 20)),
+                    'default': int(math.ceil(count / 4))
+                }
+            }
+        ]
+
     def matplotlibRender(self, fig, ax):
         stacked = len(self.getValueFields()) > 1
-        self.getWorkingPandasDataFrame().plot(kind="hist", stacked=stacked, ax=ax)
+        binsize = int(self.options.get('binsize', 10))
+        self.getWorkingPandasDataFrame().plot(kind="hist", stacked=stacked, ax=ax, bins=binsize)
