@@ -64,8 +64,10 @@ class HistogramRenderer(BokehBaseDisplay):
         color = self.options.get("color")
         return [color] if color is not None else []
     
-    def createBokehChart(self):       
+    def createBokehChart(self):     
+        
+        binsize = int(self.options.get('binsize', 10))  
         return Histogram(self.getWorkingPandasDataFrame(), values=self.getValueFields()[0],
-            plot_width=800,bins=self.options.get("bins"), color=self.options.get("color"), 
+            plot_width=800,bins=binsize, color=self.options.get("color"), 
             xgrid=True, ygrid=True
         )
