@@ -46,9 +46,8 @@
 <p>PixieDust is a Python library for use in Jupyter notebooks.
 PixieDust is bundled as a Python package and can be installed using pip.
 To install and configure PixieDust please follow the instructions below:</p>
-</div>
 <div class="section" id="prerequisites">
-<h1>Prerequisites<a class="headerlink" href="#prerequisites" title="Permalink to this headline">¶</a></h1>
+<h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Permalink to this headline">¶</a></h2>
 <p>In order to use PixieDust inside your Jupyter notebooks you will, of course, need Jupyter.
 The easiest way to install Jupyter is by installing Anaconda.
 Anaconda is a Data Science platform which consists of a Python distribution and collection of open source packages well suited for scientific computing.
@@ -57,7 +56,7 @@ Anaconda includes Python, pip, pandas, numpy, matpoltlib, and other libraries re
 <p>Note: PixieDust supports both Python 2.7 and Python 3.5.</p>
 </div>
 <div class="section" id="id1">
-<h1>Install PixieDust<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h1>
+<h2>Install PixieDust<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
 <p>Once you&#8217;ve installed Anaconda run the following commands in your Terminal or command-line interface to ensure your environment is configured properly:</p>
 <div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">pip</span>  <span class="o">--</span><span class="n">version</span>
 <span class="n">jupyter</span> <span class="o">--</span><span class="n">version</span>
@@ -66,7 +65,7 @@ Anaconda includes Python, pip, pandas, numpy, matpoltlib, and other libraries re
 <p>You can install the PixieDust library from source or from PyPI.
 If you plan on contributing to PixieDust it is recommended that you install from source.</p>
 <div class="section" id="install-from-source">
-<h2>Install from Source<a class="headerlink" href="#install-from-source" title="Permalink to this headline">¶</a></h2>
+<h3>Install from Source<a class="headerlink" href="#install-from-source" title="Permalink to this headline">¶</a></h3>
 <p>To install PixieDust from source first clone the PixieDust repo on GitHub:</p>
 <div class="highlight-python"><div class="highlight"><pre><span></span>git clone https://github.com/ibm-cds-labs/pixiedust
 </pre></div>
@@ -77,7 +76,7 @@ If you plan on contributing to PixieDust it is recommended that you install from
 </div>
 </div>
 <div class="section" id="install-from-pypi">
-<h2>Install from PyPI<a class="headerlink" href="#install-from-pypi" title="Permalink to this headline">¶</a></h2>
+<h3>Install from PyPI<a class="headerlink" href="#install-from-pypi" title="Permalink to this headline">¶</a></h3>
 <p>Alternatively, you can install the last version of PixieDust from PyPI using pip:</p>
 <div class="highlight-python"><div class="highlight"><pre><span></span>pip install --user --upgrade pixiedust
 </pre></div>
@@ -85,14 +84,14 @@ If you plan on contributing to PixieDust it is recommended that you install from
 </div>
 </div>
 <div class="section" id="jupyter-kernels">
-<h1>Jupyter Kernels<a class="headerlink" href="#jupyter-kernels" title="Permalink to this headline">¶</a></h1>
+<h2>Jupyter Kernels<a class="headerlink" href="#jupyter-kernels" title="Permalink to this headline">¶</a></h2>
 <p>In order to use PixieDust inside Jupyter you must install a new Jupyter kernel.
 Kernels are processes that run interactive code from your Jupyter notebook.
 PixieDust uses pyspark; a Python binding for Apache Spark.
 PixieDust includes a command-line utility for installing new kernels that use pyspark.
 The command-line utility will walk you through the steps of configuring your kernel as well as installing Apache Spark and Scala (required if you want to run Scala code from within your Python notebook).</p>
 <div class="section" id="install-a-jupyter-kernel">
-<h2>Install a Jupyter Kernel<a class="headerlink" href="#install-a-jupyter-kernel" title="Permalink to this headline">¶</a></h2>
+<h3>Install a Jupyter Kernel<a class="headerlink" href="#install-a-jupyter-kernel" title="Permalink to this headline">¶</a></h3>
 <p>From a Terminal or command-line interface run the following:</p>
 <div class="highlight-python"><div class="highlight"><pre><span></span>jupyter pixiedust install
 </pre></div>
@@ -138,7 +137,7 @@ Extracting Scala 2.11 to /Users/USERNAME/scala
 If you would like to install a new kernel with a different version of Spark just re-run the installer and choose the appropriate version.</p>
 </div>
 <div class="section" id="list-existing-kernels">
-<h2>List Existing Kernels<a class="headerlink" href="#list-existing-kernels" title="Permalink to this headline">¶</a></h2>
+<h3>List Existing Kernels<a class="headerlink" href="#list-existing-kernels" title="Permalink to this headline">¶</a></h3>
 <p>You can list the existing Jupyter kernels from the command-line by running the following command:</p>
 <div class="highlight-python"><div class="highlight"><pre><span></span>jupyter pixiedust list
 </pre></div>
@@ -152,7 +151,7 @@ If you would like to install a new kernel with a different version of Spark just
 </div>
 </div>
 <div class="section" id="try-it-out">
-<h1>Try It Out!<a class="headerlink" href="#try-it-out" title="Permalink to this headline">¶</a></h1>
+<h2>Try It Out!<a class="headerlink" href="#try-it-out" title="Permalink to this headline">¶</a></h2>
 <p>The PixieDust GitHub repo includes a sample notebook (<em>Intro to Pixiedust.ipynb</em>) that you can use to try out your PixieDust install.
 If you installed PixieDust from source you can find this notebook in <em>pixiedust/notebook</em>.
 Otherwise, you can download the notebook <a class="reference external" href="https://github.com/ibm-cds-labs/pixiedust/blob/master/notebook/Intro%20to%20PixieDust.ipynb">here</a></p>
@@ -167,6 +166,7 @@ Alternatively, click <em>Kernel &gt; Change Kernel</em> from the menu to select 
 <img alt="_images/install-notebook2.png" src="_images/install-notebook2.png" />
 <p>This notebook will show you how to import the PixieDust library and run a handful of PixieDust features.</p>
 </div>
+</div>
 
 
           </div>
@@ -179,10 +179,6 @@ Alternatively, click <em>Kernel &gt; Change Kernel</em> from the menu to select 
 <li class="toctree-l1"><a class="reference internal" href="use.html">Use PixieDust</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="develop.html">Develop for PixieDust</a><ul class="current">
 <li class="toctree-l2 current"><a class="current reference internal" href="">Install PixieDust</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#prerequisites">Prerequisites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id1">Install PixieDust</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#jupyter-kernels">Jupyter Kernels</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#try-it-out">Try It Out!</a></li>
 <li class="toctree-l2"><a class="reference internal" href="contribute.html">Contribute</a></li>
 <li class="toctree-l2"><a class="reference internal" href="writeviz.html">Write a new PixieDust Visualization</a></li>
 <li class="toctree-l2"><a class="reference internal" href="renderer.html">Build a Renderer</a></li>
