@@ -105,7 +105,7 @@ class PixieDustTestExecutePreprocessor( ExecutePreprocessor ):
             
         afterOutputs = [output for output in afterOutputs if not filterOutput(output)]
 
-        if "[Errno 111]" in afterOutputs
+        if "[Errno 111]" in afterOutputs:
             print("[Errno 111] in output, will try to restarting kernel")
             raise RestartKernelException()
 
