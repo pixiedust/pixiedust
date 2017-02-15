@@ -56,4 +56,11 @@ class BokehBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
             return notebook_div(charts)
         else:
             from bokeh.layouts import gridplot
-            return notebook_div(gridplot(charts, ncols=2))
+            ncols = 2
+            nrows = 1
+            if(len(charts) > ncols):
+                nrows = len(charts) / ncols
+                if(len(charts) % ncols != 0):
+                    nrows = nrows + 1
+      
+            return notebook_div(gridplot(charts, ncols=ncols, nrows=nrows))
