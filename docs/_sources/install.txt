@@ -5,7 +5,7 @@ PixieDust is bundled as a Python package and can be installed using pip.
 To install and configure PixieDust please follow the instructions below:
 
 Prerequisites
-=============
+-------------
 In order to use PixieDust inside your Jupyter notebooks you will, of course, need Jupyter.
 The easiest way to install Jupyter is by installing Anaconda.
 Anaconda is a Data Science platform which consists of a Python distribution and collection of open source packages well suited for scientific computing.
@@ -16,7 +16,7 @@ To install Anaconda go to `<https://www.continuum.io/downloads>`_ and follow the
 Note: PixieDust supports both Python 2.7 and Python 3.5.
 
 Install PixieDust
-=================
+-----------------
 Once you've installed Anaconda run the following commands in your Terminal or command-line interface to ensure your environment is configured properly:
 ::
 
@@ -27,7 +27,7 @@ You can install the PixieDust library from source or from PyPI.
 If you plan on contributing to PixieDust it is recommended that you install from source.
 
 Install from Source
--------------------
+*******************
 
 To install PixieDust from source first clone the PixieDust repo on GitHub:
 ::
@@ -40,7 +40,7 @@ Next, run `pip` with the `-e` flag to install the PixieDust from the local direc
     pip install -e ./pixiedust
 
 Install from PyPI
------------------
+*****************
 
 Alternatively, you can install the last version of PixieDust from PyPI using pip:
 ::
@@ -48,7 +48,7 @@ Alternatively, you can install the last version of PixieDust from PyPI using pip
     pip install --user --upgrade pixiedust
 
 Jupyter Kernels
-===============
+---------------
 
 In order to use PixieDust inside Jupyter you must install a new Jupyter kernel.
 Kernels are processes that run interactive code from your Jupyter notebook.
@@ -57,7 +57,7 @@ PixieDust includes a command-line utility for installing new kernels that use py
 The command-line utility will walk you through the steps of configuring your kernel as well as installing Apache Spark and Scala (required if you want to run Scala code from within your Python notebook).
 
 Install a Jupyter Kernel
-------------------------
+************************
 
 From a Terminal or command-line interface run the following:
 ::
@@ -112,7 +112,7 @@ Note: You can have more than one kernel for PixieDust.
 If you would like to install a new kernel with a different version of Spark just re-run the installer and choose the appropriate version.
 
 List Existing Kernels
----------------------
+*********************
 
 You can list the existing Jupyter kernels from the command-line by running the following command:
 ::
@@ -128,7 +128,7 @@ The output will look similar to the following:
 
 
 Try It Out!
-===========
+-----------
 
 The PixieDust GitHub repo includes a sample notebook (*Intro to Pixiedust.ipynb*) that you can use to try out your PixieDust install.
 If you installed PixieDust from source you can find this notebook in *pixiedust/notebook*.
