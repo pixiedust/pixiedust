@@ -106,9 +106,9 @@ class SampleData(object):
                     return DoubleType()
                 else:
                     return StringType()
-            return load.options(header='true').load(path, schema=StructType([StructField(item[0], getType(item[1]), True) for item in schema]))
+            return load.options(header='true', mode="DROPMALFORMED").load(path, schema=StructType([StructField(item[0], getType(item[1]), True) for item in schema]))
         else:
-            return load.options(header='true', inferschema='true').load(path)
+            return load.options(header='true', mode="DROPMALFORMED", inferschema='true').load(path)
 
     def loadSparkDataFrameFromSampleData(self, dataDef):
         return Downloader(dataDef).download(self.dataLoader)
