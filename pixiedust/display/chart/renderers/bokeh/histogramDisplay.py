@@ -15,6 +15,7 @@
 # -------------------------------------------------------------------------------
 
 from pixiedust.display.chart.renderers import PixiedustRenderer
+from pixiedust.display.chart.renderers.baseChartDisplay import commonChartOptions
 from .bokehBaseDisplay import BokehBaseDisplay
 import pixiedust
 from bokeh.charts import Histogram, show
@@ -39,11 +40,40 @@ class HistogramRenderer(BokehBaseDisplay):
 
     def getDefaultKeyFields(self, handlerId, aggregation):
         return []
+
+    @commonChartOptions
+    def getChartOptions(self):
+        return [
+            { 'name': 'color',
+              'metadata': {
+                    'type': "dropdown",
+                    'values': ["None"] + self.getFieldNames(),
+                    'default': ""
+                }
+            }
+        ]
+
+    def canRenderChart(self):
+        return (True, None)
+
+    def getExtraFields(self):
+        color = self.options.get("color")
+        return [color] if color is not None else []
     
     def createBokehChart(self):
-       
-       
-        valueField = self.getValueFields()[0]
-        valueFieldValues = self.getWorkingPandasDataFrame()[valueField].values.tolist()
-       
-        return Histogram(valueFieldValues, legend=None,plot_width=600,bins=max(valueFieldValues),color=self.options.get("color"))
+        plotwidth = int(self.getPreferredOutputWidth()/2)
+        plotheight = int(self.getPreferredOutputHeight() * 0.75)
+        binsize = int(self.options.get('binsize', 10))  
+        valueFields = self.getValueFields()
+        histograms = []
+        if len(valueFields) != 1:
+            for i in valueFields:
+                histograms.append(Histogram(self.getWorkingPandasDataFrame(), values=i,
+            plot_width=plotwidth, plot_height=plotheight,bins=binsize, color=self.options.get("color"), 
+            xgrid=True, ygrid=True))
+
+            return histograms
+        else:
+            return Histogram(self.getWorkingPandasDataFrame(), values=self.getValueFields()[0],
+            bins=binsize, color=self.options.get("color"), 
+            xgrid=True, ygrid=True)

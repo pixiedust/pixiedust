@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------------
-# Copyright IBM Corp. 2016
+# Copyright IBM Corp. 2017
 # 
 # Licensed under the Apache License, Version 2.0 (the 'License');
 # you may not use this file except in compliance with the License.
@@ -23,8 +23,10 @@ from pixiedust.display import addDisplayRunListener
 from pixiedust.display.chart.renderers import PixiedustRenderer
 from pixiedust.utils import cache,Logger
 from pixiedust.utils.shellAccess import ShellAccess
+from .commonOptions import commonOptions as co
 import pandas as pd
 import time
+import inspect
 
 class ShowChartOptionDialog(Exception):
     pass
@@ -82,8 +84,34 @@ class WorkingDataCache(with_metaclass(
 #add a display Run Listener 
 addDisplayRunListener( lambda entity, options: WorkingDataCache.onNewDisplayRun(entity, options) )
 
+#common Chart Options injection decorator
+def commonChartOptions(func):
+    def wrapper(cls, *args, **kwargs):
+        commonOptions = []
+        if hasattr(cls, "handlerId") and hasattr(cls, 'commonOptions'):
+            handler = cls.commonOptions.get(cls.handlerId, [])
+            if callable(handler):
+                handler = handler(cls)
+            commonOptions += handler
+            fctSet = set()
+            for cl in reversed(inspect.getmro(cls.__class__)):
+                if hasattr(cl, func.__name__):
+                    f = getattr(cl, func.__name__)
+                    if f not in fctSet:
+                        fctSet.add(f)
+                        if hasattr(f, "func"):
+                            f = f.func
+                        opts = f(cls, *args, **kwargs)
+                        commonOptions += opts
+            return commonOptions
+        return commonOptions + func(cls, *args, **kwargs )
+    wrapper.func = func
+    return wrapper
+
 @Logger()
 class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
+
+    commonOptions = co
 
     def __init__(self, options, entity, dataHandler=None):
         super(BaseChartDisplay,self).__init__(options,entity,dataHandler)
@@ -93,6 +121,7 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
     """
         Subclass can override: return an array of option metadata
     """
+    @commonChartOptions
     def getChartOptions(self):
         return []
 
@@ -138,10 +167,10 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
     def getMaxRows(self):
         return int(self.options.get("rowCount","100"))
 
-    def getPandasDataFrame(self):
-        valueFieldValues = self.getValueFieldValueLists()
-        valueFields = self.getValueFields()
-        return pd.DataFrame([list(a) for a in zip( valueFieldValues[0], valueFieldValues[1]) ], columns=[valueFields[0], valueFields[1]])
+    # def getPandasDataFrame(self):
+    #     valueFieldValues = self.getValueFieldValueLists()
+    #     valueFields = self.getValueFields()
+    #     return pd.DataFrame([list(a) for a in zip( valueFieldValues[0], valueFieldValues[1]) ], columns=[valueFields[0], valueFields[1]])
 
     #helper method
     def _getField(self, fieldName):
@@ -207,58 +236,12 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
         else:
             return keyFields
 
-    @cache(fieldName="keyFieldValues")
-    def getKeyFieldValues(self):
-        """ Get the DATA for the dataframe key fields
-
-        Args: 
-            self (class): class that extends BaseChartDisplay
-
-        Returns: 
-            List of lists: data for the key fields
-        """
-        keyFields = self.getKeyFields()
-        if (len(keyFields) == 0):
-            return []
-        numericKeyField = False
-        if len(keyFields) == 1 and self.dataHandler.isNumericField(keyFields[0]):
-            numericKeyField = True
-        df = self.dataHandler.groupBy(keyFields).count().dropna()
-        if self.isMap(self.handlerId) is False: 
-            for keyField in keyFields:
-                df = df.sort(keyField)
-        maxRows = int(self.options.get("rowCount","100"))
-        numRows = min(maxRows,df.count())
-        rows = df.take(numRows)
-        values = []
-        for i, row in enumerate(rows):
-            if numericKeyField:
-                values.append(row[keyFields[0]])
-            else:
-                values.append(i)
-        return values
-
     @cache(fieldName="keyFieldLabels")
     def getKeyFieldLabels(self):
-        keyFields = self.getKeyFields()
-        if (len(keyFields) == 0):
+        k = self.getKeyFields()
+        if (len(k) == 0):
             return []
-        return self.getWorkingPandasDataFrame().groupby(keyFields).groups.keys()
-        """df = self.dataHandler.groupBy(keyFields).count().dropna()
-        for keyField in keyFields:
-            df = df.sort(keyField)
-        maxRows = int(self.options.get("rowCount","100"))
-        numRows = min(maxRows,df.count())
-        rows = df.take(numRows)
-        labels = []
-        for i, row in enumerate(rows):
-            label = ""
-            for keyField in keyFields:
-                if len(label) > 0:
-                    label += ", "
-                label += str(row[keyField])
-            labels.append(label)
-        return labels"""
+        return self.getWorkingPandasDataFrame().groupby(k).groups.keys()
 
     def getPreferredDefaultValueFieldCount(self, handlerId):
         return 2
@@ -277,82 +260,6 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
             if self.dataHandler.isNumericField(valueField) or aggregation == "COUNT":
                 numericValueFields.append(valueField)
         return numericValueFields
-
-    def getPandasValueFieldValueLists(self):
-        keyFields = self.getKeyFields()
-        valueFields = self.getValueFields()
-        aggregation = self.getAggregation()
-        pandasValueLists = []
-        maxRows = int(self.options.get("rowCount","100"))
-        if len(keyFields) == 0:
-            for valueField in valueFields:
-                pandasValueLists.append(
-                    self.dataHandler.select(valueField).toPandas()[valueField].dropna().head(maxRows)
-                )
-        else:
-            df = self.dataHandler.groupBy(keyFields)
-            maxRows = int(self.options.get("rowCount","100"))
-            for valueField in valueFields:
-                valueDf = None
-                if aggregation == "SUM":
-                    valueDf = df.agg({valueField:"sum"}).withColumnRenamed("sum("+valueField+")", "agg")
-                elif aggregation == "AVG":
-                    valueDf = df.agg({valueField:"avg"}).withColumnRenamed("avg("+valueField+")", "agg")
-                elif aggregation == "MIN":
-                    valueDf = df.agg({valueField:"min"}).withColumnRenamed("min("+valueField+")", "agg")
-                elif aggregation == "MAX":
-                    valueDf = df.agg({valueField:"max"}).withColumnRenamed("max("+valueField+")", "agg")
-                else:
-                    valueDf = df.agg({valueField:"count"}).withColumnRenamed("count("+valueField+")", "agg")
-                #for keyField in keyFields:
-                #    valueDf = valueDf.sort(keyField)
-                valueDf = valueDf.dropna()
-                numRows = min(maxRows,valueDf.count())
-                pandasValueLists.append( valueDf.toPandas().head(numRows) )
-        return pandasValueLists
-
-    @cache(fieldName="valueFieldValueLists")
-    def getValueFieldValueLists(self):
-        keyFields = self.getKeyFields()
-        valueFields = self.getValueFields()
-        aggregation = self.getAggregation()
-        valueLists = []
-        maxRows = int(self.options.get("rowCount","100"))
-        if len(keyFields) == 0:
-            valueLists = []
-            for valueField in valueFields:
-                valueLists.append(
-                    self.dataHandler.select(valueField).toPandas()[valueField].dropna().tolist()[:maxRows]
-                )
-        #elif self.supportsAggregation(handlerId) == False:
-        #    for valueField in valueFields:
-                # TODO: Need to get the list of values per unique key (not count, avg, etc)
-                # For example, SELECT distinct key1, key2 FROM table
-                # for each key1/key2 SELECT value1 FROM table WHERE key1=key1 AND key2=key2
-                # for each key1/key2 SELECT value2 FROM table WHERE key1=key1 AND key2=key2
-                # repeat for each value
-        else:
-            df = self.dataHandler.groupBy(keyFields)
-            maxRows = int(self.options.get("rowCount","100"))
-            for valueField in valueFields:
-                valueDf = None
-                if aggregation == "SUM":
-                    valueDf = df.agg({valueField:"sum"}).withColumnRenamed("sum("+valueField+")", "agg")
-                elif aggregation == "AVG":
-                    valueDf = df.agg({valueField:"avg"}).withColumnRenamed("avg("+valueField+")", "agg")
-                elif aggregation == "MIN":
-                    valueDf = df.agg({valueField:"min"}).withColumnRenamed("min("+valueField+")", "agg")
-                elif aggregation == "MAX":
-                    valueDf = df.agg({valueField:"max"}).withColumnRenamed("max("+valueField+")", "agg")
-                else:
-                    valueDf = df.agg({valueField:"count"}).withColumnRenamed("count("+valueField+")", "agg")
-                if self.isMap(self.handlerId) is False: 
-                    for keyField in keyFields:
-                        valueDf = valueDf.sort(keyField)
-                valueDf = valueDf.dropna()
-                numRows = min(maxRows,valueDf.count())
-                valueLists.append(valueDf.rdd.map(lambda r:r["agg"]).take(numRows))
-        return valueLists
     
     def canRenderChart(self):
         aggregation = self.getAggregation()
@@ -417,27 +324,24 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
             self._addJavascriptTemplate("chartOptions.dialog", optionsDialogBody=self.dialogBody)
             return
         
-        # validate if we can render
-        canRender, errorMessage = self.canRenderChart()
-        if canRender == False:
-            self.dialogBody = self.getChartErrorDialogBody(handlerId, dialogTemplate, dialogOptions)
-            if (self.dialogBody is None):
-                self.dialogBody = ""
-            self._addHTMLTemplate("chartError.html", errorMessage=errorMessage, optionsDialogBody=self.dialogBody)
-            return
-
-        # set the keyFields and valueFields options if this is the first time
-        # do this after call to canRenderChart as some charts may need to know that they have not been set
-        setKeyFields = self.options.get("keyFields") is None
-        setValueFields = self.options.get("valueFields") is None
-        if setKeyFields and len(keyFields) > 0:
-            self.options["keyFields"] = ",".join(keyFields)
-        if setValueFields and len(valueFields) > 0:
-            self.options["valueFields"] = ",".join(valueFields)
-        
         # render
         try:
             self.dialogBody = self.renderTemplate(dialogTemplate, **dialogOptions)
+
+            # validate if we can render
+            canRender, errorMessage = self.canRenderChart()
+            if canRender == False:
+                raise Exception(errorMessage)
+
+            # set the keyFields and valueFields options if this is the first time
+            # do this after call to canRenderChart as some charts may need to know that they have not been set
+            setKeyFields = self.options.get("keyFields") is None
+            setValueFields = self.options.get("valueFields") is None
+            if setKeyFields and len(keyFields) > 0:
+                self.options["keyFields"] = ",".join(keyFields)
+            if setValueFields and len(valueFields) > 0:
+                self.options["valueFields"] = ",".join(valueFields)        
+
             chartFigure = self.doRenderChart()
             if self.options.get("debugFigure", None):
                 self.debug(chartFigure)
@@ -447,21 +351,22 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
                 self._addHTMLTemplate("renderer.html", chartFigure=chartFigure, optionsDialogBody=self.dialogBody)
         except Exception as e:
             self.exception("Unexpected error while trying to render BaseChartDisplay")
-            self.dialogBody = self.getChartErrorDialogBody(handlerId, dialogTemplate, dialogOptions)
-            if (self.dialogBody is None):
-                self.dialogBody = ""
-            self._addHTMLTemplate("chartError.html", errorMessage="Unexpected Error:<br>"+str(e), optionsDialogBody=self.dialogBody)
-            self.info("Unexpected Error:\n"+str(e)+"\n\n"+traceback.format_exc())
+            errorHTML = """
+                <div style="min-height: 50px;">
+                    <div style="color: red;position: absolute;bottom: 0;left: 0;">{0}</div>
+                </div>
+            """.format(str(e))
+            if self.options.get("nostore_figureOnly", None):
+                self._addHTML(errorHTML)
+            else:
+                self._addHTMLTemplate("renderer.html", chartFigure=errorHTML, optionsDialogBody=self.dialogBody)
 
     def logStuff(self):
         try:
             self.debug("Key Fields: {0}".format(self.getKeyFields()) )
-            #self.debug("Key Fields Values: {0}".format(self.getKeyFieldValues()))
+            ShellAccess['keyFields'] = self.getKeyFields()
             self.debug("Key Fields Labels: {0}".format(self.getKeyFieldLabels()))
-        except:
-            pass
-        try:
             self.debug("Value Fields: {0}".format(self.getValueFields()))
-            #self.debug("Value Field Values List: {0}".format(self.getValueFieldValueLists()))
+            ShellAccess['valueFields'] = self.getValueFields()
         except:
             pass

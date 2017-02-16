@@ -50,8 +50,17 @@ class BokehBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
         if not isinstance(charts, list):
             charts.add_tools(ResizeTool())
             charts.title = self.options.get("title", "")
+            charts.plot_width = int(self.getPreferredOutputWidth() - 10 )
+            charts.plot_height = int(self.getPreferredOutputHeight() - 10  )
             charts.grid.grid_line_alpha=0.3
             return notebook_div(charts)
         else:
             from bokeh.layouts import gridplot
-            return notebook_div(gridplot(charts, ncols=2))
+            ncols = 2
+            nrows = 1
+            if(len(charts) > ncols):
+                nrows = len(charts) / ncols
+                if(len(charts) % ncols != 0):
+                    nrows = nrows + 1
+      
+            return notebook_div(gridplot(charts, ncols=ncols, nrows=nrows))

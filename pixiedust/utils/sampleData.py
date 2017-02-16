@@ -18,6 +18,7 @@ from pyspark.sql.types import *
 import pixiedust
 from pixiedust.utils.shellAccess import ShellAccess
 from pixiedust.utils.template import PixiedustTemplateEnvironment
+from pixiedust.utils.environment import Environment,scalaGateway
 import uuid
 import tempfile
 from collections import OrderedDict
@@ -70,6 +71,7 @@ dataDefs = OrderedDict([
     
 ])
 
+@scalaGateway
 def sampleData(dataId=None):
     global dataDefs
     return SampleData(dataDefs).sampleData(dataId)

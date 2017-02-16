@@ -1,0 +1,14 @@
+{%include "header.tpl"%}
+
+from setuptools import setup, find_packages
+setup(name='{{this.projectName}}',
+	  version='0.1',
+	  description='Plugin library for PixieDust',
+	  url='{{this.projectUrl}}',
+	  install_requires=['pixiedust'],
+	  author='{{this.projectAuthor}}',
+	  author_email='{{this.projectAuthorEmail}}',
+	  license='Apache 2.0',
+	  packages=find_packages(),
+	  zip_safe=False
+)

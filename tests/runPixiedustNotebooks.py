@@ -73,16 +73,17 @@ class PixieDustTestExecutePreprocessor( ExecutePreprocessor ):
         skipCompareOutput = "#SKIP_COMPARE_OUTPUT" in cell.source
         pixiedustDisplay = "display(" in cell.source
         try:
+            if pixiedustDisplay:
+                print("Processing display() cell:\n\r{0}".format(cell.source))
             cell, resources = super(PixieDustTestExecutePreprocessor, self).preprocess_cell(cell, resources, cell_index)
             for output in cell.outputs:
                 if "text" in output and "restart kernel" in output["text"].lower():
                     raise RestartKernelException()
             if not skipCompareOutput:
                 if not pixiedustDisplay:
-                    self.compareOutputs(beforeOutputs, cell.outputs)
+                    self.compareOutputs(beforeOutputs, cell.outputs, cell.source)
                 else:
-                    print("Processing cell {0}".format(cell.source))
-                    self.compareOutputs(beforeOutputs, cell.outputs, True)
+                    self.compareOutputs(beforeOutputs, cell.outputs, cell.source, True)
             return cell, resources
         except CellExecutionError:
             cell.source="%pixiedustLog -l debug"
@@ -94,7 +95,7 @@ class PixieDustTestExecutePreprocessor( ExecutePreprocessor ):
                 print("Pixiedust Log is empty")
             raise
 
-    def compareOutputs(self, beforeOutputs, afterOutputs, useRatio=False):
+    def compareOutputs(self, beforeOutputs, afterOutputs, cellsource, useRatio=False):
         #return a measure of the sequences similarity as a float in the range [0, 1]
         seqmatcher = SequenceMatcher(None, '', '')
 
@@ -104,13 +105,17 @@ class PixieDustTestExecutePreprocessor( ExecutePreprocessor ):
             
         afterOutputs = [output for output in afterOutputs if not filterOutput(output)]
 
+        # if "[Errno 111]" in str(afterOutputs):
+        #     print("'[Errno 111] connection refused' in output, will try restarting kernel")
+        #     raise RestartKernelException()
+
         if ( len(beforeOutputs) != len(afterOutputs)):
-            raise CompareOutputException("Output (len) does not match. \r\nExpected:\r\n {0} \r\n\r\nActual:\r\n {1}".format(beforeOutputs, afterOutputs))
+            raise CompareOutputException("Output (len) for cell:\r\n {0}\r\ndoes not match. \r\nExpected:\r\n {1} \r\n\r\nActual:\r\n {2}".format(cellsource, beforeOutputs, afterOutputs))
 
         for beforeOutput, afterOutput in list(zip(beforeOutputs,afterOutputs)):
             if "output_type" in beforeOutput and beforeOutput["output_type"] != "execute_result":
                 if len(beforeOutput) != len(afterOutput):
-                    raise CompareOutputException("Output (type) does not match. \r\nExpected:\r\n {0} \r\n\r\nActual:\r\n {1}".format(beforeOutputs, afterOutputs))
+                    raise CompareOutputException("Output (type) for cell:\r\n {0}\r\ndoes not match. \r\nExpected:\r\n {1} \r\n\r\nActual:\r\n {2}".format(cellsource, beforeOutputs, afterOutputs))
                 skip = ["execution_count"]
                 expected = 0
                 actual = 0
@@ -126,9 +131,9 @@ class PixieDustTestExecutePreprocessor( ExecutePreprocessor ):
                             ratio = seqmatcher.quick_ratio()
                             print("expected_length: {0}, actual_length: {1}, sequence_ratio: {2}".format(expected, actual, ratio))
                             if ratio < 0.98:
-                                raise CompareOutputException("Output (ratio: {3}) does not match for {0}. \r\nExpected:\r\n {1} \r\n\r\nActual:\r\n {2}".format(key, before, after, ratio))
+                                raise CompareOutputException("Output (ratio: {0}) for cell:\r\n {1}\r\ndoes not match for {2}. \r\nExpected:\r\n {3} \r\n\r\nActual:\r\n {4}".format(ratio, cellsource, key, before, after))
                         elif beforeOutput[key] != afterOutput[key]:
-                            raise CompareOutputException("Output (key) does not match for {0}. \r\nExpected:\r\n {1} \r\n\r\nActual:\r\n {2}".format(key, before, after))
+                            raise CompareOutputException("Output (key) for cell:\r\n {0}\r\ndoes not match for {1}. \r\nExpected:\r\n {2} \r\n\r\nActual:\r\n {3}".format(cellsource, key, before, after))
 
 def runNotebook(path):
     ep = PixieDustTestExecutePreprocessor(timeout=3600, kernel_name= __TEST_KERNEL_NAME__)

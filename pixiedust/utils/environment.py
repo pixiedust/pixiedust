@@ -46,3 +46,23 @@ class Environment(with_metaclass(
             return os.environ.get("SCALA_HOME")
 
     env = _Environment()
+
+"""
+Decorator for functions that can be called from Scala Notebook by adding the fromScala keyword argument to the decorated function
+"""
+def scalaGateway(func):
+    def wrapper(*args,**kwargs):
+        fromScala = False
+        if "fromScala" in kwargs:
+            kwargs.pop("fromScala")
+            fromScala = True
+        retValue = func(*args, **kwargs)
+        if fromScala and retValue is not None:
+            from pixiedust.utils.javaBridge import JavaWrapper
+            from pixiedust.utils.scalaBridge import ConverterRegistry
+            import uuid
+            id = str(uuid.uuid4())[:8]
+            JavaWrapper("com.ibm.pixiedust.Pixiedust").addEntity( id, ConverterRegistry.toJava( retValue )[0] )
+            return id
+        return retValue
+    return wrapper

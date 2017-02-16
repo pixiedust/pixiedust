@@ -16,19 +16,14 @@
 
 from pixiedust.display.chart.renderers import PixiedustRenderer
 from .bokehBaseDisplay import BokehBaseDisplay
-import pixiedust
+from pixiedust.utils import Logger
 from bokeh.charts import Bar
 
-myLogger = pixiedust.getLogger(__name__)
-
 @PixiedustRenderer(id="barChart")
+@Logger()
 class BarChartRenderer(BokehBaseDisplay):
-    def getChartContext(self, handlerId):
-        return ('barChartOptionsDialogBody.html', {})
-
     def createBokehChart(self):
-        pandaList = self.getPandasValueFieldValueLists()
-        data = pandaList[0] if len(pandaList) >= 1 else []
+        data = self.getWorkingPandasDataFrame()
 
         stacked = self.options.get("stacked", "true") == "true"
         group = None
@@ -45,5 +40,5 @@ class BarChartRenderer(BokehBaseDisplay):
         if agg == 'avg':
             agg = 'mean'
 
-        return Bar(data, values='agg', agg=agg, label=self.getKeyFields()[0], group=group, stack=stack, legend=None, 
+        return Bar(data, self.getKeyFields()[0], values=self.getValueFields()[0], group=group, stack=stack, legend=None, 
             color=color, plot_width=800)

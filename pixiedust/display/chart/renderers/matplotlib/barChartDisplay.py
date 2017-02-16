@@ -16,63 +16,32 @@
 
 from pixiedust.display.chart.renderers import PixiedustRenderer
 from .matplotlibBaseDisplay import MatplotlibBaseDisplay
-import matplotlib.pyplot as plt
-import numpy as np
-import pandas as pd
-from itertools import product
 from pyspark.sql import functions as F
-import pixiedust
-from pixiedust.utils.shellAccess import ShellAccess
-from functools import reduce
-
-myLogger = pixiedust.getLogger(__name__)
+from pixiedust.utils import Logger
 
 @PixiedustRenderer(id="barChart")
+@Logger()
 class BarChartRenderer(MatplotlibBaseDisplay):
 
-    #def getChartContext(self, handlerId):
-    #    return ('barChartOptionsDialogBody.html', {})
+    def getNumFigures(self):
+        return len(self.getValueFields()) if self.isSubplot() else 1
 
-    def getChartOptions(self):
-        options = [
-            {
-                'name': 'orientation',
-                'description': 'Orientation',
-                'metadata': {
-                    'type': 'dropdown',
-                    'values': ['vertical', 'horizontal'],
-                    'default': "vertical"
-                }
-            }
-        ]
-        if len(self.getKeyFields()) > 1 or len(self.getValueFields()) > 1:
-            options.insert(0,
-                {
-                    'name': 'charttype',
-                    'description': 'Type',
-                    'metadata': {
-                        'type': 'dropdown',
-                        'values': ['grouped', 'stacked', 'subplots'],
-                        'default': "grouped"
-                    }
-                }
-            )
-
-        return options
+    def isSubplot(self):
+        return self.options.get("charttype", "grouped") == "subplots"
 
     #Main rendering method
     def matplotlibRender(self, fig, ax):
         keyFields = self.getKeyFields()
         valueFields = self.getValueFields()
         stacked = self.options.get("charttype", "grouped") == "stacked"
-        subplots = self.options.get("charttype", "grouped") == "subplots"
+        subplots = self.isSubplot()
         kind = "barh" if self.options.get("orientation", "vertical") == "horizontal" else "bar"
 
         if len(keyFields) == 1:
             self.getWorkingPandasDataFrame().plot(kind=kind, stacked=stacked, ax=ax, x=keyFields[0], legend=True, subplots=subplots)
         elif len(valueFields) == 1:
             self.getWorkingPandasDataFrame().pivot(
-                index=keyFields[0], columns=keyFields[1], values=valueFields[0]).plot(kind=kind, stacked=stacked, ax=ax, legend=True, subplots=subplots
-            )
+                index=keyFields[0], columns=keyFields[1], values=valueFields[0]
+            ).plot(kind=kind, stacked=stacked, ax=ax, legend=True, subplots=subplots)
         else:
             raise Exception("Cannot have multiple keys and values at the same time")

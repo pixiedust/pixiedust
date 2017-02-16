@@ -19,10 +19,8 @@ package com.ibm.pixiedust
 import java.io.ByteArrayOutputStream
 import java.io.OutputStream
 import java.util.concurrent.ConcurrentHashMap
-
 import scala.collection.JavaConversions.mapAsScalaConcurrentMap
 import scala.collection.JavaConversions.mutableMapAsJavaMap
-
 import org.apache.toree.interpreter.ExecuteAborted
 import org.apache.toree.interpreter.ExecuteError
 import org.apache.toree.kernel.api.KernelLike
@@ -34,11 +32,13 @@ import org.apache.toree.plugins.Plugin
 import org.apache.toree.plugins.annotations.Event
 import org.apache.toree.plugins.annotations.Init
 import org.slf4j.LoggerFactory
-
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
 import com.typesafe.config.ConfigParseOptions
 import com.typesafe.config.ConfigSyntax
+import scala.ref.WeakReference
+import scala.ref.ReferenceQueue
+import scala.ref.Reference
 
 
 /**
@@ -66,7 +66,7 @@ class Pixiedust extends Plugin{
       |#print(get_ipython().user_ns.get("__pixiedustSparkListener")) 
     """.stripMargin
     
-    Pixiedust.runPythonCode(code, Some( new Pixiedust.PixiedustOutputStream() ))
+    Pixiedust.runPythonCode(code, outputStream = Some( new Pixiedust.PixiedustOutputStream() ))
   }
   
   @Event( name = "allInterpretersReady" )
@@ -79,6 +79,9 @@ class Pixiedust extends Plugin{
       |}
       |def getPixiedustLog(args:String=""){
       |  Pixiedust.getPixiedustLog(args)
+      |}
+      |def sampleData(dataId:Int=0):Any={
+      |  return Pixiedust.sampleData(dataId)
       |}
       """.stripMargin
         
@@ -112,11 +115,32 @@ object Pixiedust{
   private val logger = LoggerFactory.getLogger(this.getClass.getName)
   
   var kernel:KernelLike = _  
-  val entities:collection.mutable.Map[String, Any] = new ConcurrentHashMap[String,Any]()
   
-  def getEntity(id:String):Any={
-    val entity = entities.get(id).get
-    entity
+  class WeakEntityValue[+T <: AnyRef](val key:String, value: T, queue: ReferenceQueue[T]) extends WeakReference(value, queue)
+  
+  val entities:collection.mutable.Map[String, WeakEntityValue[AnyRef]] = new ConcurrentHashMap[String,WeakEntityValue[AnyRef]]()
+  val refQueue:ReferenceQueue[AnyRef] = new ReferenceQueue
+  
+  def getEntity(id:String):AnyRef={ 
+    cleanWeakEntities()
+    val v = entities.get(id).getOrElse( null )
+    if (v != null){
+      return v.get.get
+    }
+    return null
+  }
+  
+  def cleanWeakEntities(){
+    var weakValue:Option[Reference[AnyRef]] = null
+    
+    while ( {weakValue = refQueue.poll; !weakValue.isEmpty} ){
+      entities.remove(weakValue.get.asInstanceOf[WeakEntityValue[AnyRef]].key)
+    }
+  }
+  
+  def addEntity(id:String, entity:AnyRef){
+    cleanWeakEntities()
+    entities.put( id, new WeakEntityValue(id, entity, refQueue) )
   }
   
   def parse(message:String):Config={
@@ -171,7 +195,7 @@ object Pixiedust{
       entityId = entity.asInstanceOf[String]
     }else{
       entityId = java.util.UUID.randomUUID().toString
-      Pixiedust.entities.put(entityId, entity)
+      addEntity(entityId, entity.asInstanceOf[AnyRef])
     }
     
     val optionsCode = if (options.length > 0) "," + options.map( a => a._1 + "='" + a._2 + "'").mkString(",") else ""
@@ -188,7 +212,7 @@ object Pixiedust{
       |  display.fetchEntity=None
     """.stripMargin
     
-    runPythonCode( code, Some(pixiedustOutputStream))
+    runPythonCode( code, outputStream = Some(pixiedustOutputStream))
   }
   
   def getPixiedustLog(args:String=""){
@@ -197,16 +221,32 @@ object Pixiedust{
       |PixiedustLoggingMagics().pixiedustLog("${args}") 
     """.stripMargin
     
-    runPythonCode( code, Some(pixiedustOutputStream))
+    runPythonCode( code, outputStream = Some(pixiedustOutputStream))
   }
   
-  def runPythonCode(code:String, outputStream: Option[OutputStream] = None):Unit={    
+  def sampleData(dataId:Int=0):Any={
+    val code = s"""
+      |from pixiedust.utils.sampleData import *
+      |sampleData(${if (dataId == 0) "" else ("\"" + dataId + "\",")} fromScala=True) 
+    """.stripMargin
+    
+    runPythonCode( code, output => {
+      getEntity( output.toString() )
+    }, outputStream = Some(pixiedustOutputStream))
+  }
+  
+  def runPythonCode(code:String, returnValueHandler: (AnyRef => AnyRef) = null, outputStream: Option[OutputStream] = None):Any={    
     val pySpark = kernel.interpreter("PySpark")    
-    pySpark.get match {
+    val retValue = pySpark.get match {
       case pySparkInterpreter: PySparkInterpreter =>
         val (_, output) = pySparkInterpreter.interpret(code, true, outputStream)
         output match {
-          case Left(executeOutput) => logger.trace(s"Python code ${code} successfully executed")
+          case Left(executeOutput) => {
+            logger.trace(s"Python code ${code} successfully executed")
+            if (returnValueHandler != null ){
+              returnValueHandler( executeOutput )
+            }
+          }
           case Right(executeFailure) => executeFailure match {
             case executeAborted: ExecuteAborted =>
               throw new PySparkException("PySpark code was aborted!")
@@ -218,6 +258,7 @@ object Pixiedust{
         val className = otherInterpreter.getClass.getName
         throw new PySparkException(s"Invalid PySpark interpreter: $className")
     }
+    retValue
   }
 }
 

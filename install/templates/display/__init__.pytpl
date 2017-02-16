@@ -1,0 +1,21 @@
+{%include "header.tpl"%}
+
+from .display import {{this.displayClassName}}
+from pixiedust.display.display import *
+
+@PixiedustDisplay()
+class {{this.displayClassName}}Meta(DisplayHandlerMeta):
+    @addId
+    def getMenuInfo(self,entity, dataHandler):
+        #TODO Add class checking here
+        #clazz = entity.__class__.__name__
+        #if clazz == "<<some_class_I_care_about":
+
+        #TODO: Change the categoryId, title, icon and id as needed
+        return[{"categoryId": "{{this.displayClassName}}", "title": "{{this.displayClassName}} Plugin", "icon":"fa-gift", "id":"{{this.displayClassName}}"}]
+    
+    """
+    Factory method that creates the displayHandler class capable of visualizing the data
+    """
+    def newDisplayHandler(self,options,entity):
+        return {{this.displayClassName}}(options,entity)

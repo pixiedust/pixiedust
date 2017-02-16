@@ -17,6 +17,7 @@
 from ..display import Display
 from pyspark.sql import functions as F
 import pixiedust.utils.dataFrameMisc as dataFrameMisc
+from pixiedust.utils import cache
 from six import PY2
     
 class ChartDisplay(Display):
@@ -24,6 +25,16 @@ class ChartDisplay(Display):
         super(ChartDisplay,self).__init__(options,entity,dataHandler)
         #note: since this class can be subclassed from other module, we need to mark the correct resource module with resModule so there is no mixup
         self.extraTemplateArgs["resModule"]=ChartDisplay.__module__
+
+    def getDPI(self):
+        return int(self.options.get("nostore_dpi", 96))
+
+    @cache(fieldName="preferredOutputWidth")
+    def getPreferredOutputWidth(self):
+        return float(self.options.get("nostore_cw", 1000)) * 0.75
+
+    def getPreferredOutputHeight(self):
+        return float(self.getPreferredOutputWidth() * 0.75)
 
     def doRender(self, handlerId):
         self._addHTML("""
