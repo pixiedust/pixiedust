@@ -1,19 +1,30 @@
-Display API
-===========
+Display Data 
+==============
 
 
 Introduction
 ------------
 
-PixieDust provides a simple display() API that lets you visualize and chart your data in different ways. You can invoke the display API on any object (e.g. Spark DataFrame, Pandas DataFrame, etc...). Pixiedust display then introspects the object, determines what visualizations are capable of handling the data, and make them available as menus within the output of the cell. If no visualization is found, then Pixiedust display shows an error message. Pixiedust display comes with a set of built-in visualizations like tables, bar charts, line charts, scatter plots, maps, and more. 
+PixieDust lets you visualize your data in just a few clicks. There's no need to write the complex code that you used to need to generate notebook graphs. Just call PixieDust's ``display()`` API, and any lay person can render and change complex table and chart displays. You can even choose from multiple rendering engines, without needing to know any of the code that makes them run. Watch this video demo:
 
-PixieDust display is also extensible, it provides a simple API that lets you write your own visualization plugin, using HTML, JavaScript and CSS. Read how to `write your own PixieDust visualization <writeviz.html>`_.
+.. raw:: html
+
+    <div style="margin-top:10px;">
+      <iframe width="560" height="315" src="http://www.youtube.com/embed/qetedQg8m3k" frameborder="0" allowfullscreen></iframe>
+    </div><br>
+
+
+.. sidebar:: Create your own
+
+   PixieDust is extensible. If you don't see the display option that you want, create it. You can write your own visualization plugin, using HTML, JavaScript, and CSS. Read how to `write your own PixieDust visualization <writeviz.html>`_.
+
+The ``display()`` API  lets you visualize and chart your data in different ways. You can invoke the display API on any object, like a Spark DataFrame or Pandas DataFrame (support for additional formats is in development). PixieDust ``display()`` then introspects the object, determines what visualizations are capable of handling the data, and makes them available as menus within the output of the cell. If no visualization is found, then PixieDust ``display()`` shows an error message. Pixiedust display comes with a set of built-in visualizations like tables, bar charts, line charts, scatter plots, maps, and more. 
 
 
 Get Started
 -----------
 
-To get started, let's look at some sample code that create a data frame with simple data.
+First, the data. Here's some sample code that creates a data frame:
 
    ::
 
@@ -44,12 +55,16 @@ To get started, let's look at some sample code that create a data frame with sim
           (2013, 'Outdoor Protection', 8),
           (2013, 'Personal Accessories', 4)],
           ["year", "zone", "unique_customers"])
+
+Then, in a single command, you  display that dataframe: ``dd``.
 	
+   ::
+
      #call a simple display api to visualize the data
      display(dd)
 
 
-In the case above, display() looks up into its internal registry to build a list of visualizations that can handle a Spark DataFrame and generates the a menu toobar for each of them. The cell output looks like this:
+``display()`` looks up into its internal registry to build a list of visualizations that can handle a Spark DataFrame and generates the a menu toobar for each of them. The cell output looks like this:
 
 .. container:: 
 
@@ -57,15 +72,40 @@ In the case above, display() looks up into its internal registry to build a list
 
      <img src="https://github.com/DTAIEB/demos/raw/master/resources/PixieDust Sample Display.png" width="615">
 
-The table above display extended information about the Spark DataFrame:  
 
- * Schema: give detailed information about the DataFrame schema
- * Table: display a sample of the data
+.. sidebar:: Under the hood
 
-Charts
-------
+   How does PixieDust generate this handy user interface? ``display()`` uses matplotlib to generate the charts and then mpld3 to transform the charts into D3 generated interactive charts that let users zoom, choose menus, see toolips, and more. 
 
-As mentioned before, Pixiedust display provides an extensive set of chart visualizations. Under the cover, it uses matplotlib to generate the charts and then mpld3 to transform these chart into D3 generated interactive charts that allow zooming, toolips, etc...  
+PixieDust spins up a robust user interface that contains all the features you need to create sophisticated visualizations in just a few clicks. Without writing a line of code, you can:
+
+- choose a display option: table, bar chart, pie chart, scatter plot, map, and more.
+- set data content
+- switch between rendering engines like matplotlib, seaborn, and bokeh
+- zoom in for a more detailed view
+
+more....
+
+DRAFT DRAFT DRAFT DRAFT  --docs in progress---
+
+Tables, Charts, and Maps
+----------------------------------
+
+Pixiedust ``display()`` provides an extensive set of chart visualizations. 
+
+Tables
+******
+
+The resulting table shows extended information about the Spark DataFrame:  
+
+ * **Schema** gives detailed information about the DataFrame schema
+ * **Table** displays a sample of the data
+
+
+
+Set Chart Content
+*****************
+
 You can configure the content of the chart by calling the options dialog available for each chart, using the Options button. The options dialog is composed of a set of commons options for every chart plus a set of additional options relevant to the currently selected chart.  
 
 Here are the commons options for every charts:  
@@ -119,6 +159,10 @@ Line Charts
 
 Scatter Plots
 *************
+
+DRAFT
+
+---docs in progress---
 
 Pie Charts
 **********
