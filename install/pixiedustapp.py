@@ -18,6 +18,7 @@ from traitlets.config.application import Application
 from jupyter_client.kernelspecapp  import ListKernelSpecs
 from traitlets import Unicode, Dict
 from .createKernel import PixiedustInstall
+from .generate import PixiedustGenerate
 
 class PixiedustList(ListKernelSpecs):
     pass
@@ -25,7 +26,8 @@ class PixiedustList(ListKernelSpecs):
 class PixiedustJupyterApp(Application):
     subcommands = Dict({
         'install': (PixiedustInstall, "Install Kernels locally for development with Pixiedust"),
-        'list': (PixiedustList, "List of pixiedust kernels")
+        'list': (PixiedustList, "List of pixiedust kernels"),
+        'generate': (PixiedustGenerate, "Generate boiler plate code for a PixieDust plugin")
     })
     def start(self):
         if self.subapp is None:
