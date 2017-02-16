@@ -15,6 +15,7 @@
 # -------------------------------------------------------------------------------
 import pixiedust.utils.dataFrameMisc as dataFrameMisc
 from pyspark.sql import functions as F
+from pyspark.sql.types import DecimalType
 import time
 from pixiedust.utils import Logger
 
@@ -81,8 +82,27 @@ class PySparkDataFrameDataHandler(object):
         count = workingDF.count()
         if count > maxRows:
             workingDF = workingDF.sample(False, (float(maxRows) / float(count)))
-        pdf = workingDF.toPandas()
+        pdf = self.toPandas(workingDF)
         #sort by xFields
         pdf.sort_values(xFields, inplace=True)
+        return pdf
+
+    """
+    Custom implementation of toPandas. It checks the spark type of each column in the dataframe for DecimalType. If any are found, it check the 
+    corresponding pandas dataframe column to make sure it's not a python object type (which would cause issue during plotting). If that's the case, 
+    it cast them as float
+    """
+    def toPandas(self, workingDF):        
+        decimals = []
+        for f in workingDF.schema.fields:
+            if f.dataType.__class__ == DecimalType:
+                decimals.append(f.name)
+
+        pdf = workingDF.toPandas()
+        for y in pdf.columns:
+            if pdf[y].dtype.name == "object" and y in decimals:
+                #spark converts Decimal type to object during toPandas, cast it as float
+                pdf[y] = pdf[y].astype(float)
+
         return pdf
 
