@@ -30,6 +30,14 @@ __TEST_KERNEL_NAME__ = "PixiedustTravisTest"
 if "debug" in os.environ:
     logging.basicConfig(level=logging.DEBUG)
 
+if "compareratio" in os.environ:
+    try:
+        compareRatio = float(os.environ["compareratio"])
+    except:
+        compareRatio = 0.98
+else:
+    compareRatio = 0.98
+
 def createKernelSpecIfNeeded(kernelName):
     try:
         km = KernelManager(kernel_name=kernelName)
@@ -73,8 +81,7 @@ class PixieDustTestExecutePreprocessor( ExecutePreprocessor ):
         skipCompareOutput = "#SKIP_COMPARE_OUTPUT" in cell.source
         pixiedustDisplay = "display(" in cell.source
         try:
-            if pixiedustDisplay:
-                print("Processing display() cell:\n\r{0}".format(cell.source))
+            logging.debug("Processing cell:\r\n{0}".format(cell.source))
             cell, resources = super(PixieDustTestExecutePreprocessor, self).preprocess_cell(cell, resources, cell_index)
             for output in cell.outputs:
                 if "text" in output and "restart kernel" in output["text"].lower():
@@ -88,11 +95,12 @@ class PixieDustTestExecutePreprocessor( ExecutePreprocessor ):
         except CellExecutionError:
             cell.source="%pixiedustLog -l debug"
             cell, resources = super(PixieDustTestExecutePreprocessor, self).preprocess_cell(cell, resources, cell_index)
-            print("An error occurred executing the last cell. Fetching pixiedust log...")
+            logging.error("An error occurred executing the cell:\r\n{0}".format(cell.source))
+            logging.info("Fetching pixiedust log...")
             if len(cell.outputs) > 0 and "text" in cell.outputs[0]:
-                print(cell.outputs[0].text)
+                logging.warn(cell.outputs[0].text)
             else:
-                print("Pixiedust Log is empty")
+                logging.warn("Pixiedust Log is empty")
             raise
 
     def compareOutputs(self, beforeOutputs, afterOutputs, cellsource, useRatio=False):
@@ -105,17 +113,15 @@ class PixieDustTestExecutePreprocessor( ExecutePreprocessor ):
             
         afterOutputs = [output for output in afterOutputs if not filterOutput(output)]
 
-        # if "[Errno 111]" in str(afterOutputs):
-        #     print("'[Errno 111] connection refused' in output, will try restarting kernel")
-        #     raise RestartKernelException()
-
         if ( len(beforeOutputs) != len(afterOutputs)):
-            raise CompareOutputException("Output (len) for cell:\r\n {0}\r\ndoes not match. \r\nExpected:\r\n {1} \r\n\r\nActual:\r\n {2}".format(cellsource, beforeOutputs, afterOutputs))
+            logging.debug("Outputs do not match \r\nExpected:\r\n {0} \r\n\r\nActual:\r\n {1}".format(beforeOutputs, afterOutputs))
+            raise CompareOutputException("Outputs do not match for cell:\r\n{0}".format(cellsource))
 
         for beforeOutput, afterOutput in list(zip(beforeOutputs,afterOutputs)):
             if "output_type" in beforeOutput and beforeOutput["output_type"] != "execute_result":
                 if len(beforeOutput) != len(afterOutput):
-                    raise CompareOutputException("Output (type) for cell:\r\n {0}\r\ndoes not match. \r\nExpected:\r\n {1} \r\n\r\nActual:\r\n {2}".format(cellsource, beforeOutputs, afterOutputs))
+                    logging.debug("output_type does not match \r\nExpected:\r\n {0} \r\n\r\nActual:\r\n {1}".format(beforeOutputs, afterOutputs))
+                    raise CompareOutputException("output_type does not match for cell:\r\n{0}".format(cellsource))
                 skip = ["execution_count"]
                 expected = 0
                 actual = 0
@@ -129,11 +135,13 @@ class PixieDustTestExecutePreprocessor( ExecutePreprocessor ):
                             expected = len(before)
                             actual = len(after)
                             ratio = seqmatcher.quick_ratio()
-                            print("expected_length: {0}, actual_length: {1}, sequence_ratio: {2}".format(expected, actual, ratio))
-                            if ratio < 0.98:
-                                raise CompareOutputException("Output (ratio: {0}) for cell:\r\n {1}\r\ndoes not match for {2}. \r\nExpected:\r\n {3} \r\n\r\nActual:\r\n {4}".format(ratio, cellsource, key, before, after))
+                            logging.info("expected_length: {0}, actual_length: {1}, sequence_ratio: {2}".format(expected, actual, ratio))
+                            if ratio < compareRatio:
+                                logging.debug("output_type ({0}) below ratio ({1}) threshold \r\nExpected:\r\n {2} \r\n\r\nActual:\r\n {3}".format(key, ratio, before, after))
+                                raise CompareOutputException("output_type ({0}) below ratio ({1}) threshold for cell:\r\n{2}".format(key, ratio, cellsource))
                         elif beforeOutput[key] != afterOutput[key]:
-                            raise CompareOutputException("Output (key) for cell:\r\n {0}\r\ndoes not match for {1}. \r\nExpected:\r\n {2} \r\n\r\nActual:\r\n {3}".format(cellsource, key, before, after))
+                            logging.debug("output_type ({0}) does not match \r\nExpected:\r\n {1} \r\n\r\nActual:\r\n {2}".format(key, before, after))
+                            raise CompareOutputException("output_type ({0}) does not match for cell:\r\n{1}".format(key, cellsource))
 
 def runNotebook(path):
     ep = PixieDustTestExecutePreprocessor(timeout=3600, kernel_name= __TEST_KERNEL_NAME__)
@@ -146,7 +154,7 @@ def runNotebook(path):
         for skipVersion in skipVersions:
             skipVersion = int(float(skipVersion))
             if skipVersion == sys.version_info.major:
-                print("Skipping processing of notebook {0} based on pixiedust_test metadata".format(path))
+                logging.warn("Skipping processing of notebook {0} based on pixiedust_test metadata".format(path))
                 return
     try:
         ep.preprocess(nb, {'metadata':{'path': os.path.dirname(path)}})
@@ -173,7 +181,7 @@ if __name__ == '__main__':
                         count += 1
                         runNotebook(inputDir + "/" + path)
                     except RestartKernelException:
-                        print("Restarting kernel...")
+                        logging.warn("Restarting kernel...")
                         processed = False
                 print("Finished processing notebook {0}".format(path))
     finally:
