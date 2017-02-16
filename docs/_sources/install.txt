@@ -141,11 +141,19 @@ After you have downloaded the *Intro to Pixiedust.ipynb* notebook run the follow
 
 This should automatically open a web browser that looks similar to the following:
 
-.. image:: _images/install-notebook1.png
+.. container:: 
+
+.. raw:: html
+
+     <img src="_images/install-notebook1.png" width="615">
 
 Click *Intro to Pixiedust.ipynb*. You may be prompted to select a kernel. Select the kernel you created using the installer.
 Alternatively, click *Kernel > Change Kernel* from the menu to select the appropriate kernel:
 
-.. image:: _images/install-notebook2.png
+.. container:: 
+
+.. raw:: html
+
+     <img src="_images/install-notebook2.png" width="615">
 
 This notebook will show you how to import the PixieDust library and run a handful of PixieDust features.
