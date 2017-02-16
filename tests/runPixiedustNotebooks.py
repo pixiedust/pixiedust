@@ -105,6 +105,10 @@ class PixieDustTestExecutePreprocessor( ExecutePreprocessor ):
             
         afterOutputs = [output for output in afterOutputs if not filterOutput(output)]
 
+        # if "[Errno 111]" in str(afterOutputs):
+        #     print("'[Errno 111] connection refused' in output, will try restarting kernel")
+        #     raise RestartKernelException()
+
         if ( len(beforeOutputs) != len(afterOutputs)):
             raise CompareOutputException("Output (len) for cell:\r\n {0}\r\ndoes not match. \r\nExpected:\r\n {1} \r\n\r\nActual:\r\n {2}".format(cellsource, beforeOutputs, afterOutputs))
 
