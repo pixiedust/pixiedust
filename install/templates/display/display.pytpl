@@ -1,0 +1,19 @@
+{%include "header.tpl"%}
+
+from pixiedust.display.display import Display
+from pixiedust.utils import Logger
+
+@Logger()
+class {{this.displayClassName}}(Display):
+    """
+        Main Render method
+    """
+    def doRender(self,handlerId):
+        #TODO Add your code here
+        #You can use the methods available in base Display class to construct the html markup that will be sent to the output cell
+
+        #Add html from a jinja2 template, the file must be located in the templates folder located under this file
+        self._addHTMLTemplate("helloWorld.html")
+
+        #Note: you can embed the HTML directly in the file like so
+        #self._addHTMLTemplateString("<div>Hello World</div>")

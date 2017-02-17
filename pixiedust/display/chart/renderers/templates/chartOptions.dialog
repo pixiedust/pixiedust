@@ -12,6 +12,18 @@
 {%endblock%}
 
 {%block onDialogShown%}
+var btnok = $('.btn-ok');
+var setOkBtnStatus = function() {
+	if (($('#valueFields{{prefix}}').length && $('#valueFields{{prefix}}').children().length === 0)
+		|| ($('#keyFields{{prefix}}').length && $('#keyFields{{prefix}}').children().length === 0)
+		|| ($('#rows-count').length && Number($('#rows-count').val()) === 0)) {
+			btnok.attr('disabled', 'disabled');
+	}
+	else {
+		btnok.attr('disabled', null);
+	}
+}
+
 $('#chartOptions{{prefix}} *').filter(':input').each(function(){
 	IPython.keyboard_manager.register_events($(this));
 });
@@ -22,6 +34,9 @@ $('.field{{prefix}}').draggable({
 $('.field{{prefix}}-remove').click(function(e) {
 	e.preventDefault();
 	$(this).parent().remove();
+	if ($(this).children().length === 0) {
+		setOkBtnStatus();
+	}
 	return false;
 });
 $('#keyFields{{prefix}}, #valueFields{{prefix}}').droppable({
@@ -32,9 +47,16 @@ $('#keyFields{{prefix}}, #valueFields{{prefix}}').droppable({
 			el.attr("id",newId);
 			el.find("a").addClass("field-remove");
 			el.appendTo($(this));
+			if (btnok.attr('disabled')) {
+				setOkBtnStatus();
+			}
 		}
 	}
 });
+$('#rows-count').on('input', function () {
+	setOkBtnStatus();
+});
+
 {%endblock%}
 
 {%block onOK%}

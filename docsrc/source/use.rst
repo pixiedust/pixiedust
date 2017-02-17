@@ -25,8 +25,8 @@ To use locally:
 
 
    install
-   sampledata
+   loaddata
    displayapi
    packagemanager
    scalabridge
-   progressmonitor
+   sparkmonitor

@@ -1,0 +1,32 @@
+{%include "header.tpl"%}
+
+from pixiedust.display.chart.renderers import PixiedustRenderer
+from pixiedust.display.chart.renderers.baseChartDisplay import BaseChartDisplay,commonChartOptions
+from pixiedust.utils import Logger
+from six import with_metaclass
+from abc import ABCMeta
+
+@PixiedustRenderer(rendererId="{{this.projectName}}")
+@Logger()
+class {{this.rendererClassName}}BaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
+	pass
+	
+	"""
+	The code below adds dynamic chart options for your renderer.
+	Note: the @commonChartOptions decorator will inject these options to every renderer class that inherit from this class
+	Subclass can then use self.options.get("coolOption", None) to test user preferences
+	"""
+	@commonChartOptions
+	def getChartOptions(self):
+		return [
+			{ 'name': 'coolOption',
+			  'description': "Cool Option",
+			  'metadata': {
+					'type': "dropdown",
+					'values': ["option1","option2","option3"],
+					'default': "option1"
+				}
+			}
+		]
+
+    

@@ -1,0 +1,6 @@
+{%include "header.tpl"%}
+
+from .rendererBaseDisplay import *
+{% for chartId in this.chartIds %}
+from .{{chartId}}Display import *
+{% endfor %}
