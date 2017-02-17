@@ -9,14 +9,14 @@ PixieDust lets you visualize your data in just a few clicks. There's no need to 
 
 .. raw:: html
 
-    <div style="margin-top:10px;">
+    <div style="margin-top:10px; margin-bottom:25px;">
       <iframe width="560" height="315" src="http://www.youtube.com/embed/qetedQg8m3k" frameborder="0" allowfullscreen></iframe>
     </div><br>
 
 
 .. sidebar:: Create your own
 
-   PixieDust is extensible. If you don't see the display option that you want, create it. You can write your own visualization plugin, using HTML, JavaScript, and CSS. Read how to `write your own PixieDust visualization <writeviz.html>`_.
+   PixieDust is extensible. If you don't see the display option you want, create it. You can write your own visualization plugin, using HTML, JavaScript, and CSS. `Read how <writeviz.html>`_.
 
 The ``display()`` API  lets you visualize and chart your data in different ways. You can invoke the display API on any object, like a Spark DataFrame or Pandas DataFrame (support for additional formats is in development). PixieDust ``display()`` then introspects the object, determines what visualizations are capable of handling the data, and makes them available as menus within the output of the cell. If no visualization is found, then PixieDust ``display()`` shows an error message. Pixiedust display comes with a set of built-in visualizations like tables, bar charts, line charts, scatter plots, maps, and more. 
 
@@ -24,7 +24,7 @@ The ``display()`` API  lets you visualize and chart your data in different ways.
 Get Started
 -----------
 
-First, the data. Here's some sample code that creates a data frame:
+Once you've imported the PixieDust module, start with the data. Here's some sample code that creates a data frame:
 
    ::
 
@@ -70,28 +70,29 @@ Then, in a single command, you  display that dataframe: ``dd``.
 
 .. raw:: html
 
-     <img src="https://github.com/DTAIEB/demos/raw/master/resources/PixieDust Sample Display.png" width="615">
+     <img src="https://github.com/DTAIEB/demos/raw/master/resources/PixieDust Sample Display.png" width="615" style="margin:30px 0px"><br>
+
 
 
 .. sidebar:: Under the hood
 
    How does PixieDust generate this handy user interface? ``display()`` uses matplotlib to generate the charts and then mpld3 to transform the charts into D3 generated interactive charts that let users zoom, choose menus, see toolips, and more. 
 
-PixieDust spins up a robust user interface that contains all the features you need to create sophisticated visualizations in just a few clicks. Without writing a line of code, you can:
+PixieDust spins up a robust user interface that contains all the features you need to create sophisticated visualizations in just a few clicks. It contains  dropdown lists and dialogs you can use to change chart type, data content, grouping, and more. Without writing a line of code, you can:
 
-- choose a display option: table, bar chart, pie chart, scatter plot, map, and more.
+- choose a display option: table, bar chart, pie chart, scatter plot, map, etc.
 - set data content
 - switch between rendering engines like matplotlib, seaborn, and bokeh
 - zoom in for a more detailed view
 
-more....
+``display()`` simplifies notebook charting in one important way: It takes only one cell to to generate hundreds of visualization options. Unlike traditional notebooks where you build a series of visualizations over several cells, PixieDust needs only one cell to generate an interactive widget which lets you turn knobs to explore the data in a myriad of ways.
 
 DRAFT DRAFT DRAFT DRAFT  --docs in progress---
 
-Tables, Charts, and Maps
+Work with Tables, Charts, and Maps
 ----------------------------------
 
-Pixiedust ``display()`` provides an extensive set of chart visualizations. 
+Pixiedust ``display()`` provides an extensive set of graphs and visualizations. 
 
 Tables
 ******
@@ -119,7 +120,7 @@ Here are the commons options for every charts:
 	* AVG: average of values for the key
 	* MIN: Min of values for the key
 	* MAX: Max of values for the key
-	* COUNT: number of times the key occurs
+	* COUNT: number of times the key occurs  WHAT HAPPENS WHEN YOU LIMIT COUNT? HOW DOES PD CHOOSE RECORDS?
 
 For example, Bar Chart shows the following options dialog:
 
@@ -133,7 +134,7 @@ For example, Bar Chart shows the following options dialog:
 Bar Charts
 **********
 
-Bar charts are frequently used because they make it easy to compare between each item. When you select more than one key or value, you have the option to choose between 2 types of bar chart: 
+Bar charts are handy for comparing items side-by-side. When you select more than one key or value, you have the option to choose between 2 types of bar chart: 
 
 * Stacked: items in a category are represented in a single column with different color for each segment  
 * Grouped: items in a category are displayed side by side, making it easier to compare between each other.  
@@ -147,7 +148,7 @@ In our example, we use a Grouped bar chart showing the quarterly number of uniqu
      <img src="https://github.com/DTAIEB/demos/raw/master/resources/PixieDust Bar Chart.png" width="615">
 
 
-Line Charts
+Line Chart
 ***********
 
 .. container:: 
@@ -157,7 +158,7 @@ Line Charts
      <img src="https://github.com/DTAIEB/demos/raw/master/resources/PixieDust Line Chart.png" width="615">
 
 
-Scatter Plots
+Scatter Plot
 *************
 
 DRAFT
@@ -170,9 +171,19 @@ Pie Charts
 Map
 ***
 
-Histograms
+Options: 
+     Keys: Latitude, Longitude
+
+
+Renderers: Mapbox, Google Maps.
+
+USERS NEED MAPBOX KEY? - how handle?
+
+
+Histogram
 **********
 
+Use a histogram if the values on your x-axis are numeric like age range, prices, etc... 
 
 Conclusion
 ----------

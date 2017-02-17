@@ -46,17 +46,17 @@
 <div class="section" id="introduction">
 <h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
 <p>PixieDust lets you visualize your data in just a few clicks. There&#8217;s no need to write the complex code that you used to need to generate notebook graphs. Just call PixieDust&#8217;s <code class="docutils literal"><span class="pre">display()</span></code> API, and any lay person can render and change complex table and chart displays. You can even choose from multiple rendering engines, without needing to know any of the code that makes them run. Watch this video demo:</p>
-<div style="margin-top:10px;">
+<div style="margin-top:10px; margin-bottom:25px;">
   <iframe width="560" height="315" src="http://www.youtube.com/embed/qetedQg8m3k" frameborder="0" allowfullscreen></iframe>
 </div><br><div class="sidebar">
 <p class="first sidebar-title">Create your own</p>
-<p class="last">PixieDust is extensible. If you don&#8217;t see the display option that you want, create it. You can write your own visualization plugin, using HTML, JavaScript, and CSS. Read how to <a class="reference external" href="writeviz.html">write your own PixieDust visualization</a>.</p>
+<p class="last">PixieDust is extensible. If you don&#8217;t see the display option you want, create it. You can write your own visualization plugin, using HTML, JavaScript, and CSS. <a class="reference external" href="writeviz.html">Read how</a>.</p>
 </div>
 <p>The <code class="docutils literal"><span class="pre">display()</span></code> API  lets you visualize and chart your data in different ways. You can invoke the display API on any object, like a Spark DataFrame or Pandas DataFrame (support for additional formats is in development). PixieDust <code class="docutils literal"><span class="pre">display()</span></code> then introspects the object, determines what visualizations are capable of handling the data, and makes them available as menus within the output of the cell. If no visualization is found, then PixieDust <code class="docutils literal"><span class="pre">display()</span></code> shows an error message. Pixiedust display comes with a set of built-in visualizations like tables, bar charts, line charts, scatter plots, maps, and more.</p>
 </div>
 <div class="section" id="get-started">
 <h2>Get Started<a class="headerlink" href="#get-started" title="Permalink to this headline">¶</a></h2>
-<p>First, the data. Here&#8217;s some sample code that creates a data frame:</p>
+<p>Once you&#8217;ve imported the PixieDust module, start with the data. Here&#8217;s some sample code that creates a data frame:</p>
 <blockquote>
 <div><div class="highlight-python"><div class="highlight"><pre><span></span><span class="c1">#import pixiedust display module</span>
 <span class="kn">from</span> <span class="nn">pixiedust.display</span> <span class="kn">import</span> <span class="o">*</span>
@@ -96,23 +96,23 @@
 </div>
 </div></blockquote>
 <p><code class="docutils literal"><span class="pre">display()</span></code> looks up into its internal registry to build a list of visualizations that can handle a Spark DataFrame and generates the a menu toobar for each of them. The cell output looks like this:</p>
-<img src="https://github.com/DTAIEB/demos/raw/master/resources/PixieDust Sample Display.png" width="615"><div class="sidebar">
+<img src="https://github.com/DTAIEB/demos/raw/master/resources/PixieDust Sample Display.png" width="615" style="margin:30px 0px"><br><div class="sidebar">
 <p class="first sidebar-title">Under the hood</p>
 <p class="last">How does PixieDust generate this handy user interface? <code class="docutils literal"><span class="pre">display()</span></code> uses matplotlib to generate the charts and then mpld3 to transform the charts into D3 generated interactive charts that let users zoom, choose menus, see toolips, and more.</p>
 </div>
-<p>PixieDust spins up a robust user interface that contains all the features you need to create sophisticated visualizations in just a few clicks. Without writing a line of code, you can:</p>
+<p>PixieDust spins up a robust user interface that contains all the features you need to create sophisticated visualizations in just a few clicks. It contains  dropdown lists and dialogs you can use to change chart type, data content, grouping, and more. Without writing a line of code, you can:</p>
 <ul class="simple">
-<li>choose a display option: table, bar chart, pie chart, scatter plot, map, and more.</li>
+<li>choose a display option: table, bar chart, pie chart, scatter plot, map, etc.</li>
 <li>set data content</li>
 <li>switch between rendering engines like matplotlib, seaborn, and bokeh</li>
 <li>zoom in for a more detailed view</li>
 </ul>
-<p>more....</p>
+<p><code class="docutils literal"><span class="pre">display()</span></code> simplifies notebook charting in one important way: It takes only one cell to to generate hundreds of visualization options. Unlike traditional notebooks where you build a series of visualizations over several cells, PixieDust needs only one cell to generate an interactive widget which lets you turn knobs to explore the data in a myriad of ways.</p>
 <p>DRAFT DRAFT DRAFT DRAFT  &#8211;docs in progress&#8212;</p>
 </div>
-<div class="section" id="tables-charts-and-maps">
-<h2>Tables, Charts, and Maps<a class="headerlink" href="#tables-charts-and-maps" title="Permalink to this headline">¶</a></h2>
-<p>Pixiedust <code class="docutils literal"><span class="pre">display()</span></code> provides an extensive set of chart visualizations.</p>
+<div class="section" id="work-with-tables-charts-and-maps">
+<h2>Work with Tables, Charts, and Maps<a class="headerlink" href="#work-with-tables-charts-and-maps" title="Permalink to this headline">¶</a></h2>
+<p>Pixiedust <code class="docutils literal"><span class="pre">display()</span></code> provides an extensive set of graphs and visualizations.</p>
 <div class="section" id="tables">
 <h3>Tables<a class="headerlink" href="#tables" title="Permalink to this headline">¶</a></h3>
 <p>The resulting table shows extended information about the Spark DataFrame:</p>
@@ -143,7 +143,7 @@
 <li>AVG: average of values for the key</li>
 <li>MIN: Min of values for the key</li>
 <li>MAX: Max of values for the key</li>
-<li>COUNT: number of times the key occurs</li>
+<li>COUNT: number of times the key occurs  WHAT HAPPENS WHEN YOU LIMIT COUNT? HOW DOES PD CHOOSE RECORDS?</li>
 </ul>
 </dd>
 </dl>
@@ -153,18 +153,18 @@
 <img src="https://github.com/DTAIEB/demos/raw/master/resources/PixieDust Options Dialog.png" width="615"></div>
 <div class="section" id="bar-charts">
 <h3>Bar Charts<a class="headerlink" href="#bar-charts" title="Permalink to this headline">¶</a></h3>
-<p>Bar charts are frequently used because they make it easy to compare between each item. When you select more than one key or value, you have the option to choose between 2 types of bar chart:</p>
+<p>Bar charts are handy for comparing items side-by-side. When you select more than one key or value, you have the option to choose between 2 types of bar chart:</p>
 <ul class="simple">
 <li>Stacked: items in a category are represented in a single column with different color for each segment</li>
 <li>Grouped: items in a category are displayed side by side, making it easier to compare between each other.</li>
 </ul>
 <p>In our example, we use a Grouped bar chart showing the quarterly number of unique customers grouped by year:</p>
 <img src="https://github.com/DTAIEB/demos/raw/master/resources/PixieDust Bar Chart.png" width="615"></div>
-<div class="section" id="line-charts">
-<h3>Line Charts<a class="headerlink" href="#line-charts" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="line-chart">
+<h3>Line Chart<a class="headerlink" href="#line-chart" title="Permalink to this headline">¶</a></h3>
 <img src="https://github.com/DTAIEB/demos/raw/master/resources/PixieDust Line Chart.png" width="615"></div>
-<div class="section" id="scatter-plots">
-<h3>Scatter Plots<a class="headerlink" href="#scatter-plots" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="scatter-plot">
+<h3>Scatter Plot<a class="headerlink" href="#scatter-plot" title="Permalink to this headline">¶</a></h3>
 <p>DRAFT</p>
 <p>&#8212;docs in progress&#8212;</p>
 </div>
@@ -173,9 +173,16 @@
 </div>
 <div class="section" id="map">
 <h3>Map<a class="headerlink" href="#map" title="Permalink to this headline">¶</a></h3>
+<dl class="docutils">
+<dt>Options:</dt>
+<dd>Keys: Latitude, Longitude</dd>
+</dl>
+<p>Renderers: Mapbox, Google Maps.</p>
+<p>USERS NEED MAPBOX KEY? - how handle?</p>
 </div>
-<div class="section" id="histograms">
-<h3>Histograms<a class="headerlink" href="#histograms" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="histogram">
+<h3>Histogram<a class="headerlink" href="#histogram" title="Permalink to this headline">¶</a></h3>
+<p>Use a histogram if the values on your x-axis are numeric like age range, prices, etc...</p>
 </div>
 </div>
 <div class="section" id="conclusion">
