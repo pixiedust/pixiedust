@@ -103,15 +103,16 @@ class PixiedustGenerate(JupyterApp):
         #Call out the generator function specific to the project type
         projectTypes.get(projectType)[1]()
 
-    def writeFile(self, templates, dirName = None):
+    def writeFile(self, templates, dirName = None, targetFile=None):
         fullPath = self.fullPath if dirName is None else os.path.join(self.fullPath, dirName)
         for template in templates:
             if template.endswith("tpl"):
-                targetFile = template[:-3]
-                if targetFile.endswith("."):
-                    targetFile = targetFile[:-1]
-                index = targetFile.rfind('/')
-                targetFile = targetFile[index+1:] if index >= 0 else targetFile
+                if targetFile is None or len(templates) > 1:
+                    targetFile = template[:-3]
+                    if targetFile.endswith("."):
+                        targetFile = targetFile[:-1]
+                    index = targetFile.rfind('/')
+                    targetFile = targetFile[index+1:] if index >= 0 else targetFile
                 fullPathTargetFile = os.path.join(fullPath, targetFile)
                 self.files.append(fullPathTargetFile)
                 with open( fullPathTargetFile, "wb" ) as f:
@@ -137,12 +138,25 @@ class PixiedustGenerate(JupyterApp):
             "Step {0}. Please enter the prefix for renderer class name. e.g {1}: ".format(self.getStep(), self.projectName.capitalize())
         ))
 
-        chartIds = ["barChart","lineChart","scatterPlot","pieChart","mapView","histogram"]
-        self.chartId = self.input(self.hilite(
-            "Step {0}. Please enter the chart id to be associated with this renderer. e.g {1}: ".format(self.getStep(), chartIds )
-        ))
-        
-        self.writeFile(["chart/__init__.pytpl", "chart/rendererBaseDisplay.pytpl", "chart/rendererDisplay.pytpl"], dirName=self.projectName)
+        chartIds = [("barChart","bar"),("lineChart","line"),("scatterPlot","scatter"),
+            ("pieChart","pie"),("mapView",None),("histogram","hist")]
+        self.chartIds = self.input(self.hilite(
+            "Step {0}. Please enter one or more chart id (comma separated) to be associated with this renderer. e.g {1}. Leave empty to add all: ".format(self.getStep(), [c[0] for c in chartIds] )
+        ),allowEmpty=True)
+
+        if self.chartIds == "":
+            self.chartIds = [c[0] for c in chartIds]
+        else:
+            self.chartIds = self.chartIds.split(",")
+
+        #write the init and base
+        self.writeFile(["chart/__init__.pytpl", "chart/rendererBaseDisplay.pytpl"], dirName=self.projectName)
+
+        for c in self.chartIds:
+            self.chartId = c
+            knownCharts = [x for x in chartIds if x[0]==c]
+            self.plotKind = "line" if len(knownCharts)==0 or knownCharts[0][1] is None else knownCharts[0][1]
+            self.writeFile(["chart/rendererDisplay.pytpl"], dirName=self.projectName, targetFile="{0}Display.py".format(c))
 
         self.displaySuccess()
 

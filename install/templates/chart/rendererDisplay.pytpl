@@ -12,14 +12,14 @@ except ImportError:
 
 @PixiedustRenderer(id="{{this.chartId}}")
 @Logger()
-class {{this.rendererClassName}}Display({{this.rendererClassName}}BaseDisplay):
+class {{this.rendererClassName}}{{this.chartId}}Display({{this.rendererClassName}}BaseDisplay):
 
     """
         Last validation before rendering:
         Return tuple (True|False, "error message")
     """
     def canRenderChart(self):
-        return super({{this.rendererClassName}}Display, self).canRenderChart()
+        return super({{this.rendererClassName}}{{this.chartId}}Display, self).canRenderChart()
         keyFields = self.getKeyFields()
     
     """
@@ -47,7 +47,7 @@ class {{this.rendererClassName}}Display({{this.rendererClassName}}BaseDisplay):
             )
 
             #do the actual rendering
-            df.plot(ax=ax)
+            df.plot(kind="{{this.plotKind}}", ax=ax)
 
             #Render the figure by returning the html markup
             png=pngIO()
