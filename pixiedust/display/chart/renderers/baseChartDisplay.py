@@ -264,7 +264,10 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
         for valueField in valueFields:
             if self.dataHandler.isNumericField(valueField) or aggregation == "COUNT":
                 numericValueFields.append(valueField)
-        return numericValueFields
+        if len(numericValueFields) == 0:
+            raise ShowChartOptionDialog()
+        else:
+            return numericValueFields
     
     def canRenderChart(self):
         aggregation = self.getAggregation()
