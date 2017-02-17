@@ -34,7 +34,7 @@ class Environment(with_metaclass(
                 scala_out = subprocess.check_output([scala, "-version"], stderr=subprocess.STDOUT).decode("utf-8")
             except subprocess.CalledProcessError as cpe:
                 scala_out = cpe.output
-            match = re.search(b'.*version[^0-9]*([0-9]*[^.])\.([0-9]*[^.])\.([0-9]*[^.]).*', scala_out)
+            match = re.search('.*version[^0-9]*([0-9]*[^.])\.([0-9]*[^.])\.([0-9]*[^.]).*', scala_out)
             if match and len(match.groups()) > 2:
                 return int(match.group(1)), int(match.group(2))
             else:

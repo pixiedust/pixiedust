@@ -159,7 +159,7 @@ class PixiedustInstall(InstallKernelSpec):
                         break
                 else:
                     installed_scala_version = self.get_scala_version()
-                    if not installed_scala_version or installed_scala_version.join('.') != scala_version:
+                    if not installed_scala_version or (str(installed_scala_version[0]) + '.' + str(installed_scala_version[1])) != scala_version:
                         print("Invalid Scala version {0}".format(installed_scala_version))
                         continue
                     else:
