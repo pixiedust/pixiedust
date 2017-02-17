@@ -26,16 +26,6 @@ class ChartDisplay(Display):
         #note: since this class can be subclassed from other module, we need to mark the correct resource module with resModule so there is no mixup
         self.extraTemplateArgs["resModule"]=ChartDisplay.__module__
 
-    def getDPI(self):
-        return int(self.options.get("nostore_dpi", 96))
-
-    @cache(fieldName="preferredOutputWidth")
-    def getPreferredOutputWidth(self):
-        return float(self.options.get("nostore_cw", 1000)) * 0.75
-
-    def getPreferredOutputHeight(self):
-        return float(self.getPreferredOutputWidth() * 0.75)
-
     def doRender(self, handlerId):
         self._addHTML("""
             <p><b>Sorry, but this visualization is not yet implemented. Please check back often!</b></p>

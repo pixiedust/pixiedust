@@ -117,6 +117,7 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
         super(BaseChartDisplay,self).__init__(options,entity,dataHandler)
         #note: since this class can be subclassed from other module, we need to mark the correct resource module with resModule so there is no mixup
         self.extraTemplateArgs["resModule"]=BaseChartDisplay.__module__
+        self.messages = []
 
     """
         Subclass can override: return an array of option metadata
@@ -127,6 +128,9 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
 
     def getExtraFields(self):
         return []
+
+    def addMessage(self, message):
+        self.messages.append(message)
 
     @cache(fieldName="workingPandasDataFrame")
     def getWorkingPandasDataFrame(self):

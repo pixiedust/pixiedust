@@ -38,6 +38,9 @@ class PieChartDisplay(MatplotlibBaseDisplay):
     def getDefaultAggregation(self, handlerId):
         return "COUNT"
 
+    def canStretch(self):
+        return False
+
     # override the default keys displayed when the chart first renders
     def getDefaultKeyFields(self, handlerId, aggregation):
         return self.sampleColumn((aggregation != "COUNT"))

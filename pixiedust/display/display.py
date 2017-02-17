@@ -171,6 +171,15 @@ class Display(with_metaclass(ABCMeta)):
             return defValue
         return value == "true"
 
+    def getDPI(self):
+        return int(self.options.get("nostore_dpi", 96))
+
+    def getPreferredOutputWidth(self):
+        return float(self.options.get("nostore_cw", 1000)) * 0.80
+
+    def getPreferredOutputHeight(self):
+        return float(self.getPreferredOutputWidth() * 0.75)
+
     def _getTemplateArgs(self, **kwargs):
         args = {
             "this":self, "entity":self.entity, "prefix":self.getPrefix(),
