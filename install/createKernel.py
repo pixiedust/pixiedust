@@ -159,7 +159,7 @@ class PixiedustInstall(InstallKernelSpec):
                         break
                 else:
                     installed_scala_version = self.get_scala_version()
-                    if not installed_scala_version or installed_scala_version.join('.') != scala_version:
+                    if not installed_scala_version or (str(installed_scala_version[0]) + '.' + str(installed_scala_version[1])) != scala_version:
                         print("Invalid Scala version {0}".format(installed_scala_version))
                         continue
                     else:
@@ -195,7 +195,7 @@ class PixiedustInstall(InstallKernelSpec):
     def get_spark_version(self):
         pyspark = "{}{}bin{}pyspark".format(self.spark_home, os.sep, os.sep)
         pyspark_out = subprocess.check_output([pyspark, "--version"], stderr=subprocess.STDOUT).decode("utf-8")
-        match = re.search('.*version[^0-9]*([0-9]*[^.])\.([0-9]*[^.])\.([0-9]*[^.]).*', pyspark_out)
+        match = re.search(".*version[^0-9]*([0-9]*[^.])\.([0-9]*[^.])\.([0-9]*[^.]).*", str(pyspark_out))
         if match and len(match.groups()) > 2:
             return int(match.group(1)), int(match.group(2))
         else:
@@ -234,7 +234,7 @@ class PixiedustInstall(InstallKernelSpec):
             scala_out = subprocess.check_output([scala, "-version"], stderr=subprocess.STDOUT).decode("utf-8")
         except subprocess.CalledProcessError as cpe:
             scala_out = cpe.output
-        match = re.search('.*version[^0-9]*([0-9]*[^.])\.([0-9]*[^.])\.([0-9]*[^.]).*', scala_out)
+        match = re.search(".*version[^0-9]*([0-9]*[^.])\.([0-9]*[^.])\.([0-9]*[^.]).*", str(scala_out))
         if match and len(match.groups()) > 2:
             return int(match.group(1)), int(match.group(2))
         else:
