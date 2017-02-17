@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Spark Progress Monitor &mdash; PixieDust Documentation</title>
+    <title>Download Data &mdash; PixieDust Documentation</title>
     
     <link rel="stylesheet" href="_static/better.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -27,8 +27,8 @@
     <link rel="shortcut icon" href="_static/pd_icon.ico"/>
     <link rel="top" title="PixieDust Documentation" href="index.html" />
     <link rel="up" title="Use PixieDust" href="use.html" />
-    <link rel="next" title="Download Data" href="download.html" />
-    <link rel="prev" title="Use Scala in a Python Notebook" href="scalabridge.html" />
+    <link rel="next" title="Develop for PixieDust" href="develop.html" />
+    <link rel="prev" title="Spark Progress Monitor" href="sparkmonitor.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   </head>
   <body role="document">
@@ -41,21 +41,48 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="spark-progress-monitor">
-<h1>Spark Progress Monitor<a class="headerlink" href="#spark-progress-monitor" title="Permalink to this headline">¶</a></h1>
-<p>When you run a Spark job within a Python or Scala notebook, you can&#8217;t see how the job is progressing. Wouldn&#8217;t it be nice to have a progress bar that shows you how your job is running and provides details? PixieDust includes a Spark Progress Monitor bar that lets you track the status of your Spark job. No more waiting in the dark. Notebook users can now see how a cell&#8217;s code is running behind the scenes.</p>
-<p>To invoke the Spark progress monitor, run the following command in your Python notebook:</p>
-<blockquote>
-<div><div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">pixiedust</span><span class="o">.</span><span class="n">enableJobMonitor</span><span class="p">()</span>
-</pre></div>
+  <div class="section" id="download-data">
+<h1>Download Data<a class="headerlink" href="#download-data" title="Permalink to this headline">¶</a></h1>
+<p>PixieDust lets you download the data from your notebook. If you&#8217;ve been playing with some charts, you can also save and download in SVG format.</p>
+<div class="section" id="save-data-to-a-file">
+<h2>Save data to a file<a class="headerlink" href="#save-data-to-a-file" title="Permalink to this headline">¶</a></h2>
+<p>You can save a data set to a number of different file formats, including CSV, JSON, XML, and more. You do so within the user interface controls that the display API generates. <a class="reference external" href="displayapi.html">Read how to run and work with display()</a>.</p>
+<ol class="arabic">
+<li><p class="first">Above the table and charts display, click the Download dropdown arrow. You see the following menu:</p>
+<img alt="_images/downloadfile.png" src="_images/downloadfile.png" />
+</li>
+<li><p class="first">Choose <strong>Download as File</strong>
+Choose the format you want, and specify the number of records to download.</p>
+<img alt="_images/save_as.png" src="_images/save_as.png" />
+</li>
+<li><p class="first">Click <strong>OK</strong>.</p>
+</li>
+</ol>
 </div>
-</div></blockquote>
-<p>Doing so invokes the progress monitor for the session. Each time you run a Spark job after that, the monitor appears.</p>
-<img alt="_images/sparkmonitor.png" src="_images/sparkmonitor.png" />
-<p>To see details, click the blue &gt; carat:</p>
-<img alt="_images/monitor_carat.png" src="_images/monitor_carat.png" />
-<p>and PixieDust shows you more information about the job:</p>
-<img alt="_images/monitor_details.png" src="_images/monitor_details.png" />
+<div class="section" id="export-data-to-cloudant-beta">
+<h2>Export data to Cloudant <em>BETA</em><a class="headerlink" href="#export-data-to-cloudant-beta" title="Permalink to this headline">¶</a></h2>
+<p>PixieDust also lets you save directly to a Cloudant database.</p>
+<ol class="arabic">
+<li><p class="first">Above the table and charts display, click the Download dropdown arrow. You see the following menu:</p>
+<img alt="_images/downloadfile.png" src="_images/downloadfile.png" />
+</li>
+<li><p class="first">Choose <strong>Stash to Cloudant</strong>.</p>
+</li>
+<li><p class="first">To the right of the <strong>Cloudant Connection</strong> field, click the + plus button.</p>
+</li>
+<li><p class="first">Enter your Cloudant database credentials and click <strong>OK</strong>.</p>
+</li>
+</ol>
+</div>
+<div class="section" id="stash-to-object-storage-coming-soon">
+<h2>Stash to Object Storage <em>COMING SOON</em><a class="headerlink" href="#stash-to-object-storage-coming-soon" title="Permalink to this headline">¶</a></h2>
+<p>This feature is currently under development. Stay tuned.</p>
+</div>
+<div class="section" id="save-a-chart-or-map-in-svg-format">
+<h2>Save a chart or map in SVG format<a class="headerlink" href="#save-a-chart-or-map-in-svg-format" title="Permalink to this headline">¶</a></h2>
+<p>If you&#8217;ve created a sweet chart that you want to save, click the <strong>Download SVG</strong> button.</p>
+<p>That&#8217;s it!</p>
+</div>
 </div>
 
 
