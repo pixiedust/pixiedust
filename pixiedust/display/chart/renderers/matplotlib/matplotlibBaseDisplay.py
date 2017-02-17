@@ -152,6 +152,9 @@ class MatplotlibBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
                 self.setChartGrid(fig, ax)
                 self.setChartLegend(fig, ax)
                 self.setTicks(fig, ax)
+            else:
+                #adjust the height between subplots
+                plt.subplots_adjust(hspace=0.4)
 
             #Render the figure
             return self.renderFigure(fig)
