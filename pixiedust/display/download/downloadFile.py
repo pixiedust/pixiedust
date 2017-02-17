@@ -102,7 +102,7 @@ class DownloadFileHandler(Display):
             print("[")
             for count, row in enumerate(entity.take(doDownloadCount), start=1):
                 print(" {")
-                print(reduce(lambda s,f: s+(",\n  " if s!="" else "  ")+"\""+self._safeString(f.name)+"\":"+(str(row[f.name]) if isinstance(row[f.name],(int,long, float)) else self._safeString("\""+row[f.name]+"\"")), schema.fields, ""))
+                print(reduce(lambda s,f: s+(",\n  " if s!="" else "  ")+"\""+self._safeString(f.name)+"\":"+(str(row[f.name]) if isinstance(row[f.name],(int,long, float)) else self._safeString("\""+("" if row[f.name] is None else row[f.name])+"\"")), schema.fields, ""))
                 print(" }," if count != doDownloadCount else " }")
             print("]")
             print(DELIMITER)
