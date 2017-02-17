@@ -30,3 +30,4 @@ To use locally:
    packagemanager
    scalabridge
    sparkmonitor
+   download

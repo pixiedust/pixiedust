@@ -38,6 +38,10 @@ except ImportError:
 @Logger()
 class MatplotlibBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
 
+    def __init__(self, options, entity, dataHandler=None):
+        super(MatplotlibBaseDisplay,self).__init__(options,entity,dataHandler)
+        self.needsStretching = False
+
     @abstractmethod
     def matplotlibRender(self):
         pass
@@ -46,40 +50,50 @@ class MatplotlibBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
     def useMpld3(self):
         return mpld3Available and self.options.get("mpld3", "false") == "true"
 
+    def canStretch(self):
+        return True
+
     @commonChartOptions
     def getChartOptions(self):
-        if not mpld3Available:
-            return []
-        return [
-            {
+        options = []
+        if mpld3Available:
+            options.append({
                 'name': 'mpld3',
                 'description': 'D3 Rendering (mpld3)',
                 'metadata': {
                     'type': 'checkbox',
                     'default': "false"
                 }
-            }
-        ]
+            })
+        if self.needsStretching:
+            options.append({
+                'name': 'stretch',
+                'description': 'Stretch image',
+                'metadata':{
+                    'type': 'checkbox',
+                    'default': 'false'
+                }
+            })
+        return options
         
     def setChartGrid(self, fig, ax):
         ax.grid(color='lightgray', alpha=0.7)
 
     def setTicks(self, fig, ax):
         labels = [s.get_text() for s in ax.get_xticklabels()]
-        numChars = sum(len(s) for s in labels) * 5
-        if numChars > self.getPreferredOutputWidth():
-            #filter down the list to max 20        
-            xl = [(i,a) for i,a in enumerate(labels) if i % int(len(labels)/20) == 0]
-            ax.set_xticks([x[0] for x in xl])
-            ax.set_xticklabels([x[1] for x in xl])
-
-            #check if it still fits
-            numChars = sum(len(s[1]) for s in xl) * 5
-            if numChars > self.getPreferredOutputWidth():
-                ax.tick_params(axis='x', labelsize=8 if numChars < 1200 else 6)
-                plt.xticks(rotation=30)
+        totalWidth = sum(len(s) for s in labels) * 5
+        if totalWidth > self.getPreferredOutputWidth():
+            self.needsStretching = self.canStretch() and True
+            if self.getBooleanOption('stretch', False) and not self.useMpld3:
+                #resize image width
+                fig.set_size_inches( totalWidth/self.getDPI(),fig.get_figheight())
             else:
-                plt.xticks(rotation=0)
+                self.addMessage("Some labels are not displayed because of a lack of space. Click on Stretch image to see them all")
+                #filter down the list to max 20        
+                xl = [(i,a) for i,a in enumerate(labels) if i % int(len(labels)/20) == 0]
+                ax.set_xticks([x[0] for x in xl])
+                ax.set_xticklabels([x[1] for x in xl])
+                plt.xticks(rotation=30)
         else:
             plt.xticks(rotation=0)
 
@@ -138,6 +152,9 @@ class MatplotlibBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
                 self.setChartGrid(fig, ax)
                 self.setChartLegend(fig, ax)
                 self.setTicks(fig, ax)
+            else:
+                #adjust the height between subplots
+                plt.subplots_adjust(hspace=0.4)
 
             #Render the figure
             return self.renderFigure(fig)
@@ -154,7 +171,7 @@ class MatplotlibBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
             png=pngIO()
             plt.savefig(png, pad_inches=0.05, bbox_inches='tight', dpi=self.getDPI())
             try:
-                return """<center><img src="data:image/png;base64,{0}"  class="pd_save"></center>""".format(
+                return """<center><img style="max-width:initial !important" src="data:image/png;base64,{0}"  class="pd_save"></center>""".format(
                     base64.b64encode(png.getvalue()).decode("ascii")
                 )
             finally:
