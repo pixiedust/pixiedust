@@ -17,6 +17,7 @@
         </div>
     </div>
     <div class="form-group col-sm-2 rendererOpts">
+        {% if this.getChartOptions()|length > 0 %}<div><strong>{{optionsTitle}}</strong></div>{% endif %}
         {%for option in this.getChartOptions() %}
             {% if option.metadata.type == 'slider' %}
                 <div class="rendererOpt">
