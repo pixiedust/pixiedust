@@ -16,19 +16,26 @@
 
 from pixiedust.display.display import CellHandshake
 from pixiedust.display.chart.renderers import PixiedustRenderer
+from pixiedust.utils import Logger
 from ..baseChartDisplay import BaseChartDisplay
 from six import with_metaclass
 from abc import abstractmethod, ABCMeta
 from bokeh.plotting import figure, output_notebook
 from bokeh.models.tools import *
 from bokeh.io import notebook_div
-
-import pixiedust
-myLogger = pixiedust.getLogger(__name__)
+import pkg_resources
 
 @PixiedustRenderer(rendererId="bokeh")
+@Logger()
 class BokehBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
     CellHandshake.addCallbackSniffer( lambda: "{'nostore_bokeh':!!window.Bokeh}")
+
+    #get the bokeh version
+    try:
+        bokeh_version = pkg_resources.get_distribution("bokeh").parsed_version._version.release
+    except:
+        bokeh_version = None
+        self.exception("Unable to get bokeh version")
 
     """
     Default implementation for creating a chart object.
@@ -36,12 +43,15 @@ class BokehBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
     def createBokehChart(self):
         return figure()
 
-    def cleanList(self, l):
-        if l is None or len(l) == 0:
-            return[]
-        return l if len(l)>1 else l[0]
+    def getPreferredOutputWidth(self):
+        return super(BokehBaseDisplay,self).getPreferredOutputWidth() * 0.92
 
     def doRenderChart(self):
+        if BokehBaseDisplay.bokeh_version < (0,12):
+            raise Exception("""
+                <div>Incorrect version of Bokeh detected. Expected {0}, got {1}</div>
+                <div>Please upgrade by using the following command: <b>!pip install --user --upgrade bokeh</b></div>
+            """.format((0,12), BokehBaseDisplay.bokeh_version))
         clientHasBokeh = self.options.get("nostore_bokeh", "false") == "true"
         if not clientHasBokeh:          
             output_notebook(hide_banner=True)

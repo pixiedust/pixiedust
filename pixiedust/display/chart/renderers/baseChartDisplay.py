@@ -27,6 +27,7 @@ from .commonOptions import commonOptions as co
 import pandas as pd
 import time
 import inspect
+import re
 
 class ShowChartOptionDialog(Exception):
     pass
@@ -117,6 +118,7 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
         super(BaseChartDisplay,self).__init__(options,entity,dataHandler)
         #note: since this class can be subclassed from other module, we need to mark the correct resource module with resModule so there is no mixup
         self.extraTemplateArgs["resModule"]=BaseChartDisplay.__module__
+        self.messages = []
 
     """
         Subclass can override: return an array of option metadata
@@ -127,6 +129,9 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
 
     def getExtraFields(self):
         return []
+
+    def addMessage(self, message):
+        self.messages.append(message)
 
     @cache(fieldName="workingPandasDataFrame")
     def getWorkingPandasDataFrame(self):
@@ -307,7 +312,7 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
 
     def doRender(self, handlerId):
         self.handlerId = handlerId
-
+        optionsTitle = self.camelCaseSplit(handlerId, True) + " Options"
         if self.options.get("debug", None):
             self.logStuff()
 
@@ -321,7 +326,7 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
             valueFields = self.getValueFields()
         except ShowChartOptionDialog:
             self.dialogBody = self.renderTemplate(dialogTemplate, **dialogOptions)
-            self._addJavascriptTemplate("chartOptions.dialog", optionsDialogBody=self.dialogBody)
+            self._addJavascriptTemplate("chartOptions.dialog", optionsDialogBody=self.dialogBody, optionsTitle=optionsTitle)
             return
         
         # render
@@ -348,7 +353,7 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
             if self.options.get("nostore_figureOnly", None):
                 self._addHTML(chartFigure)
             else:
-                self._addHTMLTemplate("renderer.html", chartFigure=chartFigure, optionsDialogBody=self.dialogBody)
+                self._addHTMLTemplate("renderer.html", chartFigure=chartFigure, optionsDialogBody=self.dialogBody, optionsTitle=optionsTitle)
         except Exception as e:
             self.exception("Unexpected error while trying to render BaseChartDisplay")
             errorHTML = """
@@ -359,7 +364,7 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
             if self.options.get("nostore_figureOnly", None):
                 self._addHTML(errorHTML)
             else:
-                self._addHTMLTemplate("renderer.html", chartFigure=errorHTML, optionsDialogBody=self.dialogBody)
+                self._addHTMLTemplate("renderer.html", chartFigure=errorHTML, optionsDialogBody=self.dialogBody, optionsTitle=optionsTitle)
 
     def logStuff(self):
         try:
@@ -370,3 +375,11 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
             ShellAccess['valueFields'] = self.getValueFields()
         except:
             pass
+
+    def camelCaseSplit(self, camelCaseStr, titleCase=False):
+        matches = re.finditer('.+?(?:(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])|$)', camelCaseStr)
+        split = " ".join(m.group(0) for m in matches)
+        if titleCase:
+            return split.title()
+        else:
+            return split
