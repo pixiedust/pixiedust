@@ -80,9 +80,9 @@ def histogram(displayObject):
             'description': 'Bin size',
             'metadata': {
                 'type': 'slider',
-                'max': int(math.ceil(count / 2)),
-                'min': int(math.floor(count / 20)),
-                'default': int(math.ceil(count / 4))
+                'max': int(max(math.ceil(count / 2), 4)),
+                'min': int(max(math.floor(count / 20), 2)),
+                'default': int(max(math.ceil(count / 4), 3))
             }
         }
     ]
