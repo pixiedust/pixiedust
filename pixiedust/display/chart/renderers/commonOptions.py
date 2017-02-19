@@ -43,6 +43,17 @@ def barChart(displayObject):
 
 def lineChart(displayObject):
     options = []
+
+    options.append({ 
+        'name': 'categorizeby',
+        'description': 'Categorize By',
+        'metadata': {
+            'type': "dropdown",
+            'values': ["None"] + [f for f in displayObject.getFieldNames() if f not in displayObject.getKeyFields() and f not in displayObject.getValueFields()],
+            'default': ""
+        }
+    })
+
     if len(displayObject.getValueFields()) > 1:
         options.append({
             'name': 'lineChartType',
