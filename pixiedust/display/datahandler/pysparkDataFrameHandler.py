@@ -69,12 +69,13 @@ class PySparkDataFrameDataHandler(object):
             yFields = []
             aggregation = None
 
-        workingDF = self.entity.select(xFields + [a for a in extraFields if a not in xFields] + yFields)
+        extraFields = [a for a in extraFields if a not in xFields]
+        workingDF = self.entity.select(xFields + extraFields + yFields)
         if aggregation and len(yFields)>0:
             aggMapper = {"SUM":"sum", "AVG": "avg", "MIN": "min", "MAX": "max"}
             aggregation = aggMapper.get(aggregation, "count")
 
-            workingDF = workingDF.groupBy(xFields).agg(dict([(yField, aggregation) for yField in yFields]))            
+            workingDF = workingDF.groupBy(extraFields + xFields).agg(dict([(yField, aggregation) for yField in yFields]))            
             for yField in yFields:
                 workingDF = workingDF.withColumnRenamed("{0}({1})".format(aggregation,yField), yField)
 
@@ -84,7 +85,7 @@ class PySparkDataFrameDataHandler(object):
             workingDF = workingDF.sample(False, (float(maxRows) / float(count)))
         pdf = self.toPandas(workingDF)
         #sort by xFields
-        pdf.sort_values(xFields, inplace=True)
+        pdf.sort_values(extraFields + xFields, inplace=True)
         return pdf
 
     """
