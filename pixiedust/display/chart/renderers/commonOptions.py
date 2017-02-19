@@ -15,36 +15,8 @@
 # -------------------------------------------------------------------------------
 import math
 
-def barChart(displayObject):
-    options = [
-        {
-            'name': 'orientation',
-            'description': 'Orientation',
-            'metadata': {
-                'type': 'dropdown',
-                'values': ['vertical', 'horizontal'],
-                'default': "vertical"
-            }
-        }
-    ]
-    if len(displayObject.getKeyFields()) > 1 or len(displayObject.getValueFields()) > 1:
-        options.insert(0,
-            {
-                'name': 'charttype',
-                'description': 'Type',
-                'metadata': {
-                    'type': 'dropdown',
-                    'values': ['grouped', 'stacked', 'subplots'],
-                    'default': "grouped"
-                }
-            }
-        )
-    return options
-
-def lineChart(displayObject):
-    options = []
-
-    options.append({ 
+def categorizeBy(displayObject):
+    return { 
         'name': 'categorizeby',
         'description': 'Categorize By',
         'metadata': {
@@ -52,7 +24,36 @@ def lineChart(displayObject):
             'values': ["None"] + [f for f in displayObject.getFieldNames() if f not in displayObject.getKeyFields() and f not in displayObject.getValueFields()],
             'default': ""
         }
+    }
+
+def barChart(displayObject):
+    options = []
+    options.append(categorizeBy(displayObject))
+    options.append({
+        'name': 'orientation',
+        'description': 'Orientation',
+        'metadata': {
+            'type': 'dropdown',
+            'values': ['vertical', 'horizontal'],
+            'default': "vertical"
+        }
     })
+    if len(displayObject.getValueFields()) > 1:
+        options.append({
+            'name': 'charttype',
+            'description': 'Type',
+            'metadata': {
+                'type': 'dropdown',
+                'values': ['grouped', 'stacked', 'subplots'],
+                'default': "grouped"
+            }
+        })
+    return options
+
+def lineChart(displayObject):
+    options = []
+
+    options.append(categorizeBy(displayObject))
 
     if len(displayObject.getValueFields()) > 1:
         options.append({

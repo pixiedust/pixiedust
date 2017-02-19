@@ -44,7 +44,6 @@ class LineChartDisplay(MatplotlibBaseDisplay):
         keyFields = self.getKeyFields()
         valueFields = self.getValueFields()
 
-
         categorizeby = self.options.get("categorizeby")
         if categorizeby is not None and (subplots or len(valueFields)<=1):
             gp = self.getWorkingPandasDataFrame().set_index(categorizeby).groupby(level=categorizeby)

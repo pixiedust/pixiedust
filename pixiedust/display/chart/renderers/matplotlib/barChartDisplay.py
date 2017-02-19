@@ -29,6 +29,17 @@ class BarChartRenderer(MatplotlibBaseDisplay):
     def isSubplot(self):
         return self.options.get("charttype", "grouped") == "subplots"
 
+    def getExtraFields(self):
+        self.debug("in getExtraFields")
+        if not self.isSubplot() and len(self.getValueFields())>1:
+            #no categorizeby if we are grouped and multiValueFields
+            self.debug("got nothing")
+            return []
+    
+        categorizeby = self.options.get("categorizeby")
+        self.debug("categorizeby {}".format(categorizeby))
+        return [categorizeby] if categorizeby is not None else []
+
     #Main rendering method
     def matplotlibRender(self, fig, ax):
         keyFields = self.getKeyFields()
@@ -36,12 +47,17 @@ class BarChartRenderer(MatplotlibBaseDisplay):
         stacked = self.options.get("charttype", "grouped") == "stacked"
         subplots = self.isSubplot()
         kind = "barh" if self.options.get("orientation", "vertical") == "horizontal" else "bar"
+        categorizeby = self.options.get("categorizeby")
 
-        if len(keyFields) == 1:
-            self.getWorkingPandasDataFrame().plot(kind=kind, stacked=stacked, ax=ax, x=keyFields[0], legend=True, subplots=subplots)
-        elif len(valueFields) == 1:
-            self.getWorkingPandasDataFrame().pivot(
-                index=keyFields[0], columns=keyFields[1], values=valueFields[0]
-            ).plot(kind=kind, stacked=stacked, ax=ax, legend=True, subplots=subplots)
+        if categorizeby is not None and (subplots or len(valueFields)<=1):
+            for j, valueField in enumerate(valueFields):
+                pivot = self.getWorkingPandasDataFrame().pivot(
+                    index=keyFields[0], columns=categorizeby, values=valueField
+                )
+                pivot.index.name=valueField
+                pivot.plot(kind=kind, stacked=stacked, ax=self.getAxItem(ax, j), legend=True, label=valueField)
         else:
-            raise Exception("Cannot have multiple keys and values at the same time")
+            self.getWorkingPandasDataFrame().plot(kind=kind, stacked=stacked, ax=ax, x=keyFields[0], legend=True, subplots=subplots)
+
+            if categorizeby is not None:
+                self.addMessage("Warning: 'Categorize By' ignored when you have multiple Value Fields but subplots option is not selected")
