@@ -75,9 +75,6 @@ class MatplotlibBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
                 }
             })
         return options
-        
-    def setChartGrid(self, fig, ax):
-        ax.grid(color='lightgray', alpha=0.7)
 
     def setTicks(self, fig, ax):
         labels = [s.get_text() for s in ax.get_xticklabels()]
@@ -145,16 +142,17 @@ class MatplotlibBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
                 plugins.connect(fig, DialogPlugin(self, self.handlerId, self.dialogBody))
 
             #let subclass do the actual rendering
-            self.matplotlibRender(fig, ax)
+            newAx = self.matplotlibRender(fig, ax)
+            if newAx is not None:
+                ax = newAx
 
             #finalize the chart
             if not isinstance(ax, (list,np.ndarray)):
-                self.setChartGrid(fig, ax)
-                self.setChartLegend(fig, ax)
+                #self.setChartLegend(fig, ax)
                 self.setTicks(fig, ax)
             else:
                 #adjust the height between subplots
-                plt.subplots_adjust(hspace=0.4)
+                plt.subplots_adjust(hspace=0.2)
 
             #Render the figure
             return self.renderFigure(fig)
@@ -162,6 +160,15 @@ class MatplotlibBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
             plt.close(fig)
 
     def renderFigure(self, fig):
+        def genMarkup(chartFigure):
+            return self.env.from_string("""
+                    {0}
+                    {{%for message in messages%}}
+                        <div>{{{{message}}}}</div>
+                    {{%endfor%}}
+                """.format(chartFigure)
+            ).render(messages=self.messages)
+            
         if not self.useMpld3:
             import base64
             try:
@@ -171,15 +178,18 @@ class MatplotlibBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
             png=pngIO()
             plt.savefig(png, pad_inches=0.05, bbox_inches='tight', dpi=self.getDPI())
             try:
-                return """<center><img style="max-width:initial !important" src="data:image/png;base64,{0}"  class="pd_save"></center>""".format(
-                    base64.b64encode(png.getvalue()).decode("ascii")
+                return( 
+                    genMarkup("""
+                            <center><img style="max-width:initial !important" src="data:image/png;base64,{0}"  class="pd_save"></center>
+                        """.format(base64.b64encode(png.getvalue()).decode("ascii"))
+                    )
                 )
             finally:
                 png.close()
         else:
             mpld3.enable_notebook()
             try:
-                return mpld3.fig_to_html(fig)
+                return genMarkup(mpld3.fig_to_html(fig))
             finally:
                 mpld3.disable_notebook()
 
@@ -189,3 +199,13 @@ class MatplotlibBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
                 plugins.connect(child.get_figure(), ElementInfoPlugin(child,data[i]))
         elif hasattr(element, "get_figure"):
             plugins.connect(element.get_figure(), ElementInfoPlugin(element, data ))
+
+    """
+    Helper to safely access i position of an ax object
+    """
+    def getAxItem(self, ax, pos):
+        if isinstance(ax, np.ndarray):
+            return ax.item(pos)
+        elif pos == 0:
+            return ax
+        raise ValueError("Trying to access pos {} from a single ax".format(pos))

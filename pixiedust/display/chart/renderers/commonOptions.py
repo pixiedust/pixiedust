@@ -15,35 +15,47 @@
 # -------------------------------------------------------------------------------
 import math
 
+def categorizeBy(displayObject):
+    return { 
+        'name': 'categorizeby',
+        'description': 'Categorize By',
+        'metadata': {
+            'type': "dropdown",
+            'values': ["None"] + [f for f in displayObject.getFieldNames() if f not in displayObject.getKeyFields() and f not in displayObject.getValueFields()],
+            'default': ""
+        }
+    }
+
 def barChart(displayObject):
-    options = [
-        {
-            'name': 'orientation',
-            'description': 'Orientation',
+    options = []
+    options.append(categorizeBy(displayObject))
+    options.append({
+        'name': 'orientation',
+        'description': 'Orientation',
+        'metadata': {
+            'type': 'dropdown',
+            'values': ['vertical', 'horizontal'],
+            'default': "vertical"
+        }
+    })
+    if displayObject.options.get("categorizeby") != None or len(displayObject.getValueFields()) > 1:
+        options.append({
+            'name': 'charttype',
+            'description': 'Type',
             'metadata': {
                 'type': 'dropdown',
-                'values': ['vertical', 'horizontal'],
-                'default': "vertical"
+                'values': ['grouped', 'stacked', 'subplots'],
+                'default': "grouped"
             }
-        }
-    ]
-    if len(displayObject.getKeyFields()) > 1 or len(displayObject.getValueFields()) > 1:
-        options.insert(0,
-            {
-                'name': 'charttype',
-                'description': 'Type',
-                'metadata': {
-                    'type': 'dropdown',
-                    'values': ['grouped', 'stacked', 'subplots'],
-                    'default': "grouped"
-                }
-            }
-        )
+        })
     return options
 
 def lineChart(displayObject):
     options = []
-    if len(displayObject.getValueFields()) > 1:
+
+    options.append(categorizeBy(displayObject))
+
+    if displayObject.options.get("categorizeby") != None or len(displayObject.getValueFields()) > 1:
         options.append({
             'name': 'lineChartType',
             'description': 'Type',
@@ -80,9 +92,9 @@ def histogram(displayObject):
             'description': 'Bin size',
             'metadata': {
                 'type': 'slider',
-                'max': int(math.ceil(count / 2)),
-                'min': int(math.floor(count / 20)),
-                'default': int(math.ceil(count / 4))
+                'max': int(max(math.ceil(count / 2), 4)),
+                'min': int(max(math.floor(count / 20), 2)),
+                'default': int(max(math.ceil(count / 4), 3))
             }
         }
     ]

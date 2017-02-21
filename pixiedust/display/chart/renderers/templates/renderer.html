@@ -10,11 +10,6 @@
         <div id="chartFigure{{prefix}}" class="pd_save" style="overflow-x:auto">
             {{chartFigure}}
         </div>
-        <div id="messages{{prefix}}">
-            {%for message in this.messages %}
-                <div>{{message}}</div>
-            {%endfor%}
-        </div>
     </div>
     <div class="form-group col-sm-2 rendererOpts">
         {% if this.getChartOptions()|length > 0 %}<div><strong>{{optionsTitle}}</strong></div>{% endif %}
@@ -58,7 +53,6 @@ $("[id^=optionselect][id$={{prefix}}]").change(function(){
     if (thisValue == "None"){
         thisValue = null
     }
-    $("#messages{{prefix}}").empty();
     {% call display.executeDisplay( useCellMetadata=True, divId="chartFigure" + prefix ) %}
         var o = {};
         o[thisOption] = thisValue;
@@ -69,7 +63,6 @@ $("[id^=optionselect][id$={{prefix}}]").change(function(){
 $("[id^=optionchecked][id$={{prefix}}]").change(function(){
     var thisOption = $(this).attr('name');
     var thisValue = $(this).prop('checked').toString();
-    $("#messages{{prefix}}").empty();
     {% call display.executeDisplay( useCellMetadata=True, divId="chartFigure" + prefix ) %}
         var o = {};
         o[thisOption] = thisValue;
@@ -89,7 +82,6 @@ if ($("[id^=slider][id$={{prefix}}]").length > 0) {
         value: isNaN(val) ? 50 : val,
         change: function(evt, ui) {
             $("[id^=slideval][id$={{prefix}}]").text(ui.value);
-            $("#messages{{prefix}}").empty();
             {% call display.executeDisplay( useCellMetadata=True, divId="chartFigure" + prefix ) %}
                 var o = {};
                 o[thisOption] = ui.value;
