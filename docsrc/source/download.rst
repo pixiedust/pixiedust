@@ -19,7 +19,7 @@ You can save a data set to a number of different file formats, including CSV, JS
 
 3. Click **OK**.
 
-Export data to Cloudant *BETA*
+Export data to Cloudant :sup:`BETA`
 --------------------------------------
 
 PixieDust also lets you save directly to a Cloudant database.
@@ -34,13 +34,11 @@ PixieDust also lets you save directly to a Cloudant database.
 
 4. Enter your Cloudant database credentials and click **OK**.
 
-Stash to Object Storage *COMING SOON*
+Stash to Object Storage :sup:`COMING SOON`
 -------------------------------------
-This feature is currently under development. Stay tuned.
+*This feature is currently under development. Stay tuned.*
 
 Save a chart or map in SVG format
 ---------------------------------
 
 If you've created a sweet chart that you want to save, click the **Download SVG** button.  
-
-That's it!
