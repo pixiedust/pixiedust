@@ -38,7 +38,7 @@ def barChart(displayObject):
             'default': "vertical"
         }
     })
-    if len(displayObject.getValueFields()) > 1:
+    if displayObject.options.get("categorizeby") != None or len(displayObject.getValueFields()) > 1:
         options.append({
             'name': 'charttype',
             'description': 'Type',
@@ -55,7 +55,7 @@ def lineChart(displayObject):
 
     options.append(categorizeBy(displayObject))
 
-    if len(displayObject.getValueFields()) > 1:
+    if displayObject.options.get("categorizeby") != None or len(displayObject.getValueFields()) > 1:
         options.append({
             'name': 'lineChartType',
             'description': 'Type',

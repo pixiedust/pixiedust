@@ -15,9 +15,11 @@
 # -------------------------------------------------------------------------------
 
 from pixiedust.display.chart.renderers import PixiedustRenderer
+from pixiedust.display.chart.renderers.colors import Colors
 from .matplotlibBaseDisplay import MatplotlibBaseDisplay
 from pyspark.sql import functions as F
 from pixiedust.utils import Logger
+import numpy as np
 
 @PixiedustRenderer(id="barChart")
 @Logger()
@@ -37,7 +39,6 @@ class BarChartRenderer(MatplotlibBaseDisplay):
             return []
     
         categorizeby = self.options.get("categorizeby")
-        self.debug("categorizeby {}".format(categorizeby))
         return [categorizeby] if categorizeby is not None else []
 
     #Main rendering method
@@ -50,14 +51,23 @@ class BarChartRenderer(MatplotlibBaseDisplay):
         categorizeby = self.options.get("categorizeby")
 
         if categorizeby is not None and (subplots or len(valueFields)<=1):
+            subplots = subplots if len(valueFields)==1 else False
             for j, valueField in enumerate(valueFields):
                 pivot = self.getWorkingPandasDataFrame().pivot(
                     index=keyFields[0], columns=categorizeby, values=valueField
                 )
                 pivot.index.name=valueField
-                pivot.plot(kind=kind, stacked=stacked, ax=self.getAxItem(ax, j), legend=True, label=valueField)
+                thisAx = pivot.plot(kind=kind, stacked=stacked, ax=self.getAxItem(ax, j), sharex=True, legend=not subplots, 
+                    label=valueField, subplots=subplots,colormap = Colors.colormap,)
+
+                if len(valueFields)==1 and subplots:
+                    if isinstance(thisAx, (list,np.ndarray)):
+                        #resize the figure
+                        figw = fig.get_size_inches()[0]
+                        fig.set_size_inches( figw, (figw * 0.5)*min( len(thisAx), 10 ))
+                    return thisAx      
         else:
-            self.getWorkingPandasDataFrame().plot(kind=kind, stacked=stacked, ax=ax, x=keyFields[0], legend=True, subplots=subplots)
+            self.getWorkingPandasDataFrame().plot(kind=kind, stacked=stacked, ax=ax, x=keyFields[0], legend=True, subplots=subplots,colormap = Colors.colormap,)
 
             if categorizeby is not None:
                 self.addMessage("Warning: 'Categorize By' ignored when you have multiple Value Fields but subplots option is not selected")
