@@ -1,4 +1,4 @@
-Display Data 
+Display Data
 ==============
 
 
@@ -18,7 +18,7 @@ PixieDust lets you visualize your data in just a few clicks. There's no need to 
 
    PixieDust is extensible. If you don't see the display option you want, create it. You can write your own visualization plugin, using HTML, JavaScript, and CSS. `Read how <writeviz.html>`_.
 
-The ``display()`` API  lets you visualize and chart your data in different ways. You can invoke the display API on any object, like a Spark DataFrame or Pandas DataFrame (support for additional formats is in development). PixieDust ``display()`` then introspects the object, determines what visualizations are capable of handling the data, and makes them available as menus within the output of the cell. If no visualization is found, then PixieDust ``display()`` shows an error message. Pixiedust display comes with a set of built-in visualizations like tables, bar charts, line charts, scatter plots, maps, and more. 
+The ``display()`` API  lets you visualize and chart your data in different ways. You can invoke the display API on any object, like a Spark DataFrame or Pandas DataFrame (support for additional formats is in development). PixieDust ``display()`` then introspects the object, determines what visualizations are capable of handling the data, and makes them available as menus within the output of the cell. If no visualization is found, then PixieDust ``display()`` shows an error message. Pixiedust display comes with a set of built-in visualizations like tables, bar charts, line charts, scatter plots, maps, and more.
 
 
 Get Started
@@ -57,7 +57,7 @@ Once you've imported the PixieDust module, start with the data. Here's some samp
           ["year", "zone", "unique_customers"])
 
 Then, in a single command, you  display that dataframe: ``dd``.
-	
+
    ::
 
      #call a simple display api to visualize the data
@@ -66,7 +66,7 @@ Then, in a single command, you  display that dataframe: ``dd``.
 
 ``display()`` looks up into its internal registry to build a list of visualizations that can handle a Spark DataFrame and generates the a menu toobar for each of them. The cell output looks like this:
 
-.. container:: 
+.. container::
 
 .. raw:: html
 
@@ -76,7 +76,7 @@ Then, in a single command, you  display that dataframe: ``dd``.
 
 .. sidebar:: Under the hood
 
-   How does PixieDust generate this handy user interface? ``display()`` uses matplotlib to generate the charts and then mpld3 to transform the charts into D3 generated interactive charts that let users zoom, choose menus, see toolips, and more. 
+   How does PixieDust generate this handy user interface? ``display()`` uses matplotlib to generate the charts and then mpld3 to transform the charts into D3 generated interactive charts that let users zoom, choose menus, see toolips, and more.
 
 PixieDust spins up a robust user interface that contains all the features you need to create sophisticated visualizations in just a few clicks. It contains  dropdown lists and dialogs you can use to change chart type, data content, grouping, and more. Without writing a line of code, you can:
 
@@ -92,30 +92,30 @@ DRAFT DRAFT DRAFT DRAFT  --docs in progress---
 Work with Tables, Charts, and Maps
 ----------------------------------
 
-Pixiedust ``display()`` provides an extensive set of graphs and visualizations. 
+Pixiedust ``display()`` provides an extensive set of graphs and visualizations.
 
 Tables
 ******
 
-The resulting table shows extended information about the Spark DataFrame:  
+The resulting table shows extended information about the Spark DataFrame:
 
- * **Schema** gives detailed information about the DataFrame schema
- * **Table** displays a sample of the data
+* **Schema** gives detailed information about the DataFrame schema
+* **Table** displays a sample of the data
 
 
 
 Set Chart Content
 *****************
 
-You can configure the content of the chart by calling the options dialog available for each chart, using the Options button. The options dialog is composed of a set of commons options for every chart plus a set of additional options relevant to the currently selected chart.  
+You can configure the content of the chart by calling the options dialog available for each chart, using the Options button. The options dialog is composed of a set of commons options for every chart plus a set of additional options relevant to the currently selected chart.
 
-Here are the commons options for every charts:  
+Here are the commons options for every charts:
 
-* Chart Title: display a title  
-* Fields: available field name derived from the DataFrame schema  
-* Keys: Name of the fields that will be used for the X-Axis  
-* Values: Name of fields that will be user for the Y-Axis  
-* Aggregation: Type of aggregation to be performed on the data  
+* Chart Title: display a title
+* Fields: available field name derived from the DataFrame schema
+* Keys: Name of the fields that will be used for the X-Axis
+* Values: Name of fields that will be user for the Y-Axis
+* Aggregation: Type of aggregation to be performed on the data
 	* SUM: sum of values for the key
 	* AVG: average of values for the key
 	* MIN: Min of values for the key
@@ -124,7 +124,7 @@ Here are the commons options for every charts:
 
 For example, Bar Chart shows the following options dialog:
 
-.. container:: 
+.. container::
 
 .. raw:: html
 
@@ -134,14 +134,14 @@ For example, Bar Chart shows the following options dialog:
 Bar Charts
 **********
 
-Bar charts are handy for comparing items side-by-side. When you select more than one key or value, you have the option to choose between 2 types of bar chart: 
+Bar charts are handy for comparing items side-by-side. When you select more than one key or value, you have the option to choose between 2 types of bar chart:
 
-* Stacked: items in a category are represented in a single column with different color for each segment  
-* Grouped: items in a category are displayed side by side, making it easier to compare between each other.  
+* Stacked: items in a category are represented in a single column with different color for each segment
+* Grouped: items in a category are displayed side by side, making it easier to compare between each other.
 
 In our example, we use a Grouped bar chart showing the quarterly number of unique customers grouped by year:
 
-.. container:: 
+.. container::
 
 .. raw:: html
 
@@ -151,7 +151,7 @@ In our example, we use a Grouped bar chart showing the quarterly number of uniqu
 Line Chart
 ***********
 
-.. container:: 
+.. container::
 
 .. raw:: html
 
@@ -171,11 +171,35 @@ Pie Charts
 Map
 ***
 
-Options: 
+Mapbox
+~~~~~~
+
+The Mapbox map renderer lets you create a map of geographic point data. Currently, your DataFrame should have at least the following 3 fields in order to work with this renderer:
+* a latitude field named latitude, lat, or y
+* a longitude field named longitude, lon, long, or x
+* a numeric field for visualization.
+
+In the Options dialog, choose your latitude and longitude fields as **Keys**. Then choose any numeric fields for **Values**. Only the first one you choose will be used to color the map thematically, but any other fields specified in **Values** will appear in a pop-up information bubble when you hover your mouse over a data point on the map.
+
+To use the Mapbox renderer, you'll need a free API key from Mapbox. You can get one on their web site here. https://www.mapbox.com/signup/
+
+Options:
      Keys: Latitude, Longitude
 
+Google Maps
+~~~~~~~~~~~
 
-Renderers: Mapbox, Google Maps.
+In addition to mapping *geographic points* with Mapbox, Pixiedust also allows you to use `Google's API <https://developers.google.com/chart/interactive/docs/gallery/geochart>`_ to create "GeoCharts". From their docs:
+
+  A geochart is a map of a country, a continent, or a region with areas identified in one of three ways:
+
+  * The region mode colors whole regions, such as countries, provinces, or states.
+  * The markers mode uses circles to designate regions that are scaled according to a value that you specify.
+  * The text mode labels the regions with identifiers (e.g., "Russia" or "Asia").
+
+To create a GeoChart in Pixiedust, make the field that has place names your **Key** field. Then for the **Value** field, choose any numeric field you want to visualize.
+
+Then under the "Display Mode" menu, choose "Region" to color the entire area of your named places e.g. countries, provinces, or states. Choose "Markers" to instead place a circle in the center of the region which is scaled according to the data selected for the **Value** field.
 
 USERS NEED MAPBOX KEY? - how handle?
 
@@ -183,10 +207,9 @@ USERS NEED MAPBOX KEY? - how handle?
 Histogram
 **********
 
-Use a histogram if the values on your x-axis are numeric like age range, prices, etc... 
+Use a histogram if the values on your x-axis are numeric like age range, prices, etc...
 
 Conclusion
 ----------
 
 Pixiedust display has a built-in set of chart visualizations that can render Spark and Pandas dataframe. The generated charts are easy to configure and also offer interactivity like Panning, zooming and tooltip. Pixiedust display() is also extensible and provide an API to let you write your own vizualizations.
-
