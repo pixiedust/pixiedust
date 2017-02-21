@@ -27,3 +27,5 @@ To create a pySpark DataFrame for one of the samples, just enter its number in t
 
      home_df = pixiedust.sampleData(6)
 
+
+.. Note:: PixieDust provides these sample data sets as a convenience to help you get started fast. To load or connect to your own data source, follow the steps you normally would from within a notebook. Our team has created some notebook tutorials which show how to connect to Cloudant, Twitter, and other data sources. See: `Predict Flight Delays with Apache Spark MLLib, FlightStats, and Weather Data <https://developer.ibm.com/clouddataservices/2016/08/04/predict-flight-delays-with-apache-spark-mllib-flightstats-and-weather-data/>`_  and  `Sentiment Analysis of Twitter Hashtags <https://developer.ibm.com/clouddataservices/2015/10/06/sentiment-analysis-of-twitter-hashtags/>`_
