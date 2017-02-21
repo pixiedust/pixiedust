@@ -50,12 +50,13 @@ class PandasDataFrameDataHandler(object):
             yFields = []
             aggregation = None
 
-        workingDF = self.entity[xFields + [a for a in extraFields if a not in xFields] + yFields]
+        extraFields = [a for a in extraFields if a not in xFields]
+        workingDF = self.entity[xFields + extraFields + yFields]
 
         if aggregation and len(yFields)>0:
             aggMapper = {"SUM":"sum", "AVG": "mean", "MIN": "min", "MAX": "max"}
             aggFn = aggMapper.get(aggregation, "count")
-            workingDF = workingDF.groupby(xFields).agg(aggFn).reset_index()
+            workingDF = workingDF.groupby(extraFields + xFields).agg(aggFn).reset_index()
 
         workingDF = workingDF.dropna()
         count = len(workingDF.index)
@@ -63,6 +64,6 @@ class PandasDataFrameDataHandler(object):
             workingDF = workingDF.sample(frac=(float(maxRows) / float(count)),replace=False)
         
         #sort by xFields
-        workingDF.sort_values(xFields, inplace=True)
+        workingDF.sort_values(extraFields + xFields, inplace=True)
         
         return workingDF

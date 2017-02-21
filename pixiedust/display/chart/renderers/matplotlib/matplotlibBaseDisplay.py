@@ -142,7 +142,9 @@ class MatplotlibBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
                 plugins.connect(fig, DialogPlugin(self, self.handlerId, self.dialogBody))
 
             #let subclass do the actual rendering
-            self.matplotlibRender(fig, ax)
+            newAx = self.matplotlibRender(fig, ax)
+            if newAx is not None:
+                ax = newAx
 
             #finalize the chart
             if not isinstance(ax, (list,np.ndarray)):
@@ -150,7 +152,7 @@ class MatplotlibBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
                 self.setTicks(fig, ax)
             else:
                 #adjust the height between subplots
-                plt.subplots_adjust(hspace=0.4)
+                plt.subplots_adjust(hspace=0.2)
 
             #Render the figure
             return self.renderFigure(fig)

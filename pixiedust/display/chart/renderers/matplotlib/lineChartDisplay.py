@@ -44,16 +44,24 @@ class LineChartDisplay(MatplotlibBaseDisplay):
         keyFields = self.getKeyFields()
         valueFields = self.getValueFields()
 
-
         categorizeby = self.options.get("categorizeby")
         if categorizeby is not None and (subplots or len(valueFields)<=1):
-            gp = self.getWorkingPandasDataFrame().set_index(categorizeby).groupby(level=categorizeby)
+            subplots = subplots if len(valueFields)==1 else False
             for j, valueField in enumerate(valueFields):
-                for i, (label, df) in enumerate(gp):
-                    df.plot(
-                        kind="line", ax=self.getAxItem(ax, j), x=keyFields, y=valueField, label=label, legend=True, colors = Colors[1.*i/len(gp)],
-                        logx=self.getBooleanOption("logx", False), logy=self.getBooleanOption("logy",False)
-                    )
+                pivot = self.getWorkingPandasDataFrame().pivot(
+                    index=keyFields[0], columns=categorizeby, values=valueField
+                )
+                pivot.index.name=valueField
+                thisAx = pivot.plot(kind='line', ax=self.getAxItem(ax, j), sharex=True, legend=True, label=valueField, 
+                    subplots=subplots,colormap = Colors.colormap,
+                    logx=self.getBooleanOption("logx", False), logy=self.getBooleanOption("logy",False))
+
+                if len(valueFields)==1 and subplots:
+                    if isinstance(thisAx, (list,np.ndarray)):
+                        #resize the figure
+                        figw = fig.get_size_inches()[0]
+                        fig.set_size_inches( figw, (figw * 0.5)*min( len(thisAx), 10 ))
+                    return thisAx
         else:
             self.getWorkingPandasDataFrame().plot(
                 kind='line', x=keyFields, y=valueFields, ax=ax, subplots=subplots, legend=True, colormap = Colors.colormap,
