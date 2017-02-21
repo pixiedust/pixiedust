@@ -15,10 +15,10 @@
 # -------------------------------------------------------------------------------
 import math
 
-def categorizeBy(displayObject):
+def clusterBy(displayObject):
     return { 
-        'name': 'categorizeby',
-        'description': 'Categorize By',
+        'name': 'clusterby',
+        'description': 'Cluster By',
         'metadata': {
             'type': "dropdown",
             'values': ["None"] + [f for f in displayObject.getFieldNames() if f not in displayObject.getKeyFields() and f not in displayObject.getValueFields()],
@@ -28,7 +28,7 @@ def categorizeBy(displayObject):
 
 def barChart(displayObject):
     options = []
-    options.append(categorizeBy(displayObject))
+    options.append(clusterBy(displayObject))
     options.append({
         'name': 'orientation',
         'description': 'Orientation',
@@ -38,7 +38,7 @@ def barChart(displayObject):
             'default': "vertical"
         }
     })
-    if displayObject.options.get("categorizeby") != None or len(displayObject.getValueFields()) > 1:
+    if displayObject.options.get("clusterby") != None or len(displayObject.getValueFields()) > 1:
         options.append({
             'name': 'charttype',
             'description': 'Type',
@@ -53,9 +53,9 @@ def barChart(displayObject):
 def lineChart(displayObject):
     options = []
 
-    options.append(categorizeBy(displayObject))
+    options.append(clusterBy(displayObject))
 
-    if displayObject.options.get("categorizeby") != None or len(displayObject.getValueFields()) > 1:
+    if displayObject.options.get("clusterby") != None or len(displayObject.getValueFields()) > 1:
         options.append({
             'name': 'lineChartType',
             'description': 'Type',

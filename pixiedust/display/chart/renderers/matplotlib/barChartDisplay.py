@@ -33,11 +33,11 @@ class BarChartRenderer(MatplotlibBaseDisplay):
 
     def getExtraFields(self):
         if not self.isSubplot() and len(self.getValueFields())>1:
-            #no categorizeby if we are grouped and multiValueFields
+            #no clusterby if we are grouped and multiValueFields
             return []
     
-        categorizeby = self.options.get("categorizeby")
-        return [categorizeby] if categorizeby is not None else []
+        clusterby = self.options.get("clusterby")
+        return [clusterby] if clusterby is not None else []
 
     #Main rendering method
     def matplotlibRender(self, fig, ax):
@@ -46,13 +46,13 @@ class BarChartRenderer(MatplotlibBaseDisplay):
         stacked = self.options.get("charttype", "grouped") == "stacked"
         subplots = self.isSubplot()
         kind = "barh" if self.options.get("orientation", "vertical") == "horizontal" else "bar"
-        categorizeby = self.options.get("categorizeby")
+        clusterby = self.options.get("clusterby")
 
-        if categorizeby is not None and (subplots or len(valueFields)<=1):
+        if clusterby is not None and (subplots or len(valueFields)<=1):
             subplots = subplots if len(valueFields)==1 else False
             for j, valueField in enumerate(valueFields):
                 pivot = self.getWorkingPandasDataFrame().pivot(
-                    index=keyFields[0], columns=categorizeby, values=valueField
+                    index=keyFields[0], columns=clusterby, values=valueField
                 )
                 pivot.index.name=valueField
                 thisAx = pivot.plot(kind=kind, stacked=stacked, ax=self.getAxItem(ax, j), sharex=True, legend=True, 
@@ -67,5 +67,5 @@ class BarChartRenderer(MatplotlibBaseDisplay):
         else:
             self.getWorkingPandasDataFrame().plot(kind=kind, stacked=stacked, ax=ax, x=keyFields[0], legend=True, subplots=subplots,colormap = Colors.colormap,)
 
-            if categorizeby is not None:
-                self.addMessage("Warning: 'Categorize By' ignored when you have multiple Value Fields but subplots option is not selected")
+            if clusterby is not None:
+                self.addMessage("Warning: 'Cluster By' ignored when you have multiple Value Fields but subplots option is not selected")

@@ -15,6 +15,7 @@
 # -------------------------------------------------------------------------------
 
 from pixiedust.display.chart.renderers import PixiedustRenderer
+from pixiedust.display.chart.renderers.baseChartDisplay import commonChartOptions
 from .seabornBaseDisplay import SeabornBaseDisplay
 import pandas as pd
 import numpy as np
@@ -52,6 +53,7 @@ class ScatterPlotDisplay(SeabornBaseDisplay):
 	def matplotlibRender(self, fig, ax):
 		pass
 
+	@commonChartOptions
 	def getChartOptions(self):
 		return [
 			{ 'name': 'kind',
