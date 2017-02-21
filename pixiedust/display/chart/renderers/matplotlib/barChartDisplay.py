@@ -55,8 +55,8 @@ class BarChartRenderer(MatplotlibBaseDisplay):
                     index=keyFields[0], columns=categorizeby, values=valueField
                 )
                 pivot.index.name=valueField
-                thisAx = pivot.plot(kind=kind, stacked=stacked, ax=self.getAxItem(ax, j), sharex=True, legend=not subplots, 
-                    label=valueField, subplots=subplots,colormap = Colors.colormap,)
+                thisAx = pivot.plot(kind=kind, stacked=stacked, ax=self.getAxItem(ax, j), sharex=True, legend=True, 
+                    label=None if subplots else valueField, subplots=subplots,colormap = Colors.colormap,)
 
                 if len(valueFields)==1 and subplots:
                     if isinstance(thisAx, (list,np.ndarray)):
