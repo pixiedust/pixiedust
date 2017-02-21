@@ -36,11 +36,9 @@ PixieDust also lets you save directly to a Cloudant database.
 
 Stash to Object Storage :sup:`COMING SOON`
 -------------------------------------
-This feature is currently under development. Stay tuned.
+*This feature is currently under development. Stay tuned.*
 
 Save a chart or map in SVG format
 ---------------------------------
 
 If you've created a sweet chart that you want to save, click the **Download SVG** button.  
-
-That's it!

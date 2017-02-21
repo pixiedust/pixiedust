@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Download Data &mdash; PixieDust Documentation</title>
+    <title>Logging &mdash; PixieDust Documentation</title>
     
     <link rel="stylesheet" href="_static/better.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -27,8 +27,8 @@
     <link rel="shortcut icon" href="_static/pd_icon.ico"/>
     <link rel="top" title="PixieDust Documentation" href="index.html" />
     <link rel="up" title="Use PixieDust" href="use.html" />
-    <link rel="next" title="Logging" href="logging.html" />
-    <link rel="prev" title="Spark Progress Monitor" href="sparkmonitor.html" />
+    <link rel="next" title="Develop for PixieDust" href="develop.html" />
+    <link rel="prev" title="Download Data" href="download.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   </head>
   <body role="document">
@@ -41,47 +41,12 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="download-data">
-<h1>Download Data<a class="headerlink" href="#download-data" title="Permalink to this headline">¶</a></h1>
-<p>PixieDust lets you download the data from your notebook. If you&#8217;ve been playing with some charts, you can also save and download in SVG format.</p>
-<div class="section" id="save-data-to-a-file">
-<h2>Save data to a file<a class="headerlink" href="#save-data-to-a-file" title="Permalink to this headline">¶</a></h2>
-<p>You can save a data set to a number of different file formats, including CSV, JSON, XML, and more. You do so within the user interface controls that the display API generates. <a class="reference external" href="displayapi.html">Read how to run and work with display()</a>.</p>
-<ol class="arabic">
-<li><p class="first">Above the table and charts display, click the Download dropdown arrow. You see the following menu:</p>
-<img alt="_images/downloadfile.png" src="_images/downloadfile.png" />
-</li>
-<li><p class="first">Choose <strong>Download as File</strong>
-Choose the format you want, and specify the number of records to download.</p>
-<img alt="_images/save_as.png" src="_images/save_as.png" />
-</li>
-<li><p class="first">Click <strong>OK</strong>.</p>
-</li>
-</ol>
-</div>
-<div class="section" id="export-data-to-cloudant-beta">
-<h2>Export data to Cloudant <sup>BETA</sup><a class="headerlink" href="#export-data-to-cloudant-beta" title="Permalink to this headline">¶</a></h2>
-<p>PixieDust also lets you save directly to a Cloudant database.</p>
-<ol class="arabic">
-<li><p class="first">Above the table and charts display, click the Download dropdown arrow. You see the following menu:</p>
-<img alt="_images/downloadfile.png" src="_images/downloadfile.png" />
-</li>
-<li><p class="first">Choose <strong>Stash to Cloudant</strong>.</p>
-</li>
-<li><p class="first">To the right of the <strong>Cloudant Connection</strong> field, click the + plus button.</p>
-</li>
-<li><p class="first">Enter your Cloudant database credentials and click <strong>OK</strong>.</p>
-</li>
-</ol>
-</div>
-<div class="section" id="stash-to-object-storage-coming-soon">
-<h2>Stash to Object Storage <sup>COMING SOON</sup><a class="headerlink" href="#stash-to-object-storage-coming-soon" title="Permalink to this headline">¶</a></h2>
-<p><em>This feature is currently under development. Stay tuned.</em></p>
-</div>
-<div class="section" id="save-a-chart-or-map-in-svg-format">
-<h2>Save a chart or map in SVG format<a class="headerlink" href="#save-a-chart-or-map-in-svg-format" title="Permalink to this headline">¶</a></h2>
-<p>If you&#8217;ve created a sweet chart that you want to save, click the <strong>Download SVG</strong> button.</p>
-</div>
+  <div class="section" id="logging">
+<h1>Logging<a class="headerlink" href="#logging" title="Permalink to this headline">¶</a></h1>
+<p>When you&#8217;re working in your notebook and something goes awry, the issue could be your data schema, the choices you made while building a chart, or something else. To understand what went wrong, check the logs!</p>
+<p>PixieDust comes complete with logging to help you troubleshoot issues. To invoke it, just enter the following command in a notebook cell and run:</p>
+<p><code class="docutils literal"><span class="pre">%pixiedustLog</span> <span class="pre">-l</span> <span class="pre">debug</span></code></p>
+<p>PixieDust shows you a log of recent activities.</p>
 </div>
 
 
