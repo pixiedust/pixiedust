@@ -32,10 +32,8 @@ class BarChartRenderer(MatplotlibBaseDisplay):
         return self.options.get("charttype", "grouped") == "subplots"
 
     def getExtraFields(self):
-        self.debug("in getExtraFields")
         if not self.isSubplot() and len(self.getValueFields())>1:
             #no categorizeby if we are grouped and multiValueFields
-            self.debug("got nothing")
             return []
     
         categorizeby = self.options.get("categorizeby")
