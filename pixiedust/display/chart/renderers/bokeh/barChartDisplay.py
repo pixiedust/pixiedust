@@ -40,5 +40,5 @@ class BarChartRenderer(BokehBaseDisplay):
         if agg == 'avg':
             agg = 'mean'
 
-        return Bar(data, self.getKeyFields()[0], values=self.getValueFields()[0], group=group, stack=stack, legend=None, 
+        return Bar(data, self.getKeyFields()[0], values=self.getValueFields()[0], group=group, stack=stack, legend=self.showLegend(), 
             color=color, plot_width=800)
