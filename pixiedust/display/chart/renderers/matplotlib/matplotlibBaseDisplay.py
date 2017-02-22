@@ -99,8 +99,7 @@ class MatplotlibBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
 
     def setChartLegend(self, fig, ax):
         if self.supportsLegend(self.handlerId):
-            showLegend = self.options.get("showLegend", "true")
-            if showLegend == "true":
+            if self.showLegend():
                 l = ax.legend(title=self.titleLegend if hasattr(self, 'titleLegend') else '')
                 if l is not None:
                     l.get_frame().set_alpha(0)
@@ -161,7 +160,8 @@ class MatplotlibBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
             #Render the figure
             return self.renderFigure(fig)
         finally:
-            plt.close(fig)
+            if fig is not None:
+                plt.close(fig)
 
     def renderFigure(self, fig):
         def genMarkup(chartFigure):

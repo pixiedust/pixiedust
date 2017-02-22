@@ -46,4 +46,4 @@ class HistogramDisplay(MatplotlibBaseDisplay):
     def matplotlibRender(self, fig, ax):
         stacked = len(self.getValueFields()) > 1
         binsize = int(self.options.get('binsize', 10))
-        self.getWorkingPandasDataFrame().plot(kind="hist", stacked=stacked, ax=ax, bins=binsize)
+        self.getWorkingPandasDataFrame().plot(kind="hist", stacked=stacked, ax=ax, bins=binsize, legend=self.showLegend())

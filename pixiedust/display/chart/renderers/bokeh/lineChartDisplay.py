@@ -31,6 +31,6 @@ class LineChartRenderer(BokehBaseDisplay):
         data = self.getWorkingPandasDataFrame().sort_values(keyFields[0])
         figs = []
         for valueField in valueFields:
-            figs.append(Line(data, x = self.getKeyFields()[0], y=valueField, legend=None, plot_width=int(800/len(valueFields))))
+            figs.append(Line(data, x = self.getKeyFields()[0], y=valueField, legend=self.showLegend(), plot_width=int(800/len(valueFields))))
 
         return figs

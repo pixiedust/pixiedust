@@ -52,7 +52,7 @@ class LineChartDisplay(MatplotlibBaseDisplay):
                     index=keyFields[0], columns=clusterby, values=valueField
                 )
                 pivot.index.name=valueField
-                thisAx = pivot.plot(kind='line', ax=self.getAxItem(ax, j), sharex=True, legend=True, label=valueField, 
+                thisAx = pivot.plot(kind='line', ax=self.getAxItem(ax, j), sharex=True, legend=self.showLegend(), label=valueField, 
                     subplots=subplots,colormap = Colors.colormap,
                     logx=self.getBooleanOption("logx", False), logy=self.getBooleanOption("logy",False))
 
@@ -64,7 +64,7 @@ class LineChartDisplay(MatplotlibBaseDisplay):
                     return thisAx
         else:
             self.getWorkingPandasDataFrame().plot(
-                kind='line', x=keyFields, y=valueFields, ax=ax, subplots=subplots, legend=True, colormap = Colors.colormap,
+                kind='line', x=keyFields, y=valueFields, ax=ax, subplots=subplots, legend=self.showLegend(), colormap = Colors.colormap,
                 logx=self.getBooleanOption("logx", False), logy=self.getBooleanOption("logy",False)
             )
 

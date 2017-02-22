@@ -55,7 +55,7 @@ class BarChartRenderer(MatplotlibBaseDisplay):
                     index=keyFields[0], columns=clusterby, values=valueField
                 )
                 pivot.index.name=valueField
-                thisAx = pivot.plot(kind=kind, stacked=stacked, ax=self.getAxItem(ax, j), sharex=True, legend=True, 
+                thisAx = pivot.plot(kind=kind, stacked=stacked, ax=self.getAxItem(ax, j), sharex=True, legend=self.showLegend(), 
                     label=None if subplots else valueField, subplots=subplots,colormap = Colors.colormap,)
 
                 if len(valueFields)==1 and subplots:
@@ -65,7 +65,7 @@ class BarChartRenderer(MatplotlibBaseDisplay):
                         fig.set_size_inches( figw, (figw * 0.5)*min( len(thisAx), 10 ))
                     return thisAx      
         else:
-            self.getWorkingPandasDataFrame().plot(kind=kind, stacked=stacked, ax=ax, x=keyFields[0], legend=True, subplots=subplots,colormap = Colors.colormap,)
+            self.getWorkingPandasDataFrame().plot(kind=kind, stacked=stacked, ax=ax, x=keyFields[0], legend=self.showLegend(), subplots=subplots,colormap = Colors.colormap,)
 
             if clusterby is not None:
                 self.addMessage("Warning: 'Cluster By' ignored when you have multiple Value Fields but subplots option is not selected")
