@@ -31,3 +31,4 @@ To use locally:
    scalabridge
    sparkmonitor
    download
+   logging

@@ -87,40 +87,33 @@ PixieDust spins up a robust user interface that contains all the features you ne
 
 ``display()`` simplifies notebook charting in one important way: It takes only one cell to to generate hundreds of visualization options. Unlike traditional notebooks where you build a series of visualizations over several cells, PixieDust needs only one cell to generate an interactive widget which lets you turn knobs to explore the data in a myriad of ways.
 
-DRAFT DRAFT DRAFT DRAFT  --docs in progress---
-
 Work with Tables, Charts, and Maps
 ----------------------------------
 
 Pixiedust ``display()`` provides an extensive set of graphs and visualizations.
 
+
 Tables
 ******
 
-The resulting table shows extended information about the Spark DataFrame:
+A great place to start is to view your data in a simple table format. To do so, click the table button:
+
+   .. image:: _images/display_table.png
+
+You see extended information about your Spark DataFrame in 2 view options:
 
 * **Schema** gives detailed information about the DataFrame schema
-* **Table** displays a sample of the data
+* **Table** displays a sample of the data in an easy-to-read table format.
 
 
+Set Chart Content with Options
+******************************
 
-Set Chart Content
-*****************
+1. To chart your data, begin with a click on the Chart menu and choose a chart type:
 
-You can configure the content of the chart by calling the options dialog available for each chart, using the Options button. The options dialog is composed of a set of commons options for every chart plus a set of additional options relevant to the currently selected chart.
+   .. image:: _images/chartmenu.png
 
-Here are the commons options for every charts:
-
-* Chart Title: display a title
-* Fields: available field name derived from the DataFrame schema
-* Keys: Name of the fields that will be used for the X-Axis
-* Values: Name of fields that will be user for the Y-Axis
-* Aggregation: Type of aggregation to be performed on the data
-	* SUM: sum of values for the key
-	* AVG: average of values for the key
-	* MIN: Min of values for the key
-	* MAX: Max of values for the key
-	* COUNT: number of times the key occurs  WHAT HAPPENS WHEN YOU LIMIT COUNT? HOW DOES PD CHOOSE RECORDS?
+2. Configure the content of the chart by clicking the **Options** button*. The options dialog that opens contains a set of common configuration choices for every chart, plus a set of options specific to the chart type you selected.
 
 For example, Bar Chart shows the following options dialog:
 
@@ -131,13 +124,32 @@ For example, Bar Chart shows the following options dialog:
      <img src="https://github.com/DTAIEB/demos/raw/master/resources/PixieDust Options Dialog.png" width="615">
 
 
+Choose  common options for every chart:
+
+* Chart Title: display a title
+* Fields: available field name derived from the DataFrame schema
+* Keys: Name of the fields serve as the X-Axis
+* Values: Name of fields that serve as the Y-Axis
+* Aggregation: Type of aggregation to be performed on the data
+	* SUM: sum of values for the key
+	* AVG: average of values for the key
+	* MIN: Min of values for the key
+	* MAX: Max of values for the key
+	* COUNT: number of times the key occurs 
+
+Then choose the chart-specific options. Read on to learn how to configure individual chart types. 
+
+.. note:: Errors? Issues? If you get an error or encounter a problem displaying data, start troubleshooting by `checking the logs <logging.html>`_.
+
 Bar Charts
 **********
 
 Bar charts are handy for comparing items side-by-side. When you select more than one key or value, you have the option to choose between 2 types of bar chart:
 
 * Stacked: items in a category are represented in a single column with different color for each segment
-* Grouped: items in a category are displayed side by side, making it easier to compare between each other.
+* Grouped: items in a category are displayed side by side, making it easier to compare values.
+
+cluster
 
 In our example, we use a Grouped bar chart showing the quarterly number of unique customers grouped by year:
 
@@ -175,16 +187,15 @@ Mapbox
 ~~~~~~
 
 The Mapbox map renderer lets you create a map of geographic point data. Currently, your DataFrame should have at least the following 3 fields in order to work with this renderer:
+
 * a latitude field named latitude, lat, or y
 * a longitude field named longitude, lon, long, or x
 * a numeric field for visualization.
 
-In the Options dialog, choose your latitude and longitude fields as **Keys**. Then choose any numeric fields for **Values**. Only the first one you choose will be used to color the map thematically, but any other fields specified in **Values** will appear in a pop-up information bubble when you hover your mouse over a data point on the map.
+In the *Options* dialog, choose your latitude and longitude fields as **Keys**. Then choose any numeric fields for **Values**. Only the first one you choose is used to color the map thematically, but any other fields specified in **Values** appear in a pop-up information bubble when you hover your mouse over a data point on the map.
 
-To use the Mapbox renderer, you'll need a free API key from Mapbox. You can get one on their web site here. https://www.mapbox.com/signup/
+To use the Mapbox renderer, you need a free API key from Mapbox. You can get one on their web site here: https://www.mapbox.com/signup/  When you create your map and choos Mapbox as the renderer, PixieDust prompts you to enter your key.
 
-Options:
-     Keys: Latitude, Longitude
 
 Google Maps
 ~~~~~~~~~~~
@@ -201,13 +212,11 @@ To create a GeoChart in Pixiedust, make the field that has place names your **Ke
 
 Then under the "Display Mode" menu, choose "Region" to color the entire area of your named places e.g. countries, provinces, or states. Choose "Markers" to instead place a circle in the center of the region which is scaled according to the data selected for the **Value** field.
 
-USERS NEED MAPBOX KEY? - how handle?
-
 
 Histogram
 **********
 
-Use a histogram if the values on your x-axis are numeric like age range, prices, etc...
+Use a histogram if the values on your x-axis are numeric like age range, prices, etc... and you want to show them in ranges. More on when to use a histogram.
 
 Conclusion
 ----------

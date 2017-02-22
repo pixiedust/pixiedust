@@ -108,33 +108,41 @@
 <li>zoom in for a more detailed view</li>
 </ul>
 <p><code class="docutils literal"><span class="pre">display()</span></code> simplifies notebook charting in one important way: It takes only one cell to to generate hundreds of visualization options. Unlike traditional notebooks where you build a series of visualizations over several cells, PixieDust needs only one cell to generate an interactive widget which lets you turn knobs to explore the data in a myriad of ways.</p>
-<p>DRAFT DRAFT DRAFT DRAFT  &#8211;docs in progress&#8212;</p>
 </div>
 <div class="section" id="work-with-tables-charts-and-maps">
 <h2>Work with Tables, Charts, and Maps<a class="headerlink" href="#work-with-tables-charts-and-maps" title="Permalink to this headline">¶</a></h2>
 <p>Pixiedust <code class="docutils literal"><span class="pre">display()</span></code> provides an extensive set of graphs and visualizations.</p>
 <div class="section" id="tables">
 <h3>Tables<a class="headerlink" href="#tables" title="Permalink to this headline">¶</a></h3>
-<p>The resulting table shows extended information about the Spark DataFrame:</p>
+<p>A great place to start is to view your data in a simple table format. To do so, click the table button:</p>
 <blockquote>
-<div><ul class="simple">
-<li><strong>Schema</strong> gives detailed information about the DataFrame schema</li>
-<li><strong>Table</strong> displays a sample of the data</li>
-</ul>
+<div><img alt="_images/display_table.png" src="_images/display_table.png" />
 </div></blockquote>
+<p>You see extended information about your Spark DataFrame in 2 view options:</p>
+<ul class="simple">
+<li><strong>Schema</strong> gives detailed information about the DataFrame schema</li>
+<li><strong>Table</strong> displays a sample of the data in an easy-to-read table format.</li>
+</ul>
 </div>
-<div class="section" id="set-chart-content">
-<h3>Set Chart Content<a class="headerlink" href="#set-chart-content" title="Permalink to this headline">¶</a></h3>
-<p>You can configure the content of the chart by calling the options dialog available for each chart, using the Options button. The options dialog is composed of a set of commons options for every chart plus a set of additional options relevant to the currently selected chart.</p>
-<p>Here are the commons options for every charts:</p>
+<div class="section" id="set-chart-content-with-options">
+<h3>Set Chart Content with Options<a class="headerlink" href="#set-chart-content-with-options" title="Permalink to this headline">¶</a></h3>
+<ol class="arabic">
+<li><p class="first">To chart your data, begin with a click on the Chart menu and choose a chart type:</p>
+<img alt="_images/chartmenu.png" src="_images/chartmenu.png" />
+</li>
+<li><p class="first">Configure the content of the chart by clicking the <strong>Options</strong> button*. The options dialog that opens contains a set of common configuration choices for every chart, plus a set of options specific to the chart type you selected.</p>
+</li>
+</ol>
+<p>For example, Bar Chart shows the following options dialog:</p>
+<img src="https://github.com/DTAIEB/demos/raw/master/resources/PixieDust Options Dialog.png" width="615"><p>Choose  common options for every chart:</p>
 <ul>
 <li><p class="first">Chart Title: display a title</p>
 </li>
 <li><p class="first">Fields: available field name derived from the DataFrame schema</p>
 </li>
-<li><p class="first">Keys: Name of the fields that will be used for the X-Axis</p>
+<li><p class="first">Keys: Name of the fields serve as the X-Axis</p>
 </li>
-<li><p class="first">Values: Name of fields that will be user for the Y-Axis</p>
+<li><p class="first">Values: Name of fields that serve as the Y-Axis</p>
 </li>
 <li><dl class="first docutils">
 <dt>Aggregation: Type of aggregation to be performed on the data</dt>
@@ -143,21 +151,26 @@
 <li>AVG: average of values for the key</li>
 <li>MIN: Min of values for the key</li>
 <li>MAX: Max of values for the key</li>
-<li>COUNT: number of times the key occurs  WHAT HAPPENS WHEN YOU LIMIT COUNT? HOW DOES PD CHOOSE RECORDS?</li>
+<li>COUNT: number of times the key occurs</li>
 </ul>
 </dd>
 </dl>
 </li>
 </ul>
-<p>For example, Bar Chart shows the following options dialog:</p>
-<img src="https://github.com/DTAIEB/demos/raw/master/resources/PixieDust Options Dialog.png" width="615"></div>
+<p>Then choose the chart-specific options. Read on to learn how to configure individual chart types.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Errors? Issues? If you get an error or encounter a problem displaying data, start troubleshooting by <a class="reference external" href="logging.html">checking the logs</a>.</p>
+</div>
+</div>
 <div class="section" id="bar-charts">
 <h3>Bar Charts<a class="headerlink" href="#bar-charts" title="Permalink to this headline">¶</a></h3>
 <p>Bar charts are handy for comparing items side-by-side. When you select more than one key or value, you have the option to choose between 2 types of bar chart:</p>
 <ul class="simple">
 <li>Stacked: items in a category are represented in a single column with different color for each segment</li>
-<li>Grouped: items in a category are displayed side by side, making it easier to compare between each other.</li>
+<li>Grouped: items in a category are displayed side by side, making it easier to compare values.</li>
 </ul>
+<p>cluster</p>
 <p>In our example, we use a Grouped bar chart showing the quarterly number of unique customers grouped by year:</p>
 <img src="https://github.com/DTAIEB/demos/raw/master/resources/PixieDust Bar Chart.png" width="615"></div>
 <div class="section" id="line-chart">
@@ -173,16 +186,35 @@
 </div>
 <div class="section" id="map">
 <h3>Map<a class="headerlink" href="#map" title="Permalink to this headline">¶</a></h3>
-<dl class="docutils">
-<dt>Options:</dt>
-<dd>Keys: Latitude, Longitude</dd>
-</dl>
-<p>Renderers: Mapbox, Google Maps.</p>
-<p>USERS NEED MAPBOX KEY? - how handle?</p>
+<div class="section" id="mapbox">
+<h4>Mapbox<a class="headerlink" href="#mapbox" title="Permalink to this headline">¶</a></h4>
+<p>The Mapbox map renderer lets you create a map of geographic point data. Currently, your DataFrame should have at least the following 3 fields in order to work with this renderer:</p>
+<ul class="simple">
+<li>a latitude field named latitude, lat, or y</li>
+<li>a longitude field named longitude, lon, long, or x</li>
+<li>a numeric field for visualization.</li>
+</ul>
+<p>In the <em>Options</em> dialog, choose your latitude and longitude fields as <strong>Keys</strong>. Then choose any numeric fields for <strong>Values</strong>. Only the first one you choose is used to color the map thematically, but any other fields specified in <strong>Values</strong> appear in a pop-up information bubble when you hover your mouse over a data point on the map.</p>
+<p>To use the Mapbox renderer, you need a free API key from Mapbox. You can get one on their web site here: <a class="reference external" href="https://www.mapbox.com/signup/">https://www.mapbox.com/signup/</a>  When you create your map and choos Mapbox as the renderer, PixieDust prompts you to enter your key.</p>
+</div>
+<div class="section" id="google-maps">
+<h4>Google Maps<a class="headerlink" href="#google-maps" title="Permalink to this headline">¶</a></h4>
+<p>In addition to mapping <em>geographic points</em> with Mapbox, Pixiedust also allows you to use <a class="reference external" href="https://developers.google.com/chart/interactive/docs/gallery/geochart">Google&#8217;s API</a> to create &#8220;GeoCharts&#8221;. From their docs:</p>
+<blockquote>
+<div><p>A geochart is a map of a country, a continent, or a region with areas identified in one of three ways:</p>
+<ul class="simple">
+<li>The region mode colors whole regions, such as countries, provinces, or states.</li>
+<li>The markers mode uses circles to designate regions that are scaled according to a value that you specify.</li>
+<li>The text mode labels the regions with identifiers (e.g., &#8220;Russia&#8221; or &#8220;Asia&#8221;).</li>
+</ul>
+</div></blockquote>
+<p>To create a GeoChart in Pixiedust, make the field that has place names your <strong>Key</strong> field. Then for the <strong>Value</strong> field, choose any numeric field you want to visualize.</p>
+<p>Then under the &#8220;Display Mode&#8221; menu, choose &#8220;Region&#8221; to color the entire area of your named places e.g. countries, provinces, or states. Choose &#8220;Markers&#8221; to instead place a circle in the center of the region which is scaled according to the data selected for the <strong>Value</strong> field.</p>
+</div>
 </div>
 <div class="section" id="histogram">
 <h3>Histogram<a class="headerlink" href="#histogram" title="Permalink to this headline">¶</a></h3>
-<p>Use a histogram if the values on your x-axis are numeric like age range, prices, etc...</p>
+<p>Use a histogram if the values on your x-axis are numeric like age range, prices, etc... and you want to show them in ranges. More on when to use a histogram.</p>
 </div>
 </div>
 <div class="section" id="conclusion">
