@@ -62,4 +62,4 @@ class ScatterPlotRenderer(BokehBaseDisplay):
         data = self.getWorkingPandasDataFrame()
         return Scatter(data, 
             x = self.getKeyFields()[0], y = self.getValueFields()[0],
-            xlabel=self.getKeyFields()[0],ylabel=self.getValueFields()[0],legend="top_left", color=self.options.get("color"))
+            xlabel=self.getKeyFields()[0],ylabel=self.getValueFields()[0],legend=self.showLegend(), color=self.options.get("color"))

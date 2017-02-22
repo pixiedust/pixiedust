@@ -25,4 +25,6 @@ myLogger = pixiedust.getLogger(__name__)
 
 @PixiedustRenderer(rendererId="seaborn")
 class SeabornBaseDisplay(with_metaclass(ABCMeta, MatplotlibBaseDisplay)):
-	pass
+    #Legend are not implemented in seaborn
+    def supportsLegend(self, handlerId):
+        return False

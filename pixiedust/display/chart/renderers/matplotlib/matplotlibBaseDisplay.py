@@ -53,6 +53,9 @@ class MatplotlibBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
     def canStretch(self):
         return True
 
+    def isStretchingOn(self):
+        return self.getBooleanOption('stretch', False) and not self.useMpld3
+
     @commonChartOptions
     def getChartOptions(self):
         options = []
@@ -80,8 +83,8 @@ class MatplotlibBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
         labels = [s.get_text() for s in ax.get_xticklabels()]
         totalWidth = sum(len(s) for s in labels) * 5
         if totalWidth > self.getPreferredOutputWidth():
-            self.needsStretching = self.canStretch() and True
-            if self.getBooleanOption('stretch', False) and not self.useMpld3:
+            self.needsStretching = self.canStretch()
+            if self.isStretchingOn():
                 #resize image width
                 fig.set_size_inches( totalWidth/self.getDPI(),fig.get_figheight())
             else:
@@ -96,8 +99,7 @@ class MatplotlibBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
 
     def setChartLegend(self, fig, ax):
         if self.supportsLegend(self.handlerId):
-            showLegend = self.options.get("showLegend", "true")
-            if showLegend == "true":
+            if self.showLegend():
                 l = ax.legend(title=self.titleLegend if hasattr(self, 'titleLegend') else '')
                 if l is not None:
                     l.get_frame().set_alpha(0)
@@ -116,12 +118,11 @@ class MatplotlibBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
         if numFigures <= 1:
             return plt.subplots(figsize=( int(self.getPreferredOutputWidth()/ self.getDPI()), int(self.getPreferredOutputHeight() / self.getDPI()) ))
 
-        gridCols = 2 #number of columns for a multiplots, TODO make the layout configurable
-        numRows = int( numFigures/2 ) + numFigures % 2
-        numCols = 2
+        numCols = 1 if self.isStretchingOn() else 2 #number of columns for a multiplots, TODO make the layout configurable
+        numRows = int( numFigures/numCols ) + numFigures % numCols
         imageHeight =  ((self.getPreferredOutputWidth()/2) * 0.75) * numRows
         fig,ax = plt.subplots(numRows, numCols, figsize=( int(self.getPreferredOutputWidth()/self.getDPI()), int(imageHeight/self.getDPI() )))
-        if numFigures%2 != 0:
+        if numFigures%numCols != 0:
             fig.delaxes(ax.item(numFigures))
             ax = np.delete(ax,numFigures)
         return (fig,ax)
@@ -151,13 +152,16 @@ class MatplotlibBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
                 #self.setChartLegend(fig, ax)
                 self.setTicks(fig, ax)
             else:
+                for a in ax:
+                    self.setTicks(fig, a)
                 #adjust the height between subplots
-                plt.subplots_adjust(hspace=0.2)
+                plt.subplots_adjust(hspace=0.5 if self.isStretchingOn() else 0.2)
 
             #Render the figure
             return self.renderFigure(fig)
         finally:
-            plt.close(fig)
+            if fig is not None:
+                plt.close(fig)
 
     def renderFigure(self, fig):
         def genMarkup(chartFigure):
