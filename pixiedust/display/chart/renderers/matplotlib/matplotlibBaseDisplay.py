@@ -161,9 +161,14 @@ class MatplotlibBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
             if self.useMpld3:
                 from matplotlib import ticker
                 self.debug("Converting to FixedLocator for mpld3")
-                vmin,vmax = ax.xaxis.get_data_interval()
-                locator = ax.xaxis.get_major_locator()
-                ax.xaxis.set_major_locator(ticker.FixedLocator(locator.tick_values(vmin, vmax)))
+                axes = ax
+                if not isinstance(axes, (list,np.ndarray)):
+                    ax = np.asarray([axes])
+                for a in axes:
+                    locator = a.xaxis.get_major_locator()
+                    if not isinstance(locator, ticker.FixedLocator):
+                        vmin,vmax = a.xaxis.get_data_interval()
+                        a.xaxis.set_major_locator(ticker.FixedLocator(locator.tick_values(vmin, vmax)))
 
             #Render the figure
             return self.renderFigure(fig)
