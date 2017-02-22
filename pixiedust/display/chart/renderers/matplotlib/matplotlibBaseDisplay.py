@@ -157,6 +157,14 @@ class MatplotlibBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
                 #adjust the height between subplots
                 plt.subplots_adjust(hspace=0.5 if self.isStretchingOn() else 0.2)
 
+            #mpld3 has a bug when autolocator are used. Change to FixedLocators
+            if self.useMpld3:
+                from matplotlib import ticker
+                self.debug("Converting to FixedLocator for mpld3")
+                vmin,vmax = ax.xaxis.get_data_interval()
+                locator = ax.xaxis.get_major_locator()
+                ax.xaxis.set_major_locator(ticker.FixedLocator(locator.tick_values(vmin, vmax)))
+
             #Render the figure
             return self.renderFigure(fig)
         finally:
