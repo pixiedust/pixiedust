@@ -29,6 +29,7 @@ class StashCloudantHandler(Display):
         sc = SparkContext.getOrCreate()
         config = sc._conf.getAll()
         
+        sc.stop()
         if not any("spark.jars" in s for s in config):
             raise Exception("Please set --jars <your path>/cloudant-spark.jar to PYSPARK_SUBMIT_ARGS in kernel.json")
         
