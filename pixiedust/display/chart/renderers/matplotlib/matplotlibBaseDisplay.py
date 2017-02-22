@@ -163,7 +163,7 @@ class MatplotlibBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
                 self.debug("Converting to FixedLocator for mpld3")
                 axes = ax
                 if not isinstance(axes, (list,np.ndarray)):
-                    ax = np.asarray([axes])
+                    axes = np.asarray([axes])
                 for a in axes:
                     locator = a.xaxis.get_major_locator()
                     if not isinstance(locator, ticker.FixedLocator):
