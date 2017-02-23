@@ -26,7 +26,7 @@ import bokeh.plotting as gridplot
 class BarChartRenderer(BokehBaseDisplay):
     def getSubplotHSpace(self):
         return 0.5
-        
+
     def isSubplot(self):
         return self.options.get("charttype", "grouped") == "subplots"
 
@@ -67,9 +67,9 @@ class BarChartRenderer(BokehBaseDisplay):
 
         for p in params:
             if stacked:
-                b = Bar(data, label=keyFields[0], values=p[0], stack=p[1], legend=self.showLegend(), plot_width=800)
+                b = Bar(data, label=keyFields[0], values=p[0], stack=p[1], legend=self.showLegend())
             else:
-                b = Bar(data, label=keyFields[0], values=p[0], group=p[1], legend=self.showLegend(), plot_width=800)
+                b = Bar(data, label=keyFields[0], values=p[0], group=p[1], legend=self.showLegend())
 
             charts.append(b)
 
