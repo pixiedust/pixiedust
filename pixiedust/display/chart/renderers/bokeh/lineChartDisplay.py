@@ -24,8 +24,8 @@ from bokeh.plotting import figure
 @PixiedustRenderer(id="lineChart")
 @Logger()
 class LineChartRenderer(BokehBaseDisplay):
-    def supportsAggregation(self, handlerId):
-        return False
+    # def supportsAggregation(self, handlerId):
+    #     return False
 
     def createBokehChart(self):
         keyFields = self.getKeyFields()
