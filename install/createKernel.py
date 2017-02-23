@@ -51,14 +51,19 @@ class PixiedustInstall(InstallKernelSpec):
     def parse_command_line(self, argv):
         silent = "--silent" in argv
         silent_spark_version = None
-        if "--spark" in argv:
-            silent_spark_version = argv["--spark"]
-            argv.remove("--spark")
-            if silent_spark_version not in self.spark_download_versions:
-                print("Invalid Spark version {}".format(silent_spark_version))
-                self.exit(1)
         if silent:
             argv.remove("--silent")
+            arg_str = None
+            for i, arg in enumerate(argv):
+                if arg.startswith("--spark"):
+                    arg_str = arg
+                    silent_spark_version = arg_str[len("--spark")+1:]
+                    if silent_spark_version not in self.spark_download_versions:
+                        print("Invalid Spark version {}".format(silent_spark_version))
+                        self.exit(1)
+                    break
+            if arg_str:
+                argv.remove(arg_str)
         super(InstallKernelSpec, self).parse_command_line(argv)
 
         self.pixiedust_home = os.environ.get("PIXIEDUST_HOME", "{}{}pixiedust".format(os.path.expanduser('~'), os.sep))
