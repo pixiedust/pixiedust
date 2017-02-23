@@ -50,6 +50,13 @@ class PixiedustInstall(InstallKernelSpec):
 
     def parse_command_line(self, argv):
         silent = "--silent" in argv
+        silent_spark_version = None
+        if "--spark" in argv
+            silent_spark_version = argv["--spark"]
+            argv.remove("--spark")
+            if silent_spark_version not in self.spark_download_versions:
+                print("Invalid Spark version {}".format(silent_spark_version))
+                self.exit(1)
         if silent:
             argv.remove("--silent")
         super(InstallKernelSpec, self).parse_command_line(argv)
@@ -107,7 +114,7 @@ class PixiedustInstall(InstallKernelSpec):
                     break
 
         if download_spark:
-            self.download_spark(silent)
+            self.download_spark(silent, silent_spark_version)
 
         scala_version = None
         spark_version = self.get_spark_version()
@@ -201,12 +208,15 @@ class PixiedustInstall(InstallKernelSpec):
         else:
             return None
 
-    def download_spark(self, silent):
+    def download_spark(self, silent, silent_spark_version):
         while True:
             spark_default_version = self.spark_download_versions[len(self.spark_download_versions)-1]
             spark_download_versions_str = ', '.join(self.spark_download_versions) + ' [{}]'.format(spark_default_version)
             if silent:
-                spark_version = spark_default_version
+                if silent_spark_version:
+                    spark_version = silent_spark_version
+                else:
+                    spark_version = spark_default_version
             else:
                 spark_version = input(
                     self.hilite("What version would you like to download? {}: ".format(spark_download_versions_str))
