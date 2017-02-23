@@ -29,8 +29,12 @@ class StashCloudantHandler(Display):
         sc = SparkContext.getOrCreate()
         config = sc._conf.getAll()
         if not any("spark.jars" in s for s in config):
-            raise Exception("Please set --jars <your path>/cloudant-spark.jar to PYSPARK_SUBMIT_ARGS in kernel.json")
-        
+            self._addHTML("Please set PYSPARK_SUBMIT_ARGS to --jars local_dir_path/cloudant-spark.jar in kernel.json")
+            myLogger.debug("Please set PYSPARK_SUBMIT_ARGS to --jars <local_dir_path>/cloudant-spark.jar in kernel.json")
+            myLogger.debug("SparkContext conf:")
+            myLogger.debug(config)
+            return
+                    
         entity=self.entity
 
         dbName = self.options.get("dbName", "dataframe-"+time.strftime('%Y%m%d-%H%M%S'))
