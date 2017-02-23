@@ -53,6 +53,10 @@ class MapViewDisplay(MapBoxBaseDisplay):
         return (diagTemplate, {})
     
     def doRenderChart(self):
+        mbtoken = self.options.get("mapboxtoken")
+        if not mbtoken or len(mbtoken)<5:
+            return self.renderTemplate("noaccesstoken.html")
+
         df = self.getWorkingPandasDataFrame()
 
         keyFields = self.getKeyFields()
@@ -92,7 +96,7 @@ class MapViewDisplay(MapBoxBaseDisplay):
         if len(valueFields) > 0:
             mapValueField = valueFields[0]
             self.options["mapValueField"] = mapValueField
-        # if there's a numeric value field paint the data as a chloropleth map
+        # if there's a numeric value field paint the data as a choropleth map
         if self.options.get("kind") != "simple" and len(valueFields) > 0:
             minval = df[valueFields[0]].min()
             maxval = df[valueFields[0]].max()
