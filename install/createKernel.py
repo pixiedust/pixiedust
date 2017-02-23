@@ -51,7 +51,7 @@ class PixiedustInstall(InstallKernelSpec):
     def parse_command_line(self, argv):
         silent = "--silent" in argv
         silent_spark_version = None
-        if "--spark" in argv
+        if "--spark" in argv:
             silent_spark_version = argv["--spark"]
             argv.remove("--spark")
             if silent_spark_version not in self.spark_download_versions:
