@@ -124,25 +124,30 @@
 <li><strong>Table</strong> displays a sample of the data in an easy-to-read table format.</li>
 </ul>
 </div>
-<div class="section" id="set-chart-content-with-options">
-<h3>Set Chart Content with Options<a class="headerlink" href="#set-chart-content-with-options" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="set-chart-content">
+<h3>Set Chart Content<a class="headerlink" href="#set-chart-content" title="Permalink to this headline">¶</a></h3>
 <ol class="arabic">
-<li><p class="first">To chart your data, begin with a click on the Chart menu and choose a chart type:</p>
+<li><p class="first">Click the Chart dropdown menu and choose a chart type:</p>
 <img alt="_images/chartmenu.png" src="_images/chartmenu.png" />
 </li>
-<li><p class="first">Configure the content of the chart by clicking the <strong>Options</strong> button*. The options dialog that opens contains a set of common configuration choices for every chart, plus a set of options specific to the chart type you selected.</p>
+<li><p class="first">Configure the content of the chart by clicking the <strong>Options</strong> button.</p>
+<img alt="_images/optionsbutton.png" src="_images/optionsbutton.png" />
+<p>The options dialog that opens contains a set of common configuration choices for every chart, plus a set of options specific to the chart type you selected.  For example, Bar Chart shows the following options dialog:</p>
+<blockquote>
+<div><img alt="_images/options.png" src="_images/options.png" />
+</div></blockquote>
 </li>
 </ol>
-<p>For example, Bar Chart shows the following options dialog:</p>
-<img src="https://github.com/DTAIEB/demos/raw/master/resources/PixieDust Options Dialog.png" width="615"><p>Choose  common options for every chart:</p>
+<p>To set keys and values, drag fields from the fields list on the left and drop them where you want them.</p>
+<p>Choose from these common options for every chart:</p>
 <ul>
-<li><p class="first">Chart Title: display a title</p>
+<li><p class="first">Chart Title: Enter an apt, descriptive title</p>
 </li>
-<li><p class="first">Fields: available field name derived from the DataFrame schema</p>
+<li><p class="first">Fields: lists available field names derived from your DataFrame schema</p>
 </li>
-<li><p class="first">Keys: Name of the fields serve as the X-Axis</p>
+<li><p class="first">Keys: Name of the fields serve as the x-Axis</p>
 </li>
-<li><p class="first">Values: Name of fields that serve as the Y-Axis</p>
+<li><p class="first">Values: Name of fields that serve as the y-Axis</p>
 </li>
 <li><dl class="first docutils">
 <dt>Aggregation: Type of aggregation to be performed on the data</dt>
@@ -163,14 +168,34 @@
 <p class="last">Errors? Issues? If you get an error or encounter a problem displaying data, start troubleshooting by <a class="reference external" href="logging.html">checking the logs</a>.</p>
 </div>
 </div>
-<div class="section" id="bar-charts">
-<h3>Bar Charts<a class="headerlink" href="#bar-charts" title="Permalink to this headline">¶</a></h3>
-<p>Bar charts are handy for comparing items side-by-side. When you select more than one key or value, you have the option to choose between 2 types of bar chart:</p>
+<div class="section" id="choose-a-renderer">
+<h3>Choose a renderer<a class="headerlink" href="#choose-a-renderer" title="Permalink to this headline">¶</a></h3>
+<p>Depending upon the chart type, PixieDust offers several different rendering engines to use to display your data.</p>
+<img alt="_images/renderer_menu.png" src="_images/renderer_menu.png" />
+<div class="sidebar">
+<p class="first sidebar-title">Create your own renderer</p>
+<p class="last">Is your favorite rendering engine missing from this list? You can add it. As mentioned, developers can code and contribute new visualizations. You can also <a class="reference external" href="renderer.html">add a new renderer</a> to use yourself or <a class="reference external" href="contribute.html">contribute</a> to the PixieDust project.</p>
+</div>
+<p>The following renderers are currently built-in:</p>
+<ul class="simple">
+<li><a class="reference external" href="http://matplotlib.org/">matplotlib</a></li>
+<li><a class="reference external" href="https://seaborn.pydata.org/">Seaborn</a></li>
+<li><a class="reference external" href="http://bokeh.pydata.org/en/latest/">Bokeh</a></li>
+</ul>
+</div>
+<div class="section" id="bar-chart">
+<h3>Bar Chart<a class="headerlink" href="#bar-chart" title="Permalink to this headline">¶</a></h3>
+<p>Bar charts are handy for comparing items side-by-side. In the <strong>Options</strong> dialog, set:</p>
+<p><strong>Keys:</strong> Choose a numeric field to serve as your x-axis
+<strong>Values:</strong> Choose a numeric field to serve as your y-axis
+<strong>Aggregation</strong> Choose to sum, average or otherwise aggregate on value you chose in <strong>keys</strong></p>
+<p>When you select more than one key or value, you have the option to choose between 2 types of bar chart:</p>
 <ul class="simple">
 <li>Stacked: items in a category are represented in a single column with different color for each segment</li>
 <li>Grouped: items in a category are displayed side by side, making it easier to compare values.</li>
 </ul>
 <p>cluster</p>
+<p>Once your bar plot apppears, you can choose your renderer (matplotlib, seaborn, or bokeh). Individual renderers include their own options, like this Bokeh chart:</p>
 <p>In our example, we use a Grouped bar chart showing the quarterly number of unique customers grouped by year:</p>
 <img src="https://github.com/DTAIEB/demos/raw/master/resources/PixieDust Bar Chart.png" width="615"></div>
 <div class="section" id="line-chart">
@@ -178,24 +203,32 @@
 <img src="https://github.com/DTAIEB/demos/raw/master/resources/PixieDust Line Chart.png" width="615"></div>
 <div class="section" id="scatter-plot">
 <h3>Scatter Plot<a class="headerlink" href="#scatter-plot" title="Permalink to this headline">¶</a></h3>
-<p>DRAFT</p>
-<p>&#8212;docs in progress&#8212;</p>
+<p>A scatter plot charts individual data points upon a graph. In the <strong>Options</strong> dialog:</p>
+<p><strong>Keys:</strong> Choose a numeric field to serve as your x-axis
+<strong>Values:</strong> Choose a numeric field to serve as your y-axis</p>
+<p>Once your scatter plot apppears, you can choose your renderer (matplotlib, seaborn, or bokeh). Individual renderers include their own options, like this Bokeh chart:</p>
+<img alt="_images/bokeh_scatter_example.png" src="_images/bokeh_scatter_example.png" />
 </div>
-<div class="section" id="pie-charts">
-<h3>Pie Charts<a class="headerlink" href="#pie-charts" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="pie-chart">
+<h3>Pie Chart<a class="headerlink" href="#pie-chart" title="Permalink to this headline">¶</a></h3>
+<p>A pie chart is a circle graph which shows data as portions of a whole. In the <strong>Options</strong> dialog:</p>
+<p><strong>Keys:</strong> Choose the field that you want to be the labeled wedges of pie
+<strong>Values:</strong> Choose a numeric field that you want to aggregrate on
+<strong>Renderers:</strong> matplotlib only</p>
 </div>
 <div class="section" id="map">
 <h3>Map<a class="headerlink" href="#map" title="Permalink to this headline">¶</a></h3>
+<p>Configuring your map, depends upon which rendering engine you choose, Mapbox or Google Maps.</p>
 <div class="section" id="mapbox">
 <h4>Mapbox<a class="headerlink" href="#mapbox" title="Permalink to this headline">¶</a></h4>
 <p>The Mapbox map renderer lets you create a map of geographic point data. Currently, your DataFrame should have at least the following 3 fields in order to work with this renderer:</p>
 <ul class="simple">
 <li>a latitude field named latitude, lat, or y</li>
 <li>a longitude field named longitude, lon, long, or x</li>
-<li>a numeric field for visualization.</li>
+<li>a numeric field for visualization</li>
 </ul>
-<p>In the <em>Options</em> dialog, choose your latitude and longitude fields as <strong>Keys</strong>. Then choose any numeric fields for <strong>Values</strong>. Only the first one you choose is used to color the map thematically, but any other fields specified in <strong>Values</strong> appear in a pop-up information bubble when you hover your mouse over a data point on the map.</p>
-<p>To use the Mapbox renderer, you need a free API key from Mapbox. You can get one on their web site here: <a class="reference external" href="https://www.mapbox.com/signup/">https://www.mapbox.com/signup/</a>  When you create your map and choos Mapbox as the renderer, PixieDust prompts you to enter your key.</p>
+<p>In the <em>Options</em> dialog, drag your latitude and longitude fields into <strong>Keys</strong>. Then choose any numeric fields for <strong>Values</strong>. Only the first one you choose is used to color the map thematically, but any other fields specified in <strong>Values</strong> appear in a pop-up information bubble when you hover your mouse over a data point on the map.</p>
+<p>To use the Mapbox renderer, you need a free API key from Mapbox. You can get one on their web site here: <a class="reference external" href="https://www.mapbox.com/signup/">https://www.mapbox.com/signup/</a>  When you get your key, enter your key in the <strong>Options</strong> dialog box.</p>
 </div>
 <div class="section" id="google-maps">
 <h4>Google Maps<a class="headerlink" href="#google-maps" title="Permalink to this headline">¶</a></h4>
@@ -219,7 +252,10 @@
 </div>
 <div class="section" id="conclusion">
 <h2>Conclusion<a class="headerlink" href="#conclusion" title="Permalink to this headline">¶</a></h2>
-<p>Pixiedust display has a built-in set of chart visualizations that can render Spark and Pandas dataframe. The generated charts are easy to configure and also offer interactivity like Panning, zooming and tooltip. Pixiedust display() is also extensible and provide an API to let you write your own vizualizations.</p>
+<p>Pixiedust display has a built-in set of chart visualizations that can render a Spark or Pandas dataframe. The generated charts are easy to configure and also offer interactivity like panning, zooming, and tooltips. You can use the rendering engine of your choice to display and manipulate the visualaization.All this is possbile without writing a line of code. Developers, remember that PixieDust <code class="docutils literal"><span class="pre">display()</span></code> is also extensible and provides an API to let you write your own vizualizations.</p>
+<p>&#8211;user</p>
+<p>jupyter pixiedust install</p>
+<p>but won&#8217;t be able to use installer afterwards</p>
 </div>
 </div>
 

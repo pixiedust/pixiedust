@@ -68,14 +68,44 @@ class PieChartDisplay(MatplotlibBaseDisplay):
     def getNumFigures(self):
         return len(self.getValueFields())
 
+    """
+        We want height equals to size to make a perfect pie
+    """
+    def getHeightWidthRatio(self):
+        return 1
+
+    """
+        return chart width scale factor
+    """
+    def getWidthScaleFactor(self):
+        return 0.6
+
+    def getSubplotHSpace(self):
+        return None
+
+    def isStretchingOn(self):
+        return True
+
     def matplotlibRender(self, fig, ax):
+        numRows = len(self.getWorkingPandasDataFrame().index)
+        if numRows > 20:
+            self.addMessage("Too many data points to plot. Droping {0} rows to make the chart more presentable.".format(numRows-20))
         if not isinstance(ax, (list,np.ndarray)):
             ax=np.array([ax])
         keyFields = self.getKeyFields()
         valueFields = self.getValueFields()
         for i,valueField in enumerate(valueFields):
-            labels=[ "-".join(map(str, a)) for a in self.getWorkingPandasDataFrame()[keyFields].values.tolist() ]
-            self.getWorkingPandasDataFrame().plot(
+            pdf = self.getWorkingPandasDataFrame().sort_values(valueField).head(20)
+            labels=[ "-".join(map(str, a)) for a in pdf[keyFields].values.tolist() ]
+            legend = True if self.options.get("legend","false") == "true" else False
+            pdf.plot(
                 kind="pie", y = valueField, ax=ax.item(i), labels=labels, 
-                autopct='%1.0f%%', subplots=False, legend = True if self.options.get("legend","false") == "true" else False
+                autopct='%1.0f%%', subplots=False, legend = legend
             )
+
+            if legend:
+                numLabels = len(ax.item(i).get_legend_handles_labels()[1])
+                ax.item(i).legend(loc='upper center', 
+                    bbox_to_anchor=(0.5, 1.0 if numLabels <= 3 else 1.1 if numLabels <= 9 else 1.2 if numLabels <= 15 else 1.3), 
+                    ncol=3, fancybox=True, shadow=True
+                )
