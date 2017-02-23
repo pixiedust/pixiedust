@@ -50,7 +50,7 @@ class PandasDataFrameDataHandler(object):
             yFields = []
             aggregation = None
 
-        extraFields = [a for a in extraFields if a not in xFields]
+        extraFields = [a for a in extraFields if a not in xFields and a not in yFields]
         workingDF = self.entity[xFields + extraFields + yFields]
 
         if aggregation and len(yFields)>0:
