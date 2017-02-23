@@ -16,7 +16,7 @@ var btnok = $('.btn-ok');
 var setOkBtnStatus = function() {
 	if (($('#valueFields{{prefix}}').length && $('#valueFields{{prefix}}').children().length === 0)
 		|| ($('#keyFields{{prefix}}').length && $('#keyFields{{prefix}}').children().length === 0)
-		|| ($('#rows-count').length && Number($('#rows-count').val()) === 0)) {
+		|| ($('#rows-count').length && Number($('#rows-count').val()) <= 0)) {
 			btnok.attr('disabled', 'disabled');
 	}
 	else {
