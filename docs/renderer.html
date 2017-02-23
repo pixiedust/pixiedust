@@ -43,8 +43,63 @@
             
   <div class="section" id="build-a-renderer">
 <h1>Build a Renderer<a class="headerlink" href="#build-a-renderer" title="Permalink to this headline">¶</a></h1>
-<p>Detailed instructions coming soon...</p>
-<img alt="_images/draft-watermark.png" src="_images/draft-watermark.png" />
+<p>A <em>rendering engine</em> turns your data into pretty shapes and lines. PixieDust comes with a few built-in renderers like: matplotlib, Seaborn, Bokeh, Mapbox, and Google Maps. To switch between renderers, go to the upper right of your chart and click the <strong>Renderer</strong> dropdown:</p>
+<img alt="_images/renderer_dd.png" src="_images/renderer_dd.png" />
+<p>Choices available on this list depends upon what display option you choose. For example, Mapbox and Google Maps are available only for maps.</p>
+<p>You can use all these renderers right away without much extra effort. But what if your favorite rendering engine is missing?</p>
+<div class="section" id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
+<p>Adding a renderer is similar to <a class="reference external" href="writeviz.html">adding a display visualization</a>. It uses the same apis, but you need to define a few extra things:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">rendererId</span></code> (must be unique to this renderer)  use <code class="docutils literal"><span class="pre">&#64;PixiedustRenderer</span></code> annotation</li>
+<li>specify which charts the renderer can display, like <strong>map</strong> for example. List using same <code class="docutils literal"><span class="pre">&#64;PixiedustRenderer</span></code> annotation</li>
+<li>inherit from specialized class <code class="docutils literal"><span class="pre">BaseChartDisplay</span></code>.</li>
+<li>(optional) create a set of dynamic options using the <code class="docutils literal"><span class="pre">&#64;commonChartOptions</span></code> annotation</li>
+<li>(optional) as necessary, override method(s) from BaseChartDisplay to control rendering. For example: <code class="docutils literal"><span class="pre">getNumFigures</span></code>, <code class="docutils literal"><span class="pre">getExtraFields</span></code>, and so on.</li>
+<li>implement <code class="docutils literal"><span class="pre">doRenderChart</span></code> method</li>
+</ul>
+<p>We&#8217;ll soon post detailed instructions on how to implement this all manually, but there&#8217;s no need to wait! Read on to learn how to add a sample renderer and start exploring the code.</p>
+</div>
+<div class="section" id="add-a-renderer">
+<h2>Add a Renderer<a class="headerlink" href="#add-a-renderer" title="Permalink to this headline">¶</a></h2>
+<p>Since no documentation is as good the code itself, we created a little tool to help you generate bootstrap project that generates boilerplate code that you can then study to understand how it all fits together.</p>
+<ol class="arabic simple">
+<li>In Terminal or other command-line shell, navigate to the directory where you want to create the new project. This can be anywhere you choose.</li>
+<li>Enter and run:</li>
+</ol>
+<blockquote>
+<div><code class="docutils literal"><span class="pre">jupyter</span> <span class="pre">pixiedust</span> <span class="pre">generate</span></code></div></blockquote>
+<ol class="arabic" start="3">
+<li><p class="first">Respond to the questions/prompts to complete setup. Here&#8217;s the entire exchange including the command you&#8217;ll run in Step 4:</p>
+<img alt="_images/generate.png" src="_images/generate.png" />
+</li>
+<li><p class="first">Install your new renderer.</p>
+<p>If you&#8217;re not already there, cd into your project directory and run the following command:</p>
+<p><code class="docutils literal"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-e</span> <span class="pre">.</span></code></p>
+</li>
+<li><p class="first">Go to your notebook, and restart the kernel.</p>
+</li>
+<li><p class="first">Run the command <code class="docutils literal"><span class="pre">import</span> <span class="pre">pixiedust</span></code></p>
+</li>
+<li><p class="first">Run the command <code class="docutils literal"><span class="pre">import</span> <span class="pre">Sample</span></code></p>
+</li>
+<li><p class="first">Then load some data and run the display() command on it.</p>
+</li>
+<li><p class="first">In the charts dropdown, choose a chart you specified that the renderer can display.</p>
+</li>
+<li><p class="first">Click the <strong>Renderer</strong> dropdown.</p>
+</li>
+</ol>
+<blockquote>
+<div><p>You see your new renderer! Here&#8217;s one named <strong>Sample</strong>:</p>
+<img alt="_images/sample_renderer.png" src="_images/sample_renderer.png" />
+</div></blockquote>
+<p>Explore the code in your new project directory. We&#8217;ve commented in some guidance that should help you understand what you&#8217;re looking at.</p>
+</div>
+<div class="section" id="more-to-come">
+<h2>More to come<a class="headerlink" href="#more-to-come" title="Permalink to this headline">¶</a></h2>
+<p>Watch this space for more details on coding your own renderer.</p>
+</div>
 </div>
 
 
