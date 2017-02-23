@@ -22,6 +22,9 @@ from bokeh.charts import Bar
 @PixiedustRenderer(id="barChart")
 @Logger()
 class BarChartRenderer(BokehBaseDisplay):
+    def getSubplotHSpace(self):
+        return 0.5
+        
     def createBokehChart(self):
         data = self.getWorkingPandasDataFrame()
 

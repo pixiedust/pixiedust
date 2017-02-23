@@ -39,6 +39,9 @@ class BarChartRenderer(MatplotlibBaseDisplay):
         clusterby = self.options.get("clusterby")
         return [clusterby] if clusterby is not None else []
 
+    def getSubplotHSpace(self):
+        return 0.5
+
     #Main rendering method
     def matplotlibRender(self, fig, ax):
         keyFields = self.getKeyFields()

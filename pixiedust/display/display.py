@@ -174,11 +174,23 @@ class Display(with_metaclass(ABCMeta)):
     def getDPI(self):
         return int(self.options.get("nostore_dpi", 96))
 
+    """
+        return chart height to width ration
+    """
+    def getHeightWidthRatio(self):
+        return 0.75
+
+    """
+        return chart width scale factor
+    """
+    def getWidthScaleFactor(self):
+        return 0.8
+
     def getPreferredOutputWidth(self):
-        return float(self.options.get("nostore_cw", 1000)) * 0.80
+        return float(self.options.get("nostore_cw", 1000)) * self.getWidthScaleFactor()
 
     def getPreferredOutputHeight(self):
-        return float(self.getPreferredOutputWidth() * 0.75)
+        return float(self.getPreferredOutputWidth() * self.getHeightWidthRatio())
 
     def _getTemplateArgs(self, **kwargs):
         args = {

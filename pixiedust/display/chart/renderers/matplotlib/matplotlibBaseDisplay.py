@@ -120,12 +120,15 @@ class MatplotlibBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
 
         numCols = 1 if self.isStretchingOn() else 2 #number of columns for a multiplots, TODO make the layout configurable
         numRows = int( numFigures/numCols ) + numFigures % numCols
-        imageHeight =  ((self.getPreferredOutputWidth()/2) * 0.75) * numRows
+        imageHeight =  ((self.getPreferredOutputWidth()/numCols) * self.getHeightWidthRatio()) * numRows
         fig,ax = plt.subplots(numRows, numCols, figsize=( int(self.getPreferredOutputWidth()/self.getDPI()), int(imageHeight/self.getDPI() )))
         if numFigures%numCols != 0:
             fig.delaxes(ax.item(numFigures))
             ax = np.delete(ax,numFigures)
         return (fig,ax)
+
+    def getSubplotHSpace(self):
+        return 0.5 if self.isStretchingOn() else 0.2
         
     def doRenderChart(self):
         self.colormap = cm.jet
@@ -155,7 +158,7 @@ class MatplotlibBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
                 for a in ax:
                     self.setTicks(fig, a)
                 #adjust the height between subplots
-                plt.subplots_adjust(hspace=0.5 if self.isStretchingOn() else 0.2)
+                plt.subplots_adjust(hspace=self.getSubplotHSpace())
 
             #mpld3 has a bug when autolocator are used. Change to FixedLocators
             if self.useMpld3:
