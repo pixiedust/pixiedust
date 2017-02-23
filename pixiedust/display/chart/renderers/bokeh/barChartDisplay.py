@@ -18,6 +18,8 @@ from pixiedust.display.chart.renderers import PixiedustRenderer
 from .bokehBaseDisplay import BokehBaseDisplay
 from pixiedust.utils import Logger
 from bokeh.charts import Bar
+from bokeh.charts.operations import blend
+import bokeh.plotting as gridplot
 
 @PixiedustRenderer(id="barChart")
 @Logger()
@@ -25,23 +27,50 @@ class BarChartRenderer(BokehBaseDisplay):
     def getSubplotHSpace(self):
         return 0.5
         
+    def isSubplot(self):
+        return self.options.get("charttype", "grouped") == "subplots"
+
+    def getExtraFields(self):
+        if not self.isSubplot() and len(self.getValueFields())>1:
+            #no clusterby if we are grouped and multiValueFields
+            return []
+    
+        clusterby = self.options.get("clusterby")
+        return [clusterby] if clusterby is not None else []
+
     def createBokehChart(self):
         data = self.getWorkingPandasDataFrame()
+        keyFields = self.getKeyFields()
+        valueFields = self.getValueFields()
 
-        stacked = self.options.get("stacked", "true") == "true"
-        group = None
-        stack = None
-        color = self.getKeyFields()[0]
-        if len(self.getKeyFields())>1:
-            color = self.getKeyFields()[1]
+        clusterby = self.options.get("clusterby")
+        stacked = self.options.get("charttype", "grouped") == "stacked"
+        subplots = self.isSubplot()
+
+        # self.debug("keyF={0}, valueF={1}, cluster={2}, stacked={3}".format(keyFields[0], valueFields[0], clusterby, stacked))
+        charts = []
+        params = []
+
+        if subplots and len(valueFields) > 1:
+            for val in valueFields:
+                series = clusterby if clusterby is not None else False
+                values = val
+                params.append((values, series))
+        elif clusterby is not None and len(valueFields) <= 1:
+            params.append((valueFields[0], clusterby))
+        else:
+            series = '_'.join(valueFields)
+            values = blend(*valueFields, name=series.replace('_', ','), labels_name=series)
+            if clusterby is not None:
+                self.addMessage("Warning: 'Cluster By' ignored when you have multiple Value Fields but subplots option is not selected")
+            params.append((values, series))
+
+        for p in params:
             if stacked:
-                stack = self.getKeyFields()
+                b = Bar(data, label=keyFields[0], values=p[0], stack=p[1], legend=self.showLegend(), plot_width=800)
             else:
-                group = self.getKeyFields()
-        
-        agg=(self.getAggregation() or "count").lower()
-        if agg == 'avg':
-            agg = 'mean'
+                b = Bar(data, label=keyFields[0], values=p[0], group=p[1], legend=self.showLegend(), plot_width=800)
 
-        return Bar(data, self.getKeyFields()[0], values=self.getValueFields()[0], group=group, stack=stack, legend=self.showLegend(), 
-            color=color, plot_width=800)
+            charts.append(b)
+
+        return charts
