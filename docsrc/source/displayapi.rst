@@ -90,7 +90,7 @@ PixieDust spins up a robust user interface that contains all the features you ne
 Work with Tables, Charts, and Maps
 ----------------------------------
 
-Pixiedust ``display()`` provides an extensive set of graphs and visualizations.
+Pixiedust ``display()`` provides an extensive set of graphs and visualizations. 
 
 
 Tables
@@ -106,30 +106,29 @@ You see extended information about your Spark DataFrame in 2 view options:
 * **Table** displays a sample of the data in an easy-to-read table format.
 
 
-Set Chart Content with Options
+Set Chart Content 
 ******************************
 
-1. To chart your data, begin with a click on the Chart menu and choose a chart type:
+1. Click the Chart dropdown menu and choose a chart type:
 
    .. image:: _images/chartmenu.png
 
-2. Configure the content of the chart by clicking the **Options** button*. The options dialog that opens contains a set of common configuration choices for every chart, plus a set of options specific to the chart type you selected.
+2. Configure the content of the chart by clicking the **Options** button.
 
-For example, Bar Chart shows the following options dialog:
+   .. image:: _images/optionsbutton.png 
 
-.. container::
+   The options dialog that opens contains a set of common configuration choices for every chart, plus a set of options specific to the chart type you selected.  For example, Bar Chart shows the following options dialog:
 
-.. raw:: html
+    .. image:: _images/options.png 
 
-     <img src="https://github.com/DTAIEB/demos/raw/master/resources/PixieDust Options Dialog.png" width="615">
+To set keys and values, drag fields from the fields list on the left and drop them where you want them.
 
+Choose from these common options for every chart:
 
-Choose  common options for every chart:
-
-* Chart Title: display a title
-* Fields: available field name derived from the DataFrame schema
-* Keys: Name of the fields serve as the X-Axis
-* Values: Name of fields that serve as the Y-Axis
+* Chart Title: Enter an apt, descriptive title
+* Fields: lists available field names derived from your DataFrame schema
+* Keys: Name of the fields serve as the x-Axis
+* Values: Name of fields that serve as the y-Axis
 * Aggregation: Type of aggregation to be performed on the data
 	* SUM: sum of values for the key
 	* AVG: average of values for the key
@@ -141,15 +140,42 @@ Then choose the chart-specific options. Read on to learn how to configure indivi
 
 .. note:: Errors? Issues? If you get an error or encounter a problem displaying data, start troubleshooting by `checking the logs <logging.html>`_.
 
-Bar Charts
+Choose a renderer
+*****************
+
+Depending upon the chart type, PixieDust offers several different rendering engines to use to display your data. 
+
+.. image:: _images/renderer_menu.png
+
+.. sidebar:: Create your own renderer
+
+    Is your favorite rendering engine missing from this list? You can add it. As mentioned, developers can code and contribute new visualizations. You can also `add a new renderer <renderer.html>`_ to use yourself or `contribute <contribute.html>`_ to the PixieDust project.
+
+The following renderers are currently built-in:
+
+- `matplotlib <http://matplotlib.org/>`_
+- `Seaborn <https://seaborn.pydata.org/>`_
+- `Bokeh <http://bokeh.pydata.org/en/latest/>`_
+
+
+Bar Chart
 **********
 
-Bar charts are handy for comparing items side-by-side. When you select more than one key or value, you have the option to choose between 2 types of bar chart:
+Bar charts are handy for comparing items side-by-side. In the **Options** dialog, set:
+
+**Keys:** Choose a numeric field to serve as your x-axis
+**Values:** Choose a numeric field to serve as your y-axis 
+**Aggregation** Choose to sum, average or otherwise aggregate on value you chose in **keys**
+
+
+When you select more than one key or value, you have the option to choose between 2 types of bar chart:
 
 * Stacked: items in a category are represented in a single column with different color for each segment
 * Grouped: items in a category are displayed side by side, making it easier to compare values.
 
-cluster
+cluster option --need screen shot
+
+Once your bar plot apppears, you can choose your renderer (matplotlib, seaborn, or bokeh). Individual renderers include their own options, like this Bokeh chart:
 
 In our example, we use a Grouped bar chart showing the quarterly number of unique customers grouped by year:
 
@@ -173,15 +199,30 @@ Line Chart
 Scatter Plot
 *************
 
-DRAFT
+A scatter plot charts individual data points upon a graph. In the **Options** dialog:
 
----docs in progress---
+**Keys:** Choose a numeric field to serve as your x-axis
+**Values:** Choose a numeric field to serve as your y-axis 
 
-Pie Charts
+Once your scatter plot apppears, you can choose your renderer (matplotlib, seaborn, or bokeh). Individual renderers include their own options, like this Bokeh chart:
+
+.. image:: _images/bokeh_scatter_example.png
+
+Pie Chart
 **********
+
+A pie chart is a circle graph which shows data as portions of a whole. In the **Options** dialog:
+
+**Keys:** Choose the field that you want to be the labeled wedges of pie
+**Values:** Choose a numeric field that you want to aggregrate on
+**Renderers:** matplotlib only
+
 
 Map
 ***
+
+Configuring your map, depends upon which rendering engine you choose, Mapbox or Google Maps.
+
 
 Mapbox
 ~~~~~~
@@ -190,11 +231,11 @@ The Mapbox map renderer lets you create a map of geographic point data. Currentl
 
 * a latitude field named latitude, lat, or y
 * a longitude field named longitude, lon, long, or x
-* a numeric field for visualization.
+* a numeric field for visualization
 
-In the *Options* dialog, choose your latitude and longitude fields as **Keys**. Then choose any numeric fields for **Values**. Only the first one you choose is used to color the map thematically, but any other fields specified in **Values** appear in a pop-up information bubble when you hover your mouse over a data point on the map.
+In the *Options* dialog, drag your latitude and longitude fields into **Keys**. Then choose any numeric fields for **Values**. Only the first one you choose is used to color the map thematically, but any other fields specified in **Values** appear in a pop-up information bubble when you hover your mouse over a data point on the map.
 
-To use the Mapbox renderer, you need a free API key from Mapbox. You can get one on their web site here: https://www.mapbox.com/signup/  When you create your map and choos Mapbox as the renderer, PixieDust prompts you to enter your key.
+To use the Mapbox renderer, you need a free API key from Mapbox. You can get one on their web site here: https://www.mapbox.com/signup/  When you get your key, enter your key in the **Options** dialog box.
 
 
 Google Maps
@@ -221,4 +262,11 @@ Use a histogram if the values on your x-axis are numeric like age range, prices,
 Conclusion
 ----------
 
-Pixiedust display has a built-in set of chart visualizations that can render Spark and Pandas dataframe. The generated charts are easy to configure and also offer interactivity like Panning, zooming and tooltip. Pixiedust display() is also extensible and provide an API to let you write your own vizualizations.
+Pixiedust display has a built-in set of chart visualizations that can render a Spark or Pandas dataframe. The generated charts are easy to configure and also offer interactivity like panning, zooming, and tooltips. You can use the rendering engine of your choice to display and manipulate the visualaization.All this is possbile without writing a line of code. Developers, remember that PixieDust ``display()`` is also extensible and provides an API to let you write your own vizualizations.
+
+
+--user 
+
+jupyter pixiedust install
+
+but won't be able to use installer afterwards
