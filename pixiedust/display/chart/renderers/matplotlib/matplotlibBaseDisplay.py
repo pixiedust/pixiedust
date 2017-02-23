@@ -23,6 +23,7 @@ import matplotlib.cm as cm
 from six import with_metaclass
 from abc import abstractmethod, ABCMeta
 import numpy as np
+import math
 
 try:
     import mpld3
@@ -97,18 +98,13 @@ class MatplotlibBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
         else:
             plt.xticks(rotation=0)
 
-    def setChartLegend(self, fig, ax):
-        if self.supportsLegend(self.handlerId):
-            if self.showLegend():
-                l = ax.legend(title=self.titleLegend if hasattr(self, 'titleLegend') else '')
-                if l is not None:
-                    l.get_frame().set_alpha(0)
-                    numColumns = len(self.getKeyFields())
-                    for i, text in enumerate(l.get_texts()):
-                        text.set_color(self.colormap(1.*i/numColumns))
-                    for i, line in enumerate(l.get_lines()):
-                        line.set_color(self.colormap(1.*i/numColumns))
-                        line.set_linewidth(10)
+    def setLegend(self, fig, ax):
+        if ax.get_legend() is not None:
+            numLabels = len(ax.get_legend_handles_labels()[1])
+            nCol = int(min(max(math.sqrt( numLabels ), 3), 6))
+            nRows = int(numLabels/nCol)
+            bboxPos = max(1.1, 1.0 + ((float(nRows)/2)/10.0))
+            ax.legend(loc='upper center', bbox_to_anchor=(0.5, bboxPos),ncol=nCol, fancybox=True, shadow=True)
 
     def getNumFigures(self):
         return 1    #default, subclasses can override
@@ -150,13 +146,17 @@ class MatplotlibBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
             if newAx is not None:
                 ax = newAx
 
+            axes = ax
+            if not isinstance(axes, (list,np.ndarray)):
+                axes = np.asarray([axes])
+
             #finalize the chart
-            if not isinstance(ax, (list,np.ndarray)):
-                #self.setChartLegend(fig, ax)
-                self.setTicks(fig, ax)
-            else:
-                for a in ax:
-                    self.setTicks(fig, a)
+            for i, a in enumerate(axes):
+                if a.title is None or not a.title.get_visible() or a.title.get_text() == '':
+                    self.setLegend(fig, a)
+                self.setTicks(fig, a)
+            sharex = True if len(axes) <=1 else len([a for a in axes if a._sharex is not None]) > 0
+            if len(axes)>1 and not sharex:
                 #adjust the height between subplots
                 plt.subplots_adjust(hspace=self.getSubplotHSpace())
 
@@ -164,9 +164,6 @@ class MatplotlibBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
             if self.useMpld3:
                 from matplotlib import ticker
                 self.debug("Converting to FixedLocator for mpld3")
-                axes = ax
-                if not isinstance(axes, (list,np.ndarray)):
-                    axes = np.asarray([axes])
                 for a in axes:
                     locator = a.xaxis.get_major_locator()
                     if not isinstance(locator, ticker.FixedLocator):

@@ -28,9 +28,6 @@ class PieChartDisplay(MatplotlibBaseDisplay):
 
     def supportsKeyFieldLabels(self, handlerId):
         return False
-
-    def supportsLegend(self, handlerId):
-        return False
     
     def getPreferredDefaultValueFieldCount(self, handlerId):
         return 1
@@ -97,15 +94,7 @@ class PieChartDisplay(MatplotlibBaseDisplay):
         for i,valueField in enumerate(valueFields):
             pdf = self.getWorkingPandasDataFrame().sort_values(valueField).head(20)
             labels=[ "-".join(map(str, a)) for a in pdf[keyFields].values.tolist() ]
-            legend = True if self.options.get("legend","false") == "true" else False
             pdf.plot(
                 kind="pie", y = valueField, ax=ax.item(i), labels=labels, 
-                autopct='%1.0f%%', subplots=False, legend = legend
+                autopct='%1.0f%%', subplots=False, legend = self.showLegend()
             )
-
-            if legend:
-                numLabels = len(ax.item(i).get_legend_handles_labels()[1])
-                ax.item(i).legend(loc='upper center', 
-                    bbox_to_anchor=(0.5, 1.0 if numLabels <= 3 else 1.1 if numLabels <= 9 else 1.2 if numLabels <= 15 else 1.3), 
-                    ncol=3, fancybox=True, shadow=True
-                )

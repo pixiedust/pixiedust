@@ -59,7 +59,7 @@ class BarChartRenderer(MatplotlibBaseDisplay):
                 )
                 pivot.index.name=valueField
                 thisAx = pivot.plot(kind=kind, stacked=stacked, ax=self.getAxItem(ax, j), sharex=True, legend=self.showLegend(), 
-                    label=None if subplots else valueField, subplots=subplots,colormap = Colors.colormap,)
+                    label=None if subplots else valueField, subplots=subplots,colormap = Colors.colormap)
 
                 if len(valueFields)==1 and subplots:
                     if isinstance(thisAx, (list,np.ndarray)):
