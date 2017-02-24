@@ -49,7 +49,7 @@
 <p>You can use all these renderers right away without much extra effort. But what if your favorite rendering engine is missing?</p>
 <div class="section" id="introduction">
 <h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
-<p>Adding a renderer is similar to <a class="reference external" href="writeviz.html">adding a display visualization</a>. It uses the same apis, but you need to define a few extra things:</p>
+<p>Adding a renderer is similar to <a class="reference external" href="writeviz.html">adding a display visualization</a>. (Though it&#8217;s actually simpler since you don’t have to build the metadata, which is replaced by defining the chartID your renderer is for.) Renderers use the same apis as visualizations, but you need to define a few extra things:</p>
 <ul class="simple">
 <li><code class="docutils literal"><span class="pre">rendererId</span></code> (must be unique to this renderer)  use <code class="docutils literal"><span class="pre">&#64;PixiedustRenderer</span></code> annotation</li>
 <li>specify which charts the renderer can display, like <strong>map</strong> for example. List using same <code class="docutils literal"><span class="pre">&#64;PixiedustRenderer</span></code> annotation</li>
