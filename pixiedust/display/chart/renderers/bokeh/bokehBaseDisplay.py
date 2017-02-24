@@ -83,7 +83,7 @@ class BokehBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
             ncols = 1
             nrows = 2
             if(len(charts) > nrows):
-                ncols = len(charts) / nrows
+                ncols = int(len(charts) / nrows)
                 if(len(charts) % nrows != 0):
                     ncols = ncols + 1
             
