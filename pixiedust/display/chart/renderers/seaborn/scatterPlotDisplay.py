@@ -25,9 +25,6 @@ import seaborn as sns
 class ScatterPlotDisplay(SeabornBaseDisplay):
 	def supportsAggregation(self, handlerId):
 		return False
-
-	def supportsLegend(self, handlerId):
-		return False
     
 	def canRenderChart(self):
 		valueFields = self.getValueFields()

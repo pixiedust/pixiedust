@@ -34,7 +34,7 @@ class ChartDisplay(Display):
 
     #option helpers
     def showLegend(self):
-        return self.options.get("showLegend", "true") != "false"
+        return self.options.get("legend", "true") != "false"
 
     # numerical used as a boolean flag for truth table
     def sampleColumn(self, numerical):

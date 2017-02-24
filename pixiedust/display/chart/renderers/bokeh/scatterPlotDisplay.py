@@ -26,9 +26,6 @@ class ScatterPlotRenderer(BokehBaseDisplay):
 
     def supportsAggregation(self, handlerId):
         return False
-    
-    def supportsLegend(self, handlerId):
-        return False
 
     @commonChartOptions
     def getChartOptions(self):

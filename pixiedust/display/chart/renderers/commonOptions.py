@@ -52,6 +52,16 @@ def barChart(displayObject):
                 'default': "grouped"
             }
         })
+
+    options.append({
+        'name': 'legend',
+        'description': 'Show legend',
+        'metadata': {
+            'type': 'checkbox',
+            'default': "false"
+        }
+    })
+
     return options
 
 def lineChart(displayObject):
@@ -69,6 +79,15 @@ def lineChart(displayObject):
                 'default': "grouped"
             }
         })
+
+    options.append({
+        'name': 'legend',
+        'description': 'Show legend',
+        'metadata': {
+            'type': 'checkbox',
+            'default': "false"
+        }
+    })
 
     options.append({
         'name': 'logx',
