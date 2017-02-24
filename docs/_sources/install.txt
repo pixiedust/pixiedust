@@ -1,19 +1,19 @@
 Install PixieDust
 =================
-PixieDust is a Python library for use in Jupyter notebooks. 
+PixieDust is a Python library for use in Jupyter notebooks. To use PixieDust in your local environment, you must install it.
 PixieDust is bundled as a Python package and can be installed using pip.
-To install and configure PixieDust please follow the instructions below:
+To install and configure PixieDust complete the following steps:
 
 Prerequisites
 -------------
 In order to use PixieDust inside your Jupyter notebooks you will, of course, need Jupyter.
 The easiest way to install Jupyter is by installing Anaconda.
-Anaconda is a Data Science platform which consists of a Python distribution and collection of open source packages well suited for scientific computing.
+Anaconda is a Data Science platform which consists of a Python distribution and collection of open source packages well-suited for scientific computing.
 Anaconda includes Python, pip, pandas, numpy, matpoltlib, and other libraries required to run PixieDust effectively.
 
 To install Anaconda go to `<https://www.continuum.io/downloads>`_ and follow the instructions.
 
-Note: PixieDust supports both Python 2.7 and Python 3.5.
+.. note:: PixieDust supports both Python 2.7 and Python 3.5.
 
 Install PixieDust
 -----------------
@@ -24,28 +24,26 @@ Once you've installed Anaconda run the following commands in your Terminal or co
     jupyter --version
 
 You can install the PixieDust library from source or from PyPI.
-If you plan on contributing to PixieDust it is recommended that you install from source.
+If you plan on contributing to PixieDust we recommended that you install from source.
 
-Install from Source
-*******************
+- **Install from Source**
 
-To install PixieDust from source first clone the PixieDust repo on GitHub:
-::
+   To install PixieDust from source, first clone the PixieDust repo on GitHub:
+   ::
 
-    git clone https://github.com/ibm-cds-labs/pixiedust
+       git clone https://github.com/ibm-cds-labs/pixiedust
 
-Next, run `pip` with the `-e` flag to install the PixieDust from the local directory:
-::
+   Next, run `pip` with the `-e` flag to install the PixieDust from the local directory:
+   ::
 
-    pip install -e ./pixiedust
+       pip install -e ./pixiedust
 
-Install from PyPI
-*****************
+- **Install from PyPI**
 
-Alternatively, you can install the last version of PixieDust from PyPI using pip:
-::
+   Alternatively, you can install the last version of PixieDust from PyPI using pip:
+   ::
 
-    pip install pixiedust
+       pip install pixiedust
 
 .. note:: Do not include ``--user`` in your pip install command. Doing so installs the Jupyter PixieDust command in the wrong directory, and you won't be able to follow the rest of the steps on this page.
 
@@ -56,7 +54,7 @@ In order to use PixieDust inside Jupyter you must install a new Jupyter kernel.
 Kernels are processes that run interactive code from your Jupyter notebook.
 PixieDust uses pyspark; a Python binding for Apache Spark.
 PixieDust includes a command-line utility for installing new kernels that use pyspark.
-The command-line utility will walk you through the steps of configuring your kernel as well as installing Apache Spark and Scala (required if you want to run Scala code from within your Python notebook).
+The command-line utility walks you through the steps of configuring your kernel as well as installing Apache Spark and Scala (required if you want to run Scala code from within your Python notebook).
 
 Install a Jupyter Kernel
 ************************
@@ -74,15 +72,15 @@ You may choose to keep the default path, or select a new one:
     Step 1: PIXIEDUST_HOME: /Users/USERNAME/pixiedust
         Keep y/n [y]? y
 
-After you have configured PIXIEDUST_HOME you will be prompted to specify the location of your Apache Spark install.
-If you do not have Apache Spark installed the installer will download it for you:
+After you have configured PIXIEDUST_HOME you are prompted to specify the location of your Apache Spark install.
+If you do not have Apache Spark installed, the installer downloads it for you:
 ::
 
     Step 2: Please enter a SPARK_HOME location: /Users/USERNAME/spark
     Directory /Users/USERNAME/spark does not contain a valid SPARK install
         Download Spark y/n [y]? y
 
-If you choose to download Apache Spark the installer will prompt you for the version, download it, and configure your SPARK_HOME accordingly:
+If you choose to download Apache Spark, the installer prompts you for the version. Download it, and configure your SPARK_HOME accordingly:
 ::
 
     What version would you like to download? 1.6.3, 2.0.2, 2.1.0 [2.1.0]: 2.1.0
@@ -91,8 +89,8 @@ If you choose to download Apache Spark the installer will prompt you for the ver
     Extracting Spark 2.1.0 to /Users/USERNAME/spark
 
 
-Next, the installer will prompt you for the location of Scala.
-If you do not have Scala installed, or you do not have the version of Scala supported by your Apache Spark install, the installer will download the appropriate version of Scala for you.
+Next, the installer prompts you for the location of Scala.
+If you do not have Scala installed, or you do not have the version of Scala supported by your Apache Spark install, the installer downloads the appropriate version of Scala for you.
 ::
 
     Step 3: Please enter a SCALA_HOME location: /Users/USERNAME/scala
@@ -102,7 +100,7 @@ If you do not have Scala installed, or you do not have the version of Scala supp
     Downloading Scala 2.11
     Extracting Scala 2.11 to /Users/USERNAME/scala
 
-Finally, the installer will ask you for a name for the kernel.
+Finally, the installer asks you for a name for the kernel.
 ::
 
     Step 4: Kernel Name: Python with Pixiedust (Spark 2.1)
@@ -110,8 +108,7 @@ Finally, the installer will ask you for a name for the kernel.
 
 That's it! You can now run a Jupyter notebook using Apache Spark and PixieDust.
 
-Note: You can have more than one kernel for PixieDust.
-If you would like to install a new kernel with a different version of Spark just re-run the installer and choose the appropriate version.
+..note:: You can have more than one kernel for PixieDust. If you want to install a new kernel with a different version of Spark just re-run the installer and choose the appropriate version.
 
 List Existing Kernels
 *********************
@@ -121,7 +118,7 @@ You can list the existing Jupyter kernels from the command-line by running the f
 
     jupyter pixiedust list
 
-The output will look similar to the following:
+The output looks similar to this:
 ::
 
     Available kernels:
@@ -141,7 +138,7 @@ After you have downloaded the *Intro to Pixiedust.ipynb* notebook run the follow
 
     jupyter notebook directory/containing/notebook
 
-This should automatically open a web browser that looks similar to the following:
+This should automatically open a web browser that looks shows you this:
 
 .. container:: 
 
@@ -149,8 +146,8 @@ This should automatically open a web browser that looks similar to the following
 
      <img src="_images/install-notebook1.png" width="615">
 
-Click *Intro to Pixiedust.ipynb*. You may be prompted to select a kernel. Select the kernel you created using the installer.
-Alternatively, click *Kernel > Change Kernel* from the menu to select the appropriate kernel:
+Click **Intro to Pixiedust.ipynb**. You may be prompted to select a kernel. Select the kernel you created using the installer.
+Alternatively, click **Kernel > Change Kernel** from the menu to select the appropriate kernel:
 
 .. container:: 
 
@@ -158,4 +155,4 @@ Alternatively, click *Kernel > Change Kernel* from the menu to select the approp
 
      <img src="_images/install-notebook2.png" width="615">
 
-This notebook will show you how to import the PixieDust library and run a handful of PixieDust features.
+This notebook shows you how to import the PixieDust library and run a handful of PixieDust features.
