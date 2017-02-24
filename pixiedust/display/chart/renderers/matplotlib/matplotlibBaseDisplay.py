@@ -63,6 +63,7 @@ class MatplotlibBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
         if mpld3Available:
             options.append({
                 'name': 'mpld3',
+                'refresh': True,
                 'description': 'D3 Rendering (mpld3)',
                 'metadata': {
                     'type': 'checkbox',
