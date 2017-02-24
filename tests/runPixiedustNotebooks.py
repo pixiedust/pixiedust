@@ -185,6 +185,9 @@ if __name__ == '__main__':
                     except RestartKernelException:
                         logging.warn("Restarting kernel...")
                         processed = False
+                    except:
+                        logging.warn("Fatal Error in Notebook {}.".format(path))
+                        raise
                 print("Finished processing notebook {0}".format(path))
     finally:
         if kernelPath:
