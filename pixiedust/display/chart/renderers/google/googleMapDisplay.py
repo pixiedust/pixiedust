@@ -27,9 +27,6 @@ class MapViewDisplay(GoogleBaseDisplay):
 
     def supportsKeyFieldLabels(self, handlerId):
         return False
-
-    def supportsLegend(self, handlerId):
-        return False
     
     def getPreferredDefaultValueFieldCount(self, handlerId):
         return 1

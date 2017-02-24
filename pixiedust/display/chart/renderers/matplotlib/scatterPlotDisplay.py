@@ -23,9 +23,6 @@ class ScatterPlotDisplay(MatplotlibBaseDisplay):
     
 	def supportsAggregation(self, handlerId):
 		return False
-
-	def supportsLegend(self, handlerId):
-		return False
     
 	def canRenderChart(self):
 		valueFields = self.getValueFields()
