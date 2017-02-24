@@ -66,19 +66,13 @@ Then, in a single command, you  display that dataframe: ``dd``.
 
 ``display()`` looks up into its internal registry to build a list of visualizations that can handle a Spark DataFrame and generates the a menu toobar for each of them. The cell output looks like this:
 
-.. container::
+.. image:: _images/pd_chrome.png
 
-.. raw:: html
-
-     <img src="https://github.com/DTAIEB/demos/raw/master/resources/PixieDust Sample Display.png" width="615" style="margin:30px 0px"><br>
-
-
+PixieDust spins up a robust user interface that contains all the features you need to create sophisticated visualizations in just a few clicks. It contains  dropdown lists and dialogs you can use to change chart type, data content, grouping, and more. Without writing a line of code, you can:
 
 .. sidebar:: Under the hood
 
    How does PixieDust generate this handy user interface? ``display()`` uses matplotlib to generate the charts and then mpld3 to transform the charts into D3 generated interactive charts that let users zoom, choose menus, see toolips, and more.
-
-PixieDust spins up a robust user interface that contains all the features you need to create sophisticated visualizations in just a few clicks. It contains  dropdown lists and dialogs you can use to change chart type, data content, grouping, and more. Without writing a line of code, you can:
 
 - choose a display option: table, bar chart, pie chart, scatter plot, map, etc.
 - set data content
@@ -103,7 +97,7 @@ A great place to start is to view your data in a simple table format. To do so, 
 You see extended information about your Spark DataFrame in 2 view options:
 
 * **Schema** gives detailed information about the DataFrame schema
-* **Table** displays a sample of the data in an easy-to-read table format.
+* **Table** displays a sample of the data in an easy-to-read table format
 
 
 Set Chart Content 
@@ -113,6 +107,7 @@ Set Chart Content
 
    .. image:: _images/chartmenu.png
 
+
 2. Configure the content of the chart by clicking the **Options** button.
 
    .. image:: _images/optionsbutton.png 
@@ -121,20 +116,20 @@ Set Chart Content
 
     .. image:: _images/options.png 
 
-To set keys and values, drag fields from the fields list on the left and drop them where you want them.
+To set keys and values, drag fields from the **Fields** list on the left and drop them where you want them.
 
-Choose from these common options for every chart:
+Set these common options for every chart:
 
-* Chart Title: Enter an apt, descriptive title
-* Fields: lists available field names derived from your DataFrame schema
-* Keys: Name of the fields serve as the x-Axis
-* Values: Name of fields that serve as the y-Axis
-* Aggregation: Type of aggregation to be performed on the data
-	* SUM: sum of values for the key
-	* AVG: average of values for the key
-	* MIN: Min of values for the key
-	* MAX: Max of values for the key
-	* COUNT: number of times the key occurs 
+* **Chart Title.** Enter an apt, descriptive title
+* **Fields.** List of available field names derived from your DataFrame schema
+* **Keys.** Field(s) to serve as the x-Axis
+* **Values.** Field(s) to serve as the y-Axis
+* **Aggregation.** Type of aggregation to be performed on the data. Options include:
+	* **SUM.** sum or total of values for the key
+	* **AVG.** average of values for the key
+	* **MIN.** Min (lowest) of values for the key
+	* **MAX.** Max (highest) of values for the key
+	* **COUNT.** number of times the key occurs 
 
 Then choose the chart-specific options. Read on to learn how to configure individual chart types. 
 
@@ -143,19 +138,23 @@ Then choose the chart-specific options. Read on to learn how to configure indivi
 Choose a renderer
 *****************
 
-Depending upon the chart type, PixieDust offers several different rendering engines to use to display your data. 
+PixieDust offers several different rendering engines you can use out-of-the-box to display your data. 
 
 .. image:: _images/renderer_menu.png
+
+The list of available renderers changes depending upon what chart type you're viewing.
+
+The following renderers are currently built-in:
 
 .. sidebar:: Create your own renderer
 
     Is your favorite rendering engine missing from this list? You can add it. As mentioned, developers can code and contribute new visualizations. You can also `add a new renderer <renderer.html>`_ to use yourself or `contribute <contribute.html>`_ to the PixieDust project.
 
-The following renderers are currently built-in:
-
 - `matplotlib <http://matplotlib.org/>`_
 - `Seaborn <https://seaborn.pydata.org/>`_
 - `Bokeh <http://bokeh.pydata.org/en/latest/>`_
+- `Mapbox <https://www.mapbox.com/>`_
+- `Google Maps <https://developers.google.com/chart/interactive/docs/gallery/geochart>`_
 
 
 Bar Chart
@@ -163,110 +162,132 @@ Bar Chart
 
 Bar charts are handy for comparing items side-by-side. In the **Options** dialog, set:
 
-**Keys:** Choose a numeric field to serve as your x-axis
-**Values:** Choose a numeric field to serve as your y-axis 
-**Aggregation** Choose to sum, average or otherwise aggregate on value you chose in **keys**
+- **Keys:** Choose a numeric field to serve as your x-axis
+- **Values:** Choose a numeric field to serve as your y-axis 
+- **Aggregation** Choose to sum, average or otherwise aggregate on value you chose in **keys**
 
+This bar chart shows the sum of customers rising each year:
 
-When you select more than one key or value, you have the option to choose between 2 types of bar chart:
+.. image:: _images/bar_chart.png
 
-* Stacked: items in a category are represented in a single column with different color for each segment
-* Grouped: items in a category are displayed side by side, making it easier to compare values.
+To see another dimension, click the **Cluster by** dropdown and choose a field. Here, clustering by zone, shows individual bars for each department/zone.
 
-cluster option --need screen shot
+.. image:: _images/bar_chart_clustered.png
 
-Once your bar plot apppears, you can choose your renderer (matplotlib, seaborn, or bokeh). Individual renderers include their own options, like this Bokeh chart:
+You can show that cluster in different ways. Click the **Type** dropdown and choose one of the following:
 
-In our example, we use a Grouped bar chart showing the quarterly number of unique customers grouped by year:
+- **Grouped** to see bars for each cluster grouped together, as you just saw in the previous image.
+- **Stacked** to show clustered items in the same column split by color-coded segments or bands.
 
-.. container::
+    .. image:: _images/bar_chart_stacked.png
 
-.. raw:: html
+- **subplots** to see each cluster in its own chart.
 
-     <img src="https://github.com/DTAIEB/demos/raw/master/resources/PixieDust Bar Chart.png" width="615">
+Once your bar plot apppears, you can switch between different renderers (matplotlib or bokeh). 
 
 
 Line Chart
 ***********
 
-.. container::
 
-.. raw:: html
+In the **Options** dialog, set:
 
-     <img src="https://github.com/DTAIEB/demos/raw/master/resources/PixieDust Line Chart.png" width="615">
+- **Keys:** Choose a numeric field to serve as your x-axis
+- **Values:** Choose a numeric field to serve as your y-axis 
+- **Aggregation** Choose to sum, average or otherwise aggregate values
 
+Like bar charts, line charts let you cluster results to see trends in an additional dimension. This chart shows customers rising steadily over time:
+
+.. image:: _images/line_chart.png
+
+When you cluster the same chart by zone, you can see how each individual department/zone is doing:
+
+.. image:: _images/line_chart_clustered.png
+
+To show each cluster in its own chart, click the **Type** dropdown and choose **subplots**.
+
+.. image:: _images/subplots.png
 
 Scatter Plot
 *************
 
 A scatter plot charts individual data points upon a graph. In the **Options** dialog:
 
-**Keys:** Choose a numeric field to serve as your x-axis
-**Values:** Choose a numeric field to serve as your y-axis 
+- **Keys:** Choose a numeric field to serve as your x-axis
+- **Values:** Choose a numeric field to serve as your y-axis 
 
 Once your scatter plot apppears, you can choose your renderer (matplotlib, seaborn, or bokeh). Individual renderers include their own options, like this Bokeh chart:
 
 .. image:: _images/bokeh_scatter_example.png
+
 
 Pie Chart
 **********
 
 A pie chart is a circle graph which shows data as portions of a whole. In the **Options** dialog:
 
-**Keys:** Choose the field that you want to be the labeled wedges of pie
-**Values:** Choose a numeric field that you want to aggregrate on
-**Renderers:** matplotlib only
+- **Keys:** Choose the field that you want to be the labeled wedges of pie
+- **Values:** Choose a numeric field that you want to aggregrate on
+- **Renderers:** matplotlib only
 
 
 Map
 ***
 
-Configuring your map, depends upon which rendering engine you choose, Mapbox or Google Maps.
+Configuring your map, depends upon which rendering engine you choose: Mapbox or Google Maps.
 
 
 Mapbox
-~~~~~~
+######
 
-The Mapbox map renderer lets you create a map of geographic point data. Currently, your DataFrame should have at least the following 3 fields in order to work with this renderer:
+The Mapbox renderer lets you create a map of geographic point data. Your DataFrame needs at least the following 3 fields in order to work with this renderer:
 
-* a latitude field named latitude, lat, or y
-* a longitude field named longitude, lon, long, or x
+* a latitude field named ``latitude``, ``lat``, or ``y``
+* a longitude field named ``longitude``, ``lon``, ``long``, or ``x``
 * a numeric field for visualization
 
-In the *Options* dialog, drag your latitude and longitude fields into **Keys**. Then choose any numeric fields for **Values**. Only the first one you choose is used to color the map thematically, but any other fields specified in **Values** appear in a pop-up information bubble when you hover your mouse over a data point on the map.
+To use the Mapbox renderer, you need a free API key from Mapbox. You can get one on their web site here: https://www.mapbox.com/signup/. When you get your key, enter it in the **Options** dialog box.
 
-To use the Mapbox renderer, you need a free API key from Mapbox. You can get one on their web site here: https://www.mapbox.com/signup/  When you get your key, enter your key in the **Options** dialog box.
+In the **Options** dialog, drag both your latitude and longitude fields into **Keys**. Then choose any numeric fields for **Values**. Only the first one you choose is used to color the map thematically, but any other fields specified in **Values** appear in a pop-up information bubble when you hover your mouse over a data point on the map.
+
+.. image:: _images/map.png
 
 
 Google Maps
-~~~~~~~~~~~
+###########
 
-In addition to mapping *geographic points* with Mapbox, Pixiedust also allows you to use `Google's API <https://developers.google.com/chart/interactive/docs/gallery/geochart>`_ to create "GeoCharts". From their docs:
+In addition to mapping *geographic points* with Mapbox, Pixiedust also lets you use `Google's API <https://developers.google.com/chart/interactive/docs/gallery/geochart>`_ to create *GeoCharts*, which are maps that show region blocks identified in various ways. 
 
-  A geochart is a map of a country, a continent, or a region with areas identified in one of three ways:
+To create a GeoChart in Pixiedust, open **Options** and drag the field that has place names into **Keys**. Then for the **Values** field, choose any numeric field you want to visualize.
 
-  * The region mode colors whole regions, such as countries, provinces, or states.
-  * The markers mode uses circles to designate regions that are scaled according to a value that you specify.
-  * The text mode labels the regions with identifiers (e.g., "Russia" or "Asia").
+Within the **Display Mode** menu, choose
 
-To create a GeoChart in Pixiedust, make the field that has place names your **Key** field. Then for the **Value** field, choose any numeric field you want to visualize.
+- **Region** to color the entire area of your named places e.g. countries, provinces, or states. 
+- **Markers** to place a circle in the center of the region which is scaled according to the data selected for the **Value** field.
+- **Text** to label regions with labels like *Russia* or *Asia*
 
-Then under the "Display Mode" menu, choose "Region" to color the entire area of your named places e.g. countries, provinces, or states. Choose "Markers" to instead place a circle in the center of the region which is scaled according to the data selected for the **Value** field.
+Here's a geochart (by region) of population by country:
 
+.. image:: _images/geochart_region.png
 
 Histogram
 **********
 
-Use a histogram if the values on your x-axis are numeric like age range, prices, etc... and you want to show them in ranges. More on when to use a histogram.
+Use a histogram if the values on your x-axis are numeric, like age or price, and you want to show them in ranges. `More on when to use a histogram <https://en.wikipedia.org/wiki/Histogram>`_.
+
+For example, here's PixieDust's Million Dollar Home Sales sample data set displayed in a histogram. Squarefeet ranges appear on the x-axis. The Bokeh renderer lets us show an additional dimension, Property Type, in color-coded bars.
+
+.. image:: _images/histogram.png
+
+In **Options**, choose
+
+- **Values:** Choose a numeric field that you want to segment along the x-axis
+- **Renderers:** matplotlib, seaborn, or bokeh
 
 Conclusion
 ----------
 
-Pixiedust display has a built-in set of chart visualizations that can render a Spark or Pandas dataframe. The generated charts are easy to configure and also offer interactivity like panning, zooming, and tooltips. You can use the rendering engine of your choice to display and manipulate the visualaization.All this is possbile without writing a line of code. Developers, remember that PixieDust ``display()`` is also extensible and provides an API to let you write your own vizualizations.
+Pixiedust display has a built-in set of chart visualizations that can render a Spark or Pandas dataframe. The generated charts are easy to configure and also offer interactivity like panning, zooming, and tooltips. You can use the rendering engine of your choice to display and manipulate the visualaization. All this is possbile without writing a line of code. PixieDust ``display()`` is extensible and provides an API to let developers write their own custom vizualizations.
 
 
---user 
 
-jupyter pixiedust install
-
-but won't be able to use installer afterwards

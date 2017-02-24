@@ -1,5 +1,6 @@
 {%import "executePythonDisplayMacro.js" as display with context%}
 {%include resModule + ":chartHeader.html"%}
+{% set optTypes={} %}
 <div class="row">
     <div class="form-group col-sm-10" style="padding-right:10px;text-align: center;font-size: xx-large;font-weight: 500;color: coral;">
         {{this.options.get("title", "")}}
@@ -14,6 +15,7 @@
     <div class="form-group col-sm-2 rendererOpts">
         {% if this.getChartOptions()|length > 0 %}<div><strong>{{optionsTitle}}</strong></div>{% endif %}
         {%for option in this.getChartOptions() %}
+            {% if optTypes.update({option.metadata.type: True}) %} {% endif %}
             {% if option.metadata.type == 'slider' %}
                 <div class="rendererOpt">
                     <label class="field">{{option.description or option.name}}: <span id="slideval{{option.name}}{{prefix}}">{{option.metadata.default}}</span></label>
@@ -28,7 +30,7 @@
             {% if option.metadata.type == 'dropdown' %}
                 <div class="rendererOpt">
                     <label class="field">{{option.description or option.name}}:</label>
-                    <select class="form-control" id="optionselect{{option.name}}{{prefix}}" name="{{option.name}}" style="margin-left: 0px;">
+                    <select class="form-control" id="optionselect{{option.name}}{{prefix}}" name="{{option.name}}" r="{{'t' if option.refresh else 'f'}}" style="margin-left: 0px;">
                         {% for value in option.metadata['values'] %}
                             <option value="{{value}}" {{'selected' if value==this.options.get(option.name,None) or value==option.metadata.default else ''}}>{{value}}</option>
                         {% endfor %}
@@ -37,7 +39,7 @@
             {%endif%}
             {% if option.metadata.type == 'checkbox' %}
                 <div class="rendererOpt checkbox checkbox-primary">
-                    <input id="optionchecked{{option.name}}{{prefix}}" type="checkbox" name="{{option.name}}"
+                    <input id="optionchecked{{option.name}}{{prefix}}" r="{{'t' if option.refresh else 'f'}}" type="checkbox" name="{{option.name}}"
                                 {{'checked' if this.options.get(option.name,"false")=="true" else ''}}>
                     <label for="optionchecked{{option.name}}{{prefix}}">{{option.description or option.name}}</label>
                 </div>
@@ -47,29 +49,48 @@
 </div>
 
 <script>
+{%if optTypes.get("dropdown",False)%}
 $("[id^=optionselect][id$={{prefix}}]").change(function(){
     var thisOption = $(this).attr('name');
     var thisValue = $(this).val();
     if (thisValue == "None"){
         thisValue = null
     }
-    {% call display.executeDisplay( useCellMetadata=True, divId="chartFigure" + prefix ) %}
+    var refresh = $(this).attr('r')
+    var $divId = "chartFigure{{prefix}}"
+    if (refresh == "t"){
+        $divId = null
+    }
+    {% call display.executeDisplay( useCellMetadata=True, divId="$divId" ) %}
         var o = {};
         o[thisOption] = thisValue;
-        o["nostore_figureOnly"] = "true";
+        if (refresh != "t"){
+            o["nostore_figureOnly"] = "true";
+        }
         addOptions(o);
     {% endcall %}    
 });
+{%endif%}
+{%if optTypes.get("checkbox",False)%}
 $("[id^=optionchecked][id$={{prefix}}]").change(function(){
     var thisOption = $(this).attr('name');
     var thisValue = $(this).prop('checked').toString();
-    {% call display.executeDisplay( useCellMetadata=True, divId="chartFigure" + prefix ) %}
+    var refresh = $(this).attr('r')
+    var $divId = "chartFigure{{prefix}}"
+    if (refresh == "t"){
+        $divId = null
+    } 
+    {% call display.executeDisplay( useCellMetadata=True, divId="$divId" ) %}
         var o = {};
         o[thisOption] = thisValue;
-        o["nostore_figureOnly"] = "true";
+        if (refresh != "t"){
+            o["nostore_figureOnly"] = "true";
+        }
         addOptions(o);
     {% endcall %}    
 });
+{%endif%}
+{%if optTypes.get("slider",False)%}
 if ($("[id^=slider][id$={{prefix}}]").length > 0) {
     var sliderElt = $("[id^=slider][id$={{prefix}}]")
     var thisOption = sliderElt.attr('name')
@@ -94,4 +115,5 @@ if ($("[id^=slider][id$={{prefix}}]").length > 0) {
         }
     });
 }
+{%endif%}
 </script>

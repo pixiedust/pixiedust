@@ -66,6 +66,7 @@
 .docutils.literal {
     font-family: Monaco, Consolas, "Lucida Console", monospace;
     margin: 3px;
+    margin-bottom: 2cm;
     padding: 5px;
     border-left: 5px;
     border-right: 5px;

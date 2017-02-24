@@ -32,7 +32,7 @@ class MapBoxBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
 			{ 'name': 'kind',
 			  'metadata': {
 					'type': "dropdown",
-					'values': ["simple","chloropleth","densitymap"],
+					'values': ["simple","choropleth","densitymap"],
 					'default': "simple"
 				}
 			}

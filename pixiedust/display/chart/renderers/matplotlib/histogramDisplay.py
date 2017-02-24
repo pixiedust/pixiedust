@@ -29,9 +29,6 @@ class HistogramDisplay(MatplotlibBaseDisplay):
     def supportsAggregation(self, handlerId):
         return False
 
-    def supportsLegend(self, handlerId):
-        return False
-
     # TODO: add support for keys
     def supportsKeyFields(self, handlerId):
         return False

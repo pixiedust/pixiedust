@@ -19,6 +19,7 @@ def clusterBy(displayObject):
     return { 
         'name': 'clusterby',
         'description': 'Cluster By',
+        'refresh': True,
         'metadata': {
             'type': "dropdown",
             'values': ["None"] + [f for f in displayObject.getFieldNames() if f not in displayObject.getKeyFields() and f not in displayObject.getValueFields()],
@@ -29,15 +30,18 @@ def clusterBy(displayObject):
 def barChart(displayObject):
     options = []
     options.append(clusterBy(displayObject))
-    options.append({
-        'name': 'orientation',
-        'description': 'Orientation',
-        'metadata': {
-            'type': 'dropdown',
-            'values': ['vertical', 'horizontal'],
-            'default': "vertical"
-        }
-    })
+
+    if not hasattr(displayObject, 'no_orientation') or displayObject.no_orientation is not True:
+        options.append({
+            'name': 'orientation',
+            'description': 'Orientation',
+            'metadata': {
+                'type': 'dropdown',
+                'values': ['vertical', 'horizontal'],
+                'default': "vertical"
+            }
+        })
+
     if displayObject.options.get("clusterby") != None or len(displayObject.getValueFields()) > 1:
         options.append({
             'name': 'charttype',
@@ -48,6 +52,16 @@ def barChart(displayObject):
                 'default': "grouped"
             }
         })
+
+    options.append({
+        'name': 'legend',
+        'description': 'Show legend',
+        'metadata': {
+            'type': 'checkbox',
+            'default': "false"
+        }
+    })
+
     return options
 
 def lineChart(displayObject):
@@ -65,6 +79,15 @@ def lineChart(displayObject):
                 'default': "grouped"
             }
         })
+
+    options.append({
+        'name': 'legend',
+        'description': 'Show legend',
+        'metadata': {
+            'type': 'checkbox',
+            'default': "false"
+        }
+    })
 
     options.append({
         'name': 'logx',

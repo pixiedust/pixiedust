@@ -93,6 +93,8 @@ class PixieDustTestExecutePreprocessor( ExecutePreprocessor ):
                     self.compareOutputs(beforeOutputs, cell.outputs, cell.source, True)
             return cell, resources
         except CellExecutionError:
+            for output in cell.outputs:
+                logging.warn("Output Error is {}".format(output))
             cell.source="%pixiedustLog -l debug"
             cell, resources = super(PixieDustTestExecutePreprocessor, self).preprocess_cell(cell, resources, cell_index)
             logging.error("An error occurred executing the cell:\r\n{0}".format(cell.source))
@@ -183,6 +185,9 @@ if __name__ == '__main__':
                     except RestartKernelException:
                         logging.warn("Restarting kernel...")
                         processed = False
+                    except:
+                        logging.warn("Fatal Error in Notebook {}.".format(path))
+                        raise
                 print("Finished processing notebook {0}".format(path))
     finally:
         if kernelPath:

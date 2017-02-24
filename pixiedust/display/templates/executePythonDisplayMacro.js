@@ -1,6 +1,13 @@
 {% macro executeDisplayfunction(options="{}", useCellMetadata=False, divId=None) -%}
-{% set targetId=divId if divId else "wrapperHTML" + prefix %}
+{% set targetId=divId if divId and divId.startswith("$") else ("'"+divId+"'") if divId else "'wrapperHTML" + prefix + "'" %}
 function() {
+    function getTargetNode(){
+        var n = $('#' + {{targetId}});
+        if (n.length == 0 ){
+            n = $('#wrapperHTML{{prefix}}');
+        }
+        return n;
+    }
     cellId = typeof cellId === "undefined" ? "" : cellId;
     var curCell=IPython.notebook.get_cells().filter(function(cell){
         return cell.cell_id=="{{this.options.get("cell_id","cellId")}}".replace("cellId",cellId);
@@ -31,7 +38,7 @@ function() {
                 var content = msg.content;
                 var executionTime = $("#execution{{prefix}}");
                 if(msg_type==="stream"){
-                    $('#{{targetId}}').html(content.text);
+                    getTargetNode().html(content.text);
                 }else if (msg_type==="display_data" || msg_type==="execute_result"){
                     var html=null;
                     if (!!content.data["text/html"]){
@@ -52,10 +59,10 @@ function() {
                     
                     if (html){
                         try{
-                            $('#{{targetId}}').html(html);
+                            getTargetNode().html(html);
                         }catch(e){
                             console.log("Invalid html output", e, html);
-                            $('#{{targetId}}').html( "Invalid html output. <pre>" 
+                            getTargetNode().html( "Invalid html output. <pre>" 
                                 + html.replace(/>/g,'&gt;').replace(/</g,'&lt;').replace(/"/g,'&quot;') + "<pre>");
                         }
 
@@ -104,14 +111,14 @@ function() {
                             data = utils.fixConsole(data);
                             data = utils.fixCarriageReturn(data);
                             data = utils.autoLinkUrls(data);
-                            $('#{{targetId}}').html("<pre>" + data +"</pre>");
+                            getTargetNode().html("<pre>" + data +"</pre>");
                         }
                     });
                 }
 
                 //Append profiling info
                 if (executionTime.length > 0 && $("#execution{{prefix}}").length == 0 ){
-                    $('#{{targetId}}').append(executionTime);
+                    getTargetNode().append(executionTime);
                 }else if (startWallToWall && $("#execution{{prefix}}").length > 0 ){
                     $("#execution{{prefix}}").append($("<div/>").text("Wall to Wall time: " + ( (new Date().getTime() - startWallToWall)/1000 ) + "s"));
                 }
@@ -173,7 +180,7 @@ function() {
             console.log("couldn't find the cell");
         }
         $('#wrapperJS{{prefix}}').html("")
-        $('#{{targetId}}').html('<div style="width:100px;height:60px;left:47%;position:relative"><i class="fa fa-circle-o-notch fa-spin" style="font-size:48px"></i></div>'+
+        getTargetNode().html('<div style="width:100px;height:60px;left:47%;position:relative"><i class="fa fa-circle-o-notch fa-spin" style="font-size:48px"></i></div>'+
         '<div style="text-align:center">Loading your data. Please wait...</div>');
         startWallToWall = new Date().getTime();
         {% if this.scalaKernel %}

@@ -29,9 +29,6 @@ class HistogramRenderer(BokehBaseDisplay):
     def supportsAggregation(self, handlerId):
         return True
 
-    def supportsLegend(self, handlerId):
-        return False
-
     def supportsKeyFields(self, handlerId):
         return False
     

@@ -37,6 +37,11 @@ class BokehBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
         bokeh_version = None
         self.exception("Unable to get bokeh version")
 
+    def __init__(self, options, entity, dataHandler=None):
+        super(BokehBaseDisplay,self).__init__(options,entity,dataHandler)
+        #no support for orientation
+        self.no_orientation = True
+    
     """
     Default implementation for creating a chart object.
     """
@@ -47,6 +52,15 @@ class BokehBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
         return super(BokehBaseDisplay,self).getPreferredOutputWidth() * 0.92
 
     def doRenderChart(self):
+        def genMarkup(chartFigure):
+            return self.env.from_string("""
+                    {0}
+                    {{%for message in messages%}}
+                        <div>{{{{message}}}}</div>
+                    {{%endfor%}}
+                """.format(chartFigure)
+            ).render(messages=self.messages)
+
         if BokehBaseDisplay.bokeh_version < (0,12):
             raise Exception("""
                 <div>Incorrect version of Bokeh detected. Expected {0}, got {1}</div>
@@ -63,14 +77,20 @@ class BokehBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
             charts.plot_width = int(self.getPreferredOutputWidth() - 10 )
             charts.plot_height = int(self.getPreferredOutputHeight() - 10  )
             charts.grid.grid_line_alpha=0.3
-            return notebook_div(charts)
+            return genMarkup(notebook_div(charts))
         else:
             from bokeh.layouts import gridplot
-            ncols = 2
-            nrows = 1
-            if(len(charts) > ncols):
-                nrows = len(charts) / ncols
-                if(len(charts) % ncols != 0):
-                    nrows = nrows + 1
-      
-            return notebook_div(gridplot(charts, ncols=ncols, nrows=nrows))
+            ncols = 1
+            nrows = 2
+            if(len(charts) > nrows):
+                ncols = int(len(charts) / nrows)
+                if(len(charts) % nrows != 0):
+                    ncols = ncols + 1
+            
+            w = self.getPreferredOutputWidth()/ncols if len(charts) > 1 else self.getPreferredOutputWidth()
+            h = self.getPreferredOutputWidth()/nrows if len(charts) > 1 else self.getPreferredOutputWidth()
+            for chart in charts:
+                chart.plot_width = int(w - 5)
+                chart.plot_height = int (h - 5)
+
+            return genMarkup(notebook_div(gridplot(charts, ncols=ncols, nrows=nrows)))

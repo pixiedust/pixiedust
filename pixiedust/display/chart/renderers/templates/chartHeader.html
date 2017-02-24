@@ -1,33 +1,10 @@
 {%import "executePythonDisplayMacro.js" as display with context%}
-<script>
-$("#mapOptions{{prefix}}").click(function(){
-    {%include resModule + ":chartOptions.dialog" %}
-});
-$("#downloadSVG{{prefix}}").click(function(){
-    var svg = $("#wrapperHTML{{prefix}} svg.mpld3-figure")[0].outerHTML;
-    var URL = (window.webkitURL || window.URL);
-    var url = URL.createObjectURL(new Blob([svg], {type : "image/svg+xml"}));
-    var a = document.createElement('a');
-    $("#wrapperHTML{{prefix}}")[0].appendChild(a);
-    a.innerHTML = "graphic.svg";
-    a.href = url;
-    a.setAttribute("type", "hidden");
-    a.download = "graphic.svg";
-    a.click();
-});
-
-$("#renderer{{prefix}}").change(function(){
-    var rendererId = $(this).val();
-    {% call display.executeDisplay( useCellMetadata=True ) %}
-        addOptions({"rendererId": rendererId });
-    {% endcall %}
-});
-</script>
-
+{% set flags={} %}
 <div class="row chart-button-group">
     <div class="form-group col-sm-9" style="padding-right:10px;">
         <button id="mapOptions{{prefix}}" class="btn btn-default">Options</button>
-        {% if this.options.get('staticFigure') != 'true' and this.options.get("handlerId") != 'mapView' %}
+        {% if this.options.get('mpld3') == 'true' %}
+            {% if flags.update({'downloadSVG': True}) %} {% endif %}
             <button id="downloadSVG{{prefix}}" class="btn btn-default">Download SVG</button>
         {% endif %}
     </div>
@@ -42,3 +19,38 @@ $("#renderer{{prefix}}").change(function(){
     </div>
     {% endif %}
 </div>
+
+<script>
+$("#mapOptions{{prefix}}").click(function(){
+    {%include resModule + ":chartOptions.dialog" %}
+});
+
+{%if flags.get("downloadSVG",False)%}
+setTimeout(function(){
+    mpld3Node = $("#wrapperHTML{{prefix}} svg.mpld3-figure");
+    if (mpld3Node.length == 0){
+        $("#downloadSVG{{prefix}}").hide()
+    }else{
+        $("#downloadSVG{{prefix}}").click(function(){
+            var svg = $("#wrapperHTML{{prefix}} svg.mpld3-figure")[0].outerHTML;
+            var URL = (window.webkitURL || window.URL);
+            var url = URL.createObjectURL(new Blob([svg], {type : "image/svg+xml"}));
+            var a = document.createElement('a');
+            $("#wrapperHTML{{prefix}}")[0].appendChild(a);
+            a.innerHTML = "graphic.svg";
+            a.href = url;
+            a.setAttribute("type", "hidden");
+            a.download = "graphic.svg";
+            a.click();
+        });
+    }
+}, 500);
+{%endif%}
+
+$("#renderer{{prefix}}").change(function(){
+    var rendererId = $(this).val();
+    {% call display.executeDisplay( useCellMetadata=True ) %}
+        addOptions({"rendererId": rendererId });
+    {% endcall %}
+});
+</script>
