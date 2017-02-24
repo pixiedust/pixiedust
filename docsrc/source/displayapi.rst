@@ -176,10 +176,10 @@ To see another dimension, click the **Cluster by** dropdown and choose a field. 
 
 You can show that cluster in different ways. Click the **Type** dropdown and choose one of the following:
 
-- **Grouped** to see bars for each cluster grouped together, like.
-- **Stacked** to show clustered items in the same column in color-coded segments or bands.
+- **Grouped** to see bars for each cluster grouped together, as you just saw in the previous image.
+- **Stacked** to show clustered items in the same column split by color-coded segments or bands.
 
-    ..image:: _images/bar_chart_stacked.png
+    .. image:: _images/bar_chart_stacked.png
 
 - **subplots** to see each cluster in its own chart.
 
@@ -240,15 +240,15 @@ Configuring your map, depends upon which rendering engine you choose: Mapbox or 
 Mapbox
 ######
 
-The Mapbox map renderer lets you create a map of geographic point data. Currently, your DataFrame should have at least the following 3 fields in order to work with this renderer:
+The Mapbox renderer lets you create a map of geographic point data. Your DataFrame needs at least the following 3 fields in order to work with this renderer:
 
 * a latitude field named ``latitude``, ``lat``, or ``y``
-* a longitude field named ``longitude``, ``lon``, long``, or ``x``
+* a longitude field named ``longitude``, ``lon``, ``long``, or ``x``
 * a numeric field for visualization
 
-To use the Mapbox renderer, you need a free API key from Mapbox. You can get one on their web site here: https://www.mapbox.com/signup/  When you get your key, enter your key in the **Options** dialog box.
+To use the Mapbox renderer, you need a free API key from Mapbox. You can get one on their web site here: https://www.mapbox.com/signup/. When you get your key, enter it in the **Options** dialog box.
 
-In the **Options** dialog, drag your latitude and longitude fields into **Keys**. Then choose any numeric fields for **Values**. Only the first one you choose is used to color the map thematically, but any other fields specified in **Values** appear in a pop-up information bubble when you hover your mouse over a data point on the map.
+In the **Options** dialog, drag both your latitude and longitude fields into **Keys**. Then choose any numeric fields for **Values**. Only the first one you choose is used to color the map thematically, but any other fields specified in **Values** appear in a pop-up information bubble when you hover your mouse over a data point on the map.
 
 .. image:: _images/map.png
 
@@ -256,18 +256,19 @@ In the **Options** dialog, drag your latitude and longitude fields into **Keys**
 Google Maps
 ###########
 
-In addition to mapping *geographic points* with Mapbox, Pixiedust also allows you to use `Google's API <https://developers.google.com/chart/interactive/docs/gallery/geochart>`_ to create "GeoCharts". From their docs:
+In addition to mapping *geographic points* with Mapbox, Pixiedust also lets you use `Google's API <https://developers.google.com/chart/interactive/docs/gallery/geochart>`_ to create *GeoCharts*, which are maps that show region blocks identified in various ways. 
 
-  A geochart is a map of a country, a continent, or a region with areas identified in one of three ways:
+To create a GeoChart in Pixiedust, open **Options** and drag the field that has place names into **Keys**. Then for the **Values** field, choose any numeric field you want to visualize.
 
-  * The region mode colors whole regions, such as countries, provinces, or states.
-  * The markers mode uses circles to designate regions that are scaled according to a value that you specify.
-  * The text mode labels the regions with identifiers (e.g., "Russia" or "Asia").
+Within the **Display Mode** menu, choose
 
-To create a GeoChart in Pixiedust, make the field that has place names your **Key** field. Then for the **Value** field, choose any numeric field you want to visualize.
+- **Region** to color the entire area of your named places e.g. countries, provinces, or states. 
+- **Markers** to place a circle in the center of the region which is scaled according to the data selected for the **Value** field.
+- **Text** to label regions with labels like *Russia* or *Asia*
 
-Then under the "Display Mode" menu, choose "Region" to color the entire area of your named places e.g. countries, provinces, or states. Choose "Markers" to instead place a circle in the center of the region which is scaled according to the data selected for the **Value** field.
+Here's a geochart (by region) of population by country:
 
+.. image:: _images/geochart_region.png
 
 Histogram
 **********
