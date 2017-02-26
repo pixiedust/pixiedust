@@ -1,0 +1,37 @@
+<div class="panel-body" style="font-family: monospace;">
+    <table class="table" id="service-connection{{prefix}}" style="text-align: center;table-layout: fixed;margin: 0 auto;min-width: 50%;">
+        <thead>
+            <tr>
+                <th>
+                    <span style="vertical-align:bottom">
+                        <button id="addCon{{prefix}}" class="btn btn-default" type="button">
+                            <i class="fa fa-plus"></i>
+                        </button>
+                    </span>
+                </th>
+                <th style="width:100px"></th>
+                <th></th>
+                <th style="width:100px"></th>
+            </tr>
+        </thead>
+        <tbody style="border: solid 1px gainsboro;">
+            {%for tupConnection in connections%}
+                <tr>
+                {% for connection in tupConnection%}                        
+                    <td><input type="radio">{{connection.name|escape}}</td>
+                    <td>
+                        <span style="vertical-align:bottom;display:table-cell;">
+                            <button id="editCon{{prefix}}" class="btn btn-default" type="button">
+                                <i class="fa fa-pencil-square-o"></i>
+                            </button>
+                            <button id="delCon{{prefix}}" class="btn btn-default" type="button">
+                                <i class="fa fa-trash"></i>
+                            </button>
+                        </span>
+                    </td>
+                {%endfor%}
+                </tr>
+            {%endfor%}
+        </tbody>
+    </table>
+</div>

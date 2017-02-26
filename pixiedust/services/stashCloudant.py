@@ -19,15 +19,20 @@ from .serviceManager import *
 import time
 import requests
 import json
-import pixiedust
-from pyspark import SparkContext
+from pixiedust.utils import Logger
+from pixiedust.utils.shellAccess import ShellAccess
 
 CLOUDANT_CONN_TYPE = "cloudant"
-myLogger = pixiedust.getLogger(__name__)
+@Logger()
 class StashCloudantHandler(Display):
+    def tuplize(self, connections):
+        return [tuple(connections[i:i+2]) for i in range(0, len(connections), 2)]
+
     def doRender(self, handlerId):
-        sc = SparkContext.getOrCreate()
-        config = sc._conf.getAll()
+        if self.options.get("nostore_listConnections"):
+            return self._addHTMLTemplate("listConnections.html", connections=self.tuplize(getConnections(CLOUDANT_CONN_TYPE)) )
+
+        config = ShellAccess.sc._conf.getAll()
         if not any("spark.jars" in s for s in config):
             self._addHTML("Please set PYSPARK_SUBMIT_ARGS to --jars local_dir_path/cloudant-spark.jar in kernel.json")
             myLogger.debug("Please set PYSPARK_SUBMIT_ARGS to --jars <local_dir_path>/cloudant-spark.jar in kernel.json")
@@ -37,10 +42,10 @@ class StashCloudantHandler(Display):
                     
         entity=self.entity
 
-        dbName = self.options.get("dbName", "dataframe-"+time.strftime('%Y%m%d-%H%M%S'))
-        connectionName=self.options.get("connection")
+        dbName = self.options.get("nostore_dbName", "dataframe-"+time.strftime('%Y%m%d-%H%M%S'))
+        connectionName=self.options.get("nostore_connection")
         if connectionName is None:
-            self._addHTMLTemplate("stashCloudant.html",dbName=dbName,connections=getConnections(CLOUDANT_CONN_TYPE))
+            self._addHTMLTemplate("stashCloudant.html",dbName=dbName,connType=CLOUDANT_CONN_TYPE, connections=self.tuplize(getConnections(CLOUDANT_CONN_TYPE)))
         else:
             #first create the stash db
             connection = getConnection(CLOUDANT_CONN_TYPE, connectionName)
@@ -52,6 +57,7 @@ class StashCloudantHandler(Display):
             if ( r.status_code != 200 and r.status_code != 201 ):
                 print("Unable to create db ({0}) for connection ({1}): {2}".format(dbName, connectionName, str(r.content)))
             else:
+                self.debug("write to cloudant host {0}".format(credentials["host"]))
                 self.entity.write.format("com.cloudant.spark")\
                     .option("cloudant.host", credentials["host"])\
                     .option("cloudant.username",credentials["username"])\

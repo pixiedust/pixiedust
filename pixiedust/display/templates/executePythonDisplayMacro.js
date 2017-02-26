@@ -122,6 +122,10 @@ function() {
                 }else if (startWallToWall && $("#execution{{prefix}}").length > 0 ){
                     $("#execution{{prefix}}").append($("<div/>").text("Wall to Wall time: " + ( (new Date().getTime() - startWallToWall)/1000 ) + "s"));
                 }
+
+                if (typeof onDisplayDone{{prefix}} != "undefined"){
+                    onDisplayDone{{prefix}}();
+                }
             }
         }
     }

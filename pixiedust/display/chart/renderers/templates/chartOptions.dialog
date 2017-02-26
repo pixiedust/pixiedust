@@ -1,5 +1,4 @@
 {%extends "basedialog.html"%}
-{% set nested = 'true' %}
 
 {%block title %}{{optionsTitle or 'Chart Options'}}{%endblock%}
 

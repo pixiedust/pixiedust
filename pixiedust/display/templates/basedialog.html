@@ -1,67 +1,67 @@
-{% if not nested %}
+{% if not inScript %}
 <script id="pixiedust-dialog-script-{{prefix}}">
-    var global={}
-{%else%}
-    var globalNested={}
 {% endif -%}
-    
-    require(['base/js/dialog'],function(dialog){
-        var modal = dialog.modal;
-        var options = {
-            title: "Pixiedust: {%block title %}Dialog{%endblock%}",
-            body: '{%set body%}{%block body%}Pixiedust body{%endblock%}{%endset%}{{body|oneline|replace("'","\\'")}}',
-            sanitize:false,
-            notebook: IPython.notebook,
-            {% if not nested %}
-            keyboard_manager: IPython.notebook.keyboard_manager,
-            {% endif -%}
-            buttons: {
-                {%block buttons%}
-                OK: {
-                    class : "btn-primary btn-ok",
-                    click: function() {
-                        {%block onOK%}{%endblock%}
-                    }
-                },
-                Cancel: {
-                    class : "btn-cancel",
-                    click: function(){
-                        {%block onCancel%}{%endblock%}
-                    }
-                }
-                {%endblock%}
-            }
-        };
-        var modal_obj = modal(options);
-        modal_obj.addClass('pixiedust');
-        modal_obj.on('shown.bs.modal', function(){
-            {% if not nested %}
-            var isFF = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
-            if( isFF && options.keyboard_manager){
-                //Only on FF, blur event issue, hard disable keyboard manager 
-                var KeyboardManager = require('notebook/js/keyboardmanager').KeyboardManager;
-                global.KMEnableProto = KeyboardManager.prototype.enable;
-                KeyboardManager.prototype.enable = function () {
-                    this.enabled = false;
-                };
-            }
-            {% endif -%}
-            {%block onDialogShown%}{%endblock%}
-        });
 
+var global={}
+    
+require(['base/js/dialog'],function(dialog){
+    var modal = dialog.modal;
+    var options = {
+        title: "Pixiedust: {%block title %}Dialog{%endblock%}",
+        body: '{%set body%}{%block body%}Pixiedust body{%endblock%}{%endset%}{{body|oneline|replace("'","\\'")}}',
+        sanitize:false,
+        notebook: IPython.notebook,
         {% if not nested %}
-        modal_obj.on("hidden.bs.modal", function () {
-            if ( global.KMEnableProto ){
-                var KeyboardManager = require('notebook/js/keyboardmanager').KeyboardManager;
-                KeyboardManager.prototype.enable = global.KMEnableProto;
-                delete global.KMEnableProto;
-            }
-            {%block onDialogHide%}{%endblock%}
-            $('#pixiedust-dialog-script-{{prefix}}').remove();
-        });
+        keyboard_manager: IPython.notebook.keyboard_manager,
         {% endif -%}
-    })
-{% if not nested %}
+        buttons: {
+            {%block buttons%}
+            OK: {
+                class : "btn-primary btn-ok",
+                click: function() {
+                    {%block onOK%}{%endblock%}
+                }
+            },
+            Cancel: {
+                class : "btn-cancel",
+                click: function(){
+                    {%block onCancel%}{%endblock%}
+                }
+            }
+            {%endblock%}
+        }
+    };
+    var modal_obj = modal(options);
+    modal_obj.addClass('pixiedust');
+    modal_obj.on('shown.bs.modal', function(){
+        {% if not nested %}
+        var isFF = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
+        if( isFF && options.keyboard_manager){
+            //Only on FF, blur event issue, hard disable keyboard manager 
+            var KeyboardManager = require('notebook/js/keyboardmanager').KeyboardManager;
+            global.KMEnableProto = KeyboardManager.prototype.enable;
+            KeyboardManager.prototype.enable = function () {
+                this.enabled = false;
+            };
+        }
+        {% endif -%}
+        {%block onDialogShown%}{%endblock%}
+        IPython.keyboard_manager.register_events(modal_obj);
+    });
+
+    {% if not nested %}
+    modal_obj.on("hidden.bs.modal", function () {
+        if ( global.KMEnableProto ){
+            var KeyboardManager = require('notebook/js/keyboardmanager').KeyboardManager;
+            KeyboardManager.prototype.enable = global.KMEnableProto;
+            delete global.KMEnableProto;
+        }
+        {%block onDialogHide%}{%endblock%}
+        $('#pixiedust-dialog-script-{{prefix}}').remove();
+    });
+    {% endif -%}
+})
+{% if not inScript %}
 </script>
 {%block cellOuputHTML%}{%endblock%}
 {% endif -%}
