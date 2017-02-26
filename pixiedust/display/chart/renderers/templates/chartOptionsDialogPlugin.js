@@ -9,7 +9,9 @@ function DialogPlugin(fig, props) {
         buttonID: "DialogPlugin",
         sticky: false,
         onActivate: function() {
+            {%with inScript=True %}
             {%include resModule + ":chartOptions.dialog"%}
+            {%endwith%}
         },
         icon: function() {
             return mpld3.icons["brush"];

@@ -329,7 +329,7 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
             valueFields = self.getValueFields()
         except ShowChartOptionDialog:
             self.dialogBody = self.renderTemplate(dialogTemplate, **dialogOptions)
-            self._addJavascriptTemplate("chartOptions.dialog", optionsDialogBody=self.dialogBody, optionsTitle=optionsTitle)
+            self._addJavascriptTemplate("chartOptions.dialog", optionsDialogBody=self.dialogBody, optionsTitle=optionsTitle, inScript=True)
             return
         
         # render

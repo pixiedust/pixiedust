@@ -1,5 +1,5 @@
-{% macro ipython_execute(command, prefix, extraCommandOptions="{}") -%}
-
+{% macro ipython_execute(command, prefix, extraCommandOptions="{}", divId=None) -%}
+{% set targetId=(divId if (divId and divId.startswith("$")) else ("'"+divId+"'") if divId else "'None'") %}
 var callbacks = {
     shell : {
         reply : function(){
@@ -89,11 +89,14 @@ var callbacks = {
     if (typeof command == "undefined"){
         return alert("Unable to find command. Did you forget to define it?");
     }
+    $('#' + {{targetId}}).html('<div style="width:100px;height:60px;left:47%;position:relative"><i class="fa fa-circle-o-notch fa-spin" style="font-size:48px"></i></div>'+
+        '<div style="text-align:center">Loading your data. Please wait...</div>');
+
     console.log("Running command", command);
     IPython.notebook.session.kernel.execute(
         command, 
         callbacks, 
-        {silent:false,store_history:false,stop_on_error:true}
+        {silent:true,store_history:false,stop_on_error:true}
     );
 }()
 

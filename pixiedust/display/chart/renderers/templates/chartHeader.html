@@ -22,7 +22,9 @@
 
 <script>
 $("#mapOptions{{prefix}}").click(function(){
+    {% with inScript = True %}
     {%include resModule + ":chartOptions.dialog" %}
+    {% endwith %}
 });
 
 {%if flags.get("downloadSVG",False)%}

@@ -26,9 +26,9 @@ class StashMeta(DisplayHandlerMeta):
     def getMenuInfo(self,entity, dataHandler):
         if dataFrameMisc.isPySparkDataFrame(entity):
             return [
-                {"categoryId": "Download", "title": "Stash to Cloudant", "icon": "fa-cloud", "id": "stashCloudant"},
-                {"categoryId": "Download", "title": "Stash to Object Storage", "icon": "fa-suitcase", "id": "stashSwift"}
+                {"categoryId": "Download", "title": "Stash to Cloudant", "icon": "fa-cloud", "id": "stashCloudant"}
             ]
+            #{"categoryId": "Download", "title": "Stash to Object Storage", "icon": "fa-suitcase", "id": "stashSwift"}
         else:
             return []
     def newDisplayHandler(self,options,entity):
