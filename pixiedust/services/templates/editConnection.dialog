@@ -56,7 +56,7 @@ if (connectionName){
             "password": "<<password>>",\n\
             "host": "<<hostIdentifier>>-bluemix.cloudant.com",\n\
             "port": 443,\n\
-            "url": "https://<<userIndentifier>>-bluemix:<<password>>@<<hostIdentifier>>-bluemix.cloudant.com"\n\
+            "url": "https://<<userIdentifier>>-bluemix:<<password>>@<<hostIdentifier>>-bluemix.cloudant.com"\n\
         }\n\
     }');
 }
