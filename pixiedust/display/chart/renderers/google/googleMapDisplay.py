@@ -54,17 +54,23 @@ class MapViewDisplay(GoogleBaseDisplay):
         # keyFieldLabels = self.getKeyFieldLabels()
         valueFields = self.getValueFields()
         latLong = self.dataHandler.isNumericField(keyFields[0])
+        apikey = self.options.get("googlemapapikey")
 
         if self.options.get("mapRegion") is None:
             if keyFields[0].lower() == "state":
                 self.options["mapRegion"] = "US"
             else:    
                 self.options["mapRegion"] = "world"
+
         if self.options.get("mapDisplayMode") is None:
             if latLong:
                 self.options["mapDisplayMode"] = "markers"
             else:
                 self.options["mapDisplayMode"] = "region"
+
+        if self.options.get("mapDisplayMode") != "region" and (apikey is None or len(apikey)<5):
+            return self.renderTemplate("noapikey.html")
+            
         if self.options["mapRegion"] == "US":
             self.options["mapResolution"] = "provinces"
         else:
@@ -77,6 +83,8 @@ class MapViewDisplay(GoogleBaseDisplay):
 
         self.options["mapData"] = mapData.replace("'",'"').replace('[u"', '["').replace(', u"', ', "')
         self._addScriptElement("https://www.gstatic.com/charts/loader.js")
+        if apikey is not None and len(apikey)>5:
+            self._addScriptElement("https://maps.googleapis.com/maps/api/js?key={0}".format(apikey))
         self._addScriptElement("https://www.google.com/jsapi", callback=self.renderTemplate("mapView.js"))
         return self.renderTemplate("mapView.html")
 
