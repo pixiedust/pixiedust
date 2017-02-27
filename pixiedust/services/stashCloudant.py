@@ -35,9 +35,9 @@ class StashCloudantHandler(Display):
         config = ShellAccess.sc._conf.getAll()
         if not any("spark.jars" in s for s in config):
             self._addHTML("Please set PYSPARK_SUBMIT_ARGS to --jars local_dir_path/cloudant-spark.jar in kernel.json")
-            myLogger.debug("Please set PYSPARK_SUBMIT_ARGS to --jars <local_dir_path>/cloudant-spark.jar in kernel.json")
-            myLogger.debug("SparkContext conf:")
-            myLogger.debug(config)
+            self.debug("Please set PYSPARK_SUBMIT_ARGS to --jars <local_dir_path>/cloudant-spark.jar in kernel.json")
+            self.debug("SparkContext conf:")
+            self.debug(config)
             return
                     
         entity=self.entity
