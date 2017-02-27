@@ -12,7 +12,7 @@ You can use all these renderers right away without much extra effort. But what i
 Introduction
 ************
 
-Adding a renderer is similar to `adding a display visualization <writeviz.html>`_. It uses the same apis, but you need to define a few extra things:
+Adding a renderer is similar to `adding a display visualization <writeviz.html>`_. (Though it's actually simpler since you don’t have to build the metadata, which is replaced by defining the chartID your renderer is for.) Renderers use the same apis as visualizations, but you need to define a few extra things:
 
 - ``rendererId`` (must be unique to this renderer)  use ``@PixiedustRenderer`` annotation
 - specify which charts the renderer can display, like **map** for example. List using same ``@PixiedustRenderer`` annotation
