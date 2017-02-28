@@ -90,6 +90,7 @@ class PixiedustInstall(InstallKernelSpec):
                 download_spark = True
                 self.spark_home = "{}{}spark".format(os.path.expanduser('~'), os.sep)
         else:
+            first_prompt = True
             while True:
                 self.spark_home = os.environ.get("SPARK_HOME", None)
                 if self.spark_home:
@@ -99,7 +100,12 @@ class PixiedustInstall(InstallKernelSpec):
                     if answer != 'y':
                         self.spark_home = input(self.hilite("Step 2: Please enter a SPARK_HOME location: "))
                 else:
-                    self.spark_home = input(self.hilite("Step 2: Please enter a SPARK_HOME location: "))
+                    if first_prompt:
+                        first_prompt = False
+                        prompt = "Step 2: Please enter a SPARK_HOME location: "
+                    else:
+                        prompt = "Please enter a SPARK_HOME location: "
+                    self.spark_home = input(self.hilite(prompt))
                 while self.spark_home.rfind(os.sep) == len(self.spark_home) - 1:
                     self.spark_home = self.spark_home[0:len(self.spark_home)-1]
                 if not os.path.exists(self.spark_home):
@@ -141,6 +147,7 @@ class PixiedustInstall(InstallKernelSpec):
                 download_scala = True
                 self.scala_home = "{}{}scala".format(os.path.expanduser('~'), os.sep)
         else:
+            first_prompt = True
             while True:
                 self.scala_home = os.environ.get("SCALA_HOME", None)
                 if self.scala_home:
@@ -150,7 +157,12 @@ class PixiedustInstall(InstallKernelSpec):
                     if answer != 'y':
                         self.scala_home = input(self.hilite("Step 3: Please enter a SCALA_HOME location: "))
                 else:
-                    self.scala_home = input(self.hilite("Step 3: Please enter a SCALA_HOME location: "))
+                    if first_prompt:
+                        first_prompt = False
+                        prompt = "Step 3: Please enter a SCALA_HOME location: "
+                    else:
+                        prompt = "Please enter a SCALA_HOME location: "
+                    self.scala_home = input(self.hilite(prompt))
                 while self.scala_home.rfind(os.sep) == len(self.scala_home) - 1:
                     self.scala_home = self.scala_home[0:len(self.scala_home)-1]
                 if not os.path.exists(self.scala_home):
@@ -172,7 +184,7 @@ class PixiedustInstall(InstallKernelSpec):
                 else:
                     installed_scala_version = self.get_scala_version()
                     if not installed_scala_version or (str(installed_scala_version[0]) + '.' + str(installed_scala_version[1])) != scala_version:
-                        print("Invalid Scala version {0}".format(installed_scala_version))
+                        print("A different version of Scala {0} is already installed in this directory.".format(installed_scala_version))
                         continue
                     else:
                         break
@@ -188,7 +200,7 @@ class PixiedustInstall(InstallKernelSpec):
                 "Step 4: Kernel Name: {0}".format(self.kernelName)
             )
         if answer != 'y':
-            self.kernelName = input(self.hilite("Step 4: Please enter a Kernel Name: "))
+            self.kernelName = input(self.hilite("Please enter a Kernel Name: "))
 
         try:
             km = KernelManager(kernel_name=self.kernelName)
