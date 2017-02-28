@@ -7,6 +7,21 @@ When a notebook user invokes ``display()``, PixieDust provides a chrome that inc
 
 PixieDust framework builds that menu based on introspecting the data itself and associating it with components that the developer declares can process that data.  PixieDust comes with a set of visualizations and actions out-of-the-box, but you can easily add your own custom plugin. 
 
+QuickStart
+----------
+
+To get started fast, try our generator, which lets you create a sample visualization by answering a few prompts in Terminal or other command line app. 
+
+1. In Terminal or other command-line shell, navigate to the directory where you want to create the new project. This can be anywhere you choose.
+
+2. Enter and run:
+
+  ``jupyter pixiedust generate``
+
+3. Respond to the questions/prompts to complete setup. Here's the entire exchange including the command you'll run in Step 4:
+
+   MORE>>>  DRAFT DRAFT Docs in progres.... 
+
 Code walk-through: Display a DataFrame as a table
 --------------------------------------------------------
 
@@ -48,29 +63,26 @@ Here you see that class ``TableDisplayMeta`` does 2 things. In the method ``getM
 def getMenuInfo
 ###############
 
-In the ``getMenuInfo`` method of class ``TableDisplayMeta`` we check for the type of the entity. Pixiedust currently supports ``GraphFrame`` and ``PySparkDataFrame`` (currently only 2-dimensional matrix Pandas DataFrames are supported, so you can consider them to be the same as ``PySparkDataFrame`` for the purposes of Pixiedust development). 
+In the ``getMenuInfo`` method of class ``TableDisplayMeta`` you check for the type of the entity. Pixiedust currently supports ``GraphFrame`` and ``PySparkDataFrame`` (currently only 2-dimensional matrix Pandas DataFrames are supported, so you can consider them to be the same as ``PySparkDataFrame`` for the purposes of Pixiedust development). 
 
-If it's a Pandas or PySpark DataFrame, we return an array of menu definition objects. A menu definition object consists of 4 properties:
+If it's a Pandas or PySpark DataFrame, return an array of menu definition objects. A menu definition object consists of 4 properties:
 
 1. ``categoryId``: a unique string that identifies the menu "category" or group
 2. ``title``: an arbitrary string that describes the menu
 3. ``icon``: the name of a fontawesome icon, or a URL for an image
 4. ``id``: a unique string that identifies your tool
 
-Pixiedust only has one option for displaying a DataFrame as a table, so we return a single menu object in the array. 
+Pixiedust only has one option for displaying a DataFrame as a table, so you return a single menu object in the array. 
 
 def newDisplayHandler
 #####################
 
-The other method we must implement is ``newDisplayHandler``, which is called when the menu item is selected. This is where the DataFrame is actually processed. In this case, we return a new ``TableDisplay`` object, which does all the heavy lifting that we'll talk about next. 
+The other method you must implement is ``newDisplayHandler``, which is called when the menu item is selected. This is where the DataFrame is actually processed. In this case, return a new ``TableDisplay`` object, which does all the heavy lifting that we'll talk about next. 
 
 Data Processing
 ***************
 
- The ``TableDisplay`` class is defined in ``display/table/display.py``. Here is the code: 
-
-[pixiedust display.py in dir display/table](https://gist.github.com/rajrsingh/67e45a1c0ecc64207a189501d9559ea5)
-
+ The ``TableDisplay`` class is defined in ``display/table/display.py``. You can `see the code on GitHub <https://gist.github.com/rajrsingh/67e45a1c0ecc64207a189501d9559ea5>`_.
 
    ::
 
@@ -92,7 +104,7 @@ Data Processing
              )
 
 
-This class must implement one method, ``doRender``, which is called with a reference to ``self`` and a ``handlerId``. In the case of DataFrame display, the ``handlerId`` is unused, so we only need to check for one of our DataFrame entity types. If we have one of those, we'll display it using a `Jinja2 <http://jinja.pocoo.org/>`_ HTML template. 
+This class must implement one method, ``doRender``, which is called with a reference to ``self`` and a ``handlerId``. In the case of DataFrame display, the ``handlerId`` is unused, so you only need to check for one  DataFrameentity type. You can display it using a `Jinja2 <http://jinja.pocoo.org/>`_ HTML template. 
 
 HTML rendering with Jinja2
 **************************
@@ -107,7 +119,7 @@ is the key to rendering our data. ``dataframeTable.html`` (by default found in t
 2. ``{% for field in entity.getFields() %}``: loop over the fields and display each as a ``<th>``
 3. ``{% for row in rows %}``: loop over the rows and display each as a ``<tr>``
 
-Also note the ``<script>`` tag at the end of the file. This is where we do some nifty extras like scrolling while keeping the table header in a fixed position and client-side search.
+Also note the ``<script>`` tag at the end of the file. This is where you can do some nifty extras like scrolling while keeping the table header in a fixed position and client-side search.
 
 Build your own table display plugin
 ---------------------------------
@@ -149,7 +161,7 @@ Then create the file SimpleDisplayMeta.py and enter this code:
 
 As described earlier, the method ``getMenuInfo`` provides the hook to add a menu item to the user interface. You specify "Table" as the ``categoryID`` to add this tool to the existing Table menu. Give it any `title` and ``icon`` you want. And finally, give it a unique id, such as "simpleTest". 
 
-The ``newDisplayHandler`` method specifies the code that will be used to do the data processing work. Let's write that code now.
+The ``newDisplayHandler`` method specifies the code used to do the data processing work. That looks like this:
 
 DataFrame => HTML
 *****************
@@ -218,7 +230,7 @@ You should now see something resembling the screenshot below. The table menu is 
 
 
 
-.. note::  PixieDust provides a higher level framework build on top of ``display()`` api that lets you contribute more tightly to the chart menus. When you use the renderer api you contribute to the list renderers that can display a particular type of chart. For example, let notebook users choose MapBox to display a map. At the lowest level you can create only a visualization and don’t need to specify a renderer. But if you're interested in learning more, read how to `build a renderer <renderer.html>`_.
+.. note::  PixieDust provides a higher level framework built on top of ``display()`` api that lets you contribute more tightly to the chart menus. When you use the renderer api you contribute to the list renderers that can display a particular type of chart. For example, let notebook users choose Mapbox to display a map. At the lowest level you can create only a visualization and don’t need to specify a renderer. But if you're interested in learning more, read how to `build a renderer <renderer.html>`_.
 
 
 .. image:: _images/draft-watermark.png
