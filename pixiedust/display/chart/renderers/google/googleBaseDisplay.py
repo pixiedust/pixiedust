@@ -26,4 +26,24 @@ myLogger = pixiedust.getLogger(__name__)
 @PixiedustRenderer(rendererId="google")
 class GoogleBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
     pass
+
+    def getChartOptions(self):
+        return [
+            { 'name': 'mapDisplayMode',
+              'description': 'Display Mode',
+			  'metadata': {
+					'type': "dropdown",
+					'values': ["region", "markers", "text"],
+					'default': "region"
+				}
+            },
+            { 'name': 'mapRegion',
+              'description': 'Region',
+			  'metadata': {
+					'type': "dropdown",
+					'values': ["world", "US"],
+					'default': "world"
+              }
+            }
+        ]
   

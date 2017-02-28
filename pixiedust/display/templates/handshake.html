@@ -29,7 +29,7 @@
                     console.log(e)
                 }
             }
-            var snifferOptions = [{'nostore_cw':getCellWidth()}];
+            var snifferOptions = [{'nostore_cw':getCellWidth()},{'nostore_pixiedust':(typeof pixiedust != "undefined")}];
             {%for cb in this.snifferCallbacks%}
                 snifferOptions.push({{cb()}})
             {%endfor%}

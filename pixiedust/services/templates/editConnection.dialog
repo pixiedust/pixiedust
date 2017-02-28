@@ -1,0 +1,88 @@
+{%extends "basedialog.html"%}
+{%import "commonExecuteCallback.js" as commons%}
+
+{%block title %}Edit connection{%endblock%}
+
+{%block body%}
+<div class="well">
+Please enter your connection information as JSON in the text area below.
+For a new connection, you can for example copy and paste the service credentials from Bluemix.
+</div>
+<div id="connection-error" style="color:red"/>
+<div id="connTextArea{{prefix}}">
+</div>
+{%endblock%}
+
+{%block onDialogShown%}
+var CodeMirror = require('codemirror/lib/codemirror');
+function createEditor(content){
+    $('#connTextArea{{prefix}}').html('<textarea id="connection-info" rows=13 cols=80 name="connection-info"/>');
+    global.editor = CodeMirror.fromTextArea($("#connection-info")[0], {
+        lineNumbers: true,
+        matchBrackets: true,
+        indentUnit: 2,
+        autoIndent: true,
+        mode: 'application/json'
+    });
+    global.editor.setSize("100%", 300);
+    global.editor.setValue(content);
+}
+if (connectionName){
+    function toJson(v){
+        if (!v){
+            return ""
+        }
+        v = JSON.parse(v);
+        return JSON.stringify(v, null, '\t');
+    }
+    var script = "from pixiedust.services.serviceManager import getConnection\n"+
+        "import json\n"+
+        "print( json.dumps( getConnection(\"{{connType}}\",\"" + connectionName + "\", raw=False)))";
+
+    executeScript(script, {
+        'targetDivId': "connTextArea{{prefix}}",
+        'onError': function(error){
+            $("#connection-error").text(error);
+        },
+        'onSuccess': function(results){
+            createEditor(toJson(results));
+        }
+    })
+}else{
+    createEditor('{\n\
+        "name": "<<cloudant-connection name>>",\n\
+        "credentials": {\n\
+            "username": "<<userIdentifier>>-bluemix",\n\
+            "password": "<<password>>",\n\
+            "host": "<<hostIdentifier>>-bluemix.cloudant.com",\n\
+            "port": 443,\n\
+            "url": "https://<<userIdentifier>>-bluemix:<<password>>@<<hostIdentifier>>-bluemix.cloudant.com"\n\
+        }\n\
+    }');
+}
+{%endblock%}
+
+{%block onOK%}
+
+try {
+    var connInfo = JSON.parse(global.editor.getValue());
+    var script = "from pixiedust.services.serviceManager import addConnection\n"+
+        "print(addConnection(\"cloudant\"," + global.editor.getValue().replace(/[\n\r]+/g,"") + "))";
+    executeScript(script, {
+        'onError': function(error){
+            $("#connection-error").text(error);
+        },
+        'onSuccess': function(results){
+            if (typeof editConnCallback != "undefined"){
+                editConnCallback(results);
+            }
+            modal_obj.modal('hide')
+        }
+    });
+    return false;
+} catch(e) {
+    console.log(e);
+    $("#connection-error").text('System error: ' + e.message);
+    return false;
+}
+{%endblock%}

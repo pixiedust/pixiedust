@@ -62,7 +62,7 @@ function() {
                             getTargetNode().html(html);
                         }catch(e){
                             console.log("Invalid html output", e, html);
-                            getTargetNode().html( "Invalid html output. <pre>" 
+                            getTargetNode().html( "Invalid html output: " + e.message + "<pre>" 
                                 + html.replace(/>/g,'&gt;').replace(/</g,'&lt;').replace(/"/g,'&quot;') + "<pre>");
                         }
 
@@ -122,13 +122,17 @@ function() {
                 }else if (startWallToWall && $("#execution{{prefix}}").length > 0 ){
                     $("#execution{{prefix}}").append($("<div/>").text("Wall to Wall time: " + ( (new Date().getTime() - startWallToWall)/1000 ) + "s"));
                 }
+
+                if (typeof onDisplayDone{{prefix}} != "undefined"){
+                    onDisplayDone{{prefix}}();
+                }
             }
         }
     }
     
     if (IPython && IPython.notebook && IPython.notebook.session && IPython.notebook.session.kernel){
         var command = "{{this._genDisplayScript(menuInfo)}}".replace("cellId",cellId);
-        function addOptions(options){
+        function addOptions(options, override=true){
             function getStringRep(v) {
                 return "'" + v + "'";
             }
@@ -140,7 +144,9 @@ function() {
                 var rpattern=new RegExp(pattern);
                 var n = command.search(rpattern);
                 if ( n >= 0 ){
-                    command = command.replace(rpattern, replaceValue);
+                    if (override){
+                        command = command.replace(rpattern, replaceValue);
+                    }
                 }else if (hasValue){
                     var n = command.lastIndexOf(")");
                     command = [command.slice(0, n), (command[n-1]=="("? "":",") + replaceValue, command.slice(n)].join('')
@@ -150,8 +156,8 @@ function() {
         if(typeof cellMetadata != "undefined" && cellMetadata.displayParams){
             addOptions(cellMetadata.displayParams);
             addOptions({"showchrome":"true"});
-        }else if ('{{useCellMetadata}}'=='True' && curCell && curCell._metadata.pixiedust ){
-            addOptions(curCell._metadata.pixiedust.displayParams || {} );
+        }else if (curCell && curCell._metadata.pixiedust ){
+            addOptions(curCell._metadata.pixiedust.displayParams || {}, ('{{useCellMetadata}}'=='True') );
         }
         addOptions({{options|oneline|trim}});
         {#Give a chance to the caller to add extra template fragment here#}
