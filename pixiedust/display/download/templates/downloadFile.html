@@ -34,7 +34,20 @@ global.downloadcount=$('#numrows').val();
 {%endblock%}
 
 {%block onDialogShown%}
+var btnok = $('.btn-ok');
+var setOkBtnStatus = function() {
+	if ($('#numrows').length && Number($('#numrows').val()) <= 0) {
+    btnok.attr('disabled', 'disabled');
+  } else {
+    btnok.attr('disabled', null);
+  }
+}
 $('#numrows').val(Math.min(100, {{totalDocs}}));
+
+$('#numrows').on('input', function () {
+  setOkBtnStatus();
+});
+setOkBtnStatus();
 {%endblock%}
 
 {%block cellOuputHTML%}
