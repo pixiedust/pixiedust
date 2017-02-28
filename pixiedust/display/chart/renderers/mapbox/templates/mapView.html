@@ -71,14 +71,34 @@ body { background-color:#333; margin:0px !important; overflow: hidden;font-famil
     map.on("load", function() {
         var mapdata={{this.options.get("mapData")}};
         {% if this.options.get("kind") != "densitymap" %}
+        map.addSource("pxdatasource", {
+            "type":"geojson",
+            "data":mapdata,
+            "cluster": true, 
+            "clusterMaxZoom": 14, 
+            "clusterRadius": 20
+        });
         map.addLayer({
             "id":"pxlayer",
             "type":"circle", 
-            "source": {
-                "type":"geojson",
-                "data":mapdata
-            }, 
+            "source": "pxdatasource", 
             "paint": {{this.options.get("mapStyle")}}
+        });
+        map.addLayer({
+            "id": "cluster-count-labels", 
+            "type": "symbol", 
+            "source": "pxdatasource", 
+            "paint": {
+                "text-color": "#FFF"
+            },
+            "layout": {
+                "text-field": "{point_count}", 
+                "text-font": [
+                    "DIN Offc Pro Medium", 
+                    "Arial Unicode MS Bold"
+                ],
+                "text-size": 12
+            }
         });
         {% else %}
         map.addSource("pxdatasource", {
