@@ -34,7 +34,7 @@ class StashCloudantHandler(Display):
 
         config = ShellAccess.sc._conf.getAll()
         if not any("spark.jars" in s for s in config):
-            self._addHTML("Please setup one time manual steps to configure stashing to Cloudant database at https://ibm-cds-labs.github.io/pixiedust/install.html#stash-to-cloudant")
+            self._addHTML("<p>Please setup one time manual steps to configure stashing to Cloudant database at <a href=\"https://ibm-cds-labs.github.io/pixiedust/install.html#stash-to-cloudant\"  target=\"_blank\">https://ibm-cds-labs.github.io/pixiedust/install.html#stash-to-cloudant</a></p>")
             self.debug("Please setup one time manual steps to configure stashing to Cloudant database at https://ibm-cds-labs.github.io/pixiedust/install.html#stash-to-cloudant")
             self.debug("SparkContext conf:")
             self.debug(config)
