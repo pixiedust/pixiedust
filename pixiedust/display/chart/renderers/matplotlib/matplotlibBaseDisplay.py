@@ -24,6 +24,7 @@ from six import with_metaclass
 from abc import abstractmethod, ABCMeta
 import numpy as np
 import math
+import matplotlib.ticker as ticker
 
 try:
     import mpld3
@@ -82,6 +83,12 @@ class MatplotlibBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
         return options
 
     def setTicks(self, fig, ax):
+        if self.getBooleanOption("logy",False):
+            start, end = ax.get_ylim()
+            ax.yaxis.set_minor_locator(ticker.MultipleLocator((end - start) / 4))
+            ax.yaxis.set_minor_formatter(ticker.LogFormatter(labelOnlyBase=False))
+            ax.grid(True, which='both')
+
         labels = [s.get_text() for s in ax.get_xticklabels()]
         totalWidth = sum(len(s) for s in labels) * 5
         if totalWidth > self.getPreferredOutputWidth():
