@@ -51,8 +51,16 @@
 </div>
 
 <script>
+function updateGoBtn(){
+    if ($('#connection{{prefix}}').val().trim() == ""){
+        $("#go{{prefix}}").attr("disabled","disabled");
+    }else{
+        $("#go{{prefix}}").removeAttr("disabled");
+    }
+}
 
 function bindConnectionEvents(){
+    updateGoBtn();
     $('#service-connection{{prefix}}').on('click', 'tbody td', function(event) {
         if ($(this).text().trim() == ""){
             return false;
@@ -63,8 +71,8 @@ function bindConnectionEvents(){
         });
         $(this).addClass("selected");
         $(this).find("input").prop('checked', true);
-        $("#go{{prefix}}").removeAttr("disabled");
         $('#connection{{prefix}}').val( $(this).text().trim() );
+        updateGoBtn();
     });
 
     $('#service-connection{{prefix}} #delCon{{prefix}}').click(function(event){
@@ -78,6 +86,10 @@ function bindConnectionEvents(){
                         alert(error);
                     },
                     'onSuccess': function(results){
+                        if ($('#connection{{prefix}}').val()==name){
+                            $('#connection{{prefix}}').val("");
+                            updateGoBtn();
+                        }
                         refreshListConnections();
                     }
                 }
@@ -112,7 +124,6 @@ function executeDisplay(displayCallback){
     displayCallback = displayCallback || {};
     displayCallback.options = displayCallback.options || {}
     function onDisplayDone{{prefix}}(){
-        debugger;
         if (displayCallback.onDisplayDone){
             displayCallback.onDisplayDone();
         }
@@ -124,7 +135,6 @@ function executeDisplay(displayCallback){
 }
 
 function executeScript(script, executeControl){
-    debugger;
     executeControl = executeControl || {}
     var $targetDivId = executeControl.targetDivId;
     var command = script;

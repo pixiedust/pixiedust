@@ -23,6 +23,7 @@ except ImportError:
     from cStringIO import StringIO
 import inspect
 import sys
+import re
 import pixiedust
 from six import iteritems,PY2
 
@@ -79,6 +80,12 @@ class PixiedustTemplateEnvironment(object):
         self.env.filters['startswith']=lambda s,t: (s.startswith(t))
         self.env.filters['iteritems']=lambda s: iteritems(s)
         self.env.filters['decodeUTF8']=lambda s: s.decode('utf-8') if PY2 else s
+        self.env.filters['removeJSComments']=lambda s: self.removeJSComments(s)
+
+    def removeJSComments(self, s):
+        s = re.sub(re.compile("/\*.*?\*/",re.DOTALL ) ,"" ,s)
+        s = re.sub(re.compile("//.*?\n" ) ,"" ,s)
+        return s
     
     def from_string(self, source, **kwargs):
         return self.env.from_string(source, globals=kwargs)

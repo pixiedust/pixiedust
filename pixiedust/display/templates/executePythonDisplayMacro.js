@@ -62,7 +62,7 @@ function() {
                             getTargetNode().html(html);
                         }catch(e){
                             console.log("Invalid html output", e, html);
-                            getTargetNode().html( "Invalid html output. <pre>" 
+                            getTargetNode().html( "Invalid html output: " + e.message + "<pre>" 
                                 + html.replace(/>/g,'&gt;').replace(/</g,'&lt;').replace(/"/g,'&quot;') + "<pre>");
                         }
 
