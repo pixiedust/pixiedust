@@ -46,6 +46,21 @@
 <p>Create your own visualizations or apps using the pixiedust extensibility APIs. If you know html and css, you can write and deliver amazing graphics without forcing notebook users to type one line of code. Use the shape of the data to control when Pixiedust shows your visualization in a menu.</p>
 <p>When a notebook user invokes <code class="docutils literal"><span class="pre">display()</span></code>, PixieDust provides a chrome that include a toolbar of menus. Each menu is a way to visualize or perform action on the data.</p>
 <p>PixieDust framework builds that menu based on introspecting the data itself and associating it with components that the developer declares can process that data.  PixieDust comes with a set of visualizations and actions out-of-the-box, but you can easily add your own custom plugin.</p>
+<div class="section" id="quickstart">
+<h2>QuickStart<a class="headerlink" href="#quickstart" title="Permalink to this headline">¶</a></h2>
+<p>To get started fast, try our generator, which lets you create a sample visualization by answering a few prompts in Terminal or other command line app.</p>
+<ol class="arabic simple">
+<li>In Terminal or other command-line shell, navigate to the directory where you want to create the new project. This can be anywhere you choose.</li>
+<li>Enter and run:</li>
+</ol>
+<blockquote>
+<div><code class="docutils literal"><span class="pre">jupyter</span> <span class="pre">pixiedust</span> <span class="pre">generate</span></code></div></blockquote>
+<ol class="arabic" start="3">
+<li><p class="first">Respond to the questions/prompts to complete setup. Here&#8217;s the entire exchange including the command you&#8217;ll run in Step 4:</p>
+<p>MORE&gt;&gt;&gt;  DRAFT DRAFT Docs in progres....</p>
+</li>
+</ol>
+</div>
 <div class="section" id="code-walk-through-display-a-dataframe-as-a-table">
 <h2>Code walk-through: Display a DataFrame as a table<a class="headerlink" href="#code-walk-through-display-a-dataframe-as-a-table" title="Permalink to this headline">¶</a></h2>
 <p>Here&#8217;s a run-down of what goes into a PixieDust visualization:</p>
@@ -80,26 +95,25 @@
 </div>
 <div class="section" id="def-getmenuinfo">
 <h4>def getMenuInfo<a class="headerlink" href="#def-getmenuinfo" title="Permalink to this headline">¶</a></h4>
-<p>In the <code class="docutils literal"><span class="pre">getMenuInfo</span></code> method of class <code class="docutils literal"><span class="pre">TableDisplayMeta</span></code> we check for the type of the entity. Pixiedust currently supports <code class="docutils literal"><span class="pre">GraphFrame</span></code> and <code class="docutils literal"><span class="pre">PySparkDataFrame</span></code> (currently only 2-dimensional matrix Pandas DataFrames are supported, so you can consider them to be the same as <code class="docutils literal"><span class="pre">PySparkDataFrame</span></code> for the purposes of Pixiedust development).</p>
-<p>If it&#8217;s a Pandas or PySpark DataFrame, we return an array of menu definition objects. A menu definition object consists of 4 properties:</p>
+<p>In the <code class="docutils literal"><span class="pre">getMenuInfo</span></code> method of class <code class="docutils literal"><span class="pre">TableDisplayMeta</span></code> you check for the type of the entity. Pixiedust currently supports <code class="docutils literal"><span class="pre">GraphFrame</span></code> and <code class="docutils literal"><span class="pre">PySparkDataFrame</span></code> (currently only 2-dimensional matrix Pandas DataFrames are supported, so you can consider them to be the same as <code class="docutils literal"><span class="pre">PySparkDataFrame</span></code> for the purposes of Pixiedust development).</p>
+<p>If it&#8217;s a Pandas or PySpark DataFrame, return an array of menu definition objects. A menu definition object consists of 4 properties:</p>
 <ol class="arabic simple">
 <li><code class="docutils literal"><span class="pre">categoryId</span></code>: a unique string that identifies the menu &#8220;category&#8221; or group</li>
 <li><code class="docutils literal"><span class="pre">title</span></code>: an arbitrary string that describes the menu</li>
 <li><code class="docutils literal"><span class="pre">icon</span></code>: the name of a fontawesome icon, or a URL for an image</li>
 <li><code class="docutils literal"><span class="pre">id</span></code>: a unique string that identifies your tool</li>
 </ol>
-<p>Pixiedust only has one option for displaying a DataFrame as a table, so we return a single menu object in the array.</p>
+<p>Pixiedust only has one option for displaying a DataFrame as a table, so you return a single menu object in the array.</p>
 </div>
 <div class="section" id="def-newdisplayhandler">
 <h4>def newDisplayHandler<a class="headerlink" href="#def-newdisplayhandler" title="Permalink to this headline">¶</a></h4>
-<p>The other method we must implement is <code class="docutils literal"><span class="pre">newDisplayHandler</span></code>, which is called when the menu item is selected. This is where the DataFrame is actually processed. In this case, we return a new <code class="docutils literal"><span class="pre">TableDisplay</span></code> object, which does all the heavy lifting that we&#8217;ll talk about next.</p>
+<p>The other method you must implement is <code class="docutils literal"><span class="pre">newDisplayHandler</span></code>, which is called when the menu item is selected. This is where the DataFrame is actually processed. In this case, return a new <code class="docutils literal"><span class="pre">TableDisplay</span></code> object, which does all the heavy lifting that we&#8217;ll talk about next.</p>
 </div>
 </div>
 <div class="section" id="data-processing">
 <h3>Data Processing<a class="headerlink" href="#data-processing" title="Permalink to this headline">¶</a></h3>
 <blockquote>
-<div>The <code class="docutils literal"><span class="pre">TableDisplay</span></code> class is defined in <code class="docutils literal"><span class="pre">display/table/display.py</span></code>. Here is the code:</div></blockquote>
-<p>[pixiedust display.py in dir display/table](<a class="reference external" href="https://gist.github.com/rajrsingh/67e45a1c0ecc64207a189501d9559ea5">https://gist.github.com/rajrsingh/67e45a1c0ecc64207a189501d9559ea5</a>)</p>
+<div><p>The <code class="docutils literal"><span class="pre">TableDisplay</span></code> class is defined in <code class="docutils literal"><span class="pre">display/table/display.py</span></code>. You can <a class="reference external" href="https://gist.github.com/rajrsingh/67e45a1c0ecc64207a189501d9559ea5">see the code on GitHub</a>.</p>
 <blockquote>
 <div><div class="highlight-python"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">TableDisplay</span><span class="p">(</span><span class="n">Display</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">doRender</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">handlerId</span><span class="p">):</span>
@@ -120,7 +134,8 @@
 </pre></div>
 </div>
 </div></blockquote>
-<p>This class must implement one method, <code class="docutils literal"><span class="pre">doRender</span></code>, which is called with a reference to <code class="docutils literal"><span class="pre">self</span></code> and a <code class="docutils literal"><span class="pre">handlerId</span></code>. In the case of DataFrame display, the <code class="docutils literal"><span class="pre">handlerId</span></code> is unused, so we only need to check for one of our DataFrame entity types. If we have one of those, we&#8217;ll display it using a <a class="reference external" href="http://jinja.pocoo.org/">Jinja2</a> HTML template.</p>
+</div></blockquote>
+<p>This class must implement one method, <code class="docutils literal"><span class="pre">doRender</span></code>, which is called with a reference to <code class="docutils literal"><span class="pre">self</span></code> and a <code class="docutils literal"><span class="pre">handlerId</span></code>. In the case of DataFrame display, the <code class="docutils literal"><span class="pre">handlerId</span></code> is unused, so you only need to check for one  DataFrameentity type. You can display it using a <a class="reference external" href="http://jinja.pocoo.org/">Jinja2</a> HTML template.</p>
 </div>
 <div class="section" id="html-rendering-with-jinja2">
 <h3>HTML rendering with Jinja2<a class="headerlink" href="#html-rendering-with-jinja2" title="Permalink to this headline">¶</a></h3>
@@ -132,7 +147,7 @@
 <li><code class="docutils literal"><span class="pre">{%</span> <span class="pre">for</span> <span class="pre">field</span> <span class="pre">in</span> <span class="pre">entity.getFields()</span> <span class="pre">%}</span></code>: loop over the fields and display each as a <code class="docutils literal"><span class="pre">&lt;th&gt;</span></code></li>
 <li><code class="docutils literal"><span class="pre">{%</span> <span class="pre">for</span> <span class="pre">row</span> <span class="pre">in</span> <span class="pre">rows</span> <span class="pre">%}</span></code>: loop over the rows and display each as a <code class="docutils literal"><span class="pre">&lt;tr&gt;</span></code></li>
 </ol>
-<p>Also note the <code class="docutils literal"><span class="pre">&lt;script&gt;</span></code> tag at the end of the file. This is where we do some nifty extras like scrolling while keeping the table header in a fixed position and client-side search.</p>
+<p>Also note the <code class="docutils literal"><span class="pre">&lt;script&gt;</span></code> tag at the end of the file. This is where you can do some nifty extras like scrolling while keeping the table header in a fixed position and client-side search.</p>
 </div>
 </div>
 <div class="section" id="build-your-own-table-display-plugin">
@@ -166,7 +181,7 @@ class SimpleDisplayMeta(DisplayHandlerMeta):
 </div>
 </div></blockquote>
 <p>As described earlier, the method <code class="docutils literal"><span class="pre">getMenuInfo</span></code> provides the hook to add a menu item to the user interface. You specify &#8220;Table&#8221; as the <code class="docutils literal"><span class="pre">categoryID</span></code> to add this tool to the existing Table menu. Give it any <cite>title</cite> and <code class="docutils literal"><span class="pre">icon</span></code> you want. And finally, give it a unique id, such as &#8220;simpleTest&#8221;.</p>
-<p>The <code class="docutils literal"><span class="pre">newDisplayHandler</span></code> method specifies the code that will be used to do the data processing work. Let&#8217;s write that code now.</p>
+<p>The <code class="docutils literal"><span class="pre">newDisplayHandler</span></code> method specifies the code used to do the data processing work. That looks like this:</p>
 </div>
 <div class="section" id="dataframe-html">
 <h3>DataFrame =&gt; HTML<a class="headerlink" href="#dataframe-html" title="Permalink to this headline">¶</a></h3>
@@ -219,7 +234,7 @@ class SimpleDisplayMeta(DisplayHandlerMeta):
 <p>You should now see something resembling the screenshot below. The table menu is now a dropdown with two options, <strong>DataFrame Table</strong> and your new <strong>Simple Table</strong>. Choosing <strong>Simple Table</strong> displays the data using the template you defined in simpleTable.html!</p>
 <img src="http://developer.ibm.com/clouddataservices/wp-content/uploads/sites/85/2017/01/pixiedustnewtableoption.png" width="615"><div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">PixieDust provides a higher level framework build on top of <code class="docutils literal"><span class="pre">display()</span></code> api that lets you contribute more tightly to the chart menus. When you use the renderer api you contribute to the list renderers that can display a particular type of chart. For example, let notebook users choose MapBox to display a map. At the lowest level you can create only a visualization and don’t need to specify a renderer. But if you&#8217;re interested in learning more, read how to <a class="reference external" href="renderer.html">build a renderer</a>.</p>
+<p class="last">PixieDust provides a higher level framework built on top of <code class="docutils literal"><span class="pre">display()</span></code> api that lets you contribute more tightly to the chart menus. When you use the renderer api you contribute to the list renderers that can display a particular type of chart. For example, let notebook users choose Mapbox to display a map. At the lowest level you can create only a visualization and don’t need to specify a renderer. But if you&#8217;re interested in learning more, read how to <a class="reference external" href="renderer.html">build a renderer</a>.</p>
 </div>
 <img alt="_images/draft-watermark.png" src="_images/draft-watermark.png" />
 </div>
