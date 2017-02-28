@@ -16,6 +16,7 @@
 
 from abc import ABCMeta,abstractmethod
 from IPython.display import display as ipythonDisplay, HTML, Javascript
+from pixiedust.utils import Logger
 from pixiedust.utils.template import *
 import sys
 import uuid
@@ -148,7 +149,8 @@ class DisplayHandlerMeta(with_metaclass(ABCMeta)):
 
     def createCategories(self):
         return []
-    
+
+@Logger()
 class Display(with_metaclass(ABCMeta)):
 
     #global jinja2 Environment
@@ -225,6 +227,13 @@ class Display(with_metaclass(ABCMeta)):
             self.doRender(handlerId)
             self.executionTime = time.clock() - start
             
+        #check if pixiedust object is already installed on the client
+        #Experimental, not ready for prime time yet
+        #if self.options.get("nostore_pixiedust", "false") != "true":
+        #    js = self.renderTemplate( "addScriptCode.js", code = self.renderTemplate("pixiedust.js") )
+        #    self.debug("pixiedust code: {}".format(js))
+        #    ipythonDisplay(Javascript(js))
+
         #generate final HTML
         ipythonDisplay(HTML(self._wrapBeforeHtml() + self.html + self._wrapAfterHtml()))
         self._addScriptElements()

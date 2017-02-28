@@ -112,7 +112,6 @@ function executeDisplay(displayCallback){
     displayCallback = displayCallback || {};
     displayCallback.options = displayCallback.options || {}
     function onDisplayDone{{prefix}}(){
-        debugger;
         if (displayCallback.onDisplayDone){
             displayCallback.onDisplayDone();
         }
@@ -124,7 +123,6 @@ function executeDisplay(displayCallback){
 }
 
 function executeScript(script, executeControl){
-    debugger;
     executeControl = executeControl || {}
     var $targetDivId = executeControl.targetDivId;
     var command = script;
