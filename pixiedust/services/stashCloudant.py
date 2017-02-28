@@ -53,19 +53,15 @@ class StashCloudantHandler(Display):
                 raise Exception("Unable to resolve connection {0}".format(connectionName))
             payload = json.loads( connection["PAYLOAD"])
             credentials=payload["credentials"]
-            r = requests.put( credentials["url"] + "/" + dbName )
-            if ( r.status_code != 200 and r.status_code != 201 ):
-                print("Unable to create db ({0}) for connection ({1}): {2}".format(dbName, connectionName, str(r.content)))
-            else:
-                self.debug("write to cloudant host {0}".format(credentials["host"]))
-                format = self.entity.write.format("com.cloudant.spark")\
-                    .option("cloudant.host", credentials["host"])\
-                    .option("cloudant.username",credentials["username"])\
-                    .option("cloudant.password",credentials["password"])\
-                    .option("createDBOnSave","true")
-                
-                if "protocol" in credentials:
-                    format.option("cloudant.protocol", credentials["protocol"])
-                
-                format.save(dbName)
-                print("""Successfully stashed your data: <a target='_blank' href='{0}/{1}'>{1}</a>""".format(credentials["url"],dbName))
+            self.debug("write to cloudant host {0}".format(credentials["host"]))
+            format = self.entity.write.format("com.cloudant.spark")\
+                .option("cloudant.host", credentials["host"])\
+                .option("cloudant.username",credentials["username"])\
+                .option("cloudant.password",credentials["password"])\
+                .option("createDBOnSave","true")
+            
+            if "protocol" in credentials:
+                format.option("cloudant.protocol", credentials["protocol"])
+            
+            format.save(dbName)
+            self._addHTML("""<div>Successfully stashed your data: <a target='_blank' href='{0}/{1}'>{1}</a></div>""".format(credentials["url"],dbName))
