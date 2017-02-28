@@ -38,8 +38,8 @@ dataDefs = OrderedDict([
             ('acceleration','double'),('year','int'),('origin','string'),('name','string')]
     }),
     ("2", {
-        "displayName": "Airbnb Data for Analytics: Washington D.C. Listings", 
-        "url": "https://apsportal.ibm.com/exchange-api/v1/entries/c3af8034bd7f7374f87b3df6420865d5/data?accessKey=693121eff3eb97c917c5ac9987ee3095",
+        "displayName": "Sample retail sales transactions, January 2009", 
+        "url": "https://raw.githubusercontent.com/ibm-cds-labs/open-data/master/salesjan2009/salesjan2009.csv",
         "topic": "Economy & Business",
         "publisher": "IBM Cloud Data Services"
     }),
@@ -65,10 +65,14 @@ dataDefs = OrderedDict([
         "displayName": "Million dollar home sales in NE Mass late 2016", 
         "url": "https://openobjectstore.mybluemix.net/misc/milliondollarhomes.csv",
         "topic": "Economy & Business",
-        "publisher": "IBM"
+        "publisher": "Redfin.com"
+    }),
+    ("7", {
+        "displayName": "Boston Crime data, 2-week sample", 
+        "url": "https://raw.githubusercontent.com/ibm-cds-labs/open-data/master/crime/boston_crime_sample.csv",
+        "topic": "Society",
+        "publisher": "City of Boston"
     })
-
-    
 ])
 
 @scalaGateway
