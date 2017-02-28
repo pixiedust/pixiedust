@@ -129,10 +129,11 @@ Stash to Cloudant
 -----------------
 
 You can export the data to a Cloudant database. A supporting library cloudant-spark jar is required for the export.
-This is a manual one-time step that requires a kernel restart. Download cloudant-spark jar file from
+This is a manual one-time step that requires a kernel restart. Download cloudant-spark jar file for respective Spark version from
 ::
 
-    https://github.com/cloudant-labs/spark-cloudant#Binary-download
+    Spark 1.6: https://github.com/cloudant-labs/spark-cloudant/releases/download/v1.6.4/cloudant-spark-v1.6.4-167.jar
+    Spark 2.0: https://github.com/cloudant-labs/spark-cloudant/releases/download/v2.0.0/cloudant-spark-v2.0.0-185.jar
 
 Create a directory of your choice for example jars under the home directory.
 ::
