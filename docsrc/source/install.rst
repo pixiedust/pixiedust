@@ -125,6 +125,32 @@ The output looks similar to this:
         pythonwithpixiedustspark20    /Users/USERNAME/Library/Jupyter/kernels/pythonwithpixiedustspark20
         pythonwithpixiedustspark21    /Users/USERNAME/Library/Jupyter/kernels/pythonwithpixiedustspark21
 
+Stash to Cloudant
+-----------------
+
+You can export the data to a Cloudant database. A supporting library cloudant-spark jar is required for the export.
+This is a manual one-time step that requires a kernel restart. Download cloudant-spark jar file from
+::
+
+    https://github.com/cloudant-labs/spark-cloudant#Binary-download
+
+Create a directory of your choice for example jars under the home directory.
+::
+
+    mkdir jars
+
+Copy the cloudant-spark jar file into the newly created directory.
+
+Locate kernel.json file under the directory listing by running command.
+::
+
+    jupyter pixiedust list
+
+Edit kernel.json file and update the variable PYSPARK_SUBMIT_ARGS under env by adding --jars <local_home_directory>/jars/cloudant-spark.jar.
+::
+
+    "PYSPARK_SUBMIT_ARGS": "--jars /Users/USERNAME/jars/cloudant-spark-v1.6.4-167.jar ....
+
 
 Try It Out!
 -----------
