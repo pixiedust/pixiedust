@@ -58,10 +58,14 @@ class StashCloudantHandler(Display):
                 print("Unable to create db ({0}) for connection ({1}): {2}".format(dbName, connectionName, str(r.content)))
             else:
                 self.debug("write to cloudant host {0}".format(credentials["host"]))
-                self.entity.write.format("com.cloudant.spark")\
+                format = self.entity.write.format("com.cloudant.spark")\
                     .option("cloudant.host", credentials["host"])\
                     .option("cloudant.username",credentials["username"])\
                     .option("cloudant.password",credentials["password"])\
-                    .option("createDBOnSave","true")\
-                    .save(dbName)
+                    .option("createDBOnSave","true")
+                
+                if "protocol" in credentials:
+                    format.option("cloudant.protocol", credentials["protocol"])
+                
+                format.save(dbName)
                 print("""Successfully stashed your data: <a target='_blank' href='{0}/{1}'>{1}</a>""".format(credentials["url"],dbName))
