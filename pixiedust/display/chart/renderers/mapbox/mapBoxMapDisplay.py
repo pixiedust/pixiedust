@@ -90,12 +90,15 @@ class MapViewDisplay(MapBoxBaseDisplay):
         self.options["mapBounds"] = json.dumps([min,max])
         self.options["mapData"] = json.dumps(pygeojson)
 
-        paint = {'circle-radius':8,'circle-color':'#ff0000'}
+        paint = {'circle-radius':12,'circle-color':'#ff0000'}
         bins = []
 
         if len(valueFields) > 0:
             mapValueField = valueFields[0]
             self.options["mapValueField"] = mapValueField
+
+        if not self.options.get("kind"): 
+            self.options["kind"] = "choropleth"
         # if there's a numeric value field paint the data as a choropleth map
         if self.options.get("kind") != "simple" and len(valueFields) > 0:
             minval = df[valueFields[0]].min()
