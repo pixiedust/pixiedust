@@ -55,21 +55,21 @@ class BarChartRenderer(BokehBaseDisplay):
             for val in valueFields:
                 series = clusterby if clusterby is not None else False
                 values = val
-                params.append((values, series))
+                params.append((values, series, val))
         elif clusterby is not None and len(valueFields) <= 1:
-            params.append((valueFields[0], clusterby))
+            params.append((valueFields[0], clusterby, valueFields[0]))
         else:
             series = '_'.join(valueFields)
             values = blend(*valueFields, name=series.replace('_', ','), labels_name=series)
             if clusterby is not None:
                 self.addMessage("Warning: 'Cluster By' ignored when you have multiple Value Fields but subplots option is not selected")
-            params.append((values, series))
+            params.append((values, series, ','.join(valueFields)))
 
         for p in params:
             if stacked:
-                b = Bar(data, label=keyFields[0], values=p[0], stack=p[1], legend=self.showLegend())
+                b = Bar(data, label=keyFields[0], values=p[0], stack=p[1], legend=self.showLegend(), ylabel=p[2])
             else:
-                b = Bar(data, label=keyFields[0], values=p[0], group=p[1], legend=self.showLegend())
+                b = Bar(data, label=keyFields[0], values=p[0], group=p[1], legend=self.showLegend(), ylabel=p[2])
 
             charts.append(b)
 

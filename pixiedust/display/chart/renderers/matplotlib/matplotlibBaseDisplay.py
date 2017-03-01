@@ -83,7 +83,7 @@ class MatplotlibBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
         return options
 
     def setTicks(self, fig, ax):
-        if self.getBooleanOption("logy",False):
+        if self.handlerId=="lineChart" and self.getBooleanOption("logy",False):
             start, end = ax.get_ylim()
             ax.yaxis.set_minor_locator(ticker.MultipleLocator((end - start) / 4))
             ax.yaxis.set_minor_formatter(ticker.LogFormatter(labelOnlyBase=False))

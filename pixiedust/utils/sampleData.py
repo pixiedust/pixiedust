@@ -87,9 +87,11 @@ class SampleData(object):
 
     def sampleData(self, dataId = None):
         if dataId is None:
-            self.printSampleDataList()            
+            self.printSampleDataList()
         elif str(dataId) in dataDefs:
             return self.loadSparkDataFrameFromSampleData(dataDefs[str(dataId)])
+        elif "https://" in str(dataId) or "http://" in str(dataId):
+            return self.loadSparkDataFrameFromUrl(str(dataId))
         else:
             print("Unknown sample data identifier. Please choose an id from the list below")
             self.printSampleDataList()
@@ -116,6 +118,16 @@ class SampleData(object):
 
     def loadSparkDataFrameFromSampleData(self, dataDef):
         return Downloader(dataDef).download(self.dataLoader)
+
+    def loadSparkDataFrameFromUrl(self, dataUrl):
+        i = dataUrl.rfind('/')
+        dataName = dataUrl[(i+1):]
+        dataDef = {
+            "displayName": dataUrl,
+            "url": dataUrl
+        }
+        return Downloader(dataDef).download(self.dataLoader)
+
 
 class Downloader(object):
     def __init__(self, dataDef):
