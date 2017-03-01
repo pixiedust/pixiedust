@@ -128,6 +128,13 @@ Downloading Spark 2.1.0
 Extracting Spark 2.1.0 to /Users/USERNAME/spark
 </pre></div>
 </div>
+<p><em>Tip: If you&#8217;re using Spark 1.6, and you want to work with PixieDust&#8217;s sample data (recommended!), manually add the following package when you run your notebook. (You need run these commands only once.):</em></p>
+<blockquote>
+<div><div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">pixiedust</span><span class="o">.</span><span class="n">installPackage</span><span class="p">(</span><span class="s2">&quot;com.databricks:spark-csv_2.10:1.5.0&quot;</span><span class="p">)</span>
+<span class="n">pixiedust</span><span class="o">.</span><span class="n">installPackage</span><span class="p">(</span><span class="s2">&quot;org.apache.commons:commons-csv:0&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div></blockquote>
 <p>Next, the installer prompts you for the location of Scala.
 If you do not have Scala installed, or you do not have the version of Scala supported by your Apache Spark install, the installer downloads the appropriate version of Scala for you.</p>
 <div class="highlight-python"><div class="highlight"><pre><span></span>Step 3: Please enter a SCALA_HOME location: /Users/USERNAME/scala
@@ -158,6 +165,28 @@ Extracting Scala 2.11 to /Users/USERNAME/scala
     pythonwithpixiedustspark21    /Users/USERNAME/Library/Jupyter/kernels/pythonwithpixiedustspark21
 </pre></div>
 </div>
+</div>
+</div>
+<div class="section" id="stash-to-cloudant">
+<h2>Stash to Cloudant<a class="headerlink" href="#stash-to-cloudant" title="Permalink to this headline">¶</a></h2>
+<p>You can export the data to a Cloudant database. A supporting library cloudant-spark jar is required for the export.
+This is a manual one-time step that requires a kernel restart. Download cloudant-spark jar file for respective Spark version from</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span>Spark 1.6: https://github.com/cloudant-labs/spark-cloudant/releases/download/v1.6.4/cloudant-spark-v1.6.4-167.jar
+Spark 2.0: https://github.com/cloudant-labs/spark-cloudant/releases/download/v2.0.0/cloudant-spark-v2.0.0-185.jar
+</pre></div>
+</div>
+<p>Create a directory of your choice for example jars under the home directory.</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span>mkdir jars
+</pre></div>
+</div>
+<p>Copy the cloudant-spark jar file into the newly created directory.</p>
+<p>Locate kernel.json file under the directory listing by running command.</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span>jupyter pixiedust list
+</pre></div>
+</div>
+<p>Edit kernel.json file and update the variable PYSPARK_SUBMIT_ARGS under env by adding &#8211;jars &lt;local_home_directory&gt;/jars/cloudant-spark.jar.</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span>&quot;PYSPARK_SUBMIT_ARGS&quot;: &quot;--jars /Users/USERNAME/jars/cloudant-spark-v1.6.4-167.jar ....
+</pre></div>
 </div>
 </div>
 <div class="section" id="try-it-out">

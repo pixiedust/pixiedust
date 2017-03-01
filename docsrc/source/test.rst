@@ -12,7 +12,7 @@ Using VSCode
 ************
 
 1. Install the `python extension <http://donjayamanne.github.io/pythonVSCode/>`_ into VSCode
-2. Open the pixiedust repository/directory in VSCode
+2. Open the pixiedust repository/directory in VSCode 
 3. Set the **python.pythonPath** in the *User Settings* of the VSCode Preferences to the appropriate location of your python directory
 4. From the Debug View, click on the Configure gear and select Python
 5. Edit the ``launch.json`` and add a new object (or edit an existing one) in *configurations*

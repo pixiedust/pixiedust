@@ -47,19 +47,30 @@
 <h2>Sample Data Sets<a class="headerlink" href="#sample-data-sets" title="Permalink to this headline">¶</a></h2>
 <p>PixieDust comes with sample data. To start playing with the display() API and other PixieDust features, load and then visualize one of our many sample data sets.</p>
 <p>To call the list of data sets, run the following command in your notebook:</p>
-<blockquote>
-<div><div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">pixiedust</span><span class="o">.</span><span class="n">sampleData</span><span class="p">()</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">pixiedust</span><span class="o">.</span><span class="n">sampleData</span><span class="p">()</span>
 </pre></div>
 </div>
-</div></blockquote>
 <p>You get a list of the data sets included with PixieDust.</p>
 <img alt="_images/sample_data_sets.png" src="_images/sample_data_sets.png" />
-<p>To create a pySpark DataFrame for one of the samples, just enter its number in the following command. For example, to load Set 6, Million Dollar Home sales, run the command:</p>
-<blockquote>
-<div><div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">home_df</span> <span class="o">=</span> <span class="n">pixiedust</span><span class="o">.</span><span class="n">sampleData</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>If you get an error, and you&#8217;re running Spark 1.6, run the following command to manually install packages missing in 1.6 (You need to do so only once.):</p>
+<div class="last highlight-python"><div class="highlight"><pre><span></span><span class="n">pixiedust</span><span class="o">.</span><span class="n">installPackage</span><span class="p">(</span><span class="s2">&quot;com.databricks:spark-csv_2.10:1.5.0&quot;</span><span class="p">)</span>
+<span class="n">pixiedust</span><span class="o">.</span><span class="n">installPackage</span><span class="p">(</span><span class="s2">&quot;org.apache.commons:commons-csv:0&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-</div></blockquote>
+</div>
+<p>To create a pySpark DataFrame for one of the samples, just enter its number in the following command. For example, to load Set 6, Million Dollar Home sales, run the command:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">home_df</span> <span class="o">=</span> <span class="n">pixiedust</span><span class="o">.</span><span class="n">sampleData</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="load-a-csv-using-its-url">
+<h2>Load a CSV using its URL<a class="headerlink" href="#load-a-csv-using-its-url" title="Permalink to this headline">¶</a></h2>
+<p>You can also replace the number with a URL. If you have a CSV file online, access it by entering the URL in the parentheses, like this:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">home_df</span> <span class="o">=</span> <span class="n">pixiedust</span><span class="o">.</span><span class="n">sampleData</span><span class="p">(</span><span class="s2">&quot;https://openobjectstore.mybluemix.net/misc/milliondollarhomes.csv&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
 </div>
 <div class="section" id="other-data-sources">
 <h2>Other Data Sources<a class="headerlink" href="#other-data-sources" title="Permalink to this headline">¶</a></h2>

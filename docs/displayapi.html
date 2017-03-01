@@ -48,7 +48,11 @@
 <p>PixieDust lets you visualize your data in just a few clicks. There&#8217;s no need to write the complex code that you used to need to generate notebook graphs. Just call PixieDust&#8217;s <code class="docutils literal"><span class="pre">display()</span></code> API, and any lay person can render and change complex table and chart displays. You can even choose from multiple rendering engines, without needing to know any of the code that makes them run. Watch this video demo:</p>
 <div style="margin-top:10px; margin-bottom:25px;">
   <iframe width="560" height="315" src="http://www.youtube.com/embed/qetedQg8m3k" frameborder="0" allowfullscreen></iframe>
-</div><br><div class="sidebar">
+</div><br><div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This video shows how to use PixieDust display in a Scala notebook. Full support for Scala notebooks is coming soon and will work exactly as shown.</p>
+</div>
+<div class="sidebar">
 <p class="first sidebar-title">Create your own</p>
 <p class="last">PixieDust is extensible. If you don&#8217;t see the display option you want, create it. You can write your own visualization plugin, using HTML, JavaScript, and CSS. <a class="reference external" href="writeviz.html">Read how</a>.</p>
 </div>
@@ -140,6 +144,10 @@
 </li>
 </ol>
 <p>To set keys and values, drag fields from the <strong>Fields</strong> list on the left and drop them where you want them.</p>
+<div class="sidebar">
+<p class="first sidebar-title">Edit cell metadata directly</p>
+<p class="last">To directly access your option settings, you can edit cell metadata. From the Jupyter menu, choose <strong>View &gt; Cell Toolbar &gt; Edit Metadata</strong>. On the upper right of your <code class="docutils literal"><span class="pre">display()</span></code> cell, click the <strong>Edit Metadata</strong> button. Jupyter shows you the cell&#8217;s JSON, which you can edit and save.</p>
+</div>
 <p>Set these common options for every chart:</p>
 <ul>
 <li><p class="first"><strong>Chart Title.</strong> Enter an apt, descriptive title</p>
@@ -153,11 +161,11 @@
 <li><dl class="first docutils">
 <dt><strong>Aggregation.</strong> Type of aggregation to be performed on the data. Options include:</dt>
 <dd><ul class="first last simple">
-<li><strong>SUM.</strong> sum or total of values for the key</li>
-<li><strong>AVG.</strong> average of values for the key</li>
-<li><strong>MIN.</strong> Min (lowest) of values for the key</li>
-<li><strong>MAX.</strong> Max (highest) of values for the key</li>
-<li><strong>COUNT.</strong> number of times the key occurs</li>
+<li><strong>SUM</strong> sum or total of values for the key</li>
+<li><strong>AVG</strong> average of values for the key</li>
+<li><strong>MIN</strong> Min (lowest) of values for the key</li>
+<li><strong>MAX</strong> Max (highest) of values for the key</li>
+<li><strong>COUNT</strong> number of times the key occurs</li>
 </ul>
 </dd>
 </dl>
@@ -243,7 +251,7 @@
 <p>A pie chart is a circle graph which shows data as portions of a whole. In the <strong>Options</strong> dialog:</p>
 <ul class="simple">
 <li><strong>Keys:</strong> Choose the field that you want to be the labeled wedges of pie</li>
-<li><strong>Values:</strong> Choose a numeric field that you want to aggregrate on</li>
+<li><strong>Values:</strong> Choose a numeric field that you want to aggregrate on. When you put more than one field in Value, you get a separate chart for each one.</li>
 <li><strong>Renderers:</strong> matplotlib only</li>
 </ul>
 </div>

@@ -67,7 +67,7 @@ Likewise, you can transfer variables defined in scala by prefixing them with __ 
    ::
 
      %%scala
-     val demo = com.ibm.cds.spark.samples.StreamingTwitter
+     val demo = com.ibm.cds.spark.samples.StreamingTwitter 
      val (__sqlContext, __df) = demo.createTwitterDataFrames(sc)
 
 

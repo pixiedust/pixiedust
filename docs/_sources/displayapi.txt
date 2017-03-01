@@ -13,6 +13,7 @@ PixieDust lets you visualize your data in just a few clicks. There's no need to 
       <iframe width="560" height="315" src="http://www.youtube.com/embed/qetedQg8m3k" frameborder="0" allowfullscreen></iframe>
     </div><br>
 
+.. note:: This video shows how to use PixieDust display in a Scala notebook. Full support for Scala notebooks is coming soon and will work exactly as shown.
 
 .. sidebar:: Create your own
 
@@ -118,6 +119,10 @@ Set Chart Content
 
 To set keys and values, drag fields from the **Fields** list on the left and drop them where you want them.
 
+.. sidebar:: Edit cell metadata directly
+
+    To directly access your option settings, you can edit cell metadata. From the Jupyter menu, choose **View > Cell Toolbar > Edit Metadata**. On the upper right of your ``display()`` cell, click the **Edit Metadata** button. Jupyter shows you the cell's JSON, which you can edit and save.
+
 Set these common options for every chart:
 
 * **Chart Title.** Enter an apt, descriptive title
@@ -125,11 +130,11 @@ Set these common options for every chart:
 * **Keys.** Field(s) to serve as the x-Axis
 * **Values.** Field(s) to serve as the y-Axis
 * **Aggregation.** Type of aggregation to be performed on the data. Options include:
-	* **SUM.** sum or total of values for the key
-	* **AVG.** average of values for the key
-	* **MIN.** Min (lowest) of values for the key
-	* **MAX.** Max (highest) of values for the key
-	* **COUNT.** number of times the key occurs 
+	* **SUM** sum or total of values for the key
+	* **AVG** average of values for the key
+	* **MIN** Min (lowest) of values for the key
+	* **MAX** Max (highest) of values for the key
+	* **COUNT** number of times the key occurs 
 
 Then choose the chart-specific options. Read on to learn how to configure individual chart types. 
 
@@ -227,7 +232,7 @@ Pie Chart
 A pie chart is a circle graph which shows data as portions of a whole. In the **Options** dialog:
 
 - **Keys:** Choose the field that you want to be the labeled wedges of pie
-- **Values:** Choose a numeric field that you want to aggregrate on
+- **Values:** Choose a numeric field that you want to aggregrate on. When you put more than one field in Value, you get a separate chart for each one.
 - **Renderers:** matplotlib only
 
 
