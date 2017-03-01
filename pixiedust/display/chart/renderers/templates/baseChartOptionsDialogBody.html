@@ -42,7 +42,7 @@
 		height: 300px;
 	}
 	.keys-fields > ul {
-		height: 132px;
+		height: 147px;
 	}
 	.keys-fields .field-type,
 	.values-fields .field-type {
@@ -66,6 +66,23 @@
 		font-weight: 400;
 		display: inline-block;
 	}
+	.fields-link {
+		color: #337ab7;
+		cursor: pointer;
+    display: inline-block;
+    font-size: 0.95em;
+    font-weight: 300;
+    position: absolute;
+    right: 20px;
+    top: 3px;
+	}
+	.fields-link:hover {
+		color: #286090;
+		text-decoration: underline;
+	}
+	.all-fields.numeric-only > [data-field-type="string"] {
+    display: none;
+	}
 </style>
 <div class="container col-sm-12">
 	<div class="row">
@@ -76,7 +93,8 @@
 	</div>
 	<div class="field-container row">
 		<div class="col-sm-6" style="padding: 0px 5px 0px 0px;">
-			<label>Fields:</label>
+			<label>Fields:</label> <span class="fields-link">Show only numeric columns</span>
+			<input type="text" class="options-fields-search form-control input-sm" placeholder="Search/Filter Fields">
 			<ul id="allFields{{prefix}}" class="all-fields">
 				{%for field in fieldNamesAndTypes%}
 				<li id="field{{prefix}}-f{{loop.index}}" class="field{{prefix}}" data-field="{{field.0}}" data-field-type="{{field.1}}">
@@ -107,9 +125,9 @@
 				<label>Values: <i class="fa fa-question-circle" title="Values must be numeric columns."></i></label>
 				<label>Values: Only numeric columns are supported <i class="fa fa-warning"></i></label>
 				{%if keyFieldsSupported %}
-				<ul id="valueFields{{prefix}}" style="height: 132px;">
+				<ul id="valueFields{{prefix}}" style="height: 147px;">
 				{%else%}
-				<ul id="valueFields{{prefix}}" style="height: 300px;">
+				<ul id="valueFields{{prefix}}" style="height: 330px;">
 				{%endif%}
 					{%if this.options.get("valueFields") is not none%}
 					{%for fieldName in this.options.get("valueFields").split(",")%}
