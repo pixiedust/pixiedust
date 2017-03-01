@@ -27,6 +27,16 @@ To create a pySpark DataFrame for one of the samples, just enter its number in t
 
      home_df = pixiedust.sampleData(6)
 
+Load a CSV using its URL
+------------------------
+
+You can also replace the number with a URL. If you have a CSV file online, access it by entering the URL in the parentheses, like this:
+
+   ::
+
+
+     home_df = pixiedust.sampleData("https://openobjectstore.mybluemix.net/misc/milliondollarhomes.csv")
+
 
 Other Data Sources
 ------------------
