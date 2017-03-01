@@ -67,10 +67,10 @@ class HistogramRenderer(BokehBaseDisplay):
             for i in valueFields:
                 histograms.append(Histogram(self.getWorkingPandasDataFrame(), values=i,
             plot_width=plotwidth, plot_height=plotheight,bins=binsize, color=self.options.get("color"), 
-            xgrid=True, ygrid=True))
+            xgrid=True, ygrid=True, ylabel='Frequency'))
 
             return histograms
         else:
             return Histogram(self.getWorkingPandasDataFrame(), values=self.getValueFields()[0],
             bins=binsize, color=self.options.get("color"), 
-            xgrid=True, ygrid=True)
+            xgrid=True, ygrid=True, ylabel='Frequency')

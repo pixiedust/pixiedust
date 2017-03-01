@@ -86,7 +86,7 @@ class PieChartDisplay(MatplotlibBaseDisplay):
     def matplotlibRender(self, fig, ax):
         numRows = len(self.getWorkingPandasDataFrame().index)
         if numRows > 20:
-            self.addMessage("Too many data points to plot. Droping {0} rows to make the chart more presentable.".format(numRows-20))
+            self.addMessage("Too many data points to plot. Dropping {0} rows to make the chart more presentable.".format(numRows-20))
         if not isinstance(ax, (list,np.ndarray)):
             ax=np.array([ax])
         keyFields = self.getKeyFields()
