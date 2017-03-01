@@ -57,9 +57,30 @@
 <div><code class="docutils literal"><span class="pre">jupyter</span> <span class="pre">pixiedust</span> <span class="pre">generate</span></code></div></blockquote>
 <ol class="arabic" start="3">
 <li><p class="first">Respond to the questions/prompts to complete setup. Here&#8217;s the entire exchange including the command you&#8217;ll run in Step 4:</p>
-<p>MORE&gt;&gt;&gt;  DRAFT DRAFT Docs in progres....</p>
+<img alt="_images/generate_vis.png" src="_images/generate_vis.png" />
+</li>
+<li><p class="first">Install your new visualization.</p>
+<p>If you&#8217;re not already there, cd into your project directory and run the following command:</p>
+<p><code class="docutils literal"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-e</span> <span class="pre">.</span></code></p>
+</li>
+<li><p class="first">Go to your notebook, and restart the kernel.</p>
+</li>
+<li><p class="first">Run the command <code class="docutils literal"><span class="pre">import</span> <span class="pre">pixiedust</span></code></p>
+</li>
+<li><p class="first">Run the command <code class="docutils literal"><span class="pre">import</span> <span class="pre">Sampleviz</span></code>  (or whatever you named your project)</p>
+</li>
+<li><p class="first">Then load some data and run the display() command on it.</p>
+</li>
+<li><p class="first">In the charts dropdown, choose a chart you specified that the renderer can display.</p>
+</li>
+<li><p class="first">Click the <strong>Renderer</strong> dropdown.</p>
 </li>
 </ol>
+<blockquote>
+<div><p>You see your new visualization menu item! Here&#8217;s one named <strong>Sampleviz</strong>:</p>
+<img alt="_images/sample_viz_menu.png" src="_images/sample_viz_menu.png" />
+</div></blockquote>
+<p>Explore the code in your new project directory. We&#8217;ve commented in some guidance that should help you understand what you&#8217;re looking at.</p>
 </div>
 <div class="section" id="code-walk-through-display-a-dataframe-as-a-table">
 <h2>Code walk-through: Display a DataFrame as a table<a class="headerlink" href="#code-walk-through-display-a-dataframe-as-a-table" title="Permalink to this headline">¶</a></h2>
