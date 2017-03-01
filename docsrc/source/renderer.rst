@@ -48,7 +48,7 @@ Since no documentation is as good the code itself, we created a little tool to h
 
 6. Run the command ``import pixiedust`` 
 
-7. Run the command ``import Sample``  
+7. Run the command ``import Sample``  (or whatever you named your project)
 
 8. Then load some data and run the display() command on it. 
 

@@ -20,7 +20,31 @@ To get started fast, try our generator, which lets you create a sample visualiza
 
 3. Respond to the questions/prompts to complete setup. Here's the entire exchange including the command you'll run in Step 4:
 
-   MORE>>>  DRAFT DRAFT Docs in progres.... 
+   .. image:: _images/generate_vis.png 
+
+4. Install your new visualization.
+
+   If you're not already there, cd into your project directory and run the following command: 
+
+   ``pip install -e .``
+
+5. Go to your notebook, and restart the kernel.
+
+6. Run the command ``import pixiedust`` 
+
+7. Run the command ``import Sampleviz``  (or whatever you named your project)
+
+8. Then load some data and run the display() command on it. 
+
+9. In the charts dropdown, choose a chart you specified that the renderer can display.
+
+10. Click the **Renderer** dropdown. 
+
+   You see your new visualization menu item! Here's one named **Sampleviz**:
+
+   .. image:: _images/sample_viz_menu.png
+
+Explore the code in your new project directory. We've commented in some guidance that should help you understand what you're looking at.
 
 Code walk-through: Display a DataFrame as a table
 --------------------------------------------------------
