@@ -88,6 +88,12 @@ If you choose to download Apache Spark, the installer prompts you for the versio
     Downloading Spark 2.1.0
     Extracting Spark 2.1.0 to /Users/USERNAME/spark
 
+*Tip: If you're using Spark 1.6, and you want to work with PixieDust's sample data (recommended!), manually add the following package when you run your notebook. (You need run these commands only once.):*
+
+   ::
+
+      pixiedust.installPackage("com.databricks:spark-csv_2.10:1.5.0")
+      pixiedust.installPackage("org.apache.commons:commons-csv:0")
 
 Next, the installer prompts you for the location of Scala.
 If you do not have Scala installed, or you do not have the version of Scala supported by your Apache Spark install, the installer downloads the appropriate version of Scala for you.

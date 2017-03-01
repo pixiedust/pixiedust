@@ -14,7 +14,7 @@ You can use this component in the following ways:
 - Install a spark package from spark-packages.org.
 - Install from maven search repository.
 - Install a jar file directly from an addressable location.
-
+ 
 
 Install a spark package
 -----------------------

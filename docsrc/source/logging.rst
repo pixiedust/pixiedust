@@ -7,4 +7,4 @@ PixieDust comes complete with logging to help you troubleshoot issues. To invoke
 
 ``%pixiedustLog -l debug``
 
-PixieDust shows you a log of recent activities.
+PixieDust shows you a log of recent activities. 
