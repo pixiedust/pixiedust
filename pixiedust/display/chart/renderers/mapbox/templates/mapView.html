@@ -13,7 +13,7 @@
     background-color: rgba(255,255,255, 0.75);
     border-radius: 3px;
     position: absolute;
-    right: 14px;
+    left: calc(100% - 172px);
     top: 14px;
     box-shadow: 0 1px 2px rgba(0,0,0,0.10);
     font-size: 12px;
@@ -35,7 +35,7 @@ body { background-color:#333; margin:0px !important; overflow: hidden;font-famil
 </style>
 </head>
 <body>
-<div id="map{{prefix}}" style="width:780px;height:412px;" />
+<div id="map{{prefix}}" style="width:calc({{prefwidth}}px - 4px);height:calc({{prefheight}}px - 4px)" />
 
 {%if this.options.get("showLegend") == "true" and this.options.get("kind") != "simple"%}
 <div class="legend">

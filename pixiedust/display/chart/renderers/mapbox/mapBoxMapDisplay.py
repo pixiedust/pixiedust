@@ -110,8 +110,10 @@ class MapViewDisplay(MapBoxBaseDisplay):
             for bin in bins: 
                 paint['circle-color']['stops'].append( [bin[0], bin[1]] )
         self.options["mapStyle"] = json.dumps(paint)
-        body = self.renderTemplate("mapView.html", bins=bins)
-        return self.renderTemplate("iframesrcdoc.html", body=body)
+        w = self.getPreferredOutputWidth()
+        h = self.getPreferredOutputHeight()
+        body = self.renderTemplate("mapView.html", bins=bins, prefwidth=w, prefheight=h)
+        return self.renderTemplate("iframesrcdoc.html", body=body, prefwidth=w, prefheight=h)
 
     def isLatLonChart(self):
         llnames = ['lat','latitude','y','lon','long','longitude','x']
