@@ -33,7 +33,7 @@ class ScatterPlotRenderer(BokehBaseDisplay):
             { 'name': 'color',
               'metadata': {
                     'type': "dropdown",
-                    'values': ["None"] + self.getFieldNames(),
+                    'values': ["None"] + [f for f in self.getFieldNames() if f not in self.getKeyFields() and f not in self.getValueFields()],
                     'default': ""
                 }
             }
