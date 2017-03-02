@@ -170,6 +170,7 @@ class MatplotlibBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
 
             #mpld3 has a bug when autolocator are used. Change to FixedLocators
             if self.useMpld3:
+                self.addMessage("Warning: While great, D3 rendering is using MPLD3 library which has limitations that have not yet been fixed")
                 from matplotlib import ticker
                 self.debug("Converting to FixedLocator for mpld3")
                 for a in axes:
