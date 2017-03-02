@@ -1,7 +1,7 @@
 Build a Renderer
 ========================
 
-A *rendering engine* turns your data into pretty shapes and lines. PixieDust comes with a few built-in renderers like: matplotlib, Seaborn, Bokeh, Mapbox, and Google Maps. To switch between renderers, go to the upper right of your chart and click the **Renderer** dropdown:
+A *rendering engine* turns your data into shapes and lines. PixieDust comes with a few built-in renderers like: matplotlib, Seaborn, Bokeh, Mapbox, and Google Maps. To switch between renderers, go to the upper right of your chart and click the **Renderer** dropdown:
 
 .. image:: _images/renderer_dd.png
 
