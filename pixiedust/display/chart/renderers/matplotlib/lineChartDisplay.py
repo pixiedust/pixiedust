@@ -15,7 +15,7 @@
 # -------------------------------------------------------------------------------
 
 from pixiedust.display.chart.renderers import PixiedustRenderer
-from pixiedust.display.chart.renderers.colors import Colors
+from pixiedust.display.chart.colorManager import Colors
 from .matplotlibBaseDisplay import MatplotlibBaseDisplay
 import matplotlib.pyplot as plt
 import numpy as np

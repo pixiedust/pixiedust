@@ -56,6 +56,14 @@ def isNumericType(type):
     return (type =="LongType" or type == "IntegerType" or type == "DoubleType" or type == "DecimalType" or type == "FloatType")
 
 """
+Return True if spark type is a string
+"""
+def isStringType(type):
+    if isinstance( type, DataType):
+        return isStringType( type.__class__.__name__)
+    return (type =="StringType")
+
+"""
 Return True is field represented by fieldName is Numeric
 """
 def isNumericField(entity, fieldName):
@@ -70,5 +78,23 @@ def isNumericField(entity, fieldName):
         return False
     for field in entity.schema.fields:
         if isNumericFieldRecurse(field, fieldName):
+            return True
+    return False
+
+"""
+Return True is field represented by fieldName is a String
+"""
+def isStringField(entity, fieldName):
+    def isStringFieldRecurse(field, targetName):
+        if field.name == targetName:
+            return isStringType(field.dataType)
+        elif isinstance(field.dataType, StructType) and targetName.startswith(field.name + "."):
+            nestedFieldName = targetName[len(field.name)+1:]
+            for f in field.dataType.fields:
+                if isStringFieldRecurse(f, nestedFieldName):
+                    return True         
+        return False
+    for field in entity.schema.fields:
+        if isStringFieldRecurse(field, fieldName):
             return True
     return False

@@ -15,6 +15,10 @@
 # -------------------------------------------------------------------------------
 import math
 
+def append(displayObject, arr, option):
+    if displayObject.acceptOption(option["name"]):
+        arr.append(option)
+
 def clusterBy(displayObject):
     return { 
         'name': 'clusterby',
@@ -108,19 +112,29 @@ def lineChart(displayObject):
     return options
 
 def histogram(displayObject):
-    count = len(displayObject.getWorkingPandasDataFrame().index)
-    return [
-        {
-            'name': 'binsize',
-            'description': 'Bin size',
+    options = []
+    if len(displayObject.getValueFields()) > 1:
+        append(displayObject, options, {
+            'name': 'histoChartType',
+            'description': 'Type',
             'metadata': {
-                'type': 'slider',
-                'max': int(max(math.ceil(count / 2), 4)),
-                'min': int(max(math.floor(count / 20), 2)),
-                'default': int(max(math.ceil(count / 4), 3))
+                'type': 'dropdown',
+                'values': ['stacked', 'subplots'],
+                'default': "stacked"
             }
+        })
+    count = len(displayObject.getWorkingPandasDataFrame().index)
+    options.append({
+        'name': 'binsize',
+        'description': 'Bin size',
+        'metadata': {
+            'type': 'slider',
+            'max': int(max(math.ceil(count / 2), 4)),
+            'min': int(max(math.floor(count / 20), 2)),
+            'default': int(max(math.ceil(count / 4), 3))
         }
-    ]
+    })
+    return options
 
 commonOptions = {}
 for f in [barChart,lineChart,histogram]:

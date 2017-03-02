@@ -16,6 +16,7 @@
 
 from pixiedust.display.chart.renderers import PixiedustRenderer
 from .matplotlibBaseDisplay import MatplotlibBaseDisplay
+from pixiedust.display.chart.colorManager import Colors
 import matplotlib.pyplot as plt
 import mpld3
 import numpy as np
@@ -38,9 +39,28 @@ class HistogramDisplay(MatplotlibBaseDisplay):
 
     # no keys by default
     def getDefaultKeyFields(self, handlerId, aggregation):
-        return []        
+        return []
+
+    def getNumFigures(self):
+        return len(self.getValueFields()) if self.isSubplots() else 1
+
+    def isSubplots(self):
+        return len(self.getValueFields()) > 1 and self.options.get("histoChartType", "stacked") == "subplots"
 
     def matplotlibRender(self, fig, ax):
-        stacked = len(self.getValueFields()) > 1
+        stacked = len(self.getValueFields()) > 1 and self.options.get("histoChartType", "stacked") == "stacked"
+        subplots = self.isSubplots()
         binsize = int(self.options.get('binsize', 10))
-        self.getWorkingPandasDataFrame().plot(kind="hist", stacked=stacked, ax=ax, bins=binsize, legend=self.showLegend())
+
+        def plot(ax, valueField=None, color=None):
+            data = self.getWorkingPandasDataFrame() if valueField is None else self.getWorkingPandasDataFrame()[valueField]
+            data.plot(
+                kind="hist", stacked=stacked, ax=ax, bins=binsize, legend=self.showLegend(), x = valueField,
+                label=valueField,color = color, colormap = None if color else Colors.colormap
+            )
+
+        if subplots:
+            for j, valueField in enumerate(self.getValueFields()):
+                plot(self.getAxItem(ax, j), valueField, Colors.colormap(1.*j/2))
+        else:
+            plot(ax)

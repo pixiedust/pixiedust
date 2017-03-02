@@ -31,6 +31,58 @@
 	.field-remove:after {
 		content: "x";
 	}
+	.field-name {
+		font-weight: 600;
+	}
+	.field-type {
+    float: right;
+    font-style: italic;
+	}
+	.all-fields {
+		height: 300px;
+	}
+	.keys-fields > ul {
+		height: 147px;
+	}
+	.keys-fields .field-type,
+	.values-fields .field-type {
+		display: none;
+	}
+	.field-container .keys-fields > label:nth-child(2),
+	.field-container .values-fields > label:nth-child(2) {
+		display: none;
+	}
+	.field-container.field-drag .keys-fields:not(.field-drag-acceptable) > ul,
+	.field-container.field-drag .values-fields:not(.field-drag-acceptable) > ul {
+		opacity: 0.5;
+	}
+	.field-container.field-drag .keys-fields:not(.field-drag-acceptable) > label:first-child,
+	.field-container.field-drag .values-fields:not(.field-drag-acceptable) > label:first-child {
+		display: none;
+	}
+	.field-container.field-drag .keys-fields:not(.field-drag-acceptable) > label:nth-child(2),
+	.field-container.field-drag .values-fields:not(.field-drag-acceptable) > label:nth-child(2) {
+		color: #ff0000;
+		font-weight: 400;
+		display: inline-block;
+	}
+	.fields-link {
+		color: #337ab7;
+		cursor: pointer;
+    display: inline-block;
+    font-size: 0.95em;
+    font-weight: 300;
+    position: absolute;
+    right: 20px;
+    top: 3px;
+	}
+	.fields-link:hover {
+		color: #286090;
+		text-decoration: underline;
+	}
+	.all-fields.numeric-only > [data-field-type="string"] {
+    display: none;
+	}
 </style>
 <div class="container col-sm-12">
 	<div class="row">
@@ -40,41 +92,52 @@
 		</div>
 	</div>
 	<div class="field-container row">
-		<div class="col-sm-4" style="padding: 0px 5px 0px 0px;">
-			<label>Fields:</label>
-			<ul id="allFields{{prefix}}" style="height: 215px;">
-				{%for fieldName in fieldNames%}
-				<li id="field{{prefix}}-f{{loop.index}}" class="field{{prefix}}">{{fieldName}}<a class="field{{prefix}}-remove"></a></li>
+		<div class="col-sm-6" style="padding: 0px 5px 0px 0px;">
+			<label>Fields:</label> <span class="fields-link">Show only numeric columns</span>
+			<input type="text" class="options-fields-search form-control input-sm" placeholder="Search/Filter Fields">
+			<ul id="allFields{{prefix}}" class="all-fields">
+				{%for field in fieldNamesAndTypes%}
+				<li id="field{{prefix}}-f{{loop.index}}" class="field{{prefix}}" data-field="{{field.0}}" data-field-type="{{field.1}}">
+					<span class="field-name">{{field.0}}</span>
+					<span class="field-type">{{field.1}}</span>
+					<a class="field{{prefix}}-remove"></a>
+				</li>
 				{%endfor%}
 			</ul>
 		</div>
-		<div class="col-sm-8" style="padding: 0px 0px 0px 5px;">
+		<div class="col-sm-6" style="padding: 0px 0px 0px 5px;">
 			{%if keyFieldsSupported %}
-			<label>Keys:</label>
-			<ul id="keyFields{{prefix}}" style="height: 90px;">
-				{%if this.options.get("keyFields") is not none%}
-				{%for fieldName in this.options.get("keyFields").split(",")%}
-					{%if fieldName in fieldNames%}
-						<li id="field{{prefix}}-f{{fieldNames.index(fieldName)+1}}-keyFields{{prefix}}">{{fieldName}}<a class="field{{prefix}}-remove field-remove"></a></li>
+			<div class="keys-fields">
+				<label>Keys: <i class="fa fa-question-circle" title="Rows will be grouped by Key columns. Columns may be numeric or string."></i></label>
+				<label>Keys: Only numeric or string columns are supported <i class="fa fa-warning"></i></label>
+				<ul id="keyFields{{prefix}}">
+					{%if this.options.get("keyFields") is not none%}
+					{%for fieldName in this.options.get("keyFields").split(",")%}
+						{%if fieldName in fieldNames%}
+							<li id="field{{prefix}}-f{{fieldNames.index(fieldName)+1}}-keyFields{{prefix}}" data-field="{{fieldName}}">{{fieldName}}<a class="field{{prefix}}-remove field-remove"></a></li>
+						{%endif%}
+					{%endfor%}
 					{%endif%}
-				{%endfor%}
+				</ul>
+			</div>
+			{%endif%}
+			<div class="values-fields">
+				<label>Values: <i class="fa fa-question-circle" title="Values must be numeric columns."></i></label>
+				<label>Values: Only numeric columns are supported <i class="fa fa-warning"></i></label>
+				{%if keyFieldsSupported %}
+				<ul id="valueFields{{prefix}}" style="height: 147px;">
+				{%else%}
+				<ul id="valueFields{{prefix}}" style="height: 330px;">
 				{%endif%}
-			</ul>
-			{%endif%}
-			<label>Values:</label>
-			{%if keyFieldsSupported %}
-			<ul id="valueFields{{prefix}}" style="height: 90px;">
-			{%else%}
-			<ul id="valueFields{{prefix}}" style="height: 215px;">
-			{%endif%}
-				{%if this.options.get("valueFields") is not none%}
-				{%for fieldName in this.options.get("valueFields").split(",")%}
-					{%if fieldName in fieldNames%}
-						<li id="field{{prefix}}-f{{fieldNames.index(fieldName)+1}}-valueFields{{prefix}}">{{fieldName}}<a class="field{{prefix}}-remove field-remove"></a></li>
+					{%if this.options.get("valueFields") is not none%}
+					{%for fieldName in this.options.get("valueFields").split(",")%}
+						{%if fieldName in fieldNames%}
+							<li id="field{{prefix}}-f{{fieldNames.index(fieldName)+1}}-valueFields{{prefix}}" data-field="{{fieldName}}">{{fieldName}}<a class="field{{prefix}}-remove field-remove"></a></li>
+						{%endif%}
+					{%endfor%}
 					{%endif%}
-				{%endfor%}
-				{%endif%}
-			</ul>
+				</ul>
+			</div>
 		</div>
 	</div>
 	<div class="row">

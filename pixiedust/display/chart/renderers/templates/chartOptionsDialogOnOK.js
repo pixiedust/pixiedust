@@ -58,7 +58,7 @@ var getListValues = function(listId) {
         if (value.length != 0) {
             value += ',';
         }
-        value += $(li).text();
+        value += $(li).data('field');
     });
     return value;
 };

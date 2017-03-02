@@ -28,7 +28,15 @@ $('#chartOptions{{prefix}} *').filter(':input').each(function(){
 });
 $('.field{{prefix}}').draggable({
 	helper:"clone",
-	containment:"document"
+	containment:"document",
+	start: function(event, ui) {
+		//$('.field-container').addClass(ui.helper.data("fieldType") + '-field-drag');
+		$('.field-container').addClass('field-drag');
+	},
+	stop: function(event, ui) {
+		//$('.field-container').removeClass(ui.helper.data("fieldType") + '-field-drag');
+		$('.field-container').removeClass('field-drag');
+	}
 });
 $('.field{{prefix}}-remove').click(function(e) {
 	e.preventDefault();
@@ -39,6 +47,24 @@ $('.field{{prefix}}-remove').click(function(e) {
 	return false;
 });
 $('#keyFields{{prefix}}, #valueFields{{prefix}}').droppable({
+	accept: function(d) {
+		if ($(this).parent().hasClass('keys-fields')) {
+			return d.data("fieldType") === 'numeric' ||
+				d.data("fieldType") === 'string';
+		}
+		else if ($(this).parent().hasClass('values-fields')) {
+			return d.data("fieldType") === 'numeric';
+		}
+		else {
+			return false;
+		}
+	},
+	activate: function(event, ui) {
+		$(this).parent().addClass('field-drag-acceptable');
+	},
+	deactivate: function(event, ui) {
+		$(this).parent().removeClass('field-drag-acceptable');
+	},
 	drop:function(event, ui) {
 		var newId = ui.draggable.attr('id') + '-' + $(this).attr('id');
 		if ( $('#'+newId).length == 0) { 
@@ -56,6 +82,32 @@ $('#rows-count').on('input', function () {
 	setOkBtnStatus();
 });
 
+var rows = $('.field{{prefix}}');
+$('.options-fields-search').keyup(function() {
+	var val = '^(?=.*\\b' + $.trim($(this).val()).split(/\s+/).join('\\b)(?=.*\\b') + ').*$';
+	var reg = RegExp(val, 'i');
+	var index = 0;
+	
+	rows.each(function(i, e) {
+		if (!reg.test($(this).text().replace(/\s+/g, ' '))) {
+			$(this).attr('class', 'hidden');
+		}
+		else {
+			$(this).attr('class', (++index % 2 == 0 ? 'even' : 'odd'));
+		}
+	});
+});
+
+$('.fields-link').click(function() {
+	if ($('.all-fields').hasClass('numeric-only')) {
+		$('.all-fields').removeClass('numeric-only');
+		$(this).text('Show only numeric columns');
+	}
+	else {
+		$('.all-fields').addClass('numeric-only');
+		$(this).text('Show all columns');
+	}
+});
 {%endblock%}
 
 {%block onOK%}

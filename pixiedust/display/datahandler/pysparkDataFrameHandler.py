@@ -39,6 +39,12 @@ class PySparkDataFrameDataHandler(object):
     def isNumericType(self, field):
         return dataFrameMisc.isNumericType(field.dataType)
 
+    def isStringField(self, fieldName):
+        return dataFrameMisc.isStringField(self.entity, fieldName)
+
+    def isStringType(self, field):
+        return dataFrameMisc.isStringType(field.dataType)
+
     def getFieldValues(self, fieldNames):
         if len(fieldNames) == 0:
             return []

@@ -15,6 +15,7 @@
 # -------------------------------------------------------------------------------
 
 from pixiedust.display.chart.renderers import PixiedustRenderer
+from pixiedust.display.chart.colorManager import Colors
 from .bokehBaseDisplay import BokehBaseDisplay
 from pixiedust.utils import Logger
 from bokeh.charts import Line
@@ -38,15 +39,15 @@ class LineChartRenderer(BokehBaseDisplay):
 
         if clusterby is None:
             if subplots:
-                for valueField in valueFields:
-                    figs.append(Line(data, x = keyFields[0], y=valueField, legend=self.showLegend(), plot_width=int(800/len(valueFields))))
+                for i,valueField in enumerate(valueFields):
+                    figs.append(Line(data, x = keyFields[0], y=valueField, color = Colors.hexRGB( 1.*i/2 ), legend=self.showLegend(), plot_width=int(800/len(valueFields))))
             else:
                 figs.append(Line(data, x = keyFields[0], y=valueFields, color=valueFields, legend=self.showLegend()))
         else:
             if subplots:
                 self.addMessage("Warning: 'Cluster By' ignored when you have multiple Value Fields but subplots options selected")
-                for valueField in valueFields:
-                    figs.append(Line(data, x = keyFields[0], y=valueField, legend=self.showLegend(), plot_width=int(800/len(valueFields))))
+                for i, valueField in enumerate(valueFields):
+                    figs.append(Line(data, x = keyFields[0], y=valueField, color = Colors.hexRGB( 1.*i/2 ), legend=self.showLegend(), plot_width=int(800/len(valueFields))))
             else:
                 if len(valueFields) > 1:
                     self.addMessage("Warning: 'Cluster By' ignored when you have multiple Value Fields but subplots option is not selected")

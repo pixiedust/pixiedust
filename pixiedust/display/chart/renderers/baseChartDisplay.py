@@ -282,6 +282,7 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
     def getDialogInfo(self, handlerId):
         context = self.getChartContext(handlerId)
         dialogOptions = { "fieldNames":self.getFieldNames(True),\
+            "fieldNamesAndTypes":self.getFieldNamesAndTypes(True, True),\
             "keyFieldsSupported":self.supportsKeyFields(handlerId),\
             "legendSupported":self.supportsLegend(handlerId),\
             "aggregationSupported":self.supportsAggregation(handlerId),\
@@ -312,6 +313,21 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
     @cache(fieldName="fieldNames")
     def getFieldNames(self, expandNested=True):
         return self.dataHandler.getFieldNames(expandNested)
+
+    @cache(fieldName="fieldNamesAndTypes")
+    def getFieldNamesAndTypes(self, expandNested=True, sorted=False):
+        fieldNames = self.getFieldNames(True)
+        fieldNamesAndTypes = []
+        for fieldName in fieldNames:
+            fieldType = "unknown/unsupported"
+            if self.dataHandler.isNumericField(fieldName):
+                fieldType = "numeric"
+            if self.dataHandler.isStringField(fieldName):
+                fieldType = "string"
+            fieldNamesAndTypes.append((fieldName, fieldType))
+        if sorted:
+            fieldNamesAndTypes.sort(key=lambda x: x[0])
+        return fieldNamesAndTypes
 
     def doRender(self, handlerId):
         self.handlerId = handlerId
