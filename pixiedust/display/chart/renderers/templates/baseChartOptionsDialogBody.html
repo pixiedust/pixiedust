@@ -114,7 +114,7 @@
 					{%if this.options.get("keyFields") is not none%}
 					{%for fieldName in this.options.get("keyFields").split(",")%}
 						{%if fieldName in fieldNames%}
-							<li id="field{{prefix}}-f{{fieldNames.index(fieldName)+1}}-keyFields{{prefix}}">{{fieldName}}<a class="field{{prefix}}-remove field-remove"></a></li>
+							<li id="field{{prefix}}-f{{fieldNames.index(fieldName)+1}}-keyFields{{prefix}}" data-field="{{fieldName}}">{{fieldName}}<a class="field{{prefix}}-remove field-remove"></a></li>
 						{%endif%}
 					{%endfor%}
 					{%endif%}
@@ -132,7 +132,7 @@
 					{%if this.options.get("valueFields") is not none%}
 					{%for fieldName in this.options.get("valueFields").split(",")%}
 						{%if fieldName in fieldNames%}
-							<li id="field{{prefix}}-f{{fieldNames.index(fieldName)+1}}-valueFields{{prefix}}">{{fieldName}}<a class="field{{prefix}}-remove field-remove"></a></li>
+							<li id="field{{prefix}}-f{{fieldNames.index(fieldName)+1}}-valueFields{{prefix}}" data-field="{{fieldName}}">{{fieldName}}<a class="field{{prefix}}-remove field-remove"></a></li>
 						{%endif%}
 					{%endfor%}
 					{%endif%}
