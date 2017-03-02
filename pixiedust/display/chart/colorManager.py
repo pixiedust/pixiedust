@@ -14,6 +14,8 @@
 # limitations under the License.
 # -------------------------------------------------------------------------------
 from six import with_metaclass
+import math
+import matplotlib as mpl
 from matplotlib import cm
 
 '''
@@ -26,6 +28,11 @@ class Colors(with_metaclass(
             "__getattr__":lambda cls, key: cls.colormap(key)
         }), object
     )):
+
+    @staticmethod
+    def hexRGB(X):
+        tupleColor = Colors.colormap(X)
+        return str(mpl.colors.rgb2hex( tupleColor ).upper())
 
     #TODO: provide user configured colormap palette
     pass

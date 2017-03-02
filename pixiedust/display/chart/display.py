@@ -31,6 +31,9 @@ class ChartDisplay(Display):
             <p><b>Sorry, but this visualization is not yet implemented. Please check back often!</b></p>
         """
         )
+    #subclass can override
+    def acceptOption(self, optionName):
+        return True
 
     #option helpers
     def showLegend(self):

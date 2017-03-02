@@ -111,7 +111,7 @@ class MatplotlibBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
             numLabels = len(ax.get_legend_handles_labels()[1])
             nCol = int(min(max(math.sqrt( numLabels ), 3), 6))
             nRows = int(numLabels/nCol)
-            bboxPos = max(1.1, 1.0 + ((float(nRows)/2)/10.0))
+            bboxPos = max(1.15, 1.0 + ((float(nRows)/2)/10.0))
             ax.legend(loc='upper center', bbox_to_anchor=(0.5, bboxPos),ncol=nCol, fancybox=True, shadow=True)
 
     def getNumFigures(self):
@@ -132,7 +132,7 @@ class MatplotlibBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
         return (fig,ax)
 
     def getSubplotHSpace(self):
-        return 0.5 if self.isStretchingOn() else 0.2
+        return 0.5 if self.isStretchingOn() else 0.3
         
     def doRenderChart(self):
         self.colormap = cm.jet
@@ -159,7 +159,7 @@ class MatplotlibBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
                 axes = np.asarray([axes])
 
             #finalize the chart
-            for i, a in enumerate(axes):
+            for i, a in np.ndenumerate(axes):
                 if a.title is None or not a.title.get_visible() or a.title.get_text() == '':
                     self.setLegend(fig, a)
                 self.setTicks(fig, a)

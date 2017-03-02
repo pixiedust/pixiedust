@@ -16,7 +16,7 @@
 
 from pixiedust.display.chart.renderers import PixiedustRenderer
 from .matplotlibBaseDisplay import MatplotlibBaseDisplay
-from pixiedust.display.chart.renderers.colors import Colors
+from pixiedust.display.chart.colorManager import Colors
 
 @PixiedustRenderer(id="scatterPlot")
 class ScatterPlotDisplay(MatplotlibBaseDisplay):

@@ -15,61 +15,71 @@
 # -------------------------------------------------------------------------------
 
 from pixiedust.display.chart.renderers import PixiedustRenderer
+from pixiedust.display.chart.renderers.baseChartDisplay import commonChartOptions
 from .seabornBaseDisplay import SeabornBaseDisplay
-import pixiedust
+from pixiedust.display.chart.colorManager import Colors
+from pixiedust.utils import Logger
 import numpy as np
 import pandas as pd
 import seaborn as sns
 
-myLogger = pixiedust.getLogger(__name__)
-
 @PixiedustRenderer(id="histogram")
+@Logger()
 class sbHistogramDisplay(SeabornBaseDisplay):
-  def supportsAggregation(self, handlerId):
-    return False
+    def supportsAggregation(self, handlerId):
+        return False
 
-  # TODO: add support for keys
-  def supportsKeyFields(self, handlerId):
-    return False
+    # TODO: add support for keys
+    def supportsKeyFields(self, handlerId):
+        return False
   
-  def getPreferredDefaultValueFieldCount(self, handlerId):
-    return 1
+    def getPreferredDefaultValueFieldCount(self, handlerId):
+        return 1
 
-  # no keys by default
-  def getDefaultKeyFields(self, handlerId, aggregation):
-    return []
+    # no keys by default
+    def getDefaultKeyFields(self, handlerId, aggregation):
+        return []
 
-  def matplotlibRender(self, fig, ax):
-    hist=self.options.get("hist","false") == False
-    rug=self.options.get("rug","true") == True
-    kde=self.options.get("kde","true") == True
-    binsize = int(self.options.get('binsize', 10))
+    def getNumFigures(self):
+        return len(self.getValueFields())
 
-    df = self.getWorkingPandasDataFrame()
-    keys = self.getValueFields()
+    def acceptOption(self, optionName):
+        if optionName == 'histoChartType':
+            return False
+        return True
 
-    for key in keys:
-      sns.distplot(list(df[key]), ax=ax, bins=binsize, kde_kws={"label":"{0} KDE Estim".format(key)}, hist_kws={"label":"{0} Freq".format(key)})
+    def matplotlibRender(self, fig, ax):
+        rug=self.options.get("rug","false") == "true"
+        kde=self.options.get("kde","true") == "true"
+        binsize = int(self.options.get('binsize', 10))
 
+        def plot(ax, valueField=None, color=None):
+            data = self.getWorkingPandasDataFrame()[valueField]
+            sns.distplot( data, ax=ax, bins=binsize, rug=rug, kde=kde,
+                kde_kws={"label":"{0} KDE Estim".format(valueField)}, hist_kws={"label":"{0} Freq".format(valueField)},
+                label=valueField,color = color
+            )
 
-  # def getChartOptions(self):
-  #   return [
-  #     { 'name': 'rug',
-  #       'metadata': {
-  #         'type': "checkbox",
-  #         'default': "false"
-  #       }
-  #     },
-  #     { 'name': 'hist',
-  #       'metadata': {
-  #         'type': "checkbox",
-  #         'default': "false"
-  #       }
-  #     },
-  #     { 'name': 'kde',
-  #       'metadata': {
-  #         'type': "checkbox",
-  #         'default': "false"
-  #       }
-  #     }
-  #   ]
+        if len(self.getValueFields()) > 1:
+            for j, valueField in enumerate(self.getValueFields()):
+                plot(self.getAxItem(ax, j), valueField, Colors.colormap(1.*j/2))
+        else:
+            plot(ax, self.getValueFields()[0])
+
+    @commonChartOptions
+    def getChartOptions(self):
+        return [{
+            'name': 'rug',
+            'description': 'Rugplot',
+            'metadata': {
+                'type': "checkbox",
+                'default': "false"
+            }
+        },{ 
+            'name': 'kde',
+            'description': 'Kernel Density',
+            'metadata': {
+                'type': "checkbox",
+                'default': "false"
+            }
+        }]

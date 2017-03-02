@@ -16,14 +16,15 @@
 
 from pixiedust.display.chart.renderers import PixiedustRenderer
 from pixiedust.display.chart.renderers.baseChartDisplay import commonChartOptions
+from pixiedust.display.chart.colorManager import Colors
 from .bokehBaseDisplay import BokehBaseDisplay
-import pixiedust
+from pixiedust.utils import Logger
 from bokeh.charts import Histogram, show
 from bokeh.layouts import row
-
-myLogger = pixiedust.getLogger(__name__)
+import math
 
 @PixiedustRenderer(id="histogram")
+@Logger()
 class HistogramRenderer(BokehBaseDisplay):
     
     def supportsAggregation(self, handlerId):
@@ -37,6 +38,11 @@ class HistogramRenderer(BokehBaseDisplay):
 
     def getDefaultKeyFields(self, handlerId, aggregation):
         return []
+
+    def acceptOption(self, optionName):
+        if optionName == 'histoChartType':
+            return False
+        return True
 
     @commonChartOptions
     def getChartOptions(self):
@@ -64,11 +70,14 @@ class HistogramRenderer(BokehBaseDisplay):
         valueFields = self.getValueFields()
         histograms = []
         if len(valueFields) != 1:
-            for i in valueFields:
-                histograms.append(Histogram(self.getWorkingPandasDataFrame(), values=i,
-            plot_width=plotwidth, plot_height=plotheight,bins=binsize, color=self.options.get("color"), 
-            xgrid=True, ygrid=True, ylabel='Frequency'))
-
+            for i,valueField in enumerate(valueFields):
+                color = self.options.get("color")
+                if color is None:
+                    color = Colors.hexRGB( 1.*i/2 )
+                histograms.append(Histogram(
+                    self.getWorkingPandasDataFrame(), values=valueField, plot_width=plotwidth, plot_height=plotheight,bins=binsize, 
+                    color=color, xgrid=True, ygrid=True, ylabel='Frequency')
+                )
             return histograms
         else:
             return Histogram(self.getWorkingPandasDataFrame(), values=self.getValueFields()[0],
