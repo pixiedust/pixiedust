@@ -65,22 +65,22 @@ Here are the visualizations and renderers we have so far:
     </tr>
     <tr>
     <td>Seaborn</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
     <td><img src="_images/chmk.png"></td>
     <td><img src="_images/chmk.png"></td>
-    <td><img src="_images/chmk.png"></td>
-    <td><img src="_images/chmk.png"></td>
-    <td><img src="_images/chmk.png"></td>
-    <td><img src="_images/chmk.png"></td>
+    <td>NA</td>
    
     </tr>
     <tr>
     <td>Bokeh</td>
     <td><img src="_images/chmk.png"></td>
+    <td>&nbsp;</td>
     <td><img src="_images/chmk.png"></td>
     <td><img src="_images/chmk.png"></td>
     <td><img src="_images/chmk.png"></td>
-    <td><img src="_images/chmk.png"></td>
-    <td><img src="_images/chmk.png"></td>
+    <td>NA</td>
    
     </tr>
     <tr>
@@ -94,14 +94,13 @@ Here are the visualizations and renderers we have so far:
    
     </tr>
     <tr>
-    <td>Pandas</td>
-    <td>&nbsp;</td>
-    <td>&nbsp;</td>
-    <td>&nbsp;</td>
-    <td>&nbsp;</td>
-    <td>&nbsp;</td>
-    <td>&nbsp;</td>
-    <td>&nbsp;</td>
+    <td>Google Maps</td>
+    <td>NA</td>
+    <td>NA</td>
+    <td>NA</td>
+    <td>NA</td>
+    <td>NA</td>
+    <td><img src="_images/chmk.png"></td>
     </tr>
     </table>
 
