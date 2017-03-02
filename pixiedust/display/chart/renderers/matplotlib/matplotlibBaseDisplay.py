@@ -137,6 +137,11 @@ class MatplotlibBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
     def doRenderChart(self):
         self.colormap = cm.jet
 
+        # set defaults for plot
+        plt.rcParams['savefig.dpi'] = 96
+        plt.rcParams['font.family'] = "serif"
+        plt.rcParams['font.serif'] = "cm"
+        
         fig = None
         try:
             # go
