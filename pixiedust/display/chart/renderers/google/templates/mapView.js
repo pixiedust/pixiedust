@@ -3,7 +3,7 @@ function draw() {
 		region: '{{this.options.get("mapRegion")}}',
 		displayMode: '{{this.options.get("mapDisplayMode")}}',
 		resolution: '{{this.options.get("mapResolution")}}',
-		colorAxis: {colors: ['#ff7f00', '#ff007f', '#7f00ff']},
+		colorAxis: {colors: ['#FF007F', '#007FFF', '#7FFF00']},
 		sizeAxis: {minSize: 6, maxSize: 15}
 	};
 

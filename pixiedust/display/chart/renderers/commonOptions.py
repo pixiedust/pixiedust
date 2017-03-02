@@ -26,7 +26,7 @@ def clusterBy(displayObject):
         'refresh': True,
         'metadata': {
             'type': "dropdown",
-            'values': ["None"] + [f for f in displayObject.getFieldNames() if f not in displayObject.getKeyFields() and f not in displayObject.getValueFields()],
+            'values': ["None"] + sorted([f for f in displayObject.getFieldNames() if f not in displayObject.getKeyFields() and f not in displayObject.getValueFields()]),
             'default': ""
         }
     }
