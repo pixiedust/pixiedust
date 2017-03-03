@@ -28,7 +28,10 @@ def clusterBy(displayObject):
             'type': "dropdown",
             'values': ["None"] + sorted([f for f in displayObject.getFieldNames() if f not in displayObject.getKeyFields() and f not in displayObject.getValueFields()]),
             'default': ""
-        }
+        },
+        'validate': lambda option:\
+            (option in displayObject.getFieldNames() and option not in displayObject.getKeyFields() and option not in displayObject.getValueFields(),\
+             "Cluster By value is already used in keys or values for this chart")
     }
 
 def barChart(displayObject):
