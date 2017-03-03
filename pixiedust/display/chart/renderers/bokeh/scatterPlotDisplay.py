@@ -35,7 +35,10 @@ class ScatterPlotRenderer(BokehBaseDisplay):
                     'type': "dropdown",
                     'values': ["None"] + [f for f in self.getFieldNames() if f not in self.getKeyFields() and f not in self.getValueFields()],
                     'default': ""
-                }
+                },
+              'validate': lambda option:\
+                    (option in self.getFieldNames() and option not in self.getKeyFields() and option not in self.getValueFields(),\
+                    "color value is already used in keys or values for this chart")
             }
         ]
 

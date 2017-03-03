@@ -18,7 +18,8 @@ from ..display import ChartDisplay
 from abc import abstractmethod, ABCMeta
 import traceback
 import pixiedust
-from six import PY2, with_metaclass
+from collections import OrderedDict
+from six import PY2, with_metaclass,iteritems
 from pixiedust.display import addDisplayRunListener
 from pixiedust.display.chart.renderers import PixiedustRenderer
 from pixiedust.utils import cache,Logger
@@ -126,6 +127,27 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
     @commonChartOptions
     def getChartOptions(self):
         return []
+
+    def validateOptions(self):
+        #validate options
+        chartOptions = self.getChartOptions()   
+        self.debug("chartOptions {}".format(chartOptions)) 
+        ord = OrderedDict([(o["name"],o["validate"]) for o in chartOptions if "validate" in o and "name" in o])
+        remKeys = []
+        for key,value in iteritems(self.options):
+            if key in ord:
+                values = value.split(",")
+                self.debug("values: {0}".format(values))
+                for v in values:
+                    self.debug("Calling with {0}".format(v))
+                    passed, message = ord.get(key)(v)
+                    if not passed:
+                        self.addMessage("Filtered option {0} with value {1}. Reason {2}".format(key, value, message))
+                        remKeys.append(key)
+                        break
+
+        for key in remKeys:
+            del self.options[key]
 
     def getExtraFields(self):
         return []
@@ -331,6 +353,7 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
 
     def doRender(self, handlerId):
         self.handlerId = handlerId
+        self.validateOptions()
         optionsTitle = self.camelCaseSplit(handlerId, True) + " Options"
         if self.options.get("debug", None):
             self.logStuff()
