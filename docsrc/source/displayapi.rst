@@ -292,7 +292,7 @@ In **Options**, choose
 Conclusion
 ----------
 
-Pixiedust display has a built-in set of chart visualizations that can render a Spark or Pandas dataframe. The generated charts are easy to configure and also offer interactivity like panning, zooming, and tooltips. You can use the rendering engine of your choice to display and manipulate the visualaization. All this is possbile without writing a line of code. PixieDust ``display()`` is extensible and provides an API to let developers write their own custom vizualizations.
+Pixiedust display has a built-in set of chart visualizations that can render a Spark or Pandas dataframe. The generated charts are easy to configure and also offer interactivity like panning, zooming, and tooltips. You can use the rendering engine of your choice to display and manipulate the visualization. All this is possbile without writing a line of code. PixieDust ``display()`` is extensible and provides an API to let developers write their own custom vizualizations.
 
 
 
