@@ -80,12 +80,8 @@ class BokehBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
             return genMarkup(notebook_div(charts))
         else:
             from bokeh.layouts import gridplot
-            ncols = 1
-            nrows = 2
-            if(len(charts) > nrows):
-                ncols = int(len(charts) / nrows)
-                if(len(charts) % nrows != 0):
-                    ncols = ncols + 1
+            ncols = 2
+            nrows = len(charts)/2 + len(charts)%2
             
             w = self.getPreferredOutputWidth()/ncols if len(charts) > 1 else self.getPreferredOutputWidth()
             h = self.getPreferredOutputWidth()/nrows if len(charts) > 1 else self.getPreferredOutputWidth()
