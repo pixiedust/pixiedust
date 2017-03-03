@@ -19,7 +19,7 @@ PixieDust lets you visualize your data in just a few clicks. There's no need to 
 
    PixieDust is extensible. If you don't see the display option you want, create it. You can write your own visualization plugin, using HTML, JavaScript, and CSS. `Read how <writeviz.html>`_.
 
-The ``display()`` API  lets you visualize and chart your data in different ways. You can invoke the display API on any object, like a Spark DataFrame or Pandas DataFrame (support for additional formats is in development). PixieDust ``display()`` then introspects the object, determines what visualizations are capable of handling the data, and makes them available as menus within the output of the cell. If no visualization is found, then PixieDust ``display()`` shows an error message. Pixiedust display comes with a set of built-in visualizations like tables, bar charts, line charts, scatter plots, maps, and more.
+The ``display()`` API  lets you visualize and chart your data in different ways. You can invoke the display API on any object, like a Spark DataFrame or Pandas DataFrame (support for additional formats is in development). PixieDust ``display()`` then introspects the object, determines what visualizations are capable of handling the data, and makes them available as menus within the output of the cell. If no visualization is found, then PixieDust ``display()`` shows an error message. PixieDust display comes with a set of built-in visualizations like tables, bar charts, line charts, scatter plots, maps, and more.
 
 
 Get Started
