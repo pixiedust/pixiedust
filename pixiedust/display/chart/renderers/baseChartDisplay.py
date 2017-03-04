@@ -353,7 +353,6 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
 
     def doRender(self, handlerId):
         self.handlerId = handlerId
-        self.validateOptions()
         optionsTitle = self.camelCaseSplit(handlerId, True) + " Options"
         if self.options.get("debug", None):
             self.logStuff()
@@ -364,6 +363,7 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
 
         # go
         try:
+            self.validateOptions()
             keyFields = self.getKeyFields()
             valueFields = self.getValueFields()
         except ShowChartOptionDialog:
