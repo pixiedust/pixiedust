@@ -97,7 +97,7 @@
 			<input type="text" class="options-fields-search form-control input-sm" placeholder="Search/Filter Fields">
 			<ul id="allFields{{prefix}}" class="all-fields">
 				{%for field in fieldNamesAndTypes%}
-				<li id="field{{prefix}}-f{{loop.index}}" class="field{{prefix}}" data-field="{{field.0}}" data-field-type="{{field.1}}">
+				<li id="field{{prefix}}-f{{fieldNames.index(field.0)+1}}" class="field{{prefix}}" data-field="{{field.0}}" data-field-type="{{field.1}}">
 					<span class="field-name">{{field.0}}</span>
 					<span class="field-type">{{field.1}}</span>
 					<a class="field{{prefix}}-remove"></a>
