@@ -57,17 +57,30 @@ Watch this video to see PixieDust in action:
 
 [![about PixieDust](https://img.youtube.com/vi/qetedQg8m3k/0.jpg)](https://www.youtube.com/watch?v=qetedQg8m3k) 
 
-##Demo
+##Usage
 
-You can use PixieDust locally or online within IBM's [Data Science Experience](http://datascience.ibm.com/) (DSX). 
-
-###Use locally
-
-Skip ahead to the **Get Started** section and follow the steps to install PixieDust. Then read [how to use PixieDust](https://ibm-cds-labs.github.io/pixiedust/use.html).
+You can use PixieDust locally or online within IBM's Data Science Experience (DSX). 
 
 ###Use online
 
-For a quick look at PixieDust, you can sign up for a free trial on IBM's [Data Science Experience](http://datascience.ibm.com/), and create a new notebook from URL using this sample: `https://github.com/ibm-cds-labs/pixiedust/raw/master/notebook/Intro%20to%20PixieDust.ipynb` 
+To use PixieDust online
+* Sign up for a free trial on IBM's [Data Science Experience](http://datascience.ibm.com/)
+* [Create a new notebook from URL](http://datascience.ibm.com/docs/content/analyze-data/creating-notebooks.html) using this template and learn the basics
+
+  `https://github.com/ibm-cds-labs/pixiedust/raw/master/notebook/Intro%20to%20PixieDust.ipynb` 
+  
+* [Review the documentation](https://ibm-cds-labs.github.io/pixiedust/use.html)  
+
+###Use locally
+
+* Pixidust supports
+ - **Spark 1.6** or **2.0** 
+ - **Python 2.7** or **3.5** 
+
+* [Install and configure PixieDust and its prerequisites](https://ibm-cds-labs.github.io/pixiedust/install.html) 
+
+* [Explore how to use PixieDust](https://ibm-cds-labs.github.io/pixiedust/use.html)
+
 
 ###Sample notebooks
 Wherever you prefer to work, try out the following sample notebooks:
@@ -80,27 +93,9 @@ Wherever you prefer to work, try out the following sample notebooks:
  - [FlightPredict II: The Sequel](https://medium.com/ibm-watson-data-lab/flightpredict-ii-the-sequel-fb613afd6e91) shows how to predict flight delays with PixieDust. Includes an embedded app
  - [Sentiment Analysis of Twitter Hashtags with Spark](https://medium.com/ibm-watson-data-lab/real-time-sentiment-analysis-of-twitter-hashtags-with-spark-7ee6ca5c1585#.gbqjjf3ef) revisits a spark streaming app this time using PixieDust and Jupyter. Includes an embedded app.
 
-##Get started
-
-Get PixieDust up and running on your local machine for development and testing. 
-
-###Requirements
-
-You'll get the following as part of PixieDust installation:
-
-
-- **Spark 1.6** or **2.0** 
-- **Python 2.7** or **3.5** 
-- **PySpark.** The Python API for Spark. Many features of PixieDust (but not all) are Spark-related.  So Spark and the PySpark package are required.
-
+##Contribute
 
 _**Note:** PixieDust currently supports Spark DataFrames, Spark GraphFrames and Pandas DataFrames, with more to come. If you can't wait, write your own today and contribute it back._
-
-###Install
-
-[Install and configure PixieDust](https://ibm-cds-labs.github.io/pixiedust/install.html) to see how it works and to start exploring your development options.
-
-##Contribute
 
 Read [how to contribute](https://ibm-cds-labs.github.io/pixiedust/contribute.html) for details on our code of conduct and instructions for submitting pull requests to us. 
 
