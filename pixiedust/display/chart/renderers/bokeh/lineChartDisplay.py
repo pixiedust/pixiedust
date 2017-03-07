@@ -19,43 +19,11 @@ from pixiedust.display.chart.colorManager import Colors
 from .bokehBaseDisplay import BokehBaseDisplay
 from pixiedust.utils import Logger
 from bokeh.charts import Line
-from bokeh.palettes import Spectral11
 from bokeh.plotting import figure
 
 @PixiedustRenderer(id="lineChart")
 @Logger()
 class LineChartRenderer(BokehBaseDisplay):
-    # def supportsAggregation(self, handlerId):
-    #     return False
-
-    def createBokehChart2(self):
-        keyFields = self.getKeyFields()
-        valueFields = self.getValueFields()
-        data = self.getWorkingPandasDataFrame()
-        subplots = self.options.get("lineChartType", "grouped") == "subplots"
-        clusterby = self.options.get("clusterby")
-
-        figs = []
-
-        if clusterby is None:
-            if subplots:
-                for i,valueField in enumerate(valueFields):
-                    figs.append(Line(data, x = keyFields[0], y=valueField, color = Colors.hexRGB( 1.*i/2 ), legend=self.showLegend(), plot_width=int(800/len(valueFields))))
-            else:
-                figs.append(Line(data, x = keyFields[0], y=valueFields, color=valueFields, legend=self.showLegend()))
-        else:
-            if subplots:
-                self.addMessage("Warning: 'Cluster By' ignored when you have multiple Value Fields but subplots options selected")
-                for i, valueField in enumerate(valueFields):
-                    figs.append(Line(data, x = keyFields[0], y=valueField, color = Colors.hexRGB( 1.*i/2 ), legend=self.showLegend(), plot_width=int(800/len(valueFields))))
-            else:
-                if len(valueFields) > 1:
-                    self.addMessage("Warning: 'Cluster By' ignored when you have multiple Value Fields but subplots option is not selected")
-                else:
-                    self.addMessage("Warning: 'Cluster By' ignored when grouped option with multiple Value Fields is selected")
-                figs.append(Line(data, x = keyFields[0], y=valueFields, color=valueFields, legend=self.showLegend()))
-        return figs
-
     def isSubplot(self):
         return self.options.get("lineChartType", "grouped") == "subplots"
 

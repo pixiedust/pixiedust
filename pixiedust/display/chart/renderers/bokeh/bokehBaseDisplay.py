@@ -84,7 +84,7 @@ class BokehBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
             nrows = len(charts)/2 + len(charts)%2
             
             w = self.getPreferredOutputWidth()/ncols if len(charts) > 1 else self.getPreferredOutputWidth()
-            h = self.getPreferredOutputWidth()/nrows if len(charts) > 1 else self.getPreferredOutputWidth()
+            h = w * self.getHeightWidthRatio() if len(charts) > 1 else self.getPreferredOutputHeight()
             for chart in charts:
                 chart.plot_width = int(w - 5)
                 chart.plot_height = int (h - 5)
