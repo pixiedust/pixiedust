@@ -73,6 +73,7 @@ def checkVersion():
             printHTML("""
                 <div>Please copy and run the following command in a new cell to upgrade: <span style="background-color:#ececec;font-family:monospace;padding:0 5px">{0}</span></div>
             """.format("!pip install --user --upgrade pixiedust"))
+            printHTML("<div>Please restart kernel after upgrading.</div>")
     except Exception as e:
         print("Unable to check latest version {0}".format(e))
 
