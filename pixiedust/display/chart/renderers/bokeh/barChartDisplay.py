@@ -21,6 +21,7 @@ from pixiedust.utils import Logger
 from bokeh.charts import Bar
 from bokeh.charts.operations import blend
 import bokeh.plotting as gridplot
+import sys
 
 @PixiedustRenderer(id="barChart")
 @Logger()
@@ -45,7 +46,13 @@ class BarChartRenderer(BokehBaseDisplay):
         clusterby = self.options.get("clusterby")
         stacked = self.options.get("charttype", "grouped") == "stacked"
         subplots = self.isSubplot()
-        workingPDF = self.getWorkingPandasDataFrame()
+        workingPDF = self.getWorkingPandasDataFrame().copy()
+
+        for index, row in workingPDF.iterrows():
+            for k in keyFields:
+                if isinstance(row[k], str if sys.version >= '3' else basestring):
+                    row[k] = row[k].replace(':', '.')
+            workingPDF.loc[index] = row
 
         charts=[]
         def goChart(label, stack_or_group, values, ylabel=None, color=None):
@@ -60,7 +67,7 @@ class BarChartRenderer(BokehBaseDisplay):
             subplots = subplots if len(valueFields)==1 or subplots else False
             if subplots:
                 for j, valueField in enumerate(valueFields):
-                    pivot = self.getWorkingPandasDataFrame().pivot(
+                    pivot = workingPDF.pivot(
                         index=keyFields[0], columns=clusterby, values=valueField
                     )
                     for i,col in enumerate(pivot.columns[:10]): #max 10
@@ -84,7 +91,7 @@ class BarChartRenderer(BokehBaseDisplay):
                 else:
                     series = False
                     values = valueFields[0]
-                goChart(keyFields[0], series, values, ylabel=','.join(valueFields))
+                goChart(keyFields, series, values, ylabel=','.join(valueFields))
 
             if clusterby is not None:
                 self.addMessage("Warning: 'Cluster By' ignored when grouped option with multiple Value Fields is selected")

@@ -65,7 +65,7 @@ def barChart(displayObject):
         'description': 'Show legend',
         'metadata': {
             'type': 'checkbox',
-            'default': "false"
+            'default': "true"
         }
     })
 
