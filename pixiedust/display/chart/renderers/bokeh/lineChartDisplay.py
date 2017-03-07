@@ -21,6 +21,7 @@ from pixiedust.utils import Logger
 from bokeh.charts import Line
 from bokeh.plotting import figure
 import numpy as np
+import sys
 
 @PixiedustRenderer(id="lineChart")
 @Logger()
@@ -41,12 +42,19 @@ class LineChartRenderer(BokehBaseDisplay):
         valueFields = self.getValueFields()
         clusterby = self.options.get("clusterby")
         subplots = self.isSubplot()
+        workingPDF = self.getWorkingPandasDataFrame().copy()
+
+        for index, row in workingPDF.iterrows():
+            for k in keyFields:
+                if isinstance(row[k], str if sys.version >= '3' else basestring):
+                    row[k] = row[k].replace(':', '.')
+            workingPDF.loc[index] = row
 
         charts=[]
         if clusterby is not None and (subplots or len(valueFields)<=1):
             subplots = subplots if len(valueFields)==1 or subplots else False
             for j, valueField in enumerate(valueFields):
-                pivot = self.getWorkingPandasDataFrame().pivot(
+                pivot = workingPDF.pivot(
                     index=keyFields[0], columns=clusterby, values=valueField
                 )
 
@@ -69,9 +77,9 @@ class LineChartRenderer(BokehBaseDisplay):
         else:
             if subplots:
                 for i,valueField in enumerate(valueFields):
-                    charts.append(Line(self.getWorkingPandasDataFrame(), x = keyFields[0], y=valueField, color = Colors.hexRGB( 1.*i/2 ), legend=self.showLegend(), plot_width=int(800/len(valueFields))))
+                    charts.append(Line(workingPDF, x = keyFields[0], y=valueField, color = Colors.hexRGB( 1.*i/2 ), legend=self.showLegend(), plot_width=int(800/len(valueFields))))
             else:
-                charts.append(Line(self.getWorkingPandasDataFrame(), x = keyFields[0], y=valueFields, color=valueFields, legend=self.showLegend()))
+                charts.append(Line(workingPDF, x = keyFields[0], y=valueFields, color=valueFields, legend=self.showLegend()))
 
             if clusterby is not None:
                 self.addMessage("Warning: 'Cluster By' ignored when grouped option with multiple Value Fields is selected")
