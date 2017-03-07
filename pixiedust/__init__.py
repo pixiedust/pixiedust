@@ -54,6 +54,9 @@ with warnings.catch_warnings():
         from pixiedust.utils.sparkJobProgressMonitor import enableSparkJobProgressMonitor
         from pixiedust.utils.sampleData import sampleData
         enableJobMonitor = enableSparkJobProgressMonitor
+
+        from pixiedust.utils import checkVersion
+        checkVersion()
     except NameError:
         #IPython not available we must be in a spark executor
         pass
