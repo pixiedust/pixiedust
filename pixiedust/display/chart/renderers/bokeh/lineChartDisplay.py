@@ -20,6 +20,7 @@ from .bokehBaseDisplay import BokehBaseDisplay
 from pixiedust.utils import Logger
 from bokeh.charts import Line
 from bokeh.plotting import figure
+import numpy as np
 
 @PixiedustRenderer(id="lineChart")
 @Logger()
@@ -44,18 +45,27 @@ class LineChartRenderer(BokehBaseDisplay):
         charts=[]
         if clusterby is not None and (subplots or len(valueFields)<=1):
             subplots = subplots if len(valueFields)==1 or subplots else False
-            if not subplots:
-                fig = figure()
-                charts.append(fig)
             for j, valueField in enumerate(valueFields):
                 pivot = self.getWorkingPandasDataFrame().pivot(
                     index=keyFields[0], columns=clusterby, values=valueField
                 )
+
+                if not subplots:
+                    fig = figure(x_range=pivot.index.values.tolist() if not np.issubdtype(pivot.index.dtype, np.number) else None)
+                    charts.append(fig)
                 for i,col in enumerate(pivot.columns[:10]): #max 10
                     if subplots:
-                        charts.append( Line(pivot[str(col)], color=Colors.hexRGB( 1.*i/2 ), ylabel=valueField, xlabel=keyFields[0], legend=self.showLegend()))
+                        charts.append( 
+                            Line(
+                                pivot[col].values, color=Colors.hexRGB( 1.*i/2 ), ylabel=valueField, xlabel=keyFields[0], legend=False, 
+                                title="{0} = {1}".format(clusterby, pivot.columns[i])
+                            )
+                        )
                     else:
-                        fig.line(x = pivot.index.values, y = pivot[str(col)].values, color = Colors.hexRGB( 1.*i/2 ), legend=col if self.showLegend() else None)
+                        xValues = pivot.index.values.tolist()
+                        if not np.issubdtype(pivot.index.dtype, np.number):
+                            xValues = range(1, len(xValues)+1)
+                        fig.line(x = xValues, y = pivot[col].values, color = Colors.hexRGB( 1.*i/2 ), legend=str(col) if self.showLegend() else None)
         else:
             if subplots:
                 for i,valueField in enumerate(valueFields):
