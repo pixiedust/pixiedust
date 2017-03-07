@@ -52,6 +52,30 @@ if os.path.isfile(jarFilePath):
 if copyFile:
     installPixiedustJar()
 
+def checkVersion():
+    import json
+    try:
+        from urllib.request import urlopen
+    except ImportError:
+        from urllib2 import urlopen
+
+    def printHTML(html):
+        from IPython.display import display, HTML
+        display(HTML(html))
+    
+    try:
+        response = urlopen("https://pypi.python.org/pypi/pixiedust/json", timeout=3)
+        latest = json.loads(response.read())["info"]["version"]
+        version = pkg_resources.get_distribution("pixiedust").parsed_version._version.release
+        version = ".".join([str(p) for p in version])
+        if latest != version:
+            printHTML("<div>Warning: You are not running the latest version of PixieDust. Current is {0}, Latest is {1}</div>".format(version, latest))
+            printHTML("""
+                <div>Please copy and run the following command in a new cell to upgrade: <span style="background-color:#ececec;font-family:monospace;padding:0 5px">{0}</span></div>
+            """.format("!pip install --user --upgrade pixiedust"))
+    except Exception as e:
+        print("Unable to check latest version {0}".format(e))
+
 """
 Helper decorator that automatically cache results of a class method into a field
 """
