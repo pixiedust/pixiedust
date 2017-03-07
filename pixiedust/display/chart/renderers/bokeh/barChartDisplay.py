@@ -15,6 +15,7 @@
 # -------------------------------------------------------------------------------
 
 from pixiedust.display.chart.renderers import PixiedustRenderer
+from pixiedust.display.chart.colorManager import Colors
 from .bokehBaseDisplay import BokehBaseDisplay
 from pixiedust.utils import Logger
 from bokeh.charts import Bar
@@ -39,42 +40,52 @@ class BarChartRenderer(BokehBaseDisplay):
         return [clusterby] if clusterby is not None else []
 
     def createBokehChart(self):
-        data = self.getWorkingPandasDataFrame()
         keyFields = self.getKeyFields()
         valueFields = self.getValueFields()
-
         clusterby = self.options.get("clusterby")
         stacked = self.options.get("charttype", "grouped") == "stacked"
         subplots = self.isSubplot()
+        workingPDF = self.getWorkingPandasDataFrame()
 
-        # self.debug("keyF={0}, valueF={1}, cluster={2}, stacked={3}".format(keyFields[0], valueFields[0], clusterby, stacked))
-        charts = []
-        params = []
-
-        if subplots and len(valueFields) > 1:
-            for val in valueFields:
-                series = clusterby if clusterby is not None else False
-                values = val
-                params.append((values, series, val))
-        elif clusterby is not None and len(valueFields) <= 1:
-            params.append((valueFields[0], clusterby, valueFields[0]))
-        else:
-            if len(valueFields) > 1:
-                series = '_'.join(valueFields)
-                values = blend(*valueFields, name=series.replace('_', ','), labels_name=series)
-            else:
-                series = False
-                values = valueFields[0]
-            if clusterby is not None:
-                self.addMessage("Warning: 'Cluster By' ignored when you have multiple Value Fields but subplots option is not selected")
-            params.append((values, series, ','.join(valueFields)))
-
-        for p in params:
+        charts=[]
+        def goChart(label, stack_or_group, values, ylabel=None, color=None):
+            if ylabel is None:
+                ylabel=values
             if stacked:
-                b = Bar(data, label=keyFields[0], values=p[0], stack=p[1], legend=self.showLegend(), ylabel=p[2])
+                charts.append( Bar(workingPDF, label=label, stack=stack_or_group, color=color, values=values, legend=self.showLegend(), ylabel=ylabel))
             else:
-                b = Bar(data, label=keyFields[0], values=p[0], group=p[1], legend=self.showLegend(), ylabel=p[2])
+                charts.append( Bar(workingPDF, label=label, group=stack_or_group, color=color, values=values, legend=self.showLegend(), ylabel=ylabel))
 
-            charts.append(b)
+        if clusterby is not None and (subplots or len(valueFields)<=1):
+            subplots = subplots if len(valueFields)==1 or subplots else False
+            if subplots:
+                for j, valueField in enumerate(valueFields):
+                    pivot = self.getWorkingPandasDataFrame().pivot(
+                        index=keyFields[0], columns=clusterby, values=valueField
+                    )
+                    for i,col in enumerate(pivot.columns[:10]): #max 10
+                        data = {'values':pivot[col].values, 'names': pivot.index.values}
+                        if subplots:                        
+                            charts.append( 
+                                Bar(data, label='names', color = Colors.hexRGB( 1.*i/2 ), values='values', ylabel=valueField, legend=False, 
+                                    title="{0} = {1}".format(clusterby, pivot.columns[i])
+                                )
+                            )
+            else:
+                goChart( keyFields[0], clusterby, valueFields[0])
+        else:
+            if subplots:
+                for i,valueField in enumerate(valueFields):
+                    goChart( keyFields[0], None, valueField, color=Colors.hexRGB( 1.*i/2 ))
+            else:
+                if len(valueFields) > 1:
+                    series = '_'.join(valueFields)
+                    values = blend(*valueFields, name=series.replace('_', ','), labels_name=series)
+                else:
+                    series = False
+                    values = valueFields[0]
+                goChart(keyFields[0], series, values, ylabel=','.join(valueFields))
 
+            if clusterby is not None:
+                self.addMessage("Warning: 'Cluster By' ignored when grouped option with multiple Value Fields is selected")
         return charts
