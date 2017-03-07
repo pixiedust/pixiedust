@@ -57,13 +57,28 @@ Watch this video to see PixieDust in action:
 
 [![about PixieDust](https://img.youtube.com/vi/qetedQg8m3k/0.jpg)](https://www.youtube.com/watch?v=qetedQg8m3k) 
 
-###Demo
+##Demo
 
-Try a demo notebook. PixieDust is built-in to IBM's [Data Science Experience](http://datascience.ibm.com/) (DSX). For a quick look at PixieDust, you can sign up for a free trial there, and create a new notebook from URL using this sample: `https://github.com/ibm-cds-labs/pixiedust/raw/master/notebook/Intro%20to%20PixieDust.ipynb` 
+You can use PixieDust locally or online within IBM's [Data Science Experience](http://datascience.ibm.com/) (DSX). 
 
- >**Note:** DSX doesn't yet support use of PixieDust within Scala, so make sure you use a Python Notebook.
+###Use locally
 
-To see an embedded app in action, run the following tutorial in Data Science Experience: [FlightPredict II: The Sequel](https://medium.com/ibm-watson-data-lab/flightpredict-ii-the-sequel-fb613afd6e91), which shows how to predict flight delays with PixieDust.
+Skip ahead to the **Get Started** section and follow the steps to install PixieDust. Then read [how to use PixieDust](https://ibm-cds-labs.github.io/pixiedust/use.html).
+
+###Use online
+
+For a quick look at PixieDust, you can sign up for a free trial on IBM's [Data Science Experience](http://datascience.ibm.com/), and create a new notebook from URL using this sample: `https://github.com/ibm-cds-labs/pixiedust/raw/master/notebook/Intro%20to%20PixieDust.ipynb` 
+
+###Sample notebooks
+Wherever you prefer to work, try out the following sample notebooks:
+
+ - [Intro to PixieDust](https://github.com/ibm-cds-labs/pixiedust/blob/master/notebook/Intro%20to%20PixieDust.ipynb).  Uses PackageManager to install GraphFrames, generates a dataframe from a simple data set, and lets you try the display() api. See also: [Intro to PixieDust for Spark 2.0](https://github.com/ibm-cds-labs/pixiedust/blob/master/notebook/Intro%20to%20PixieDust%20Spark%202.0.ipynb)
+ - [Mapping Intro](https://github.com/ibm-cds-labs/pixiedust/blob/master/notebook/mapping_intro.ipynb) lets you load sample data sets, explore display() api features, including maps.
+
+###Tutorials
+
+ - [FlightPredict II: The Sequel](https://medium.com/ibm-watson-data-lab/flightpredict-ii-the-sequel-fb613afd6e91) shows how to predict flight delays with PixieDust. Includes an embedded app
+ - [Sentiment Analysis of Twitter Hashtags with Spark](https://medium.com/ibm-watson-data-lab/real-time-sentiment-analysis-of-twitter-hashtags-with-spark-7ee6ca5c1585#.gbqjjf3ef) revisits a spark streaming app this time using PixieDust and Jupyter. Includes an embedded app.
 
 ##Get started
 
