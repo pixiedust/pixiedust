@@ -91,7 +91,7 @@ class BarChartRenderer(BokehBaseDisplay):
                 else:
                     series = False
                     values = valueFields[0]
-                goChart(keyFields[0], series, values, ylabel=','.join(valueFields))
+                goChart(keyFields, series, values, ylabel=','.join(valueFields))
 
             if clusterby is not None:
                 self.addMessage("Warning: 'Cluster By' ignored when grouped option with multiple Value Fields is selected")
