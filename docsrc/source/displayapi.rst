@@ -10,7 +10,7 @@ PixieDust lets you visualize your data in just a few clicks. There's no need to 
 .. raw:: html
 
     <div style="margin-top:10px; margin-bottom:25px;">
-      <iframe width="560" height="315" src="http://www.youtube.com/embed/qetedQg8m3k" frameborder="0" allowfullscreen></iframe>
+      <iframe width="560" height="315" src="http://www.youtube.com/embed/FoOHFlkCaXI" frameborder="0" allowfullscreen></iframe>
     </div><br>
 
 .. note:: This video shows how to use PixieDust display in a Scala notebook. Full support for Scala notebooks is coming soon and will work exactly as shown.

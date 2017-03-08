@@ -4,7 +4,7 @@ Package Manager
 Introduction
 ------------
 
-You can use the PackageManager component of Pixiedust to install and
+You can use the PackageManager component of PixieDust to install and
 uninstall maven packages into your notebook kernel without editing
 configuration files. This component is essential when you run
 notebooks from a hosted cloud environment and do not have access to the configuration files.
@@ -37,7 +37,7 @@ Install a spark package
        import pixiedust
        pixiedust.installPackage("graphframes:graphframes:0.1.0-spark1.6")
 
-   To fetch the latest release, specify 0 as the version. The Pixiedust
+   To fetch the latest release, specify 0 as the version. The PixieDust
    packageManager fetches the latest release in the following example.
 
    ::
@@ -61,16 +61,16 @@ Notice the line that instructs you to restart the kernel to complete
 installation of the new package. This is required only the first time.
 Restart the kernel by using the **Kernel/Restart** menu. After the
 kernel is restarted, the library is added to the classpath and can be
-used from your python notebook.
+used from your Python notebook.
 
-.. note::  Some libraries, such as GraphFrames include a python module within it. Pixiedust automatically adds the python file into the SparkContext. However, you must explicitly call **pixiedust.installPackage** at the beginning of every kernel session so that the python modules are added to the SparkContext.
+.. note::  Some libraries, such as GraphFrames include a python module within it. PixieDust automatically adds the python file into the SparkContext. However, you must explicitly call **pixiedust.installPackage** at the beginning of every kernel session so that the python modules are added to the SparkContext.
 
 Install from maven search repository
 ------------------------------------
 
-Go to the maven search site, `search.maven.org <http://search.maven.org/>`_, and look for the package of your choice, like **org.apache.commons**. In the results page, open the link of the component you want, like **commons-proxy**. You get the group ID, artifact ID, and version number to use with the **pixiedust.installPackgage** API.  
+Go to the maven search site, `search.maven.org <http://search.maven.org/>`_, and look for the package of your choice, like **org.apache.commons**. In the results page, open the link of the component you want, like **commons-proxy**. You get the group ID, artifact ID, and version number to use with the **pixiedust.installPackage** API.  
 
-By default, pixiedust automatically looks for the following 2 maven repositories: http://repo1.maven.org/maven2 and http://dl.bintray.com/spark-packages/maven. If you use a custom maven repository, you can specify it by using the following base keyword argument:
+By default, PixieDust automatically looks for the following 2 maven repositories: http://repo1.maven.org/maven2 and http://dl.bintray.com/spark-packages/maven. If you use a custom maven repository, you can specify it by using the following base keyword argument:
 
 ::
 
@@ -81,7 +81,7 @@ By default, pixiedust automatically looks for the following 2 maven repositories
 Install a jar file directly from an addressable location
 --------------------------------------------------------
 
-To install a jar file that is not packaged in a maven repository, provide the URL to the jar file. Pixiedust will then bypass the maven look up and directly download the jar file from the specified location:
+To install a jar file that is not packaged in a maven repository, provide the URL to the jar file. PixieDust will then bypass the maven look up and directly download the jar file from the specified location:
 
 ::
 

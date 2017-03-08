@@ -43,7 +43,7 @@
             
   <div class="section" id="write-a-new-pixiedust-visualization">
 <h1>Write a new PixieDust Visualization<a class="headerlink" href="#write-a-new-pixiedust-visualization" title="Permalink to this headline">¶</a></h1>
-<p>Create your own visualizations or apps using the pixiedust extensibility APIs. If you know html and css, you can write and deliver amazing graphics without forcing notebook users to type one line of code. Use the shape of the data to control when Pixiedust shows your visualization in a menu.</p>
+<p>Create your own visualizations or apps using the PixieDust extensibility APIs. If you know HTML and CSS, you can write and deliver amazing graphics without forcing notebook users to type one line of code. Use the shape of the data to control when PixieDust shows your visualization in a menu.</p>
 <p>When a notebook user invokes <code class="docutils literal"><span class="pre">display()</span></code>, PixieDust provides a chrome that include a toolbar of menus. Each menu is a way to visualize or perform action on the data.</p>
 <p>PixieDust framework builds that menu based on introspecting the data itself and associating it with components that the developer declares can process that data.  PixieDust comes with a set of visualizations and actions out-of-the-box, but you can easily add your own custom plugin.</p>
 <div class="section" id="quickstart">
@@ -124,7 +124,7 @@
 <li><code class="docutils literal"><span class="pre">icon</span></code>: the name of a fontawesome icon, or a URL for an image</li>
 <li><code class="docutils literal"><span class="pre">id</span></code>: a unique string that identifies your tool</li>
 </ol>
-<p>Pixiedust only has one option for displaying a DataFrame as a table, so you return a single menu object in the array.</p>
+<p>PixieDust only has one option for displaying a DataFrame as a table, so you return a single menu object in the array.</p>
 </div>
 <div class="section" id="def-newdisplayhandler">
 <h4>def newDisplayHandler<a class="headerlink" href="#def-newdisplayhandler" title="Permalink to this headline">¶</a></h4>
@@ -156,7 +156,7 @@
 </div>
 </div></blockquote>
 </div></blockquote>
-<p>This class must implement one method, <code class="docutils literal"><span class="pre">doRender</span></code>, which is called with a reference to <code class="docutils literal"><span class="pre">self</span></code> and a <code class="docutils literal"><span class="pre">handlerId</span></code>. In the case of DataFrame display, the <code class="docutils literal"><span class="pre">handlerId</span></code> is unused, so you only need to check for one  DataFrameentity type. You can display it using a <a class="reference external" href="http://jinja.pocoo.org/">Jinja2</a> HTML template.</p>
+<p>This class must implement one method, <code class="docutils literal"><span class="pre">doRender</span></code>, which is called with a reference to <code class="docutils literal"><span class="pre">self</span></code> and a <code class="docutils literal"><span class="pre">handlerId</span></code>. In the case of DataFrame display, the <code class="docutils literal"><span class="pre">handlerId</span></code> is unused, so you only need to check for one DataFrame entity type. You can display it using a <a class="reference external" href="http://jinja.pocoo.org/">Jinja2</a> HTML template.</p>
 </div>
 <div class="section" id="html-rendering-with-jinja2">
 <h3>HTML rendering with Jinja2<a class="headerlink" href="#html-rendering-with-jinja2" title="Permalink to this headline">¶</a></h3>
@@ -173,12 +173,12 @@
 </div>
 <div class="section" id="build-your-own-table-display-plugin">
 <h2>Build your own table display plugin<a class="headerlink" href="#build-your-own-table-display-plugin" title="Permalink to this headline">¶</a></h2>
-<p>Now that you&#8217;ve seen how Pixiedust works, let&#8217;s build a very simple second table display tool. You&#8217;ll need to do 3 things:</p>
+<p>Now that you&#8217;ve seen how PixieDust works, let&#8217;s build a very simple second table display tool. You&#8217;ll need to do 3 things:</p>
 <p>1. Add a menu item and hook it to your code
 3. Transform the DataFrame into something a web browser can display (HTML in our case, but it could be SVG, a PDF or something more exotic) using Jinja2 HTML templating</p>
 <div class="section" id="add-a-menu-item-and-hook-it-to-your-code">
 <h3>Add a menu item and hook it to your code<a class="headerlink" href="#add-a-menu-item-and-hook-it-to-your-code" title="Permalink to this headline">¶</a></h3>
-<p>Have Pixiedust recognize your new menu item code by adding this line in the imports of <code class="docutils literal"><span class="pre">__init__.py</span></code> (in the directory <code class="docutils literal"><span class="pre">display/table</span></code>):</p>
+<p>Have PixieDust recognize your new menu item code by adding this line in the imports of <code class="docutils literal"><span class="pre">__init__.py</span></code> (in the directory <code class="docutils literal"><span class="pre">display/table</span></code>):</p>
 <p><code class="docutils literal"><span class="pre">from</span> <span class="pre">.SimpleDisplayMeta</span> <span class="pre">import</span> <span class="pre">SimpleDisplayMeta</span></code></p>
 <p>Then create the file SimpleDisplayMeta.py and enter this code:</p>
 <blockquote>
@@ -250,12 +250,12 @@ class SimpleDisplayMeta(DisplayHandlerMeta):
 </div></blockquote>
 <div class="section" id="what-you-get">
 <h4>What you get<a class="headerlink" href="#what-you-get" title="Permalink to this headline">¶</a></h4>
-<p>Now that the code is complete. Let&#8217;s update Pixiedust in our notebook and see the results. Shut down your Jupyter environment, run the below command from your terminal, and restart Jupyter to get the new code.</p>
+<p>Now that the code is complete. Let&#8217;s update PixieDust in our notebook and see the results. Shut down your Jupyter environment, run the below command from your terminal, and restart Jupyter to get the new code.</p>
 <p><code class="docutils literal"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">--user</span> <span class="pre">-e</span> <span class="pre">&lt;your</span> <span class="pre">directory</span> <span class="pre">path</span> <span class="pre">to</span> <span class="pre">pixiedust</span> <span class="pre">code&gt;</span></code></p>
 <p>You should now see something resembling the screenshot below. The table menu is now a dropdown with two options, <strong>DataFrame Table</strong> and your new <strong>Simple Table</strong>. Choosing <strong>Simple Table</strong> displays the data using the template you defined in simpleTable.html!</p>
 <img src="http://developer.ibm.com/clouddataservices/wp-content/uploads/sites/85/2017/01/pixiedustnewtableoption.png" width="615"><div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">PixieDust provides a higher level framework built on top of <code class="docutils literal"><span class="pre">display()</span></code> api that lets you contribute more tightly to the chart menus. When you use the renderer api you contribute to the list renderers that can display a particular type of chart. For example, let notebook users choose Mapbox to display a map. At the lowest level you can create only a visualization and don’t need to specify a renderer. But if you&#8217;re interested in learning more, read how to <a class="reference external" href="renderer.html">build a renderer</a>.</p>
+<p class="last">PixieDust provides a higher level framework built on top of the <code class="docutils literal"><span class="pre">display()</span></code> API that lets you contribute more tightly to the chart menus. When you use the renderer API you contribute to the list renderers that can display a particular type of chart. For example, let notebook users choose Mapbox to display a map. At the lowest level you can create only a visualization and don’t need to specify a renderer. But if you&#8217;re interested in learning more, read how to <a class="reference external" href="renderer.html">build a renderer</a>.</p>
 </div>
 <img alt="_images/draft-watermark.png" src="_images/draft-watermark.png" />
 </div>
