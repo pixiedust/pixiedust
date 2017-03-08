@@ -55,7 +55,7 @@ PixieDust's current capabilities include:
 
 Watch this video to see PixieDust in action: 
 
-[![about PixieDust](https://img.youtube.com/vi/qetedQg8m3k/0.jpg)](https://www.youtube.com/watch?v=qetedQg8m3k) 
+[![about PixieDust](https://img.youtube.com/vi/FoOHFlkCaXI/0.jpg)](https://www.youtube.com/watch?v=FoOHFlkCaXI) 
 
 ##Usage
 
