@@ -1,7 +1,7 @@
 Write a new PixieDust Visualization
 ===================================
 
-Create your own visualizations or apps using the pixiedust extensibility APIs. If you know html and css, you can write and deliver amazing graphics without forcing notebook users to type one line of code. Use the shape of the data to control when Pixiedust shows your visualization in a menu.
+Create your own visualizations or apps using the PixieDust extensibility APIs. If you know HTML and CSS, you can write and deliver amazing graphics without forcing notebook users to type one line of code. Use the shape of the data to control when PixieDust shows your visualization in a menu.
 
 When a notebook user invokes ``display()``, PixieDust provides a chrome that include a toolbar of menus. Each menu is a way to visualize or perform action on the data. 
 
@@ -96,7 +96,7 @@ If it's a Pandas or PySpark DataFrame, return an array of menu definition object
 3. ``icon``: the name of a fontawesome icon, or a URL for an image
 4. ``id``: a unique string that identifies your tool
 
-Pixiedust only has one option for displaying a DataFrame as a table, so you return a single menu object in the array. 
+PixieDust only has one option for displaying a DataFrame as a table, so you return a single menu object in the array. 
 
 def newDisplayHandler
 #####################
@@ -128,7 +128,7 @@ Data Processing
              )
 
 
-This class must implement one method, ``doRender``, which is called with a reference to ``self`` and a ``handlerId``. In the case of DataFrame display, the ``handlerId`` is unused, so you only need to check for one  DataFrameentity type. You can display it using a `Jinja2 <http://jinja.pocoo.org/>`_ HTML template. 
+This class must implement one method, ``doRender``, which is called with a reference to ``self`` and a ``handlerId``. In the case of DataFrame display, the ``handlerId`` is unused, so you only need to check for one DataFrame entity type. You can display it using a `Jinja2 <http://jinja.pocoo.org/>`_ HTML template. 
 
 HTML rendering with Jinja2
 **************************
@@ -148,7 +148,7 @@ Also note the ``<script>`` tag at the end of the file. This is where you can do 
 Build your own table display plugin
 ---------------------------------
 
-Now that you've seen how Pixiedust works, let's build a very simple second table display tool. You'll need to do 3 things:
+Now that you've seen how PixieDust works, let's build a very simple second table display tool. You'll need to do 3 things:
 
 1. Add a menu item and hook it to your code
 3. Transform the DataFrame into something a web browser can display (HTML in our case, but it could be SVG, a PDF or something more exotic) using Jinja2 HTML templating
@@ -156,7 +156,7 @@ Now that you've seen how Pixiedust works, let's build a very simple second table
 Add a menu item and hook it to your code
 ****************************************
 
-Have Pixiedust recognize your new menu item code by adding this line in the imports of ``__init__.py`` (in the directory ``display/table``):
+Have PixieDust recognize your new menu item code by adding this line in the imports of ``__init__.py`` (in the directory ``display/table``):
 
 ``from .SimpleDisplayMeta import SimpleDisplayMeta``
 
@@ -239,7 +239,7 @@ All you're really doing here is defining a mechanism to call the right Jinja tem
 What you get
 ############
 
-Now that the code is complete. Let's update Pixiedust in our notebook and see the results. Shut down your Jupyter environment, run the below command from your terminal, and restart Jupyter to get the new code. 
+Now that the code is complete. Let's update PixieDust in our notebook and see the results. Shut down your Jupyter environment, run the below command from your terminal, and restart Jupyter to get the new code. 
 
 ``pip install --user -e <your directory path to pixiedust code>``
 
@@ -254,7 +254,7 @@ You should now see something resembling the screenshot below. The table menu is 
 
 
 
-.. note::  PixieDust provides a higher level framework built on top of ``display()`` api that lets you contribute more tightly to the chart menus. When you use the renderer api you contribute to the list renderers that can display a particular type of chart. For example, let notebook users choose Mapbox to display a map. At the lowest level you can create only a visualization and don’t need to specify a renderer. But if you're interested in learning more, read how to `build a renderer <renderer.html>`_.
+.. note::  PixieDust provides a higher level framework built on top of the ``display()`` API that lets you contribute more tightly to the chart menus. When you use the renderer API you contribute to the list renderers that can display a particular type of chart. For example, let notebook users choose Mapbox to display a map. At the lowest level you can create only a visualization and don’t need to specify a renderer. But if you're interested in learning more, read how to `build a renderer <renderer.html>`_.
 
 
 .. image:: _images/draft-watermark.png
