@@ -65,7 +65,7 @@ def checkVersion():
     
     try:
         response = urlopen("https://pypi.python.org/pypi/pixiedust/json", timeout=3)
-        latest = json.loads(response.read())["info"]["version"]
+        latest = json.loads(response.read().decode('utf-8'))["info"]["version"]
         version = pkg_resources.get_distribution("pixiedust").parsed_version._version.release
         version = ".".join([str(p) for p in version])
         if latest != version:
