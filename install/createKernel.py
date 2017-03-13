@@ -298,8 +298,14 @@ class PixiedustInstall(InstallKernelSpec):
             return self.downloadFileToDir( url, targetDir=self.pixiedust_bin)
 
     def downloadIntroNotebooks(self):
+        #download the Intro.txt file that contains all the notebooks to download
+        response = requests.get("https://github.com/ibm-cds-labs/pixiedust/raw/david-v1.01/notebook/Intro.txt")
+        if not response.ok:
+            raise Exception("Unable to read the list of Intro Notebooks")
+
+        notebookNames = response.content.split("\n")
         introNotebooksUrls = [
-            "https://github.com/ibm-cds-labs/pixiedust/raw/master/notebook/Intro to PixieDust.ipynb"
+            "https://github.com/ibm-cds-labs/pixiedust/raw/master/notebook/" + n for n in notebookNames if n != ""
         ]
         for url in introNotebooksUrls:
             print("...{0}".format(url))

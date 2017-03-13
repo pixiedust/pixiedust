@@ -40,7 +40,7 @@
             {% if option.metadata.type == 'checkbox' %}
                 <div class="rendererOpt checkbox checkbox-primary">
                     <input id="optionchecked{{option.name}}{{prefix}}" r="{{'t' if option.refresh else 'f'}}" type="checkbox" name="{{option.name}}"
-                                {{'checked' if this.options.get(option.name,"false")=="true" else ''}}>
+                                {{'checked' if this.options.get(option.name, option.metadata.default or "true")=="true" else ''}}>
                     <label for="optionchecked{{option.name}}{{prefix}}">{{option.description or option.name}}</label>
                 </div>
             {%endif%}
