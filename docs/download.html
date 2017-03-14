@@ -75,12 +75,36 @@ Choose the format you want, and specify the number of records to download.</p>
 </ol>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">If you get an error that a library is missing, you may need to <a class="reference external" href="https://github.com/ibm-cds-labs/pixiedust/blob/plotting-tools/docsrc/source/install.rst#stash-to-cloudant">install the cloudant-spark library</a>. If you get a <strong>Too many requests</strong> error, you are on the Cloudant Lite plan. The only way to raise limits, is to upgrade your Cloudant plan.</p>
+<p class="last">If you get a <strong>Too many requests</strong> error, you are on the Cloudant Lite plan. The only way to raise limits, is to upgrade your Cloudant plan.</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">If you get an error that a library is missing, install the cloudant-spark library. This is a manual one-time step that requires a kernel restart. Download the cloudant-spark jar for your Spark version. For Spark 1.6: <code class="docutils literal"><span class="pre">https://github.com/cloudant-labs/spark-cloudant/releases/download/v1.6.4/cloudant-spark-v1.6.4-167.jar</span></code>. For Spark 2.0: <code class="docutils literal"><span class="pre">https://github.com/cloudant-labs/spark-cloudant/releases/download/v2.0.0/cloudant-spark-v2.0.0-185.jar</span></code> Then create a directory named <cite>jars</cite> under the home directory with <code class="docutils literal"><span class="pre">mkdir</span> <span class="pre">jars</span></code>. Copy the cloudant-spark jar file into the newly created directory. Then locate kernel.json file under the directory listing by running command <code class="docutils literal"><span class="pre">jupyter</span> <span class="pre">pixiedust</span> <span class="pre">list</span></code>. Edit kernel.json file and update the variable PYSPARK_SUBMIT_ARGS under env by adding &#8211;jars &lt;local_home_directory&gt;/jars/cloudant-spark.jar. <code class="docutils literal"><span class="pre">&quot;PYSPARK_SUBMIT_ARGS&quot;:</span> <span class="pre">&quot;--jars</span> <span class="pre">/Users/USERNAME/jars/cloudant-spark-v1.6.4-167.jar</span> <span class="pre">....</span></code></p>
 </div>
 </div>
 <div class="section" id="save-a-chart-or-map-in-svg-format">
 <h2>Save a chart or map in SVG format<a class="headerlink" href="#save-a-chart-or-map-in-svg-format" title="Permalink to this headline">¶</a></h2>
 <p>If you&#8217;ve created a sweet chart that you want to save, click the <strong>Download SVG</strong> button.</p>
+<p>Install cloudant-spark library</p>
+<p>You can export the data to a Cloudant database. A supporting library cloudant-spark jar is required for the export.
+This is a manual one-time step that requires a kernel restart. Download cloudant-spark jar file for respective Spark version from</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span>Spark 1.6: https://github.com/cloudant-labs/spark-cloudant/releases/download/v1.6.4/cloudant-spark-v1.6.4-167.jar
+Spark 2.0: https://github.com/cloudant-labs/spark-cloudant/releases/download/v2.0.0/cloudant-spark-v2.0.0-185.jar
+</pre></div>
+</div>
+<p>Create a directory of your choice for example jars under the home directory.</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span>mkdir jars
+</pre></div>
+</div>
+<p>Copy the cloudant-spark jar file into the newly created directory.</p>
+<p>Locate kernel.json file under the directory listing by running command.</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span>jupyter pixiedust list
+</pre></div>
+</div>
+<p>Edit kernel.json file and update the variable PYSPARK_SUBMIT_ARGS under env by adding &#8211;jars &lt;local_home_directory&gt;/jars/cloudant-spark.jar.</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span>&quot;PYSPARK_SUBMIT_ARGS&quot;: &quot;--jars /Users/USERNAME/jars/cloudant-spark-v1.6.4-167.jar ....
+</pre></div>
+</div>
 </div>
 </div>
 
