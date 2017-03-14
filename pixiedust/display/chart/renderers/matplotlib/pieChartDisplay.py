@@ -57,7 +57,7 @@ class PieChartDisplay(MatplotlibBaseDisplay):
                 'description': 'Show legend',
                 'metadata': {
                     'type': 'checkbox',
-                    'default': "false"
+                    'default': "true"
                 }
             }
         ]
