@@ -2,8 +2,10 @@
 {%include resModule + ":chartHeader.html"%}
 {% set optTypes={} %}
 <div class="row">
-    <div class="form-group col-sm-10" style="padding-right:10px;text-align: center;font-size: xx-large;font-weight: 500;color: coral;">
-        {{this.options.get("title", "")}}
+    <div class="form-group col-sm-10">
+        <div class="pd_save" style="padding-right:10px;text-align: center;line-height:initial !important;font-size: xx-large;font-weight: 500;color: coral;">
+            {{this.options.get("title", "")}}
+        </div>
     </div>
 </div>
 <div class="row">
