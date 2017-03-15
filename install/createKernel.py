@@ -154,6 +154,8 @@ class PixiedustInstall(InstallKernelSpec):
             print("Error downloading Cloudant Jar: {}. Install will continue without the spark Cloudant connector".format(e))
 
         #download spark csv connector if in spark 1.6
+        self.sparkCSVPath = None
+        self.commonsCSVPath = None
         if spark_version[0] == 1:
             try:
                 self.sparkCSVPath = self.downloadPackage("com.databricks:spark-csv_2.10:1.5.0")
