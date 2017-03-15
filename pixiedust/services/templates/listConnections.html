@@ -19,7 +19,7 @@
                 <tr>
                 {% for connection in tupConnection%}                        
                     <td><input type="radio">{{connection.name|escape}}</td>
-                    <td>
+                    <td style="font-size:small">
                         <span style="vertical-align:bottom;display:table-cell;">
                             <button id="editCon{{prefix}}" class="btn btn-default" type="button">
                                 <i class="fa fa-pencil-square-o"></i>
@@ -30,6 +30,10 @@
                         </span>
                     </td>
                 {%endfor%}
+                {% if tupConnection|count % 2 != 0 %}
+                    <td></td>
+                    <td></td>
+                {% endif %}
                 </tr>
             {%endfor%}
         </tbody>

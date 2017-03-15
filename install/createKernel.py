@@ -29,7 +29,8 @@ from jupyter_client.manager import KernelManager
 from jupyter_client.kernelspecapp  import InstallKernelSpec
 from six.moves import input
 from traitlets.config.application import Application
-
+from lxml import etree
+import nbformat
 
 class PixiedustInstall(InstallKernelSpec):
     def __init__(self, **kwargs):
@@ -83,6 +84,7 @@ class PixiedustInstall(InstallKernelSpec):
                 else:
                     os.makedirs(self.pixiedust_home)
 
+        self.pixiedust_bin = os.path.join(self.pixiedust_home, "bin")
         download_spark = False
         if silent:
             self.spark_home = os.environ.get("SPARK_HOME", None)
@@ -92,7 +94,7 @@ class PixiedustInstall(InstallKernelSpec):
         else:
             first_prompt = True
             while True:
-                self.spark_home = os.environ.get("SPARK_HOME", None)
+                self.spark_home = os.environ.get("SPARK_HOME", self.getFirstDir(os.path.join(self.pixiedust_bin, "spark" )))
                 if self.spark_home:
                     answer = self.confirm(
                         "Step 2: SPARK_HOME: {0}".format(self.spark_home)
@@ -140,6 +142,25 @@ class PixiedustInstall(InstallKernelSpec):
             print("Invalid Spark version {}".format(spark_version))
             self.exit(1)
 
+        #download spark-cloudant
+        sparkCloudantUrl = "https://github.com/cloudant-labs/spark-cloudant/releases/download/v1.6.4/cloudant-spark-v1.6.4-167.jar"
+        if spark_version[0] == 2:
+            sparkCloudantUrl = "https://github.com/cloudant-labs/spark-cloudant/releases/download/v2.0.0/cloudant-spark-v2.0.0-185.jar"
+
+        try:
+            self.sparkCloudantPath = self.downloadFileToDir( sparkCloudantUrl, targetDir = self.pixiedust_bin )
+            print("downloaded spark cloudant jar: {0}".format(self.sparkCloudantPath))
+        except Exception as e:
+            print("Error downloading Cloudant Jar: {}. Install will continue without the spark Cloudant connector".format(e))
+
+        #download spark csv connector if in spark 1.6
+        if spark_version[0] == 1:
+            try:
+                self.sparkCSVPath = self.downloadPackage("com.databricks:spark-csv_2.10:1.5.0")
+                self.commonsCSVPath = self.downloadPackage("org.apache.commons:commons-csv:0")
+            except Exception as e:
+                print("Error downloading csv connector Jar: {}. Install will continue without it".format(e))
+
         download_scala = False
         if silent:
             self.scala_home = os.environ.get("SCALA_HOME", None)
@@ -149,7 +170,7 @@ class PixiedustInstall(InstallKernelSpec):
         else:
             first_prompt = True
             while True:
-                self.scala_home = os.environ.get("SCALA_HOME", None)
+                self.scala_home = os.environ.get("SCALA_HOME", self.getFirstDir(os.path.join(self.pixiedust_bin, "scala" )))
                 if self.scala_home:
                     answer = self.confirm(
                         "Step 3: SCALA_HOME: {0}".format(self.scala_home)
@@ -214,7 +235,99 @@ class PixiedustInstall(InstallKernelSpec):
             pass
 
         dest = self.createKernelSpec()
-        print("Kernel {0} successfully created in {1}".format(self.kernelName, dest))
+
+        self.pixiedust_notebooks_dir = os.path.join( self.pixiedust_home, "notebooks")
+        if not os.path.isdir(self.pixiedust_notebooks_dir):
+            os.makedirs(self.pixiedust_notebooks_dir)
+        print("Downloading intro notebooks into {}".format(self.pixiedust_notebooks_dir))
+        self.downloadIntroNotebooks()
+
+        print("\n\n{}".format("#"*100))
+        print("#\tCongratulations: Kernel {0} was successfully created in {1}".format(self.kernelName, dest))
+        print("#\tYou can start the Notebook server with the following command:")
+        print("#\t\t{}".format(
+            self.hilite("jupyter notebook {}".format(self.pixiedust_notebooks_dir))
+        ))
+        print("{}".format("#"*100))
+
+    def getFirstDir(self, parentLoc):
+        if not os.path.isdir(parentLoc):
+            return parentLoc
+        dirs = os.listdir(parentLoc)
+        return parentLoc if len(dirs) == 0 else os.path.join(parentLoc, dirs[0])
+
+    def downloadFileToDir( self, url, targetDir ):
+        index = url.rfind('/')
+        fileName = url[index+1:] if index >= 0 else url
+        localPath = os.path.join(targetDir, fileName)
+        if not os.path.isfile(localPath ):
+            try:
+                with open(localPath, "wb") as targetFile:
+                    self.download_file(url, targetFile = targetFile)
+            except:
+                os.remove(localPath)
+                raise
+        return localPath
+
+    def downloadPackage(self, packageId):
+        if packageId.startswith("http://") or packageId.startswith("https://") or packageId.startswith("file://"):
+            #direct download
+            return self.downloadFileToDir( packageId, targetDir=self.pixiedust_bin)
+        else:
+            #assume maven id, resolve it
+            parts = packageId.split(":")
+            bases = ["http://repo1.maven.org/maven2", "http://dl.bintray.com/spark-packages/maven"]
+            response = None
+            for base in bases:
+                url = None
+                if parts[2] == '0':
+                    #resolve version
+                    metadataUrl = "{0}/{1}/maven-metadata.xml".format(base, "/".join([parts[0].replace(".", "/"), parts[1]]))
+                    r = requests.get(metadataUrl, stream=True)
+                    if r.ok:
+                        parts[2] = etree.parse(r.raw).xpath("/metadata/versioning/versions/version[last()]/text()")[0]
+                if parts[2] != '0':
+                    url = "{0}/{1}/{2}-{3}.jar".format(
+                        base, 
+                        "/".join([parts[0].replace(".", "/"), parts[1], parts[2]]),
+                        parts[1],
+                        parts[2]
+                    )
+                    response = requests.get(url, stream=True)
+                    if response.ok:
+                        break
+
+            if response is None or not response.ok:
+                raise Exception("Unable to resolve package {}".format(packageId))
+
+            return self.downloadFileToDir( url, targetDir=self.pixiedust_bin)
+
+    def downloadIntroNotebooks(self):
+        #download the Intro.txt file that contains all the notebooks to download
+        response = requests.get("https://github.com/ibm-cds-labs/pixiedust/raw/master/notebook/Intro.txt")
+        if not response.ok:
+            raise Exception("Unable to read the list of Intro Notebooks")
+
+        notebookNames = response.content.split("\n")
+        introNotebooksUrls = [
+            "https://github.com/ibm-cds-labs/pixiedust/raw/master/notebook/" + n for n in notebookNames if n != ""
+        ]
+        for url in introNotebooksUrls:
+            print("...{0}".format(url))
+            try:
+                path = self.downloadFileToDir(url, targetDir=self.pixiedust_notebooks_dir)
+                #update kernel name and display_name
+                nb=nbformat.read(path, as_version=4)
+                nb.metadata.kernelspec.name=self.kernelInternalName
+                nb.metadata.kernelspec.display_name = self.kernelName
+                with open(path, "wb") as targetFile:
+                    nbformat.write(nb, targetFile)
+                print("\033[F\033[F")
+                print("...{0} : {1}".format(url, self.hilite("done")))
+            except Exception as e:
+                print("\033[F\033[F")
+                print("...{0} : {1}".format(url, self.hilite("Error {}".format(e))))
+                
 
     def get_spark_version(self):
         pyspark = "{}{}bin{}pyspark".format(self.spark_home, os.sep, os.sep)
@@ -282,24 +395,32 @@ class PixiedustInstall(InstallKernelSpec):
             break
 
     @staticmethod
-    def download_file(url, suffix=None):
+    def download_file(url, suffix=None, targetFile = None):
         if suffix is None:
             suffix = url[url.rfind('.'):]
-        temp_file = tempfile.NamedTemporaryFile(suffix=suffix)
+
+        if targetFile is None:
+            targetFile = tempfile.NamedTemporaryFile(suffix=suffix)
+
         response = requests.get(url, stream=True)
-        total_bytes = int(response.headers["content-length"])
+        if not response.ok:
+            raise Exception("{}".format(response.status_code))
+
+        total_bytes = int(response.headers.get("content-length", 0))
         bytes_read = 0
         for chunk in response.iter_content(chunk_size=1048576):
-            temp_file.write(chunk)
-            temp_file.flush()
+            targetFile.write(chunk)
+            targetFile.flush()
             bytes_read += len(chunk)
+            if total_bytes <= bytes_read:
+                total_bytes = bytes_read
             print(" {} %".format(int(((bytes_read*1.0)/total_bytes)*100)))
             sys.stdout.write("\033[F")
             sys.stdout.flush()
         print("      ")
         sys.stdout.write("\033[F")
         sys.stdout.flush()
-        return temp_file
+        return targetFile
 
     @staticmethod
     def delete_temp_file(temp_file):
@@ -341,13 +462,18 @@ class PixiedustInstall(InstallKernelSpec):
                 "SPARK_HOME": "{0}".format(self.spark_home),
                 "PYTHONPATH": "{0}/python/:{0}/python/lib/{1}".format(self.spark_home, py4j_zip),
                 "PYTHONSTARTUP": "{0}/python/pyspark/shell.py".format(self.spark_home),
-                "PYSPARK_SUBMIT_ARGS": "--driver-class-path {0}/data/libs/* --master local[10] pyspark-shell".format(self.pixiedust_home),
+                "PYSPARK_SUBMIT_ARGS": "--jars {0} --driver-class-path {1} --master local[10] pyspark-shell".format(
+                    self.sparkCloudantPath,
+                    ":".join([x for x in [self.pixiedust_home + "/data/libs/*" ,self.sparkCSVPath,self.commonsCSVPath] if x is not None]),
+                ),
                 "SPARK_DRIVER_MEMORY":"10G",
                 "SPARK_LOCAL_IP":"127.0.0.1"
             }
         }
         path = write_kernel_spec(overrides=overrides)
-        dest = KernelSpecManager().install_kernel_spec(path, kernel_name=''.join(ch for ch in self.kernelName if ch.isalnum()), user=True)
+        self.kernelInternalName = ''.join(ch for ch in self.kernelName if ch.isalnum()).lower()
+        print("self.kernelInternalName {}".format(self.kernelInternalName))
+        dest = KernelSpecManager().install_kernel_spec(path, kernel_name=self.kernelInternalName, user=True)
         # cleanup afterward
         shutil.rmtree(path)
         return dest

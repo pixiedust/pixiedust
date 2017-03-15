@@ -1,0 +1,6 @@
+PixieDust 1 - Easy Visualizations.ipynb
+PixieDust 2 - Working with External Data.ipynb
+PixieDust 3 - Scala and Python.ipynb
+PixieDust 4 - Add External Spark Packages.ipynb
+PixieDust 5 - Stash to Cloudant.ipynb
+PixieDust Contribute.ipynb
