@@ -30,6 +30,7 @@ from jupyter_client.kernelspecapp  import InstallKernelSpec
 from six.moves import input
 from traitlets.config.application import Application
 from lxml import etree
+import nbformat
 
 class PixiedustInstall(InstallKernelSpec):
     def __init__(self, **kwargs):
@@ -260,8 +261,12 @@ class PixiedustInstall(InstallKernelSpec):
         fileName = url[index+1:] if index >= 0 else url
         localPath = os.path.join(targetDir, fileName)
         if not os.path.isfile(localPath ):
-            with open(localPath, "wb") as targetFile:
-                self.download_file(url, targetFile = targetFile)
+            try:
+                with open(localPath, "wb") as targetFile:
+                    self.download_file(url, targetFile = targetFile)
+            except:
+                os.remove(localPath)
+                raise
         return localPath
 
     def downloadPackage(self, packageId):
@@ -299,7 +304,7 @@ class PixiedustInstall(InstallKernelSpec):
 
     def downloadIntroNotebooks(self):
         #download the Intro.txt file that contains all the notebooks to download
-        response = requests.get("https://github.com/ibm-cds-labs/pixiedust/raw/david-v1.01/notebook/Intro.txt")
+        response = requests.get("https://github.com/ibm-cds-labs/pixiedust/raw/master/notebook/Intro.txt")
         if not response.ok:
             raise Exception("Unable to read the list of Intro Notebooks")
 
@@ -310,12 +315,19 @@ class PixiedustInstall(InstallKernelSpec):
         for url in introNotebooksUrls:
             print("...{0}".format(url))
             try:
-                self.downloadFileToDir(url, targetDir=self.pixiedust_notebooks_dir)
+                path = self.downloadFileToDir(url, targetDir=self.pixiedust_notebooks_dir)
+                #update kernel name and display_name
+                nb=nbformat.read(path, as_version=4)
+                nb.metadata.kernelspec.name=self.kernelInternalName
+                nb.metadata.kernelspec.display_name = self.kernelName
+                with open(path, "wb") as targetFile:
+                    nbformat.write(nb, targetFile)
                 print("\033[F\033[F")
                 print("...{0} : {1}".format(url, self.hilite("done")))
-            except:
+            except Exception as e:
                 print("\033[F\033[F")
-                print("...{0} : {1}".format(url, self.hilite("Error")))
+                print("...{0} : {1}".format(url, self.hilite("Error {}".format(e))))
+                
 
     def get_spark_version(self):
         pyspark = "{}{}bin{}pyspark".format(self.spark_home, os.sep, os.sep)
@@ -391,6 +403,9 @@ class PixiedustInstall(InstallKernelSpec):
             targetFile = tempfile.NamedTemporaryFile(suffix=suffix)
 
         response = requests.get(url, stream=True)
+        if not response.ok:
+            raise Exception("{}".format(response.status_code))
+
         total_bytes = int(response.headers.get("content-length", 0))
         bytes_read = 0
         for chunk in response.iter_content(chunk_size=1048576):
@@ -456,7 +471,9 @@ class PixiedustInstall(InstallKernelSpec):
             }
         }
         path = write_kernel_spec(overrides=overrides)
-        dest = KernelSpecManager().install_kernel_spec(path, kernel_name=''.join(ch for ch in self.kernelName if ch.isalnum()), user=True)
+        self.kernelInternalName = ''.join(ch for ch in self.kernelName if ch.isalnum()).lower()
+        print("self.kernelInternalName {}".format(self.kernelInternalName))
+        dest = KernelSpecManager().install_kernel_spec(path, kernel_name=self.kernelInternalName, user=True)
         # cleanup afterward
         shutil.rmtree(path)
         return dest
