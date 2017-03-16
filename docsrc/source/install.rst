@@ -4,8 +4,16 @@ PixieDust is a Python library for use in Jupyter notebooks. To use PixieDust in 
 PixieDust is bundled as a Python package and can be installed using pip.
 To install and configure PixieDust complete the following steps:
 
-Prerequisites
--------------
+System Requirements
+-------------------
+
+To join development or use pixiedust locally, you should:
+
+- work on a computer running Mac OS. Commands and programs may not all run as expected on a Microsoft Windows machine.
+- have the latest version of Java, which is 1.8. To check, open Terminal or other command-line interface and run the command `java -version`. If you need to, update your JDK at [Oracle Java Downloads](http://www.oracle.com/technetwork/java/javase/downloads/index-jsp-138363.html#javasejdk).
+
+Install Anaconda
+----------------
 In order to use PixieDust inside your Jupyter notebooks you will, of course, need Jupyter.
 The easiest way to install Jupyter is by installing Anaconda.
 Anaconda is a Data Science platform which consists of a Python distribution and collection of open source packages well-suited for scientific computing.
@@ -131,32 +139,6 @@ The output looks similar to this:
         pythonwithpixiedustspark20    /Users/USERNAME/Library/Jupyter/kernels/pythonwithpixiedustspark20
         pythonwithpixiedustspark21    /Users/USERNAME/Library/Jupyter/kernels/pythonwithpixiedustspark21
 
-Stash to Cloudant
------------------
-
-You can export the data to a Cloudant database. A supporting library cloudant-spark jar is required for the export.
-This is a manual one-time step that requires a kernel restart. Download cloudant-spark jar file for respective Spark version from
-::
-
-    Spark 1.6: https://github.com/cloudant-labs/spark-cloudant/releases/download/v1.6.4/cloudant-spark-v1.6.4-167.jar
-    Spark 2.0: https://github.com/cloudant-labs/spark-cloudant/releases/download/v2.0.0/cloudant-spark-v2.0.0-185.jar
-
-Create a directory of your choice for example jars under the home directory.
-::
-
-    mkdir jars
-
-Copy the cloudant-spark jar file into the newly created directory.
-
-Locate kernel.json file under the directory listing by running command.
-::
-
-    jupyter pixiedust list
-
-Edit kernel.json file and update the variable PYSPARK_SUBMIT_ARGS under env by adding --jars <local_home_directory>/jars/cloudant-spark.jar.
-::
-
-    "PYSPARK_SUBMIT_ARGS": "--jars /Users/USERNAME/jars/cloudant-spark-v1.6.4-167.jar ....
 
 
 Try It Out!

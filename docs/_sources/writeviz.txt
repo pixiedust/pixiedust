@@ -257,4 +257,3 @@ You should now see something resembling the screenshot below. The table menu is 
 .. note::  PixieDust provides a higher level framework built on top of the ``display()`` API that lets you contribute more tightly to the chart menus. When you use the renderer API you contribute to the list renderers that can display a particular type of chart. For example, let notebook users choose Mapbox to display a map. At the lowest level you can create only a visualization and don’t need to specify a renderer. But if you're interested in learning more, read how to `build a renderer <renderer.html>`_.
 
 
-.. image:: _images/draft-watermark.png

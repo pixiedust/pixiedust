@@ -2,8 +2,10 @@
 {%include resModule + ":chartHeader.html"%}
 {% set optTypes={} %}
 <div class="row">
-    <div class="form-group col-sm-10" style="padding-right:10px;text-align: center;font-size: xx-large;font-weight: 500;color: coral;">
-        {{this.options.get("title", "")}}
+    <div class="form-group col-sm-10">
+        <div class="pd_save" style="padding-right:10px;text-align: center;line-height:initial !important;font-size: xx-large;font-weight: 500;color: coral;">
+            {{this.options.get("title", "")}}
+        </div>
     </div>
 </div>
 <div class="row">
@@ -40,7 +42,7 @@
             {% if option.metadata.type == 'checkbox' %}
                 <div class="rendererOpt checkbox checkbox-primary">
                     <input id="optionchecked{{option.name}}{{prefix}}" r="{{'t' if option.refresh else 'f'}}" type="checkbox" name="{{option.name}}"
-                                {{'checked' if this.options.get(option.name,"false")=="true" else ''}}>
+                                {{'checked' if this.options.get(option.name, option.metadata.default or "true")=="true" else ''}}>
                     <label for="optionchecked{{option.name}}{{prefix}}">{{option.description or option.name}}</label>
                 </div>
             {%endif%}

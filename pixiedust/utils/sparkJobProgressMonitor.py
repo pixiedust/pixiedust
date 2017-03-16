@@ -43,6 +43,9 @@ def enableSparkJobProgressMonitor():
         t = Thread(target=startSparkJobProgressMonitor)
         t.daemon = True
         t.start()
+        print("Succesfully enabled Spark Job Progress Monitor")
+    else:
+        print("Spark Job Progress Monitor already enabled")
 
 class SparkJobProgressMonitorOutput(Thread):
     class Java:
