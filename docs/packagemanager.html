@@ -45,7 +45,7 @@
 <h1>Package Manager<a class="headerlink" href="#package-manager" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="introduction">
 <h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
-<p>You can use the PackageManager component of Pixiedust to install and
+<p>You can use the PackageManager component of PixieDust to install and
 uninstall maven packages into your notebook kernel without editing
 configuration files. This component is essential when you run
 notebooks from a hosted cloud environment and do not have access to the configuration files.</p>
@@ -76,7 +76,7 @@ as <strong>graphframes:graphframes:0.1.0-spark1.6</strong>.</p>
 <span class="n">pixiedust</span><span class="o">.</span><span class="n">installPackage</span><span class="p">(</span><span class="s2">&quot;graphframes:graphframes:0.1.0-spark1.6&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>To fetch the latest release, specify 0 as the version. The Pixiedust
+<p>To fetch the latest release, specify 0 as the version. The PixieDust
 packageManager fetches the latest release in the following example.</p>
 <div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pixiedust</span>
 <span class="n">pixiedust</span><span class="o">.</span><span class="n">installPackage</span><span class="p">(</span><span class="s2">&quot;graphframes:graphframes:0&quot;</span><span class="p">)</span>
@@ -98,16 +98,16 @@ Successfully added artifact graphframes:graphframes:0.1.0-spark1.6
 installation of the new package. This is required only the first time.
 Restart the kernel by using the <strong>Kernel/Restart</strong> menu. After the
 kernel is restarted, the library is added to the classpath and can be
-used from your python notebook.</p>
+used from your Python notebook.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">Some libraries, such as GraphFrames include a python module within it. Pixiedust automatically adds the python file into the SparkContext. However, you must explicitly call <strong>pixiedust.installPackage</strong> at the beginning of every kernel session so that the python modules are added to the SparkContext.</p>
+<p class="last">Some libraries, such as GraphFrames include a python module within it. PixieDust automatically adds the python file into the SparkContext. However, you must explicitly call <strong>pixiedust.installPackage</strong> at the beginning of every kernel session so that the python modules are added to the SparkContext.</p>
 </div>
 </div>
 <div class="section" id="install-from-maven-search-repository">
 <h2>Install from maven search repository<a class="headerlink" href="#install-from-maven-search-repository" title="Permalink to this headline">¶</a></h2>
-<p>Go to the maven search site, <a class="reference external" href="http://search.maven.org/">search.maven.org</a>, and look for the package of your choice, like <strong>org.apache.commons</strong>. In the results page, open the link of the component you want, like <strong>commons-proxy</strong>. You get the group ID, artifact ID, and version number to use with the <strong>pixiedust.installPackgage</strong> API.</p>
-<p>By default, pixiedust automatically looks for the following 2 maven repositories: <a class="reference external" href="http://repo1.maven.org/maven2">http://repo1.maven.org/maven2</a> and <a class="reference external" href="http://dl.bintray.com/spark-packages/maven">http://dl.bintray.com/spark-packages/maven</a>. If you use a custom maven repository, you can specify it by using the following base keyword argument:</p>
+<p>Go to the maven search site, <a class="reference external" href="http://search.maven.org/">search.maven.org</a>, and look for the package of your choice, like <strong>org.apache.commons</strong>. In the results page, open the link of the component you want, like <strong>commons-proxy</strong>. You get the group ID, artifact ID, and version number to use with the <strong>pixiedust.installPackage</strong> API.</p>
+<p>By default, PixieDust automatically looks for the following 2 maven repositories: <a class="reference external" href="http://repo1.maven.org/maven2">http://repo1.maven.org/maven2</a> and <a class="reference external" href="http://dl.bintray.com/spark-packages/maven">http://dl.bintray.com/spark-packages/maven</a>. If you use a custom maven repository, you can specify it by using the following base keyword argument:</p>
 <div class="highlight-python"><div class="highlight"><pre><span></span>import pixiedust
 pixiedust.installPackage(&quot;groupId:artifactId:0&quot;, base=&quot;&lt;&lt;url to my custom maven repo&gt;&gt;&quot;
 </pre></div>
@@ -115,7 +115,7 @@ pixiedust.installPackage(&quot;groupId:artifactId:0&quot;, base=&quot;&lt;&lt;ur
 </div>
 <div class="section" id="install-a-jar-file-directly-from-an-addressable-location">
 <h2>Install a jar file directly from an addressable location<a class="headerlink" href="#install-a-jar-file-directly-from-an-addressable-location" title="Permalink to this headline">¶</a></h2>
-<p>To install a jar file that is not packaged in a maven repository, provide the URL to the jar file. Pixiedust will then bypass the maven look up and directly download the jar file from the specified location:</p>
+<p>To install a jar file that is not packaged in a maven repository, provide the URL to the jar file. PixieDust will then bypass the maven look up and directly download the jar file from the specified location:</p>
 <div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pixiedust</span>
 <span class="n">pixiedust</span><span class="o">.</span><span class="n">installPackage</span><span class="p">(</span><span class="s2">&quot;https://github.com/ibm-cds-labs/spark.samples/raw/master/dist/streaming-twitter-assembly-1.6.jar&quot;</span><span class="p">)</span>
 </pre></div>

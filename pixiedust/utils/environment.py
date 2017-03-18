@@ -14,6 +14,7 @@
 # limitations under the License.
 # -------------------------------------------------------------------------------
 from six import with_metaclass
+from pixiedust.utils.javaBridge import JavaWrapper
 from . import *
 import os
 import re
@@ -44,6 +45,11 @@ class Environment(with_metaclass(
         @cache(fieldName="_scalaHome")
         def scalaHome(self):
             return os.environ.get("SCALA_HOME")
+
+        @property
+        @cache(fieldName="_javaClassPath")
+        def javaClassPath(self):
+            return JavaWrapper("java.lang.System").getProperty("java.class.path")
 
     env = _Environment()
 

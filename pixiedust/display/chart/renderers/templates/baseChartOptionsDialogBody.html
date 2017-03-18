@@ -108,7 +108,7 @@
 		<div class="col-sm-6" style="padding: 0px 0px 0px 5px;">
 			{%if keyFieldsSupported %}
 			<div class="keys-fields">
-				<label>Keys: <i class="fa fa-question-circle" title="Rows will be grouped by Key columns. Columns may be numeric or string."></i></label>
+				<label>Keys: <i class="fa fa-question-circle" title="Controls the X-Axis of the chart. Rows will be grouped by Key columns. Columns may be numeric or string."></i></label>
 				<label>Keys: Only numeric or string columns are supported <i class="fa fa-warning"></i></label>
 				<ul id="keyFields{{prefix}}">
 					{%if this.options.get("keyFields") is not none%}
@@ -122,7 +122,7 @@
 			</div>
 			{%endif%}
 			<div class="values-fields">
-				<label>Values: <i class="fa fa-question-circle" title="Values must be numeric columns."></i></label>
+				<label>Values: <i class="fa fa-question-circle" title="Controls the Y-Axis of the chart. Values must be numeric columns."></i></label>
 				<label>Values: Only numeric columns are supported <i class="fa fa-warning"></i></label>
 				{%if keyFieldsSupported %}
 				<ul id="valueFields{{prefix}}" style="height: 147px;">

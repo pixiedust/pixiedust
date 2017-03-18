@@ -21,6 +21,7 @@ import requests
 import json
 from pixiedust.utils import Logger
 from pixiedust.utils.shellAccess import ShellAccess
+from pixiedust.utils.environment import Environment
 
 CLOUDANT_CONN_TYPE = "cloudant"
 @Logger()
@@ -33,7 +34,11 @@ class StashCloudantHandler(Display):
             return self._addHTMLTemplate("listConnections.html", connections=self.tuplize(getConnections(CLOUDANT_CONN_TYPE)) )
 
         config = ShellAccess.sc._conf.getAll()
-        if not any("spark.jars" in s for s in config):
+        checks = ["spark-cloudant", "cloudant-spark"]
+        sparkJars = [t[1] for t in config if t[0]=="spark.jars"]
+        cond1 = any("spark.jars" in s for s in config) and any( c in s for s in sparkJars for c in checks)
+        cond2 = any(c in s for s in Environment.javaClassPath.split(":") for c in checks)
+        if not cond1 and not cond2:
             self._addHTML("<p>Please setup one time manual steps to configure stashing to Cloudant database at <a href=\"https://ibm-cds-labs.github.io/pixiedust/install.html#stash-to-cloudant\"  target=\"_blank\">https://ibm-cds-labs.github.io/pixiedust/install.html#stash-to-cloudant</a></p>")
             self.debug("Please setup one time manual steps to configure stashing to Cloudant database at https://ibm-cds-labs.github.io/pixiedust/install.html#stash-to-cloudant")
             self.debug("SparkContext conf:")

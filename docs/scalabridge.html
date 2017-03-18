@@ -45,21 +45,21 @@
 <h1>Use Scala in a Python Notebook<a class="headerlink" href="#use-scala-in-a-python-notebook" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="introduction">
 <h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
-<p>Python has a rich ecosystem of modules including plotting with Matplotlib, data structure and analysis with Pandas, Machine Learning or Natural Language Processing. However, data scientists working with Spark may occasionaly need to call out one of the hundreds of libraries available on <a class="reference external" href="https://spark-packages.org/">spark-packages.org</a> which are written in Scala or Java. Unfortunately, Jupyter Python notebooks do not currently provide a way to call out scala code. As a result, a typical workaround is to first use a scala notebook to run the scala code, persist the output somewhere like a Hadoop Distributed File System, create another python notebook, and re-load the data. This is obviously inefficent and awkward.</p>
+<p>Python has a rich ecosystem of modules including plotting with Matplotlib, data structure and analysis with Pandas, Machine Learning or Natural Language Processing. However, data scientists working with Spark may occasionaly need to call out one of the hundreds of libraries available on <a class="reference external" href="https://spark-packages.org/">spark-packages.org</a> which are written in Scala or Java. Unfortunately, Jupyter Python notebooks do not currently provide a way to call out scala code. As a result, a typical workaround is to first use a Scala notebook to run the Scala code, persist the output somewhere like a Hadoop Distributed File System, create another Python notebook, and re-load the data. This is obviously inefficent and awkward.</p>
 <p>PixieDust provides a solution to this problem by letting users directly write and run scala code in its own cell. It also lets variables be shared between Python and Scala and vice-versa.</p>
 </div>
 <div class="section" id="using-scala-cell-magic">
 <h2>Using Scala cell magic<a class="headerlink" href="#using-scala-cell-magic" title="Permalink to this headline">¶</a></h2>
-<p>After importing the pixiedust module, users can simply use the %%scala magic to write scala code and run the cell as any other normal cell. Any compilation error will be reported in the cell output.
-The following example shows how to run the <a class="reference external" href="https://developer.ibm.com/clouddataservices/sentiment-analysis-of-twitter-hashtags/">Watson sentiment sample app</a> written in scala:</p>
-<p>First install the jar into the python kernel:</p>
+<p>After importing the PixieDust module, users can simply use the %%scala magic to write Scala code and run the cell as any other normal cell. Any compilation error will be reported in the cell output.
+The following example shows how to run the <a class="reference external" href="https://developer.ibm.com/clouddataservices/sentiment-analysis-of-twitter-hashtags/">Watson sentiment sample app</a> written in Scala:</p>
+<p>First install the jar into the Python kernel:</p>
 <blockquote>
 <div><div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pixiedust</span>
 <span class="n">pixiedust</span><span class="o">.</span><span class="n">installPackage</span><span class="p">(</span><span class="s2">&quot;https://github.com/ibm-cds-labs/spark.samples/raw/master/dist/streaming-twitter-assembly-1.6.jar&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div></blockquote>
-<p>You can now run the scala code that uses Spark Streaming to fetch tweets:</p>
+<p>You can now run the Scala code that uses Spark Streaming to fetch tweets:</p>
 <blockquote>
 <div><div class="highlight-python"><div class="highlight"><pre><span></span>%%scala
 val demo = com.ibm.cds.spark.samples.StreamingTwitter
@@ -95,7 +95,7 @@ For example:</p>
 </pre></div>
 </div>
 </div></blockquote>
-<p>Likewise, you can transfer variables defined in scala by prefixing them with __ (2 underscores). The following example shows how to access the tweets into a dataframe and transfer them into the python shell namespace:</p>
+<p>Likewise, you can transfer variables defined in Scala by prefixing them with __ (2 underscores). The following example shows how to access the tweets into a dataframe and transfer them into the python shell namespace:</p>
 <blockquote>
 <div><div class="highlight-python"><div class="highlight"><pre><span></span>%%scala
 val demo = com.ibm.cds.spark.samples.StreamingTwitter
@@ -103,7 +103,7 @@ val (__sqlContext, __df) = demo.createTwitterDataFrames(sc)
 </pre></div>
 </div>
 </div></blockquote>
-<p>Then use the __df variable in python</p>
+<p>Then use the __df variable in Python</p>
 <blockquote>
 <div><div class="highlight-python"><div class="highlight"><pre><span></span><span class="k">print</span><span class="p">(</span><span class="n">__df</span><span class="o">.</span><span class="n">count</span><span class="p">())</span>
 </pre></div>
