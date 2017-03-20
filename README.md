@@ -5,7 +5,7 @@
 
 PixieDust is a productivity tool for Python or Scala notebooks, which lets a developer encapsulate business logic into something easy for your customers to consume.
 
-##Why you need it
+## Why you need it
 
 Notebooks are a powerful tool for fast and flexible data analysis. But the learning curve is steep.
 
@@ -18,7 +18,7 @@ Once you do create a notebook that provides great data insights, it&#39;s hard t
 
 PixieDust to the rescue. 
 
-##What is PixieDust?
+## What is PixieDust?
 
 PixieDust is an open source helper library that works as an add-on to Jupyter notebooks to improve the user experience of working with data. It also fills a gap for users who have no access to configuration files when a notebook is hosted on the cloud. 
 
@@ -26,7 +26,7 @@ PixieDust is an open source helper library that works as an add-on to Jupyter no
 
 PixieDust greatly simplifies working with Python display libraries like matplotlib, but works just as effectively in Scala notebooks too. You no longer have compromise your love of Scala to generate great charts. PixieDust lets you bring robust python visualization options to your Scala notebooks. Installer and instructions to use Scala with PixieDust are coming soon... 
 
-###Features
+### Features
 
 PixieDust's current capabilities include:
 
@@ -57,11 +57,11 @@ Watch this video to see PixieDust in action:
 
 [![about PixieDust](https://img.youtube.com/vi/FoOHFlkCaXI/0.jpg)](https://www.youtube.com/watch?v=FoOHFlkCaXI) 
 
-##Usage
+## Usage
 
 You can use PixieDust locally or online within IBM's Data Science Experience (DSX). 
 
-###Use online
+### Use online
 
 To use PixieDust online
 * Sign up for a free trial on IBM's [Data Science Experience](http://datascience.ibm.com/)
@@ -71,7 +71,7 @@ To use PixieDust online
   
 * [Review the documentation](https://ibm-cds-labs.github.io/pixiedust/use.html)  
 
-###Use locally
+### Use locally
 
 * Pixidust supports
  - **Spark 1.6** or **2.0** 
@@ -82,30 +82,30 @@ To use PixieDust online
 * [Explore how to use PixieDust](https://ibm-cds-labs.github.io/pixiedust/use.html)
 
 
-###Sample notebooks
+### Sample notebooks
 Wherever you prefer to work, try out the following sample notebooks:
 
  - [Intro to PixieDust](https://github.com/ibm-cds-labs/pixiedust/blob/master/notebook/Intro%20to%20PixieDust.ipynb).  Uses PackageManager to install GraphFrames, generates a dataframe from a simple data set, and lets you try the display() api. See also: [Intro to PixieDust for Spark 2.0](https://github.com/ibm-cds-labs/pixiedust/blob/master/notebook/Intro%20to%20PixieDust%20Spark%202.0.ipynb)
  - [Mapping Intro](https://github.com/ibm-cds-labs/pixiedust/blob/master/notebook/mapping_intro.ipynb) lets you load sample data sets, explore display() api features, including maps.
 
-###Tutorials
+### Tutorials
 
  - [FlightPredict II: The Sequel](https://medium.com/ibm-watson-data-lab/flightpredict-ii-the-sequel-fb613afd6e91) shows how to predict flight delays with PixieDust. Includes an embedded app
  - [Sentiment Analysis of Twitter Hashtags with Spark](https://medium.com/ibm-watson-data-lab/real-time-sentiment-analysis-of-twitter-hashtags-with-spark-7ee6ca5c1585#.gbqjjf3ef) revisits a spark streaming app this time using PixieDust and Jupyter. Includes an embedded app.
 
-##Contribute
+## Contribute
 
 _**Note:** PixieDust currently supports Spark DataFrames, Spark GraphFrames and Pandas DataFrames, with more to come. If you can't wait, write your own today and contribute it back._
 
 Read [how to contribute](https://ibm-cds-labs.github.io/pixiedust/contribute.html) for details on our code of conduct and instructions for submitting pull requests to us. 
 
-###Developer Guide
+### Developer Guide
 
 Dive into the [PixieDust developer docs](https://ibm-cds-labs.github.io/pixiedust/) and learn how to build your own custom visualization or embedded app. You can also pitch in and contribute an enhancement to PixieDust's core features. 
 
 We can't wait to see what you build.
 
-##License
+## License
 
 **Apache License, Version 2.0**. 
 
