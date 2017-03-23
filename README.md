@@ -67,7 +67,7 @@ To use PixieDust online
 * Sign up for a free trial on IBM's [Data Science Experience](http://datascience.ibm.com/)
 * [Create a new notebook from URL](http://datascience.ibm.com/docs/content/analyze-data/creating-notebooks.html) using this template and learn the basics
 
-  `https://github.com/ibm-cds-labs/pixiedust/raw/master/notebook/Intro%20to%20PixieDust.ipynb` 
+  `https://github.com/ibm-cds-labs/pixiedust/blob/master/notebook/DSX/Welcome%20to%20PixieDust.ipynb` 
   
 * [Review the documentation](https://ibm-cds-labs.github.io/pixiedust/use.html)  
 
@@ -84,7 +84,7 @@ To use PixieDust online
 
 ### Sample notebooks
 Wherever you prefer to work, try out the following sample notebooks:
-
+ - [Welcome to PixieDust](https://github.com/ibm-cds-labs/pixiedust/blob/master/notebook/DSX/Welcome%20to%20PixieDust.ipynb) The ultimate notebook to get started with PixieDust.
  - [Intro to PixieDust](https://github.com/ibm-cds-labs/pixiedust/blob/master/notebook/Intro%20to%20PixieDust.ipynb).  Uses PackageManager to install GraphFrames, generates a dataframe from a simple data set, and lets you try the display() api. See also: [Intro to PixieDust for Spark 2.0](https://github.com/ibm-cds-labs/pixiedust/blob/master/notebook/Intro%20to%20PixieDust%20Spark%202.0.ipynb)
  - [Mapping Intro](https://github.com/ibm-cds-labs/pixiedust/blob/master/notebook/mapping_intro.ipynb) lets you load sample data sets, explore display() api features, including maps.
 
