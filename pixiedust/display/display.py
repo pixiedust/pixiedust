@@ -96,11 +96,13 @@ def getSelectedHandler(options, entity, dataHandler):
             if not retValue and hasattr(entity, "entity"):
                 myLogger.debug("Trying inner entity {}".format(entity.entity))
                 retValue = findHandlerId(entity.entity)
-                if retValue:
-                    return retValue
+            
+            if retValue:
+                return retValue
+
     #If we're here, then either no handlerId was specified or if it was, it was not found
     if handlerId is not None:
-        myLogger.debug("Unable to resolve handlerId {}. Trying to find a suitable one".format(handlerId) )
+        myLogger.debug("Unable to resolve handlerId {} for entity {}. Trying to find a suitable one".format(handlerId, entity) )
 
     if defaultHandler is not None and len(defaultHandler.getMenuInfo(entity, dataHandler))>0:
         return defaultHandler
