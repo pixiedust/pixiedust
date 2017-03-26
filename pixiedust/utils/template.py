@@ -81,11 +81,20 @@ class PixiedustTemplateEnvironment(object):
         self.env.filters['iteritems']=lambda s: iteritems(s)
         self.env.filters['decodeUTF8']=lambda s: s.decode('utf-8') if PY2 else s
         self.env.filters['removeJSComments']=lambda s: self.removeJSComments(s)
+        self.env.filters['htmlAttribute']=lambda s: self.attribute(s)
 
     def removeJSComments(self, s):
         s = re.sub(re.compile("/\*.*?\*/",re.DOTALL ) ,"" ,s)
         s = re.sub(re.compile("//.*?\n" ) ,"" ,s)
         return s
+
+    def attribute(self, s):
+        return str(s)\
+                .replace('&', '&amp;')\
+                .replace("'", '&apos;')\
+                .replace('"', '&quot;')\
+                .replace('<', '&lt;')\
+                .replace('>', '&gt;')
     
     def from_string(self, source, **kwargs):
         return self.env.from_string(source, globals=kwargs)

@@ -26,6 +26,7 @@ import re
 import pixiedust
 from six import iteritems, with_metaclass
 from functools import reduce
+import json
 
 myLogger = pixiedust.getLogger(__name__)
 
@@ -85,18 +86,29 @@ def getSelectedHandler(options, entity, dataHandler):
             return globalMenuInfos[handlerId]['handler']
         else:
             #we need to find it
-            for handler in (handlers+systemHandlers):
-                for menuInfo in handler.getMenuInfo(entity, dataHandler):
-                    if handlerId in globalMenuInfos:
-                        return globalMenuInfos[handlerId]['handler']
-    else:
-        if defaultHandler is not None and len(defaultHandler.getMenuInfo(entity, dataHandler))>0:
-            return defaultHandler
-        #get the first handler that can render this object
-        for handler in handlers:
-            menuInfos = handler.getMenuInfo(entity, dataHandler)
-            if ( menuInfos is not None and len(menuInfos)>0 ):
-                return handler
+            def findHandlerId(e):
+                for handler in (handlers+systemHandlers):
+                    for menuInfo in handler.getMenuInfo(e, dataHandler):
+                        if handlerId in globalMenuInfos:
+                            return globalMenuInfos[handlerId]['handler']
+
+            retValue = findHandlerId(entity)
+            if not retValue and hasattr(entity, "entity"):
+                myLogger.debug("Trying inner entity {}".format(entity.entity))
+                retValue = findHandlerId(entity.entity)
+                if retValue:
+                    return retValue
+    #If we're here, then either no handlerId was specified or if it was, it was not found
+    if handlerId is not None:
+        myLogger.debug("Unable to resolve handlerId {}. Trying to find a suitable one".format(handlerId) )
+
+    if defaultHandler is not None and len(defaultHandler.getMenuInfo(entity, dataHandler))>0:
+        return defaultHandler
+    #get the first handler that can render this object
+    for handler in handlers:
+        menuInfos = handler.getMenuInfo(entity, dataHandler)
+        if ( menuInfos is not None and len(menuInfos)>0 ):
+            return handler
     #we didn't find any, return the first
     myLogger.debug("Didn't find any handler for {0}".format(handlerId))
     return UnknownEntityMeta()
@@ -196,9 +208,17 @@ class Display(with_metaclass(ABCMeta)):
 
     def _getTemplateArgs(self, **kwargs):
         args = {
-            "this":self, "entity":self.entity, "prefix":self.getPrefix(),
-            "module":self.__module__
+            "this":self, 
+            "entity":self.entity, 
+            "prefix":self.getPrefix(),
+            "module":self.__module__,
+            "pd_controls": json.dumps({
+                "prefix": self.getPrefix(),
+                "command": self._genDisplayScript(menuInfo=kwargs.get("menuInfo", None) ),
+                "options": self.options
+            })
         }
+
         args.update(self.extraTemplateArgs)
         if kwargs:
             args.update(kwargs)
@@ -208,6 +228,14 @@ class Display(with_metaclass(ABCMeta)):
         return self.env.getTemplate(templateName).render(self._getTemplateArgs(**kwargs))
     
     def render(self):
+        #check if pixiedust object is already installed on the client
+        #Experimental, not ready for prime time yet
+        if self.options.get("nostore_pixiedust", "false") != "true":
+            self.options["nostore_pixiedust"] = "true"
+            js = self.renderTemplate( "addScriptCode.js", code = self.renderTemplate("pixiedust.js") )
+            self.debug("pixiedust code: {}".format(js))
+            ipythonDisplay(Javascript(js))
+
         handlerId=self.options.get("handlerId")
         if handlerId is None or not self.noChrome:
             #get the first menuInfo for this handler and generate a js call
@@ -226,13 +254,6 @@ class Display(with_metaclass(ABCMeta)):
             start = time.clock()
             self.doRender(handlerId)
             self.executionTime = time.clock() - start
-            
-        #check if pixiedust object is already installed on the client
-        #Experimental, not ready for prime time yet
-        #if self.options.get("nostore_pixiedust", "false") != "true":
-        #    js = self.renderTemplate( "addScriptCode.js", code = self.renderTemplate("pixiedust.js") )
-        #    self.debug("pixiedust code: {}".format(js))
-        #    ipythonDisplay(Javascript(js))
 
         #generate final HTML
         ipythonDisplay(HTML(self._wrapBeforeHtml() + self.html + self._wrapAfterHtml()))
@@ -341,6 +362,9 @@ class Display(with_metaclass(ABCMeta)):
             command = updateCommand(command, key, value)
 
         command = updateCommand(command, "showchrome", None)
+
+        if "nostore_pixiedust" in self.options:
+            command = updateCommand(command, "nostore_pixiedust", self.options["nostore_pixiedust"])
         #remove showchrome if there
         return command.replace("\"","\\\"")
 

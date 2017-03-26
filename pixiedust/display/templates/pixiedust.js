@@ -10,18 +10,21 @@ var pixiedust = (function(){
                 targetDivId: id of div that will receive the output html, none means the default output
             }
         #}
-        executeDisplay:function(displayCallback){
-            displayCallback = displayCallback || {};
-            displayCallback.options = displayCallback.options || {};
-            function onDisplayDone{{prefix}}(){
-                if (displayCallback.onDisplayDone){
-                    displayCallback.onDisplayDone();
+        executeDisplay:function(pd_controls, user_controls){
+            pd_controls = pd_controls || {};
+            user_controls = user_controls || {};
+            var options = $.extend({}, pd_controls.options || {}, user_controls.options || {} );
+            function onDisplayDone(){
+                if (user_controls.onDisplayDone){
+                    user_controls.onDisplayDone();
                 }
             }
-            var $targetDivId = displayCallback.targetDivId;
-            {% call display.executeDisplay(divId="$targetDivId") %}
-                addOptions( displayCallback.options );
-            {% endcall %}
+            var pd_prefix = options.prefix;
+            var $targetDivId = options.targetDivId;
+            {%include "pd_executeDisplay.js"%}
+            {# call display.executeDisplay(divId="$targetDivId")
+                addOptions( user_controls.options || {} );
+             endcall #}
         },
 
         {# 
@@ -31,8 +34,8 @@ var pixiedust = (function(){
                 onSuccess(results): callback function called when the script has successfully executed
                 targetDivId: id of div that will get the spinner
             }
-        #}
-        executeScript: function(script, executeControl){
+        
+        executeScript: function(pd_prefix, script, executeControl){
             executeControl = executeControl || {};
             var $targetDivId = executeControl.targetDivId;
             var command = script;
@@ -48,5 +51,38 @@ var pixiedust = (function(){
                 {%endif%}
             {% endcall %}            
         }
+        #}
     }
 })();
+
+//Dynamically add click handler on the pixiedust chrome menus
+$(document).on( "click", "[pixiedust]", function(event){
+    pd_controls = event.target.getAttribute("pd_controls");
+    if (pd_controls){
+        pd_controls = JSON.parse(pd_controls);
+        var options = {}
+        $.each( event.target.attributes, function(){
+            if (this.name.startsWith("option_")){
+                debugger;
+                options[this.name.replace("option_", "")] = this.value || null;
+            }
+        });
+        var pd_options = event.target.getAttribute("pd_options");
+        if (pd_options){
+            var parts = pd_options.split(";");
+            $.each( parts, function(){
+                var index = this.indexOf("=");
+                if ( index > 1){
+                    options[this.substring(0, index)] = this.substring(index+1);
+                }
+            });
+        }
+        debugger;
+        options.targetDivId = event.target.getAttribute("pd_target");
+        {#pixieapps never write their metadata on the cell #}
+        options.nostoreMedatadata = true;
+        pixiedust.executeDisplay(pd_controls, {
+            options: options
+        });
+    }
+} );

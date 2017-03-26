@@ -30,8 +30,12 @@ class TableDisplay(Display):
         if dataFrameMisc.isPySparkDataFrame(entity) or dataFrameMisc.isPandasDataFrame(entity):
             self._addHTMLTemplate('dataframeTable.html', entity=PandasDataFrameAdapter(entity))
             return
-            
-        self._addHTML("""
-            <b>Unable to display object</b>
-        """
-        )
+
+        if hasattr(entity, "entity"):
+            self.entity = entity.entity
+            self.doRender(handlerId)
+        else:    
+            self._addHTML("""
+                <b>Unable to display object</b>
+            """
+            )

@@ -1,16 +1,14 @@
-{% macro executeDisplayfunction(options="{}", useCellMetadata=False, divId=None) -%}
-{% set targetId=divId if divId and divId.startswith("$") else ("'"+divId+"'") if divId else "'wrapperHTML" + prefix + "'" %}
-function() {
+!function() {
     function getTargetNode(){
-        var n = $('#' + {{targetId}});
+        var n = $('#' + ($targetDivId || "wrapperHTML"));
         if (n.length == 0 ){
-            n = $('#wrapperHTML{{prefix}}');
+            n = $('#wrapperHTML' + pd_prefix);
         }
         return n;
     }
-    cellId = typeof cellId === "undefined" ? "" : cellId;
+    var cellId = options.cell_id || "";
     var curCell=IPython.notebook.get_cells().filter(function(cell){
-        return cell.cell_id=="{{this.options.get("cell_id","cellId")}}".replace("cellId",cellId);
+        return cell.cell_id==cellId;
     });
     curCell=curCell.length>0?curCell[0]:null;
     console.log("curCell",curCell);
@@ -29,14 +27,17 @@ function() {
         iopub:{
             output:function(msg){
                 console.log("msg", msg);
-                if ({{"false" if "cell_id" in this.options else "true"}}){
-                    curCell.output_area.handle_output.apply(curCell.output_area, arguments);
-                    curCell.output_area.outputs=[];
+                if (cellId == ""){
+                    if (curCell){
+                        curCell.output_area.handle_output.apply(curCell.output_area, arguments);
+                        curCell.output_area.outputs=[];
+                    }else{
+                        console.log("Could not find current cell");
+                    }
                     return;
                 }
                 var msg_type=msg.header.msg_type;
                 var content = msg.content;
-                var executionTime = $("#execution{{prefix}}");
                 if(msg_type==="stream"){
                     getTargetNode().html(content.text);
                 }else if (msg_type==="display_data" || msg_type==="execute_result"){
@@ -115,23 +116,15 @@ function() {
                         }
                     });
                 }
-
-                //Append profiling info
-                if (executionTime.length > 0 && $("#execution{{prefix}}").length == 0 ){
-                    getTargetNode().append(executionTime);
-                }else if (startWallToWall && $("#execution{{prefix}}").length > 0 ){
-                    $("#execution{{prefix}}").append($("<div/>").text("Wall to Wall time: " + ( (new Date().getTime() - startWallToWall)/1000 ) + "s"));
-                }
-
-                if (typeof onDisplayDone{{prefix}} != "undefined"){
-                    onDisplayDone{{prefix}}();
+                if (user_controls.onDisplayDone){
+                    user_controls.onDisplayDone();
                 }
             }
         }
     }
     
     if (IPython && IPython.notebook && IPython.notebook.session && IPython.notebook.session.kernel){
-        var command = "{{this._genDisplayScript(menuInfo)}}".replace("cellId",cellId);
+        var command = pd_controls.command.replace("cellId",cellId);
         function addOptions(options, override=true){
             function getStringRep(v) {
                 return "'" + v + "'";
@@ -157,11 +150,9 @@ function() {
             addOptions(cellMetadata.displayParams);
             addOptions({"showchrome":"true"});
         }else if (curCell && curCell._metadata.pixiedust ){
-            addOptions(curCell._metadata.pixiedust.displayParams || {}, ('{{useCellMetadata}}'=='True') );
+            addOptions(curCell._metadata.pixiedust.displayParams || {}, pd_controls.useCellMetadata);
         }
-        addOptions({{options|oneline|trim}});
-        {#Give a chance to the caller to add extra template fragment here#}
-        {{caller()}}
+        addOptions(user_controls.options||{});
         var pattern = "\\w*\\s*=\\s*'(\\\\'|[^'])*'";
         var rpattern=new RegExp(pattern,"g");
         var n = command.match(rpattern);
@@ -174,8 +165,7 @@ function() {
                 displayParams[key] = value.substring(1,value.length-1);
             }
         }
-        {%if not this.nostore_params%}
-        if(curCell&&curCell.output_area){
+        if(curCell&&curCell.output_area&&!user_controls.options.nostoreMedatadata){
             curCell._metadata.pixiedust = curCell._metadata.pixiedust || {}
             curCell._metadata.pixiedust.displayParams=displayParams
             curCell.output_area.outputs=[];
@@ -186,11 +176,13 @@ function() {
         }else{
             console.log("couldn't find the cell");
         }
-        {%endif%}
-        $('#wrapperJS{{prefix}}').html("")
-        getTargetNode().html('<div style="width:100px;height:60px;left:47%;position:relative"><i class="fa fa-circle-o-notch fa-spin" style="font-size:48px"></i></div>'+
-        '<div style="text-align:center">Loading your data. Please wait...</div>');
-        startWallToWall = new Date().getTime();
+        $('#wrapperJS' + pd_prefix).html("")
+        getTargetNode().html(
+            '<div style="width:100px;height:60px;left:47%;position:relative">'+
+                '<i class="fa fa-circle-o-notch fa-spin" style="font-size:48px"></i>'+
+            '</div>'+
+            '<div style="text-align:center">Loading your data. Please wait...</div>'
+        );
         {% if this.scalaKernel %}
         command=command.replace(/(\w*?)\s*=\s*('(\\'|[^'])*'?)/g, function(a, b, c){
             return '("' + b + '","' + c.substring(1, c.length-1) + '")';
@@ -199,16 +191,4 @@ function() {
         console.log("Running command2",command);
         IPython.notebook.session.kernel.execute(command, callbacks, {silent:true,store_history:false,stop_on_error:true});
     }
-}
-{% endmacro %}
-
-{% macro executeDisplay(options="{}",useCellMetadata=False, divId=None) -%}
-    {%if caller%}
-        {% set content=caller() %}
-    {%else%}
-        {% set content="" %}
-    {%endif%}
-    !{%call executeDisplayfunction(options, useCellMetadata, divId)%}
-        {{content}}
-    {%endcall%}()
-{%- endmacro %}
+}()
