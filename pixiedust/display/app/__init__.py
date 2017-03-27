@@ -19,6 +19,12 @@ from six import with_metaclass, iteritems
 from abc import ABCMeta
 import inspect
 
+def route(**kw):
+    def route_dec(fn):
+        fn.pixiedust_route=kw
+        return fn
+    return route_dec
+
 @Logger()
 class PixieDustApp(with_metaclass(ABCMeta, Display)):
 
@@ -38,32 +44,27 @@ class PixieDustApp(with_metaclass(ABCMeta, Display)):
                 if not t[0]:
                     defRoute = t[1]
                 elif self.matchRoute(t[0]):
-                    print("match found: {}".format(t[0]))
-                    getattr(self, t[1])(self)
+                    self.debug("match found: {}".format(t[0]))
+                    getattr(self, t[1])()
                     return
-        if defRoute:
-            getattr(self, defRoute)(self)
-            return
+            if defRoute:
+                getattr(self, defRoute)()
+                return
 
         print("Didn't find any routes for {}".format(self))
-        
-    def route(**kw):
-        def route_dec(fn):
-            clsName = fn.__qualname__.split('.<locals>', 1)[0].rsplit('.', 1)[0]
-            clsName = "{}_{}_Display".format(inspect.getmodule(fn).__name__, clsName)
-            if clsName not in PixieDustApp.routesByClass:
-                PixieDustApp.routesByClass[clsName] = []
-            PixieDustApp.routesByClass[clsName].append( (kw,fn.__name__) )
-            def wrapper(self, *args, **kwargs):
-                return fn(*args, **kwargs)
-            return wrapper
-        return route_dec
     
 class PixieEntity(object):
     def __init__(self, entity=None):
         self.entity = entity
 
 def PixieApp(cls):
+    for name, method in iteritems(cls.__dict__):
+        if hasattr(method, "pixiedust_route"):
+            clsName = "{}_{}_Display".format(inspect.getmodule(cls).__name__, cls.__name__)
+            if clsName not in PixieDustApp.routesByClass:
+                PixieDustApp.routesByClass[clsName] = []
+            PixieDustApp.routesByClass[clsName].append( (method.pixiedust_route,name) )
+
     def __init__(self, options, entity, dataHandler=None):
         PixieDustApp.__init__(self, options, entity, dataHandler)
         self.nostore_params = True
