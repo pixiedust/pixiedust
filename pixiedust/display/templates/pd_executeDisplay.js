@@ -16,6 +16,14 @@
     //Resend the display command
     var callbacks = {
         shell : {
+            reply : function(){
+                if ( !callbacks.response ){
+                    getTargetNode().html("")
+                    if (user_controls.onDisplayDone){
+                        user_controls.onDisplayDone();
+                    }
+                }
+            },
             payload : {
                 set_next_input : function(payload){
                     if (curCell){
@@ -26,6 +34,7 @@
         },
         iopub:{
             output:function(msg){
+                callbacks.response = true;
                 console.log("msg", msg);
                 if (cellId == ""){
                     if (curCell){
@@ -115,6 +124,8 @@
                             getTargetNode().html("<pre>" + data +"</pre>");
                         }
                     });
+                }else{
+                    callbacks.response = false;
                 }
                 if (user_controls.onDisplayDone){
                     user_controls.onDisplayDone();
@@ -124,54 +135,65 @@
     }
     
     if (IPython && IPython.notebook && IPython.notebook.session && IPython.notebook.session.kernel){
-        var command = pd_controls.command.replace("cellId",cellId);
-        function addOptions(options, override=true){
-            function getStringRep(v) {
-                return "'" + v + "'";
+        debugger;
+        var command = user_controls.options.script || pd_controls.command.replace("cellId",cellId);
+        if ( !user_controls.options.script){
+            function addOptions(options, override=true){
+                function getStringRep(v) {
+                    return "'" + v + "'";
+                }
+                for (var key in (options||{})){
+                    var value = options[key];
+                    var hasValue = value != null && typeof value !== 'undefined' && value !== '';
+                    var replaceValue = hasValue ? (key+"=" + getStringRep(value) ) : "";
+                    var pattern = (hasValue?"":",")+"\\s*" + key + "\\s*=\\s*'(\\\\'|[^'])*'";
+                    var rpattern=new RegExp(pattern);
+                    var n = command.search(rpattern);
+                    if ( n >= 0 ){
+                        if (override){
+                            command = command.replace(rpattern, replaceValue);
+                        }
+                    }else if (hasValue){
+                        var n = command.lastIndexOf(")");
+                        command = [command.slice(0, n), (command[n-1]=="("? "":",") + replaceValue, command.slice(n)].join('')
+                    }        
+                }
             }
-            for (var key in (options||{})){
-                var value = options[key];
-                var hasValue = value != null && typeof value !== 'undefined' && value !== '';
-                var replaceValue = hasValue ? (key+"=" + getStringRep(value) ) : "";
-                var pattern = (hasValue?"":",")+"\\s*" + key + "\\s*=\\s*'(\\\\'|[^'])*'";
-                var rpattern=new RegExp(pattern);
-                var n = command.search(rpattern);
-                if ( n >= 0 ){
-                    if (override){
-                        command = command.replace(rpattern, replaceValue);
-                    }
-                }else if (hasValue){
-                    var n = command.lastIndexOf(")");
-                    command = [command.slice(0, n), (command[n-1]=="("? "":",") + replaceValue, command.slice(n)].join('')
-                }        
+            if(typeof cellMetadata != "undefined" && cellMetadata.displayParams){
+                addOptions(cellMetadata.displayParams);
+                addOptions({"showchrome":"true"});
+            }else if (curCell && curCell._metadata.pixiedust ){
+                addOptions(curCell._metadata.pixiedust.displayParams || {}, pd_controls.useCellMetadata);
             }
-        }
-        if(typeof cellMetadata != "undefined" && cellMetadata.displayParams){
-            addOptions(cellMetadata.displayParams);
-            addOptions({"showchrome":"true"});
-        }else if (curCell && curCell._metadata.pixiedust ){
-            addOptions(curCell._metadata.pixiedust.displayParams || {}, pd_controls.useCellMetadata);
-        }
-        addOptions(user_controls.options||{});
-        var pattern = "\\w*\\s*=\\s*'(\\\\'|[^'])*'";
-        var rpattern=new RegExp(pattern,"g");
-        var n = command.match(rpattern);
-        var displayParams={}
-        for (var i = 0; i < n.length; i++){
-            var parts=n[i].split("=");
-            var key = parts[0].trim();
-            var value = parts[1].trim()
-            if (!key.startsWith("nostore_") && key != "showchrome" && key != "prefix" && key != "cell_id"){
-                displayParams[key] = value.substring(1,value.length-1);
+            addOptions(user_controls.options||{});
+            var pattern = "\\w*\\s*=\\s*'(\\\\'|[^'])*'";
+            var rpattern=new RegExp(pattern,"g");
+            var n = command.match(rpattern);
+            var displayParams={}
+            for (var i = 0; i < n.length; i++){
+                var parts=n[i].split("=");
+                var key = parts[0].trim();
+                var value = parts[1].trim()
+                if (!key.startsWith("nostore_") && key != "showchrome" && key != "prefix" && key != "cell_id"){
+                    displayParams[key] = value.substring(1,value.length-1);
+                }
             }
+
+            {% if this.scalaKernel %}
+            command=command.replace(/(\w*?)\s*=\s*('(\\'|[^'])*'?)/g, function(a, b, c){
+                return '("' + b + '","' + c.substring(1, c.length-1) + '")';
+            })
+            {% endif %}
         }
-        if(curCell&&curCell.output_area&&!user_controls.options.nostoreMedatadata){
-            curCell._metadata.pixiedust = curCell._metadata.pixiedust || {}
-            curCell._metadata.pixiedust.displayParams=displayParams
-            curCell.output_area.outputs=[];
-            var old_msg_id = curCell.last_msg_id;
-            if (old_msg_id) {
-                curCell.kernel.clear_callbacks_for_msg(old_msg_id);
+        if(curCell&&curCell.output_area){
+            if ( !user_controls.options.nostoreMedatadata ){
+                curCell._metadata.pixiedust = curCell._metadata.pixiedust || {}
+                curCell._metadata.pixiedust.displayParams=displayParams
+                curCell.output_area.outputs=[];
+                var old_msg_id = curCell.last_msg_id;
+                if (old_msg_id) {
+                    curCell.kernel.clear_callbacks_for_msg(old_msg_id);
+                }
             }
         }else{
             console.log("couldn't find the cell");
@@ -183,11 +205,6 @@
             '</div>'+
             '<div style="text-align:center">Loading your data. Please wait...</div>'
         );
-        {% if this.scalaKernel %}
-        command=command.replace(/(\w*?)\s*=\s*('(\\'|[^'])*'?)/g, function(a, b, c){
-            return '("' + b + '","' + c.substring(1, c.length-1) + '")';
-        })
-        {% endif %}
         console.log("Running command2",command);
         IPython.notebook.session.kernel.execute(command, callbacks, {silent:true,store_history:false,stop_on_error:true});
     }

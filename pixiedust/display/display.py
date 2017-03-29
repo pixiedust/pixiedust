@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------------
-# Copyright IBM Corp. 2016
+# Copyright IBM Corp. 2017
 # 
 # Licensed under the Apache License, Version 2.0 (the 'License');
 # you may not use this file except in compliance with the License.
@@ -234,7 +234,8 @@ class Display(with_metaclass(ABCMeta)):
         #Experimental, not ready for prime time yet
         if self.options.get("nostore_pixiedust", "false") != "true":
             self.options["nostore_pixiedust"] = "true"
-            js = self.renderTemplate( "addScriptCode.js", code = self.renderTemplate("pixiedust.js") )
+            ipythonDisplay(Javascript(self.renderTemplate( "addScriptCode.js", type="css", code = self.renderTemplate("pixiedust.css") )))
+            js = self.renderTemplate( "addScriptCode.js", type="javascript", code = self.renderTemplate("pixiedust.js") )
             self.debug("pixiedust code: {}".format(js))
             ipythonDisplay(Javascript(js))
 

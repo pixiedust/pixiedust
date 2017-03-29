@@ -57,7 +57,7 @@ var pixiedust = (function(){
 
 //Dynamically add click handler on the pixiedust chrome menus
 $(document).on( "click", "[pixiedust]", function(event){
-    pd_controls = event.target.getAttribute("pd_controls");
+    pd_controls = event.target.getAttribute("pixiedust");
     if (pd_controls){
         pd_controls = JSON.parse(pd_controls);
         var options = {}
@@ -77,8 +77,29 @@ $(document).on( "click", "[pixiedust]", function(event){
                 }
             });
         }
-        debugger;
         options.targetDivId = event.target.getAttribute("pd_target");
+
+        options.script = event.target.getAttribute("pd_script");
+        if (!options.script){
+            $(event.target).find("pd_script").each(function(){
+                options.script = $(this).text();
+                if (options.script){
+                    options.script = options.script.trim()
+                    {#set up the self variable#}
+                    var match = pd_controls.command.match(/display\((\w*),/)
+                    if (match){
+                        var entity = match[1]
+                        console.log("Inject self with entity", entity)
+                        options.script = "from pixiedust.utils.shellAccess import ShellAccess\n"+
+                            "self=ShellAccess['" + entity + "']\n" +
+                            options.script;
+                    }else{
+                        console.log("Unable to extract entity variable from command", pd_controls.command);
+                    }
+                }
+            })
+        }
+        console.log("script: ", options.script);
         {#pixieapps never write their metadata on the cell #}
         options.nostoreMedatadata = true;
         pixiedust.executeDisplay(pd_controls, {

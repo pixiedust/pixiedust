@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------------
-# Copyright IBM Corp. 2016
+# Copyright IBM Corp. 2017
 # 
 # Licensed under the Apache License, Version 2.0 (the 'License');
 # you may not use this file except in compliance with the License.
@@ -71,6 +71,8 @@ def display(entity, **kwargs):
             return entity
 
         callerText = traceback.extract_stack(limit=2)[0][3]
+        if callerText is None and 'pixiedust_display_callerText' in globals():
+            callerText = globals()['pixiedust_display_callerText']
 
         pr = None
         try:
