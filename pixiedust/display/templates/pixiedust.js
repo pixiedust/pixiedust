@@ -55,55 +55,86 @@ var pixiedust = (function(){
     }
 })();
 
-//Dynamically add click handler on the pixiedust chrome menus
-$(document).on( "click", "[pixiedust]", function(event){
-    pd_controls = event.target.getAttribute("pixiedust");
-    if (pd_controls){
-        pd_controls = JSON.parse(pd_controls);
-        var options = {}
-        $.each( event.target.attributes, function(){
-            if (this.name.startsWith("option_")){
-                debugger;
-                options[this.name.replace("option_", "")] = this.value || null;
+function readExecInfo(pd_controls, element){
+    var options = {}
+    var hasOptions = false;
+    $.each( element.attributes, function(){
+        if (this.name.startsWith("option_")){
+            hasOptions = true;
+            options[this.name.replace("option_", "")] = this.value || null;
+        }
+    });
+    var pd_options = element.getAttribute("pd_options");
+    if (pd_options){
+        var parts = pd_options.split(";");
+        $.each( parts, function(){
+            var index = this.indexOf("=");
+            if ( index > 1){
+                hasOptions = true;
+                options[this.substring(0, index)] = this.substring(index+1);
             }
         });
-        var pd_options = event.target.getAttribute("pd_options");
-        if (pd_options){
-            var parts = pd_options.split(";");
-            $.each( parts, function(){
-                var index = this.indexOf("=");
-                if ( index > 1){
-                    options[this.substring(0, index)] = this.substring(index+1);
-                }
-            });
-        }
-        options.targetDivId = event.target.getAttribute("pd_target");
+    }
+    options.targetDivId = element.getAttribute("pd_target");
 
-        options.script = event.target.getAttribute("pd_script");
-        if (!options.script){
-            $(event.target).find("pd_script").each(function(){
-                options.script = $(this).text();
-                if (options.script){
-                    options.script = options.script.trim()
-                    {#set up the self variable#}
-                    var match = pd_controls.command.match(/display\((\w*),/)
-                    if (match){
-                        var entity = match[1]
-                        console.log("Inject self with entity", entity)
-                        options.script = "from pixiedust.utils.shellAccess import ShellAccess\n"+
-                            "self=ShellAccess['" + entity + "']\n" +
-                            options.script;
-                    }else{
-                        console.log("Unable to extract entity variable from command", pd_controls.command);
-                    }
+    options.script = element.getAttribute("pd_script");
+    if (!options.script){
+        $(element).find("pd_script").each(function(){
+            options.script = $(this).text();
+            if (options.script){
+                options.script = options.script.trim()
+                {#set up the self variable#}
+                var match = pd_controls.command.match(/display\((\w*),/)
+                if (match){
+                    var entity = match[1]
+                    console.log("Inject self with entity", entity)
+                    options.script = "from pixiedust.utils.shellAccess import ShellAccess\n"+
+                        "self=ShellAccess['" + entity + "']\n" +
+                        options.script;
+                }else{
+                    console.log("Unable to extract entity variable from command", pd_controls.command);
                 }
-            })
-        }
-        console.log("script: ", options.script);
-        {#pixieapps never write their metadata on the cell #}
-        options.nostoreMedatadata = true;
-        pixiedust.executeDisplay(pd_controls, {
-            options: options
+            }
+        })
+    }
+    if (!hasOptions && !options.$targetDivId && !options.script){
+        return null;
+    }
+    {#pixieapps never write their metadata on the cell #}
+    options.nostoreMedatadata = true;
+
+    debugger;
+    console.log("execution info: ", options);
+    return options;
+}
+
+//Dynamically add click handler on the pixiedust chrome menus
+$(document).on( "click", "[pixiedust]", function(event){
+    event.stopImmediatePropagation();
+    pd_controls = event.target.getAttribute("pixiedust");
+    if (!pd_controls){
+        $(event.target).parents("[pixiedust]").each(function(){
+            pd_controls = pd_controls || this.getAttribute("pixiedust");
+        });
+    }
+    if (pd_controls){
+        pd_controls = JSON.parse(pd_controls);
+        var execQueue = []
+        {#read the current element#}
+        execQueue.push( readExecInfo(pd_controls, event.target) );
+
+        {#get other execution targets if any#}
+        $(event.target).find("[pd_target]").each(function(){
+            execQueue.push( readExecInfo(pd_controls, this))
+        });
+
+        {#execute#}
+        $.each( execQueue, function(index, value){
+            if (value){
+                pixiedust.executeDisplay(pd_controls, {
+                    options: value
+                });
+            }
         });
     }
 } );
