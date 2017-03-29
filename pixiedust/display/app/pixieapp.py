@@ -35,8 +35,14 @@ class PixieDustApp(Display):
     
     def matchRoute(self, route):
         for key,value in iteritems(route):
-            option = self.options.get(key,"false")
-            if  option != value:
+            #first check if the key is an field of the class
+            option = getattr(self.entity, key) if self.entity is not None and hasattr(self.entity, key) else None
+            if not option:
+                option = self.options.get(key,None)
+            self.debug("class {}".format(self.entity))
+            self.debug("option {}".format(option))
+            self.debug("value {}".format(value))
+            if  (option is None and value=="*") or (value != "*" and option != value):
                 return False
         return True
         

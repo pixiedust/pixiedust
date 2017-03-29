@@ -55,6 +55,19 @@ var pixiedust = (function(){
     }
 })();
 
+function resolveScriptMacros(script){
+    debugger;
+    script = script.replace(/\$val\(\"?(\w*)\"?\)/g, function(a,b){
+        var v = $("#" + b ).val();
+        if (!v){
+            console.log("Warning: Unable to resolve value for element ", b);
+            return a;
+        }
+        return "\"" + v + "\"";
+    });
+    return script;
+}
+
 function readExecInfo(pd_controls, element){
     var options = {}
     var hasOptions = false;
@@ -90,7 +103,11 @@ function readExecInfo(pd_controls, element){
                     console.log("Inject self with entity", entity)
                     options.script = "from pixiedust.utils.shellAccess import ShellAccess\n"+
                         "self=ShellAccess['" + entity + "']\n" +
-                        options.script;
+                        resolveScriptMacros(options.script);
+                    if (!options.targetDivId){
+                        {#include a refresh of the whole screen#}
+                        options.script += "\n" + pd_controls.command
+                    }
                 }else{
                     console.log("Unable to extract entity variable from command", pd_controls.command);
                 }
