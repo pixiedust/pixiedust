@@ -22,17 +22,17 @@ PixieDust to the rescue.
 
 PixieDust is an open source helper library that works as an add-on to Jupyter notebooks to improve the user experience of working with data. It also fills a gap for users who have no access to configuration files when a notebook is hosted on the cloud. 
 
-###Use in Python or Scala
+### Use in Python or Scala
 
-PixieDust greatly simplifies working with Python display libraries like matplotlib, but works just as effectively in Scala notebooks too. You no longer have compromise your love of Scala to generate great charts. PixieDust lets you bring robust python visualization options to your Scala notebooks. Installer and instructions to use Scala with PixieDust are coming soon... 
+PixieDust greatly simplifies working with Python display libraries like matplotlib, but works just as effectively in Scala notebooks too. You no longer have compromise your love of Scala to generate great charts. PixieDust lets you bring robust Python visualization options to your Scala notebooks. Installer and instructions to use Scala with PixieDust are coming soon... 
 
 ### Features
 
 PixieDust's current capabilities include:
 
-- **[packageManager](https://ibm-cds-labs.github.io/pixiedust/packagemanager.html)** lets you install spark packages inside a python notebook. This is something that you can't do today on hosted Jupyter notebooks, which prevents developers from using a large number of spark package add-ons.
+- **[packageManager](https://ibm-cds-labs.github.io/pixiedust/packagemanager.html)** lets you install Spark packages inside a Python notebook. This is something that you can't do today on hosted Jupyter notebooks, which prevents developers from using a large number of spark package add-ons.
 
-- **Visualizations.** One single API called `display()` lets you visualize your spark object in different ways: table, charts, maps, etc.... This module is designed to be extensible, providing an API that lets anyone easily [contribute a new visualization plugin](https://ibm-cds-labs.github.io/pixiedust/writeviz.html). 
+- **Visualizations.** One single API called `display()` lets you visualize your Spark object in different ways: table, charts, maps, etc.... This module is designed to be extensible, providing an API that lets anyone easily [contribute a new visualization plugin](https://ibm-cds-labs.github.io/pixiedust/writeviz.html). 
    
    This sample visualization plugin uses d3 to show the different flight routes for each airport:
 
@@ -42,12 +42,12 @@ PixieDust's current capabilities include:
    - An app can feature embedded forms and responses, [flightpredict](https://github.com/ibm-cds-labs/simple-data-pipe-connector-flightstats/tree/master/pixiedust_flightpredict), which lets users enter flight details to see the likelihood of landing on-time.
    - Or present a sophisticated workflow, like our [twitter demo](https://github.com/ibm-cds-labs/pixiedust_incubator/tree/master/twitterdemo), which delivers a real-time feed of tweets, trending hashtags, and aggregated sentiment charts with Watson Tone Analyzer. 
 
-- **Extensibility.** Create your own visualizations or apps using the pixiedust extensibility APIs. If you know html and css, you can write and deliver amazing graphics without forcing notebook users to type one line of code. Use the shape of the data to control when Pixiedust shows your visualization in a menu.
+- **Extensibility.** Create your own visualizations or apps using the PixieDust extensibility APIs. If you know html and css, you can write and deliver amazing graphics without forcing notebook users to type one line of code. Use the shape of the data to control when PixieDust shows your visualization in a menu.
 
-- **Export.** Notebook users can download data to .csv, html, json, etc. locally on your laptop or into a variety of back-end data sources, like Cloudant, dashDB, GraphDB, etc...
+- **Export.** Notebook users can download data to .csv, HTML, JSON, etc. locally on your laptop or into a variety of back-end data sources, like Cloudant, dashDB, GraphDB, etc...
 
    ![save as options](http://developer.ibm.com/clouddataservices/wp-content/uploads/sites/47/2016/07/pd_download.png)
-- **Scala Bridge.** Use scala directly in your Python notebook. Variables are automatically transfered from Python to Scala and vice-versa.   [Learn more](https://ibm-cds-labs.github.io/pixiedust/scalabridge.html).
+- **Scala Bridge.** Use Scala directly in your Python notebook. Variables are automatically transfered from Python to Scala and vice-versa.   [Learn more](https://ibm-cds-labs.github.io/pixiedust/scalabridge.html).
 
   > **Or start in a Scala notebook.** As mentioned, all these PixieDust features work not only in Python, but in Scala too. So if you prefer Scala, you'll soon be able to start there and use PixieDust to insert sophisticated Python graphic options within your Scala notebook. Instructions coming soon.
 
@@ -73,7 +73,7 @@ To use PixieDust online
 
 ### Use locally
 
-* Pixidust supports
+* Pixiedust supports
  - **Spark 1.6** or **2.0** 
  - **Python 2.7** or **3.5** 
 
@@ -85,8 +85,8 @@ To use PixieDust online
 ### Sample notebooks
 Wherever you prefer to work, try out the following sample notebooks:
  - [Welcome to PixieDust](https://github.com/ibm-cds-labs/pixiedust/blob/master/notebook/DSX/Welcome%20to%20PixieDust.ipynb) The ultimate notebook to get started with PixieDust.
- - [Intro to PixieDust](https://github.com/ibm-cds-labs/pixiedust/blob/master/notebook/Intro%20to%20PixieDust.ipynb).  Uses PackageManager to install GraphFrames, generates a dataframe from a simple data set, and lets you try the display() api. See also: [Intro to PixieDust for Spark 2.0](https://github.com/ibm-cds-labs/pixiedust/blob/master/notebook/Intro%20to%20PixieDust%20Spark%202.0.ipynb)
- - [Mapping Intro](https://github.com/ibm-cds-labs/pixiedust/blob/master/notebook/mapping_intro.ipynb) lets you load sample data sets, explore display() api features, including maps.
+ - [Intro to PixieDust](https://github.com/ibm-cds-labs/pixiedust/blob/master/notebook/Intro%20to%20PixieDust.ipynb).  Uses PackageManager to install GraphFrames, generates a dataframe from a simple data set, and lets you try the display() API. See also: [Intro to PixieDust for Spark 2.0](https://github.com/ibm-cds-labs/pixiedust/blob/master/notebook/Intro%20to%20PixieDust%20Spark%202.0.ipynb)
+ - [Mapping Intro](https://github.com/ibm-cds-labs/pixiedust/blob/master/notebook/mapping_intro.ipynb) lets you load sample data sets, explore display() API features, including maps.
 
 ### Tutorials
 
