@@ -94,27 +94,38 @@ function readExecInfo(pd_controls, element){
     if (!options.script){
         $(element).find("pd_script").each(function(){
             options.script = $(this).text();
-            if (options.script){
-                options.script = options.script.trim()
-                {#set up the self variable#}
-                var match = pd_controls.command.match(/display\((\w*),/)
-                if (match){
-                    var entity = match[1]
-                    console.log("Inject self with entity", entity)
-                    options.script = "from pixiedust.utils.shellAccess import ShellAccess\n"+
-                        "self=ShellAccess['" + entity + "']\n" +
-                        resolveScriptMacros(options.script);
-                    if (!options.targetDivId){
-                        {#include a refresh of the whole screen#}
-                        options.script += "\n" + pd_controls.command
-                    }
-                }else{
-                    console.log("Unable to extract entity variable from command", pd_controls.command);
-                }
-            }
         })
     }
-    if (!hasOptions && !options.$targetDivId && !options.script){
+
+    options.refresh = element.hasAttribute("pd_refresh");
+    options.entity = element.getAttribute("pd_entity");
+
+    if (options.script){
+        options.script = options.script.trim()
+        {#set up the self variable#}
+        var match = pd_controls.command.match(/display\((\w*),/)
+        if (match){
+            var entity = match[1]
+            console.log("Inject self with entity", entity)
+            options.script = "from pixiedust.utils.shellAccess import ShellAccess\n"+
+                "self=ShellAccess['" + entity + "']\n" +
+                resolveScriptMacros(options.script);
+            if (!options.targetDivId || options.refresh || options.entity){
+                {#include a refresh of the whole screen#}
+                function applyEntity(c, e){
+                    if (!e){
+                        return c;
+                    }
+                    return c.replace(/\((\w*),/, "($1." + e + ",")
+                }
+                options.script += "\n" + applyEntity(pd_controls.command, options.entity)
+            }
+        }else{
+            console.log("Unable to extract entity variable from command", pd_controls.command);
+        }
+    }
+
+    if (!hasOptions && !options.targetDivId && !options.script){
         return null;
     }
     {#pixieapps never write their metadata on the cell #}
@@ -127,6 +138,7 @@ function readExecInfo(pd_controls, element){
 
 //Dynamically add click handler on the pixiedust chrome menus
 $(document).on( "click", "[pixiedust]", function(event){
+    debugger;
     event.stopImmediatePropagation();
     pd_controls = event.target.getAttribute("pixiedust");
     if (!pd_controls){

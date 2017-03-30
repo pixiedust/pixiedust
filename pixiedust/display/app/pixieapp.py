@@ -81,7 +81,7 @@ def PixieApp(cls):
         self.entity = entity
         var = None
         for key in ShellAccess:
-            if ShellAccess[key]==self:
+            if ShellAccess[key] is self:
                 var = key
 
         if not var:
@@ -103,7 +103,7 @@ def PixieApp(cls):
     
     @addId
     def getMenuInfo(self, entity, dataHandler=None):
-        if entity == cls or entity.__class__ == cls:
+        if entity is cls or entity.__class__ is cls:
             return [{"id": decoName(cls, "id")}]
         return []
     
