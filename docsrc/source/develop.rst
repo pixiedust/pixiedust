@@ -12,7 +12,6 @@ Read how to install and get started:
    :maxdepth: 2
 
 
-   install
    contribute
    writeviz
    renderer

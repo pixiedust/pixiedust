@@ -43,7 +43,7 @@ Update the ``SPARK_HOME`` and ``SCALA_HOME`` entries accordingly. If you want, u
 6. Select the newly created or updated **pixiedust test** configuration from dropdown in the Debug view
 7. Click on the Debug green arrow, to run the configuration
 
-The Integrated Terminal should show the test output as the tests are running.
+The Integrated Terminal should show the test output as the tests are running. 
 
 Using Command Line
 ******************

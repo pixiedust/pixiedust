@@ -6,7 +6,7 @@ PixieDust is under active development and welcomes contributions and participati
 Create an Issue
 -----------------
 
-Create an issue if you find:
+Create an issue if you find: 
 
 - any problems that you are unable to fix 
 - documentation that's hard to follow
