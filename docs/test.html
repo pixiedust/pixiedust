@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Test &mdash; PixieDust Documentation</title>
+    <title>Test &#8212; PixieDust Documentation</title>
     
     <link rel="stylesheet" href="_static/better.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -18,15 +18,16 @@
         VERSION:     '1.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="shortcut icon" href="_static/pd_icon.ico"/>
-    <link rel="top" title="PixieDust Documentation" href="index.html" />
-    <link rel="up" title="Develop for PixieDust" href="develop.html" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
     <link rel="prev" title="Build a Renderer" href="renderer.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   </head>
@@ -55,13 +56,13 @@
 <li>From the Debug View, click on the Configure gear and select Python</li>
 <li>Edit the <code class="docutils literal"><span class="pre">launch.json</span></code> and add a new object (or edit an existing one) in <em>configurations</em></li>
 </ol>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="p">{</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span>
   <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;pixiedust test&quot;</span><span class="p">,</span>
   <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;python&quot;</span><span class="p">,</span>
   <span class="s2">&quot;request&quot;</span><span class="p">:</span> <span class="s2">&quot;launch&quot;</span><span class="p">,</span>
   <span class="s2">&quot;stopOnEntry&quot;</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span>
-  <span class="s2">&quot;pythonPath&quot;</span><span class="p">:</span> <span class="s2">&quot;${config.python.pythonPath}&quot;</span><span class="p">,</span>
-  <span class="s2">&quot;program&quot;</span><span class="p">:</span> <span class="s2">&quot;${workspaceRoot}/tests/runPixiedustNotebooks.py&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;pythonPath&quot;</span><span class="p">:</span> <span class="s2">&quot;$</span><span class="si">{config.python.pythonPath}</span><span class="s2">&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;program&quot;</span><span class="p">:</span> <span class="s2">&quot;$</span><span class="si">{workspaceRoot}</span><span class="s2">/tests/runPixiedustNotebooks.py&quot;</span><span class="p">,</span>
   <span class="s2">&quot;console&quot;</span><span class="p">:</span> <span class="s2">&quot;integratedTerminal&quot;</span><span class="p">,</span>
   <span class="s2">&quot;debugOptions&quot;</span><span class="p">:</span> <span class="p">[</span>
     <span class="s2">&quot;WaitOnAbnormalExit&quot;</span><span class="p">,</span>
@@ -70,7 +71,7 @@
   <span class="s2">&quot;env&quot;</span><span class="p">:</span> <span class="p">{</span>
     <span class="s2">&quot;SPARK_HOME&quot;</span><span class="p">:</span> <span class="s2">&quot;/Users/path/to/spark&quot;</span><span class="p">,</span>
     <span class="s2">&quot;SCALA_HOME&quot;</span><span class="p">:</span> <span class="s2">&quot;/Users/path/to/scala&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;PIXIEDUST_TEST_INPUT&quot;</span><span class="p">:</span> <span class="s2">&quot;${workspaceRoot}/tests&quot;</span>
+    <span class="s2">&quot;PIXIEDUST_TEST_INPUT&quot;</span><span class="p">:</span> <span class="s2">&quot;$</span><span class="si">{workspaceRoot}</span><span class="s2">/tests&quot;</span>
   <span class="p">}</span>
 <span class="p">}</span>
 </pre></div>
@@ -89,9 +90,9 @@
 <li>Go into the <code class="docutils literal"><span class="pre">tests</span></code> directory in the pixiedust repository/directory</li>
 <li>Set the following environment variables accordingly</li>
 </ol>
-<div class="highlight-python"><div class="highlight"><pre><span></span>SPARK_HOME=/Users/path/to/spark
-SCALA_HOME=/Users/path/to/scala
-PIXIEDUST_TEST_INPUT=/Users/path/to/test/notebooks
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">SPARK_HOME</span><span class="o">=/</span><span class="n">Users</span><span class="o">/</span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">spark</span>
+<span class="n">SCALA_HOME</span><span class="o">=/</span><span class="n">Users</span><span class="o">/</span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">scala</span>
+<span class="n">PIXIEDUST_TEST_INPUT</span><span class="o">=/</span><span class="n">Users</span><span class="o">/</span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">test</span><span class="o">/</span><span class="n">notebooks</span>
 </pre></div>
 </div>
 <ol class="arabic simple" start="3">
@@ -116,7 +117,7 @@ PIXIEDUST_TEST_INPUT=/Users/path/to/test/notebooks
 <li class="toctree-l2"><a class="reference internal" href="contribute.html">Contribute</a></li>
 <li class="toctree-l2"><a class="reference internal" href="writeviz.html">Write a new PixieDust Visualization</a></li>
 <li class="toctree-l2"><a class="reference internal" href="renderer.html">Build a Renderer</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="">Test</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Test</a></li>
 </ul>
 </li>
 </ul>
@@ -124,14 +125,11 @@ PIXIEDUST_TEST_INPUT=/Users/path/to/test/notebooks
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -140,7 +138,7 @@ PIXIEDUST_TEST_INPUT=/Users/path/to/test/notebooks
     </div>
   <footer id="pagefooter">&copy; 2017, IBM.
       Created using <a href="http://sphinx-doc.org/">Sphinx</a>
-      1.3.5.
+      1.5.1.
 
   </footer>
 

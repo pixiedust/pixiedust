@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Spark Progress Monitor &mdash; PixieDust Documentation</title>
+    <title>Spark Progress Monitor &#8212; PixieDust Documentation</title>
     
     <link rel="stylesheet" href="_static/better.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -18,15 +18,16 @@
         VERSION:     '1.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="shortcut icon" href="_static/pd_icon.ico"/>
-    <link rel="top" title="PixieDust Documentation" href="index.html" />
-    <link rel="up" title="Use PixieDust" href="use.html" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Download Data" href="download.html" />
     <link rel="prev" title="Use Scala in a Python Notebook" href="scalabridge.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
@@ -46,7 +47,7 @@
 <p>When you run a Spark job within a Python or Scala notebook, you can&#8217;t see how the job is progressing. Wouldn&#8217;t it be nice to have a progress bar that shows you how your job is running and provides details? PixieDust includes a Spark Progress Monitor bar that lets you track the status of your Spark job. No more waiting in the dark. Notebook users can now see how a cell&#8217;s code is running behind the scenes.</p>
 <p>To invoke the Spark progress monitor, run the following command in your Python notebook:</p>
 <blockquote>
-<div><div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">pixiedust</span><span class="o">.</span><span class="n">enableJobMonitor</span><span class="p">()</span>
+<div><div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">pixiedust</span><span class="o">.</span><span class="n">enableJobMonitor</span><span class="p">()</span>
 </pre></div>
 </div>
 </div></blockquote>
@@ -72,7 +73,7 @@
 <li class="toctree-l2"><a class="reference internal" href="displayapi.html">Display Data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="packagemanager.html">Package Manager</a></li>
 <li class="toctree-l2"><a class="reference internal" href="scalabridge.html">Use Scala in a Python Notebook</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="">Spark Progress Monitor</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Spark Progress Monitor</a></li>
 <li class="toctree-l2"><a class="reference internal" href="download.html">Download Data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="logging.html">Logging</a></li>
 </ul>
@@ -83,14 +84,11 @@
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -99,7 +97,7 @@
     </div>
   <footer id="pagefooter">&copy; 2017, IBM.
       Created using <a href="http://sphinx-doc.org/">Sphinx</a>
-      1.3.5.
+      1.5.1.
 
   </footer>
 
