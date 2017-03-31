@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Download Data &mdash; PixieDust Documentation</title>
+    <title>Download Data &#8212; PixieDust Documentation</title>
     
     <link rel="stylesheet" href="_static/better.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -18,15 +18,16 @@
         VERSION:     '1.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="shortcut icon" href="_static/pd_icon.ico"/>
-    <link rel="top" title="PixieDust Documentation" href="index.html" />
-    <link rel="up" title="Use PixieDust" href="use.html" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Logging" href="logging.html" />
     <link rel="prev" title="Spark Progress Monitor" href="sparkmonitor.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
@@ -88,21 +89,21 @@ Choose the format you want, and specify the number of records to download.</p>
 <p>Install cloudant-spark library</p>
 <p>You can export the data to a Cloudant database. A supporting library cloudant-spark jar is required for the export.
 This is a manual one-time step that requires a kernel restart. Download cloudant-spark jar file for respective Spark version from</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span>Spark 1.6: https://github.com/cloudant-labs/spark-cloudant/releases/download/v1.6.4/cloudant-spark-v1.6.4-167.jar
-Spark 2.0: https://github.com/cloudant-labs/spark-cloudant/releases/download/v2.0.0/cloudant-spark-v2.0.0-185.jar
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">Spark</span> <span class="mf">1.6</span><span class="p">:</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">cloudant</span><span class="o">-</span><span class="n">labs</span><span class="o">/</span><span class="n">spark</span><span class="o">-</span><span class="n">cloudant</span><span class="o">/</span><span class="n">releases</span><span class="o">/</span><span class="n">download</span><span class="o">/</span><span class="n">v1</span><span class="o">.</span><span class="mf">6.4</span><span class="o">/</span><span class="n">cloudant</span><span class="o">-</span><span class="n">spark</span><span class="o">-</span><span class="n">v1</span><span class="o">.</span><span class="mf">6.4</span><span class="o">-</span><span class="mf">167.</span><span class="n">jar</span>
+<span class="n">Spark</span> <span class="mf">2.0</span><span class="p">:</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">cloudant</span><span class="o">-</span><span class="n">labs</span><span class="o">/</span><span class="n">spark</span><span class="o">-</span><span class="n">cloudant</span><span class="o">/</span><span class="n">releases</span><span class="o">/</span><span class="n">download</span><span class="o">/</span><span class="n">v2</span><span class="o">.</span><span class="mf">0.0</span><span class="o">/</span><span class="n">cloudant</span><span class="o">-</span><span class="n">spark</span><span class="o">-</span><span class="n">v2</span><span class="o">.</span><span class="mf">0.0</span><span class="o">-</span><span class="mf">185.</span><span class="n">jar</span>
 </pre></div>
 </div>
 <p>Create a directory of your choice for example jars under the home directory.</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span>mkdir jars
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">mkdir</span> <span class="n">jars</span>
 </pre></div>
 </div>
 <p>Copy the cloudant-spark jar file into the newly created directory.</p>
 <p>Locate kernel.json file under the directory listing by running command.</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span>jupyter pixiedust list
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">jupyter</span> <span class="n">pixiedust</span> <span class="nb">list</span>
 </pre></div>
 </div>
 <p>Edit kernel.json file and update the variable PYSPARK_SUBMIT_ARGS under env by adding &#8211;jars &lt;local_home_directory&gt;/jars/cloudant-spark.jar.</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span>&quot;PYSPARK_SUBMIT_ARGS&quot;: &quot;--jars /Users/USERNAME/jars/cloudant-spark-v1.6.4-167.jar ....
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="s2">&quot;PYSPARK_SUBMIT_ARGS&quot;</span><span class="p">:</span> <span class="s2">&quot;--jars /Users/USERNAME/jars/cloudant-spark-v1.6.4-167.jar ....</span>
 </pre></div>
 </div>
 </div>
@@ -123,7 +124,7 @@ Spark 2.0: https://github.com/cloudant-labs/spark-cloudant/releases/download/v2.
 <li class="toctree-l2"><a class="reference internal" href="packagemanager.html">Package Manager</a></li>
 <li class="toctree-l2"><a class="reference internal" href="scalabridge.html">Use Scala in a Python Notebook</a></li>
 <li class="toctree-l2"><a class="reference internal" href="sparkmonitor.html">Spark Progress Monitor</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="">Download Data</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Download Data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="logging.html">Logging</a></li>
 </ul>
 </li>
@@ -133,14 +134,11 @@ Spark 2.0: https://github.com/cloudant-labs/spark-cloudant/releases/download/v2.
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -149,7 +147,7 @@ Spark 2.0: https://github.com/cloudant-labs/spark-cloudant/releases/download/v2.
     </div>
   <footer id="pagefooter">&copy; 2017, IBM.
       Created using <a href="http://sphinx-doc.org/">Sphinx</a>
-      1.3.5.
+      1.5.1.
 
   </footer>
 

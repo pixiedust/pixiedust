@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Write a new PixieDust Visualization &mdash; PixieDust Documentation</title>
+    <title>Write a new PixieDust Visualization &#8212; PixieDust Documentation</title>
     
     <link rel="stylesheet" href="_static/better.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -18,15 +18,16 @@
         VERSION:     '1.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="shortcut icon" href="_static/pd_icon.ico"/>
-    <link rel="top" title="PixieDust Documentation" href="index.html" />
-    <link rel="up" title="Develop for PixieDust" href="develop.html" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Build a Renderer" href="renderer.html" />
     <link rel="prev" title="Contribute" href="contribute.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
@@ -92,7 +93,7 @@
 <h4>class TableDisplayMeta<a class="headerlink" href="#class-tabledisplaymeta" title="Permalink to this headline">¶</a></h4>
 <p>The first thing you&#8217;ll want to do is get your tool presented in the menu. Since you&#8217;re building a tool to display a DataFrame as an HTML table, look at <code class="docutils literal"><span class="pre">display/table/__init__.py</span></code>:</p>
 <blockquote>
-<div><div class="highlight-python"><div class="highlight"><pre><span></span><span class="nd">@PixiedustDisplay</span><span class="p">(</span><span class="n">isDefault</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<div><div class="highlight-default"><div class="highlight"><pre><span></span><span class="nd">@PixiedustDisplay</span><span class="p">(</span><span class="n">isDefault</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">TableDisplayMeta</span><span class="p">(</span><span class="n">DisplayHandlerMeta</span><span class="p">):</span>
   <span class="nd">@addId</span>
   <span class="k">def</span> <span class="nf">getMenuInfo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">entity</span><span class="p">,</span> <span class="n">dataHandler</span><span class="p">):</span>
@@ -136,7 +137,7 @@
 <blockquote>
 <div><p>The <code class="docutils literal"><span class="pre">TableDisplay</span></code> class is defined in <code class="docutils literal"><span class="pre">display/table/display.py</span></code>. You can <a class="reference external" href="https://gist.github.com/rajrsingh/67e45a1c0ecc64207a189501d9559ea5">see the code on GitHub</a>.</p>
 <blockquote>
-<div><div class="highlight-python"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">TableDisplay</span><span class="p">(</span><span class="n">Display</span><span class="p">):</span>
+<div><div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">TableDisplay</span><span class="p">(</span><span class="n">Display</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">doRender</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">handlerId</span><span class="p">):</span>
         <span class="n">entity</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">entity</span>
         <span class="k">if</span> <span class="n">dataFrameMisc</span><span class="o">.</span><span class="n">fqName</span><span class="p">(</span><span class="n">entity</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;graphframes.graphframe.GraphFrame&quot;</span><span class="p">:</span>
@@ -182,22 +183,22 @@
 <p><code class="docutils literal"><span class="pre">from</span> <span class="pre">.SimpleDisplayMeta</span> <span class="pre">import</span> <span class="pre">SimpleDisplayMeta</span></code></p>
 <p>Then create the file SimpleDisplayMeta.py and enter this code:</p>
 <blockquote>
-<div><div class="highlight-python"><div class="highlight"><pre><span></span>from .SimpleDisplay import SimpleDisplay
-from ..display import *
-import pixiedust.utils.dataFrameMisc as dataFrameMisc
+<div><div class="highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">.SimpleDisplay</span> <span class="k">import</span> <span class="n">SimpleDisplay</span>
+<span class="kn">from</span> <span class="nn">..display</span> <span class="k">import</span> <span class="o">*</span>
+<span class="kn">import</span> <span class="nn">pixiedust.utils.dataFrameMisc</span> <span class="k">as</span> <span class="nn">dataFrameMisc</span>
 
-@PixiedustDisplay()
-class SimpleDisplayMeta(DisplayHandlerMeta):
-   @addId
-   def getMenuInfo(self,entity,dataHandler):
-        if dataFrameMisc.isPySparkDataFrame(entity) or dataFrameMisc.isPandasDataFrame(entity):
-           return [
-               {&quot;categoryId&quot;: &quot;Table&quot;, &quot;title&quot;: &quot;Simple Table&quot;, &quot;icon&quot;: &quot;fa-table&quot;, &quot;id&quot;: &quot;simpleTest&quot;}
-           ]
-        else:
-      return []
-   def newDisplayHandler(self,options,entity):
-       return SimpleDisplay(options,entity)
+<span class="nd">@PixiedustDisplay</span><span class="p">()</span>
+<span class="k">class</span> <span class="nc">SimpleDisplayMeta</span><span class="p">(</span><span class="n">DisplayHandlerMeta</span><span class="p">):</span>
+   <span class="nd">@addId</span>
+   <span class="k">def</span> <span class="nf">getMenuInfo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">entity</span><span class="p">,</span><span class="n">dataHandler</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">dataFrameMisc</span><span class="o">.</span><span class="n">isPySparkDataFrame</span><span class="p">(</span><span class="n">entity</span><span class="p">)</span> <span class="ow">or</span> <span class="n">dataFrameMisc</span><span class="o">.</span><span class="n">isPandasDataFrame</span><span class="p">(</span><span class="n">entity</span><span class="p">):</span>
+           <span class="k">return</span> <span class="p">[</span>
+               <span class="p">{</span><span class="s2">&quot;categoryId&quot;</span><span class="p">:</span> <span class="s2">&quot;Table&quot;</span><span class="p">,</span> <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;Simple Table&quot;</span><span class="p">,</span> <span class="s2">&quot;icon&quot;</span><span class="p">:</span> <span class="s2">&quot;fa-table&quot;</span><span class="p">,</span> <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;simpleTest&quot;</span><span class="p">}</span>
+           <span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+      <span class="k">return</span> <span class="p">[]</span>
+   <span class="k">def</span> <span class="nf">newDisplayHandler</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">options</span><span class="p">,</span><span class="n">entity</span><span class="p">):</span>
+       <span class="k">return</span> <span class="n">SimpleDisplay</span><span class="p">(</span><span class="n">options</span><span class="p">,</span><span class="n">entity</span><span class="p">)</span>
 </pre></div>
 </div>
 </div></blockquote>
@@ -208,10 +209,10 @@ class SimpleDisplayMeta(DisplayHandlerMeta):
 <h3>DataFrame =&gt; HTML<a class="headerlink" href="#dataframe-html" title="Permalink to this headline">¶</a></h3>
 <p>Create the file SimpleDisplay.py in the directory <cite>display/table</cite>, and enter this code:</p>
 <blockquote>
-<div><div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">..display</span> <span class="kn">import</span> <span class="o">*</span>
-<span class="kn">from</span> <span class="nn">pyspark.sql</span> <span class="kn">import</span> <span class="n">DataFrame</span>
-<span class="kn">from</span> <span class="nn">pixiedust.utils.dataFrameAdapter</span> <span class="kn">import</span> <span class="o">*</span>
-<span class="kn">import</span> <span class="nn">pixiedust.utils.dataFrameMisc</span> <span class="kn">as</span> <span class="nn">dataFrameMisc</span>
+<div><div class="highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">..display</span> <span class="k">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">pyspark.sql</span> <span class="k">import</span> <span class="n">DataFrame</span>
+<span class="kn">from</span> <span class="nn">pixiedust.utils.dataFrameAdapter</span> <span class="k">import</span> <span class="o">*</span>
+<span class="kn">import</span> <span class="nn">pixiedust.utils.dataFrameMisc</span> <span class="k">as</span> <span class="nn">dataFrameMisc</span>
 
 <span class="k">class</span> <span class="nc">SimpleDisplay</span><span class="p">(</span><span class="n">Display</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">doRender</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">handlerId</span><span class="p">):</span>
@@ -229,22 +230,22 @@ class SimpleDisplayMeta(DisplayHandlerMeta):
 </div></blockquote>
 <p>All you&#8217;re really doing here is defining a mechanism to call the right Jinja template &#8211; <code class="docutils literal"><span class="pre">simpleTable.html</span></code> found in the <code class="docutils literal"><span class="pre">templates</span></code> directory &#8211; for processing the data. Once you&#8217;re working on the template, the sky&#8217;s the limit for what you can do. But just to finish out this example, here&#8217;s some extremely simple code you can add there:</p>
 <blockquote>
-<div><div class="highlight-python"><div class="highlight"><pre><span></span>&lt;table class=&quot;table table-striped&quot;&gt;
-   &lt;thead&gt;
-       {%for field in entity.schema.fields%}
-       &lt;th&gt;{{field.name}}&lt;/th&gt;
-       {%endfor%}
-   &lt;/thead&gt;
-   &lt;tbody&gt;
-       {%for row in entity.take(100)%}
-       &lt;tr&gt;
-           {%for field in entity.schema.fields%}
-           &lt;td&gt;{{row[field.name]}}&lt;/td&gt;
-           {%endfor%}
-       &lt;/tr&gt;
-       {%endfor%}
-   &lt;/tbody&gt;
-&lt;/table&gt;
+<div><div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">table</span> <span class="n">class</span><span class="o">=</span><span class="s2">&quot;table table-striped&quot;</span><span class="o">&gt;</span>
+   <span class="o">&lt;</span><span class="n">thead</span><span class="o">&gt;</span>
+       <span class="p">{</span><span class="o">%</span><span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">entity</span><span class="o">.</span><span class="n">schema</span><span class="o">.</span><span class="n">fields</span><span class="o">%</span><span class="p">}</span>
+       <span class="o">&lt;</span><span class="n">th</span><span class="o">&gt;</span><span class="p">{{</span><span class="n">field</span><span class="o">.</span><span class="n">name</span><span class="p">}}</span><span class="o">&lt;/</span><span class="n">th</span><span class="o">&gt;</span>
+       <span class="p">{</span><span class="o">%</span><span class="n">endfor</span><span class="o">%</span><span class="p">}</span>
+   <span class="o">&lt;/</span><span class="n">thead</span><span class="o">&gt;</span>
+   <span class="o">&lt;</span><span class="n">tbody</span><span class="o">&gt;</span>
+       <span class="p">{</span><span class="o">%</span><span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">entity</span><span class="o">.</span><span class="n">take</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span><span class="o">%</span><span class="p">}</span>
+       <span class="o">&lt;</span><span class="n">tr</span><span class="o">&gt;</span>
+           <span class="p">{</span><span class="o">%</span><span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">entity</span><span class="o">.</span><span class="n">schema</span><span class="o">.</span><span class="n">fields</span><span class="o">%</span><span class="p">}</span>
+           <span class="o">&lt;</span><span class="n">td</span><span class="o">&gt;</span><span class="p">{{</span><span class="n">row</span><span class="p">[</span><span class="n">field</span><span class="o">.</span><span class="n">name</span><span class="p">]}}</span><span class="o">&lt;/</span><span class="n">td</span><span class="o">&gt;</span>
+           <span class="p">{</span><span class="o">%</span><span class="n">endfor</span><span class="o">%</span><span class="p">}</span>
+       <span class="o">&lt;/</span><span class="n">tr</span><span class="o">&gt;</span>
+       <span class="p">{</span><span class="o">%</span><span class="n">endfor</span><span class="o">%</span><span class="p">}</span>
+   <span class="o">&lt;/</span><span class="n">tbody</span><span class="o">&gt;</span>
+<span class="o">&lt;/</span><span class="n">table</span><span class="o">&gt;</span>
 </pre></div>
 </div>
 </div></blockquote>
@@ -272,9 +273,8 @@ class SimpleDisplayMeta(DisplayHandlerMeta):
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="use.html">Use PixieDust</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="develop.html">Develop for PixieDust</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="install.html">Install PixieDust</a></li>
 <li class="toctree-l2"><a class="reference internal" href="contribute.html">Contribute</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="">Write a new PixieDust Visualization</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Write a new PixieDust Visualization</a></li>
 <li class="toctree-l2"><a class="reference internal" href="renderer.html">Build a Renderer</a></li>
 <li class="toctree-l2"><a class="reference internal" href="test.html">Test</a></li>
 </ul>
@@ -284,14 +284,11 @@ class SimpleDisplayMeta(DisplayHandlerMeta):
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -300,7 +297,7 @@ class SimpleDisplayMeta(DisplayHandlerMeta):
     </div>
   <footer id="pagefooter">&copy; 2017, IBM.
       Created using <a href="http://sphinx-doc.org/">Sphinx</a>
-      1.3.5.
+      1.5.1.
 
   </footer>
 
