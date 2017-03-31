@@ -37,11 +37,11 @@ class PixieDustApp(Display):
         for key,value in iteritems(route):
             #first check if the key is an field of the class
             option = getattr(self.entity, key) if self.entity is not None and hasattr(self.entity, key) else None
+            #make sure we don't have a conflict with an existing function
+            if callable(option):
+                option = None
             if not option:
                 option = self.options.get(key,None)
-            self.debug("class {}".format(self.entity))
-            self.debug("option {}".format(option))
-            self.debug("value {}".format(value))
             if  (option is None and value=="*") or (value != "*" and option != value):
                 return False
         return True
@@ -62,23 +62,25 @@ class PixieDustApp(Display):
 
         print("Didn't find any routes for {}".format(self))
 
+@Logger()
 def PixieApp(cls):
+    #reset the class routing in case the cell is being run multiple time
+    clsName = "{}_{}_Display".format(inspect.getmodule(cls).__name__, cls.__name__)
+    PixieDustApp.routesByClass[clsName] = []
     for name, method in iteritems(cls.__dict__):
         if hasattr(method, "pixiedust_route"):
-            clsName = "{}_{}_Display".format(inspect.getmodule(cls).__name__, cls.__name__)
-            if clsName not in PixieDustApp.routesByClass:
-                PixieDustApp.routesByClass[clsName] = []
             PixieDustApp.routesByClass[clsName].append( (method.pixiedust_route,name) )
 
-    def __init__(self, options, entity, dataHandler=None):
-        PixieDustApp.__init__(self, options, entity, dataHandler)
+    def __init__(self, options=None, entity=None, dataHandler=None):
+        PixieDustApp.__init__(self, options or {}, entity, dataHandler)
         self.nostore_params = True
 
     def decoName(cls, suffix):
         return "{}_{}_{}".format(cls.__module__, cls.__name__, suffix)
 
     def run(self, entity=None):
-        self.entity = entity
+        if entity is not None:
+            self.pixieapp_entity = entity
         var = None
         for key in ShellAccess:
             if ShellAccess[key] is self:
@@ -103,15 +105,19 @@ def PixieApp(cls):
     
     @addId
     def getMenuInfo(self, entity, dataHandler=None):
-        if entity is cls or entity.__class__ is cls:
+        if entity is displayClass or entity.__class__ is displayClass:
             return [{"id": decoName(cls, "id")}]
         return []
+
+    def newDisplayHandler(self, options, entity):
+        entity.__init__(options, entity)
+        return entity
     
     displayHandlerMetaClass = type( decoName(cls, "Meta"), (DisplayHandlerMeta,), {
             "getMenuInfo": getMenuInfo,
-            "newDisplayHandler": lambda self, options, entity: displayClass(options, entity)
+            "newDisplayHandler": newDisplayHandler
         })
     
     displayHandlerMeta = displayHandlerMetaClass()
     registerDisplayHandler( displayHandlerMeta )
-    return cls
+    return displayClass

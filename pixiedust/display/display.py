@@ -92,11 +92,7 @@ def getSelectedHandler(options, entity, dataHandler):
                         if handlerId in globalMenuInfos:
                             return globalMenuInfos[handlerId]['handler']
 
-            retValue = findHandlerId(entity)
-            if not retValue and hasattr(entity, "entity"):
-                myLogger.debug("Trying inner entity {}".format(entity.entity))
-                retValue = findHandlerId(entity.entity)
-            
+            retValue = findHandlerId(entity)            
             if retValue:
                 return retValue
 
@@ -406,6 +402,11 @@ class CellHandshakeMeta(DisplayHandlerMeta):
         
 class CellHandshake(Display):
     snifferCallbacks = []
+
+    def __init__(self, options, entity):
+        Display.__init__(self, options, entity)
+        self.nostore_params = True
+
     @staticmethod
     def addCallbackSniffer(sniffer):
         CellHandshake.snifferCallbacks.append(sniffer)

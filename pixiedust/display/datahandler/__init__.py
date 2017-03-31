@@ -23,8 +23,5 @@ def getDataHandler(options, entity):
         return PySparkDataFrameDataHandler(options, entity)
     elif dataFrameMisc.isPandasDataFrame(entity):
         return PandasDataFrameDataHandler(options, entity)
-    
-    if options.get("handlerId") is not None and hasattr(entity, "entity"):
-        return getDataHandler(options, entity.entity)
 
     return None

@@ -57,7 +57,7 @@ class WorkingDataCache(with_metaclass(
 
     @staticmethod
     def putInCache(options, data, constraints):
-        if "cell_id" not in options:
+        if "cell_id" not in options or "noChartCache" in options:
             return
         constraints.pop("self",None)
         WorkingDataCache[options["cell_id"]] = {

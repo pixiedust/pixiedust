@@ -135,9 +135,8 @@
     }
     
     if (IPython && IPython.notebook && IPython.notebook.session && IPython.notebook.session.kernel){
-        debugger;
-        var command = user_controls.options.script || pd_controls.command.replace("cellId",cellId);
-        if ( !user_controls.options.script){
+        var command = user_controls.script || pd_controls.command.replace("cellId",cellId);
+        if ( !user_controls.script){
             function addOptions(options, override=true){
                 function getStringRep(v) {
                     return "'" + v + "'";
@@ -186,7 +185,7 @@
             {% endif %}
         }
         if(curCell&&curCell.output_area){
-            if ( !user_controls.options.nostoreMedatadata ){
+            if ( !user_controls.nostoreMedatadata ){
                 curCell._metadata.pixiedust = curCell._metadata.pixiedust || {}
                 curCell._metadata.pixiedust.displayParams=displayParams
                 curCell.output_area.outputs=[];
