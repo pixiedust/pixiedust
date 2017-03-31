@@ -146,7 +146,7 @@ is the key to rendering our data. ``dataframeTable.html`` (by default found in t
 Also note the ``<script>`` tag at the end of the file. This is where you can do some nifty extras like scrolling while keeping the table header in a fixed position and client-side search.
 
 Build your own table display plugin
----------------------------------
+-----------------------------------
 
 Now that you've seen how PixieDust works, let's build a very simple second table display tool. You'll need to do 3 things:
 

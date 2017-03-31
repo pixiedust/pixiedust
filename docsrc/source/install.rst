@@ -144,11 +144,9 @@ The output looks similar to this:
 Try It Out!
 -----------
 
-The PixieDust GitHub repo includes a sample notebook (*Intro to PixieDust.ipynb*) that you can use to try out your PixieDust install.
-If you installed PixieDust from source you can find this notebook in *pixiedust/notebook*.
-Otherwise, you can download the notebook `here <https://github.com/ibm-cds-labs/pixiedust/blob/master/notebook/Intro%20to%20PixieDust.ipynb>`_
+The PixieDust GitHub repo includes sample notebooks that you can use to try out your PixieDust install. If you installed PixieDust from source, you will find a series of six getting started notebooks (*PixieDust 1* thru *PixieDust Contribute*). Otherwise, you can `download the notebooks <https://github.com/ibm-cds-labs/pixiedust/tree/master/notebook>`_. To save a notebook from GitHub, hit the "raw" button and save the page from there, omitting the .txt extension.
 
-After you have downloaded the *Intro to PixieDust.ipynb* notebook run the following command:
+To run a notebook, use the following command:
 ::
 
     jupyter notebook directory/containing/notebook
@@ -161,7 +159,7 @@ This should automatically open a web browser that looks shows you this:
 
      <img src="_images/install-notebook1.png" width="615">
 
-Click **Intro to PixieDust.ipynb**. You may be prompted to select a kernel. Select the kernel you created using the installer.
+When starting a notebook for the first time, you may be prompted to select a kernel. Select the kernel you created using the installer.
 Alternatively, click **Kernel > Change Kernel** from the menu to select the appropriate kernel:
 
 .. container:: 
