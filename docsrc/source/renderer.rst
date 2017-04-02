@@ -5,7 +5,7 @@ A *rendering engine* turns your data into shapes and lines. PixieDust comes with
 
 .. image:: _images/renderer_dd.png
 
-Choices available on this list depends upon what display option you choose. For example, Mapbox and Google Maps are available only for maps.
+Choices available on this list depends upon what display option you choose. For example, Mapbox and Google Maps are available only for maps. 
 
 You can use all these renderers right away without much extra effort. But what if your favorite rendering engine is missing? 
 
