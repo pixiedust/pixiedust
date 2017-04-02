@@ -196,7 +196,7 @@ class Display(with_metaclass(ABCMeta)):
         return chart width scale factor
     """
     def getWidthScaleFactor(self):
-        return 0.8
+        return 0.8 if "no_margin" not in self.options else 1.0
 
     def getPreferredOutputWidth(self):
         return float(self.options.get("nostore_cw", 1000)) * self.getWidthScaleFactor()

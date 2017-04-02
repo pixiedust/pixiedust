@@ -25,33 +25,7 @@ var pixiedust = (function(){
             {# call display.executeDisplay(divId="$targetDivId")
                 addOptions( user_controls.options || {} );
              endcall #}
-        },
-
-        {# 
-            executeScript helper method: run an arbitray python script
-            executeControl:{
-                onError(error): callback function called when an error occurs during execution
-                onSuccess(results): callback function called when the script has successfully executed
-                targetDivId: id of div that will get the spinner
-            }
-        
-        executeScript: function(pd_prefix, script, executeControl){
-            executeControl = executeControl || {};
-            var $targetDivId = executeControl.targetDivId;
-            var command = script;
-            {% call(results) commons.ipython_execute(None,prefix, divId="$targetDivId") %}
-                {%if results["message"]%}
-                    if (executeControl.onError){
-                        executeControl.onError( {{results["message"]}} );
-                    }
-                {%else%}
-                    if (executeControl.onSuccess){
-                        executeControl.onSuccess({{results}});
-                    }
-                {%endif%}
-            {% endcall %}            
         }
-        #}
     }
 })();
 
@@ -111,7 +85,11 @@ function readExecInfo(pd_controls, element){
             }
         });
     }
-    execInfo.targetDivId = element.getAttribute("pd_target");
+    execInfo.options.targetDivId = execInfo.targetDivId = element.getAttribute("pd_target");
+    w = $("#" + execInfo.targetDivId).width()
+    if (w){
+        execInfo.options.nostore_cw= w;
+    }
 
     execInfo.script = element.getAttribute("pd_script");
     if (!execInfo.script){
@@ -165,31 +143,67 @@ function readExecInfo(pd_controls, element){
     return execInfo;
 }
 
-//Dynamically add click handler on the pixiedust chrome menus
-$(document).on( "click", "[pixiedust]", function(event){
-    pd_controls = event.target.getAttribute("pixiedust");
+function runElement(element){
+    pd_controls = element.getAttribute("pixiedust");
     if (!pd_controls){
-        $(event.target).parents("[pixiedust]").each(function(){
+        $(element).parents("[pixiedust]").each(function(){
             pd_controls = pd_controls || this.getAttribute("pixiedust");
         });
     }
+    var execQueue = [];
     if (pd_controls){
         pd_controls = JSON.parse(pd_controls);
-        var execQueue = []
         {#read the current element#}
-        execQueue.push( readExecInfo(pd_controls, event.target) );
+        execQueue.push( readExecInfo(pd_controls, element) );
 
         {#get other execution targets if any#}
-        $(event.target).children("target[pd_target]").each(function(){
+        $(element).children("target[pd_target]").each(function(){
             execQueue.push( readExecInfo(pd_controls, this))
         });
-
-        {#execute#}
-        $.each( execQueue, function(index, value){
-            if (value){
-                event.stopImmediatePropagation();
-                pixiedust.executeDisplay(pd_controls, value);
-            }
-        });
     }
-} );
+    return execQueue;
+}
+
+{#Dynamically add click handler on the pixiedust chrome menus#}
+$(document).on( "click", "[pixiedust]", function(event){
+    execQueue = runElement(event.target);
+    {#execute#}
+    $.each( execQueue, function(index, value){
+        if (value){
+            event.stopImmediatePropagation();
+            pixiedust.executeDisplay(pd_controls, value);
+        }
+    });
+});
+
+{#handler for customer pd_event#}
+$(document).on("pd_event", function(event, eventInfo){
+    targetDivId = eventInfo.targetDivId;
+    if (targetDivId){
+        debugger;
+        eventHandlers = $("pd_event_handler").filter(function(){
+            if (this.getAttribute("pd_target") == targetDivId){
+                return true;
+            }
+            {#Find a parent with pd_target attribute#}
+            return $(this).parents("[pd_target]").filter(function(){
+                return this.getAttribute("pd_target") == targetDivId;
+            }).length > 0;
+        });
+        eventHandlers.each(function(){
+            debugger;
+            execQueue = runElement(this);
+            $.each( execQueue, function(index, value){
+                if (value){
+                    {#Inject eventInfo#}
+                    if (value.script){
+                        value.script = "eventInfo="+JSON.stringify(eventInfo) + "\n" + value.script;
+                    }
+                    pixiedust.executeDisplay(pd_controls, value);
+                }
+            });
+        });
+    }else{
+        console.log("Warning: got a pd_event with no targetDivId", eventInfo);
+    }
+});
