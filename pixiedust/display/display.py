@@ -79,6 +79,9 @@ def getSelectedHandler(options, entity, dataHandler):
     if "cell_id" not in options:
         #No cellid, trigger handshake with the browser to get the cellId
         return CellHandshakeMeta()
+    elif options.get('runInDialog', 'false') == 'true':
+        #we are running in a dialog
+        return RunInDialogMeta()
         
     handlerId=options.get("handlerId")
     if handlerId is not None:
@@ -224,16 +227,21 @@ class Display(with_metaclass(ABCMeta)):
 
     def renderTemplate(self, templateName, **kwargs):
         return self.env.getTemplate(templateName).render(self._getTemplateArgs(**kwargs))
-    
-    def render(self):
-        #check if pixiedust object is already installed on the client
-        #Experimental, not ready for prime time yet
+
+    """
+        check if pixiedust object is already installed on the client
+    """
+    def _checkPixieDustJS(self):
         if self.options.get("nostore_pixiedust", "false") != "true":
             self.options["nostore_pixiedust"] = "true"
             ipythonDisplay(Javascript(self.renderTemplate( "addScriptCode.js", type="css", code = self.renderTemplate("pixiedust.css") )))
             js = self.renderTemplate( "addScriptCode.js", type="javascript", code = self.renderTemplate("pixiedust.js") )
             self.debug("pixiedust code: {}".format(js))
             ipythonDisplay(Javascript(js))
+    
+    def render(self):
+        #Experimental, not ready for prime time yet
+        self._checkPixieDustJS()
 
         handlerId=self.options.get("handlerId")
         if handlerId is None or not self.noChrome:
@@ -415,6 +423,29 @@ class CellHandshake(Display):
             self.renderTemplate("handshake.html")
         ))
         
+    def doRender(self, handlerId):
+        pass
+
+#Special handler for running in a dialog
+class RunInDialogMeta(DisplayHandlerMeta):
+    def getMenuInfo(self, entity, dataHandler):
+        return []
+    def newDisplayHandler(self, options, entity):
+        return RunInDialog(options, entity)
+
+@Logger()
+class RunInDialog(Display):
+    def render(self):
+        self._checkPixieDustJS()
+        self.debug("In RunInDialog")
+        del self.options['runInDialog']
+        ipythonDisplay(Javascript("pixiedust.executeInDialog({0});".format(
+            json.dumps({
+                "prefix": self.getPrefix(),
+                "command": self.callerText.replace(",runInDialog='true'",""),
+                "options": self.options
+            })
+        )))
     def doRender(self, handlerId):
         pass
 

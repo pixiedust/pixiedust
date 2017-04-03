@@ -78,7 +78,7 @@ def PixieApp(cls):
     def decoName(cls, suffix):
         return "{}_{}_{}".format(cls.__module__, cls.__name__, suffix)
 
-    def run(self, entity=None):
+    def run(self, entity=None, **kwargs):
         if entity is not None:
             self.pixieapp_entity = entity
         var = None
@@ -91,7 +91,9 @@ def PixieApp(cls):
             var = cls.__name__ + "_instance"
             ShellAccess[var] = self
 
-        s = "display({})".format(var)
+        runInDialog = kwargs.get("runInDialog", "false") is "true"
+
+        s = "display({}{})".format(var, ",runInDialog='true'" if runInDialog else "")
         try:
             sys.modules['pixiedust.display'].pixiedust_display_callerText = s
             locals()[var] = self

@@ -98,8 +98,12 @@ class MatplotlibBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
                 fig.set_size_inches( totalWidth/self.getDPI(),fig.get_figheight())
             else:
                 self.addMessage("Some labels are not displayed because of a lack of space. Click on Stretch image to see them all")
-                #filter down the list to max 20        
-                xl = [(i,a) for i,a in enumerate(labels) if i % int(len(labels)/20) == 0]
+                #filter down the list to max 20
+                max = int(len(labels)/20)
+                if max < 20:
+                    xl = [(i,a[:10] + ".." if len(a) > 10 else a) for i,a in enumerate(labels)]
+                else:
+                    xl = [(i,a) for i,a in enumerate(labels) if (i % max == 0)]
                 ax.set_xticks([x[0] for x in xl])
                 ax.set_xticklabels([x[1] for x in xl])
                 plt.xticks(rotation=30)

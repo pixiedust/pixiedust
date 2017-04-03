@@ -25,6 +25,58 @@ var pixiedust = (function(){
             {# call display.executeDisplay(divId="$targetDivId")
                 addOptions( user_controls.options || {} );
              endcall #}
+        },
+        executeInDialog:function(pd_controls, user_controls){
+            pd_controls = pd_controls || {};
+            user_controls = user_controls || {};
+            var global={};
+            require(['base/js/dialog'],function(dialog){
+                var modal = dialog.modal;
+                var options = {
+                    title: "Pixiedust: Dialog",
+                    body: '<div id="dialog{{prefix}}root"></div>',
+                    sanitize:false,
+                    notebook: IPython.notebook,
+                    keyboard_manager: IPython.notebook.keyboard_manager,
+                    buttons: {
+                        OK: {
+                            class : "btn-primary btn-ok",
+                            click: function() {
+                                {%block onOK%}{%endblock%}
+                            }
+                        },
+                        Cancel: {
+                            class : "btn-cancel",
+                            click: function(){
+                                {%block onCancel%}{%endblock%}
+                            }
+                        }
+                    }
+                };
+                var modal_obj = modal(options);
+                modal_obj.addClass('pixiedust');
+                modal_obj.on('shown.bs.modal', function(){
+                    var isFF = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
+                    if( isFF && options.keyboard_manager){
+                        {#Only on FF, blur event issue, hard disable keyboard manager#}
+                        var KeyboardManager = require('notebook/js/keyboardmanager').KeyboardManager;
+                        global.KMEnableProto = KeyboardManager.prototype.enable;
+                        KeyboardManager.prototype.enable = function () {
+                            this.enabled = false;
+                        };
+                    }
+                    IPython.keyboard_manager.register_events(modal_obj);
+                    user_controls.targetDivId = "dialog{{prefix}}root";
+                    pixiedust.executeDisplay(pd_controls, user_controls);
+                });
+                modal_obj.on("hidden.bs.modal", function () {
+                    if ( global.KMEnableProto ){
+                        var KeyboardManager = require('notebook/js/keyboardmanager').KeyboardManager;
+                        KeyboardManager.prototype.enable = global.KMEnableProto;
+                        delete global.KMEnableProto;
+                    }
+                });
+            })
         }
     }
 })();
@@ -85,7 +137,11 @@ function readExecInfo(pd_controls, element){
             }
         });
     }
+    execInfo.options.nostore_figureOnly = true;
     execInfo.options.targetDivId = execInfo.targetDivId = element.getAttribute("pd_target");
+    if (execInfo.options.targetDivId){
+        execInfo.options.no_margin=true;
+    }
     w = $("#" + execInfo.targetDivId).width()
     if (w){
         execInfo.options.nostore_cw= w;
@@ -180,7 +236,6 @@ $(document).on( "click", "[pixiedust]", function(event){
 $(document).on("pd_event", function(event, eventInfo){
     targetDivId = eventInfo.targetDivId;
     if (targetDivId){
-        debugger;
         eventHandlers = $("pd_event_handler").filter(function(){
             if (this.getAttribute("pd_target") == targetDivId){
                 return true;
@@ -191,7 +246,6 @@ $(document).on("pd_event", function(event, eventInfo){
             }).length > 0;
         });
         eventHandlers.each(function(){
-            debugger;
             execQueue = runElement(this);
             $.each( execQueue, function(index, value){
                 if (value){
