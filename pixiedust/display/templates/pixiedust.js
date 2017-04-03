@@ -29,11 +29,12 @@ var pixiedust = (function(){
         executeInDialog:function(pd_controls, user_controls){
             pd_controls = pd_controls || {};
             user_controls = user_controls || {};
+            var displayOptions = $.extend({}, pd_controls.options || {}, user_controls.options || {} );
             var global={};
             require(['base/js/dialog'],function(dialog){
                 var modal = dialog.modal;
                 var options = {
-                    title: "Pixiedust: Dialog",
+                    title: "Pixiedust: " + (displayOptions.title || "Dialog"),
                     body: '<div id="dialog{{prefix}}root"></div>',
                     sanitize:false,
                     notebook: IPython.notebook,
@@ -42,13 +43,11 @@ var pixiedust = (function(){
                         OK: {
                             class : "btn-primary btn-ok",
                             click: function() {
-                                {%block onOK%}{%endblock%}
                             }
                         },
                         Cancel: {
                             class : "btn-cancel",
                             click: function(){
-                                {%block onCancel%}{%endblock%}
                             }
                         }
                     }

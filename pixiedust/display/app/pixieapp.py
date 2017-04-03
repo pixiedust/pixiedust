@@ -62,6 +62,9 @@ class PixieDustApp(Display):
 
         print("Didn't find any routes for {}".format(self))
 
+    def getDialogOptions(self):
+        return {}
+
 @Logger()
 def PixieApp(cls):
     #reset the class routing in case the cell is being run multiple time
@@ -92,8 +95,11 @@ def PixieApp(cls):
             ShellAccess[var] = self
 
         runInDialog = kwargs.get("runInDialog", "false") is "true"
+        options = {"runInDialog": "true" if runInDialog else "false"}
+        if runInDialog:
+            options.update( self.getDialogOptions() )
 
-        s = "display({}{})".format(var, ",runInDialog='true'" if runInDialog else "")
+        s = "display({}{})".format(var, reduce(lambda k,v: k + "," + v[0] + "='" + v[1] + "'", iteritems(options), ""))
         try:
             sys.modules['pixiedust.display'].pixiedust_display_callerText = s
             locals()[var] = self
