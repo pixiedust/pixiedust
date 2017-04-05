@@ -66,8 +66,14 @@ class MapViewDisplay(MapBoxBaseDisplay):
             lonFieldIdx = 1
             latFieldIdx = 0
         valueFields = self.getValueFields()
+
+        #check if we have a preserveCols
+        preserveCols = self.options.get("preserveCols", None)
+        preserveCols = [a for a in preserveCols.split(",") if a not in keyFields and a not in valueFields] if preserveCols is not None else []
+
         valueFieldIdxs = []
-        for j, valueField in enumerate(valueFields):
+        allProps = valueFields + preserveCols
+        for j, valueField in enumerate( allProps ):
             valueFieldIdxs.append(df.columns.get_loc(valueField))
         
 
@@ -84,7 +90,7 @@ class MapViewDisplay(MapBoxBaseDisplay):
                                     'coordinates':[]}}
             feature['geometry']['coordinates'] = [row[lonFieldIdx+1], row[latFieldIdx+1]]
             for idx, valueFieldIdx in enumerate(valueFieldIdxs):
-                feature['properties'][valueFields[idx]] = row[valueFieldIdx+1]
+                feature['properties'][allProps[idx]] = row[valueFieldIdx+1]
             pygeojson['features'].append(feature)
 
         self.options["mapBounds"] = json.dumps([min,max])
