@@ -310,7 +310,7 @@ class PixiedustInstall(InstallKernelSpec):
         if not response.ok:
             raise Exception("Unable to read the list of Intro Notebooks")
 
-        notebookNames = response.content.split("\n")
+        notebookNames = response.content.decode().split("\n")
         introNotebooksUrls = [
             "https://github.com/ibm-cds-labs/pixiedust/raw/master/notebook/" + n for n in notebookNames if n != ""
         ]
