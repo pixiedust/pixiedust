@@ -205,7 +205,12 @@ class Display(with_metaclass(ABCMeta)):
         return float(self.options.get("nostore_cw", 1000)) * self.getWidthScaleFactor()
 
     def getPreferredOutputHeight(self):
-        return float(self.getPreferredOutputWidth() * self.getHeightWidthRatio())
+        ch = self.options.get("nostore_ch", None)
+        if ch is not None:
+            return float(ch)
+        else:
+            return float(self.getPreferredOutputWidth() * self.getHeightWidthRatio())
+
 
     def _getTemplateArgs(self, **kwargs):
         args = {
@@ -438,7 +443,7 @@ class RunInDialog(Display):
     def render(self):
         self._checkPixieDustJS()
         self.debug("In RunInDialog")
-        del self.options['runInDialog']
+        # del self.options['runInDialog']
         ipythonDisplay(Javascript("pixiedust.executeInDialog({0});".format(
             json.dumps({
                 "prefix": self.getPrefix(),

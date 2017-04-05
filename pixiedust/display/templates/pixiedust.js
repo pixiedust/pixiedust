@@ -53,7 +53,7 @@ var pixiedust = (function(){
                     }
                 };
                 var modal_obj = modal(options);
-                modal_obj.addClass('pixiedust');
+                modal_obj.addClass('pixiedust pixiedust-app');
                 modal_obj.on('shown.bs.modal', function(){
                     var isFF = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
                     if( isFF && options.keyboard_manager){
@@ -144,6 +144,12 @@ function readExecInfo(pd_controls, element){
     w = $("#" + execInfo.targetDivId).width()
     if (w){
         execInfo.options.nostore_cw= w;
+    }
+    if (execInfo.options.runInDialog == 'true') {
+        h = $("#" + execInfo.targetDivId).height()
+        if (h){
+            execInfo.options.nostore_ch= h;
+        }
     }
 
     execInfo.script = element.getAttribute("pd_script");
