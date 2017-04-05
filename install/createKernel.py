@@ -14,6 +14,7 @@
 # limitations under the License.
 # Inherited from maven-artifact https://github.com/hamnis/maven-artifact
 # -------------------------------------------------------------------------------
+import json
 import os
 import re
 import requests
@@ -310,7 +311,7 @@ class PixiedustInstall(InstallKernelSpec):
         if not response.ok:
             raise Exception("Unable to read the list of Intro Notebooks")
 
-        notebookNames = response.content.split("\n")
+        notebookNames = response.content.decode().split("\n")
         introNotebooksUrls = [
             "https://github.com/ibm-cds-labs/pixiedust/raw/master/notebook/" + n for n in notebookNames if n != ""
         ]
@@ -319,11 +320,16 @@ class PixiedustInstall(InstallKernelSpec):
             try:
                 path = self.downloadFileToDir(url, targetDir=self.pixiedust_notebooks_dir)
                 #update kernel name and display_name
-                nb=nbformat.read(path, as_version=4)
+                print(path)
+                f = open(path, 'r')
+                contents = f.read()
+                f.close()
+                nb=nbformat.reads(contents, as_version=4)
                 nb.metadata.kernelspec.name=self.kernelInternalName
                 nb.metadata.kernelspec.display_name = self.kernelName
-                with open(path, "wb") as targetFile:
-                    nbformat.write(nb, targetFile)
+                f = open(path, 'w')
+                f.write(json.dumps(nb))
+                f.close()
                 print("\033[F\033[F")
                 print("...{0} : {1}".format(url, self.hilite("done")))
             except Exception as e:
