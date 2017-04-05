@@ -320,7 +320,6 @@ class PixiedustInstall(InstallKernelSpec):
             try:
                 path = self.downloadFileToDir(url, targetDir=self.pixiedust_notebooks_dir)
                 #update kernel name and display_name
-                print(path)
                 f = open(path, 'r')
                 contents = f.read()
                 f.close()
