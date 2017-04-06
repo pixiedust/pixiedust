@@ -14,9 +14,13 @@
 # limitations under the License.
 # -------------------------------------------------------------------------------
 import math
+import numpy
+import pixiedust
+
+myLogger = pixiedust.getLogger(__name__)
 
 def append(displayObject, arr, option):
-    if displayObject.acceptOption(option["name"]):
+    if option is not None and displayObject.acceptOption(option["name"]):
         arr.append(option)
 
 def clusterBy(displayObject):
@@ -34,9 +38,26 @@ def clusterBy(displayObject):
              "Cluster By value is already used in keys or values for this chart")
     }
 
+def timeSeries(displayObject):
+    if len(displayObject.getKeyFields()) == 1:
+        pdf = displayObject.getWorkingPandasDataFrame()
+        field = displayObject.getKeyFields()[0]
+        dtype = pdf[field].dtype.type if field in pdf else None
+        existingValue = displayObject.options.get("timeseries", 'false')
+        if dtype is not None and (dtype is not numpy.datetime64 or existingValue == 'true'):
+            return {
+                'name': 'timeseries',
+                'description': 'Time Series',
+                'metadata':{
+                    'type': 'checkbox',
+                    'default': 'false'
+                }
+            }
+
 def barChart(displayObject):
     options = []
     options.append(clusterBy(displayObject))
+    append(displayObject, options, timeSeries(displayObject))
 
     if not hasattr(displayObject, 'no_orientation') or displayObject.no_orientation is not True:
         options.append({
@@ -75,6 +96,7 @@ def lineChart(displayObject):
     options = []
 
     options.append(clusterBy(displayObject))
+    append(displayObject, options, timeSeries(displayObject))
 
     if displayObject.options.get("clusterby") != None or len(displayObject.getValueFields()) > 1:
         options.append({

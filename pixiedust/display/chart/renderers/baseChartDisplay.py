@@ -162,6 +162,7 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
         extraFields = self.getExtraFields()
         aggregation = self.getAggregation()
         maxRows = self.getMaxRows()
+        timeseries = self.options.get("timeseries", 'false')
         #remember the constraints for this cache, they are the list of variables
         constraints = locals()
 

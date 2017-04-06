@@ -15,6 +15,7 @@
 # -------------------------------------------------------------------------------
 from pixiedust.utils.dataFrameAdapter import PandasDataFrameAdapter
 import pixiedust.utils.dataFrameMisc as dataFrameMisc
+import pandas as pd
 import numpy as np
 from pixiedust.utils import Logger
 from six import iteritems
@@ -85,6 +86,11 @@ class PandasDataFrameDataHandler(object):
                     cols[key].append( p[key].values.tolist()[0] )
             for key, value in iteritems(cols):
                 workingDF.insert(len(workingDF.columns), key, value)
+
+        #check if the user wants timeseries
+        if len(xFields) == 1 and self.options.get("to_datetime", 'false') == 'true':
+            field = xFields[0]
+            workingDF[field] = pd.to_datetime(workingDF[field])
         
         #sort by xFields
         workingDF.sort_values(extraFields + xFields, inplace=True)
