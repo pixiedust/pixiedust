@@ -92,9 +92,10 @@ class PixieDustTestExecutePreprocessor( ExecutePreprocessor ):
                 else:
                     self.compareOutputs(beforeOutputs, cell.outputs, cell.source, True)
             return cell, resources
-        except CellExecutionError:
-            for output in cell.outputs:
-                logging.warn("Output Error is {}".format(output))
+        except Exception as e:
+            if isinstance(e, CellExecutionError):
+                for output in cell.outputs:
+                    logging.warn("Output Error is {}".format(output))
             cell.source="%pixiedustLog -l debug"
             cell, resources = super(PixieDustTestExecutePreprocessor, self).preprocess_cell(cell, resources, cell_index)
             logging.error("An error occurred executing the cell:\r\n{0}".format(cell.source))

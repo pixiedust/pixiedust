@@ -115,6 +115,7 @@
 
 <div class="df-table-wrapper df-table-wrapper-{{prefix}} panel-group pd_save">
   <!-- dataframe schema -->
+  {% if table_noschema != 'true' %}
   <div class="panel panel-default">
     <div class="panel-heading">
       <h4 class="panel-title" style="margin: 0px;">
@@ -135,13 +136,16 @@
       </div>
     </div>
   </div>
+  {% endif %}
   <!-- dataframe table -->
   <div class="panel panel-default">
+    {% if table_noschema != 'true' %}
     <div class="panel-heading">
       <h4 class="panel-title" style="margin: 0px;">
         <a data-toggle="collapse" href="#df-table-{{prefix}}" data-parent="#df-table-wrapper-{{prefix}}">Table</a>
       </h4>
     </div>
+    {% endif %}
     <div id="df-table-{{prefix}}" class="panel-collapse collapse in">
       <div class="panel-body">
         {% set rows = entity.take(100) %}

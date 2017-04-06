@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------------
-# Copyright IBM Corp. 2016
+# Copyright IBM Corp. 2017
 # 
 # Licensed under the Apache License, Version 2.0 (the 'License');
 # you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ import re
 import pixiedust
 from six import iteritems, with_metaclass
 from functools import reduce
+import json
 
 myLogger = pixiedust.getLogger(__name__)
 
@@ -78,6 +79,9 @@ def getSelectedHandler(options, entity, dataHandler):
     if "cell_id" not in options:
         #No cellid, trigger handshake with the browser to get the cellId
         return CellHandshakeMeta()
+    elif options.get('runInDialog', 'false') == 'true':
+        #we are running in a dialog
+        return RunInDialogMeta()
         
     handlerId=options.get("handlerId")
     if handlerId is not None:
@@ -85,18 +89,27 @@ def getSelectedHandler(options, entity, dataHandler):
             return globalMenuInfos[handlerId]['handler']
         else:
             #we need to find it
-            for handler in (handlers+systemHandlers):
-                for menuInfo in handler.getMenuInfo(entity, dataHandler):
-                    if handlerId in globalMenuInfos:
-                        return globalMenuInfos[handlerId]['handler']
-    else:
-        if defaultHandler is not None and len(defaultHandler.getMenuInfo(entity, dataHandler))>0:
-            return defaultHandler
-        #get the first handler that can render this object
-        for handler in handlers:
-            menuInfos = handler.getMenuInfo(entity, dataHandler)
-            if ( menuInfos is not None and len(menuInfos)>0 ):
-                return handler
+            def findHandlerId(e):
+                for handler in (handlers+systemHandlers):
+                    for menuInfo in handler.getMenuInfo(e, dataHandler):
+                        if handlerId in globalMenuInfos:
+                            return globalMenuInfos[handlerId]['handler']
+
+            retValue = findHandlerId(entity)            
+            if retValue:
+                return retValue
+
+    #If we're here, then either no handlerId was specified or if it was, it was not found
+    if handlerId is not None:
+        myLogger.debug("Unable to resolve handlerId {} for entity {}. Trying to find a suitable one".format(handlerId, entity) )
+
+    if defaultHandler is not None and len(defaultHandler.getMenuInfo(entity, dataHandler))>0:
+        return defaultHandler
+    #get the first handler that can render this object
+    for handler in handlers:
+        menuInfos = handler.getMenuInfo(entity, dataHandler)
+        if ( menuInfos is not None and len(menuInfos)>0 ):
+            return handler
     #we didn't find any, return the first
     myLogger.debug("Didn't find any handler for {0}".format(handlerId))
     return UnknownEntityMeta()
@@ -186,19 +199,32 @@ class Display(with_metaclass(ABCMeta)):
         return chart width scale factor
     """
     def getWidthScaleFactor(self):
-        return 0.8
+        return 0.8 if "no_margin" not in self.options else 1.0
 
     def getPreferredOutputWidth(self):
         return float(self.options.get("nostore_cw", 1000)) * self.getWidthScaleFactor()
 
     def getPreferredOutputHeight(self):
-        return float(self.getPreferredOutputWidth() * self.getHeightWidthRatio())
+        ch = self.options.get("nostore_ch", None)
+        if ch is not None:
+            return float(ch)
+        else:
+            return float(self.getPreferredOutputWidth() * self.getHeightWidthRatio())
+
 
     def _getTemplateArgs(self, **kwargs):
         args = {
-            "this":self, "entity":self.entity, "prefix":self.getPrefix(),
-            "module":self.__module__
+            "this":self, 
+            "entity":self.entity, 
+            "prefix":self.getPrefix(),
+            "module":self.__module__,
+            "pd_controls": json.dumps({
+                "prefix": self.getPrefix(),
+                "command": self._genDisplayScript(menuInfo=kwargs.get("menuInfo", None) ),
+                "options": self.options
+            })
         }
+
         args.update(self.extraTemplateArgs)
         if kwargs:
             args.update(kwargs)
@@ -206,8 +232,22 @@ class Display(with_metaclass(ABCMeta)):
 
     def renderTemplate(self, templateName, **kwargs):
         return self.env.getTemplate(templateName).render(self._getTemplateArgs(**kwargs))
+
+    """
+        check if pixiedust object is already installed on the client
+    """
+    def _checkPixieDustJS(self):
+        if self.options.get("nostore_pixiedust", "false") != "true":
+            self.options["nostore_pixiedust"] = "true"
+            ipythonDisplay(Javascript(self.renderTemplate( "addScriptCode.js", type="css", code = self.renderTemplate("pixiedust.css") )))
+            js = self.renderTemplate( "addScriptCode.js", type="javascript", code = self.renderTemplate("pixiedust.js") )
+            self.debug("pixiedust code: {}".format(js))
+            ipythonDisplay(Javascript(js))
     
     def render(self):
+        #Experimental, not ready for prime time yet
+        self._checkPixieDustJS()
+
         handlerId=self.options.get("handlerId")
         if handlerId is None or not self.noChrome:
             #get the first menuInfo for this handler and generate a js call
@@ -226,13 +266,6 @@ class Display(with_metaclass(ABCMeta)):
             start = time.clock()
             self.doRender(handlerId)
             self.executionTime = time.clock() - start
-            
-        #check if pixiedust object is already installed on the client
-        #Experimental, not ready for prime time yet
-        #if self.options.get("nostore_pixiedust", "false") != "true":
-        #    js = self.renderTemplate( "addScriptCode.js", code = self.renderTemplate("pixiedust.js") )
-        #    self.debug("pixiedust code: {}".format(js))
-        #    ipythonDisplay(Javascript(js))
 
         #generate final HTML
         ipythonDisplay(HTML(self._wrapBeforeHtml() + self.html + self._wrapAfterHtml()))
@@ -341,6 +374,9 @@ class Display(with_metaclass(ABCMeta)):
             command = updateCommand(command, key, value)
 
         command = updateCommand(command, "showchrome", None)
+
+        if "nostore_pixiedust" in self.options:
+            command = updateCommand(command, "nostore_pixiedust", self.options["nostore_pixiedust"])
         #remove showchrome if there
         return command.replace("\"","\\\"")
 
@@ -379,6 +415,11 @@ class CellHandshakeMeta(DisplayHandlerMeta):
         
 class CellHandshake(Display):
     snifferCallbacks = []
+
+    def __init__(self, options, entity):
+        Display.__init__(self, options, entity)
+        self.nostore_params = True
+
     @staticmethod
     def addCallbackSniffer(sniffer):
         CellHandshake.snifferCallbacks.append(sniffer)
@@ -387,6 +428,29 @@ class CellHandshake(Display):
             self.renderTemplate("handshake.html")
         ))
         
+    def doRender(self, handlerId):
+        pass
+
+#Special handler for running in a dialog
+class RunInDialogMeta(DisplayHandlerMeta):
+    def getMenuInfo(self, entity, dataHandler):
+        return []
+    def newDisplayHandler(self, options, entity):
+        return RunInDialog(options, entity)
+
+@Logger()
+class RunInDialog(Display):
+    def render(self):
+        self._checkPixieDustJS()
+        self.debug("In RunInDialog")
+        # del self.options['runInDialog']
+        ipythonDisplay(Javascript("pixiedust.executeInDialog({0});".format(
+            json.dumps({
+                "prefix": self.getPrefix(),
+                "command": self.callerText.replace(",runInDialog='true'",""),
+                "options": self.options
+            })
+        )))
     def doRender(self, handlerId):
         pass
 

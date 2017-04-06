@@ -14,13 +14,4 @@
 # limitations under the License.
 # -------------------------------------------------------------------------------
 
-from ..display.display import Display
-
-class StashSwiftHandler(Display):
-    def doRender(self, handlerId):
-        entity=self.entity
-            
-        self._addHTML("""
-            <p><b>Sorry, but download is not yet implemented. Please check back often!</b></p>
-        """
-        )
+from .pixieapp import *

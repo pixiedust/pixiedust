@@ -57,7 +57,7 @@ class WorkingDataCache(with_metaclass(
 
     @staticmethod
     def putInCache(options, data, constraints):
-        if "cell_id" not in options:
+        if "cell_id" not in options or "noChartCache" in options:
             return
         constraints.pop("self",None)
         WorkingDataCache[options["cell_id"]] = {
@@ -193,11 +193,6 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
     @cache(fieldName="maxRows")
     def getMaxRows(self):
         return int(self.options.get("rowCount","100"))
-
-    # def getPandasDataFrame(self):
-    #     valueFieldValues = self.getValueFieldValueLists()
-    #     valueFields = self.getValueFields()
-    #     return pd.DataFrame([list(a) for a in zip( valueFieldValues[0], valueFieldValues[1]) ], columns=[valueFields[0], valueFields[1]])
 
     #helper method
     def _getField(self, fieldName):

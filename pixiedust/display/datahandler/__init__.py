@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------------
-# Copyright IBM Corp. 2016
+# Copyright IBM Corp. 2017
 # 
 # Licensed under the Apache License, Version 2.0 (the 'License');
 # you may not use this file except in compliance with the License.
@@ -23,4 +23,5 @@ def getDataHandler(options, entity):
         return PySparkDataFrameDataHandler(options, entity)
     elif dataFrameMisc.isPandasDataFrame(entity):
         return PandasDataFrameDataHandler(options, entity)
+
     return None
