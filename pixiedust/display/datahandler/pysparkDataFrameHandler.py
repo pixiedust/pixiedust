@@ -95,7 +95,10 @@ class PySparkDataFrameDataHandler(object):
         #check if the user wants timeseries
         if len(xFields) == 1 and self.options.get("timeseries", 'false') == 'true':
             field = xFields[0]
-            pdf[field] = pd.to_datetime(pdf[field])
+            try:
+                pdf[field] = pd.to_datetime(pdf[field])
+            except:
+                self.exception("Unable to convert field {} to datetime".format(field))
 
         #sort by xFields
         pdf.sort_values(extraFields + xFields, inplace=True)

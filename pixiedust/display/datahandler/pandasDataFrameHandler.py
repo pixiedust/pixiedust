@@ -90,7 +90,10 @@ class PandasDataFrameDataHandler(object):
         #check if the user wants timeseries
         if len(xFields) == 1 and self.options.get("to_datetime", 'false') == 'true':
             field = xFields[0]
-            workingDF[field] = pd.to_datetime(workingDF[field])
+            try:
+                workingDF[field] = pd.to_datetime(workingDF[field])
+            except:
+                self.exception("Unable to convert field {} to datetime".format(field))
         
         #sort by xFields
         workingDF.sort_values(extraFields + xFields, inplace=True)
