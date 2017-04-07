@@ -10,4 +10,4 @@ Here's what's new in Release 1.0.3 (8 April 2017):
 
 **Enhancements**
 
-- Added feature for time-series data. PixieDust now gives users the option to convert Unix timestamps (previously interpreted as `long` data types) to datetime64 values, so visualizations can be sorted temporally. (`#278 <https://github.com/ibm-cds-labs/pixiedust/issues/278>`_ & `#279 <https://github.com/ibm-cds-labs/pixiedust/issues/279>`_).
+- Added feature for time-series data. For line charts and bar charts, PixieDust now gives users the option to convert any date formatted as a string into a datetime64 value. Visualizations are now rendered properly, including sorting and formatting. (`#278 <https://github.com/ibm-cds-labs/pixiedust/issues/278>`_ & `#279 <https://github.com/ibm-cds-labs/pixiedust/issues/279>`_).
