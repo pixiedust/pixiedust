@@ -111,3 +111,5 @@ tests/metastore_db
 scala/.settings
 
 node/
+
+docs/_sources/
