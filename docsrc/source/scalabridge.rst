@@ -23,7 +23,7 @@ First install the jar into the Python kernel:
      pixiedust.installPackage("https://github.com/ibm-cds-labs/spark.samples/raw/master/dist/streaming-twitter-assembly-1.6.jar")
 
 
-You can now run the Scala code that uses Spark Streaming to fetch tweets:  
+You can now run the Scala code that uses Spark Streaming to fetch tweets:
 
    ::
 
