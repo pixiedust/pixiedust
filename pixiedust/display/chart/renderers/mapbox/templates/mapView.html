@@ -67,6 +67,24 @@ body { background-color:#333; margin:0px !important; overflow: hidden;font-famil
         }
         popup.setLngLat(f.geometry.coordinates).setHTML(popuphtml).addTo(map);
     });
+    
+    map.on("click", function (e) {
+        var fs = map.queryRenderedFeatures(e.point, { layers: ["pxlayer"] });
+        if (fs.length) {
+            var f = fs[0];
+            console.log("clicked", f);
+            var keylength = Object.keys(f.properties).length;
+            var payload = {type:"select", targetDivId: "{{this.options.get("targetDivId","") }}" };
+
+            for (var key in f.properties) {
+                payload[key] = f.properties[key];
+            }
+
+            if (window.triggerPDEvent) {
+                window.triggerPDEvent(payload);
+            }
+        }
+    });
         
     map.on("load", function() {
         var mapdata={{this.options.get("mapData")}};

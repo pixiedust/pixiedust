@@ -15,8 +15,10 @@
 # -------------------------------------------------------------------------------
 from pixiedust.utils.dataFrameAdapter import PandasDataFrameAdapter
 import pixiedust.utils.dataFrameMisc as dataFrameMisc
+import pandas as pd
 import numpy as np
 from pixiedust.utils import Logger
+from six import iteritems
 
 @Logger()
 class PandasDataFrameDataHandler(object):
@@ -68,6 +70,30 @@ class PandasDataFrameDataHandler(object):
         count = len(workingDF.index)
         if count > maxRows:
             workingDF = workingDF.sample(frac=(float(maxRows) / float(count)),replace=False)
+
+        #check if the caller want to preserve some columns
+        preserveCols = self.options.get("preserveCols", None)
+        if preserveCols is not None:
+            preserveCols = [a for a in preserveCols.split(",") if a not in xFields and a not in yFields]
+            cols = { key:[] for key in preserveCols}
+            for i in workingDF.index:
+                cond = None
+                for j, key in enumerate(extraFields + xFields):
+                    thisKey = self.entity.loc[i][key]
+                    cond = (self.entity[key] == thisKey) if j is 0 else (cond & (self.entity[key] == thisKey))
+                p = self.entity[ cond ]
+                for key in preserveCols:
+                    cols[key].append( p[key].values.tolist()[0] )
+            for key, value in iteritems(cols):
+                workingDF.insert(len(workingDF.columns), key, value)
+
+        #check if the user wants timeseries
+        if len(xFields) == 1 and self.options.get("to_datetime", 'false') == 'true':
+            field = xFields[0]
+            try:
+                workingDF[field] = pd.to_datetime(workingDF[field])
+            except:
+                self.exception("Unable to convert field {} to datetime".format(field))
         
         #sort by xFields
         workingDF.sort_values(extraFields + xFields, inplace=True)

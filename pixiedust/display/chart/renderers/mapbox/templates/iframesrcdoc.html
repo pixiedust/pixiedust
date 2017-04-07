@@ -1,3 +1,12 @@
-{%block title%}<h1 style="padding:0 0 8px 0">{{this.options.get("title", "PixieDust map with Mapbox")}}</h1>{%endblock%}
-
-<iframe style='width:{{prefwidth}}px;height:{{prefheight}}px' srcdoc='{{body|oneline|replace("'","\\'")}}'></iframe>
+<script>
+  window.iframeLoaded = window.iframeLoaded || function(iframe) {
+    try {
+      iframe.contentWindow["triggerPDEvent"] = function(eventInfo) {
+        $(document).trigger('pd_event', eventInfo);
+      }
+    } catch (e) {
+      console.log(e)
+    }
+  }
+</script>
+<iframe style='width:{{prefwidth}}px;height:{{prefheight}}px' srcdoc='{{body|oneline|replace("'","\\'")}}' onload="iframeLoaded(this)"></iframe>

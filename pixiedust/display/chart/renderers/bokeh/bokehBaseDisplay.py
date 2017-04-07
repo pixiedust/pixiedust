@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------------
-# Copyright IBM Corp. 2016
+# Copyright IBM Corp. 2017
 # 
 # Licensed under the Apache License, Version 2.0 (the 'License');
 # you may not use this file except in compliance with the License.
@@ -73,7 +73,12 @@ class BokehBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
 
         if not isinstance(charts, list):
             charts.add_tools(ResizeTool())
-            charts.title = self.options.get("title", "")
+            #bokeh 0.12.5 has a non backward compatible change on the title field. It is now of type Title
+            #following line is making sure that we are still working with 0.12.4 and below
+            if hasattr(charts, "title") and hasattr(charts.title, "text"):
+                charts.title.text = self.options.get("title", "")
+            else:
+                charts.title = self.options.get("title", "")
             charts.plot_width = int(self.getPreferredOutputWidth() - 10 )
             charts.plot_height = int(self.getPreferredOutputHeight() - 10  )
             charts.grid.grid_line_alpha=0.3

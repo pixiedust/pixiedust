@@ -43,4 +43,4 @@ class ScatterPlotDisplay(MatplotlibBaseDisplay):
 		keyFields = self.getKeyFields()
 		for i,keyField in enumerate(keyFields):
 			self.getWorkingPandasDataFrame().plot(kind='scatter', x=keyField, y=self.getValueFields()[0], 
-				label=keyField, ax=ax, color=Colors[1.*i/len(keyFields)], figsize=(8, 8))
+				label=keyField, ax=ax, color=Colors[1.*i/len(keyFields)])

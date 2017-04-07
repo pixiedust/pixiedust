@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------------
-# Copyright IBM Corp. 2016
+# Copyright IBM Corp. 2017
 # 
 # Licensed under the Apache License, Version 2.0 (the 'License');
 # you may not use this file except in compliance with the License.
@@ -38,12 +38,12 @@ with warnings.catch_warnings():
     installPackage=packageManager.installPackage
     uninstallPackage=packageManager.uninstallPackage
 
-    import pixiedust.display
-    import pixiedust.services
-
     #automated import into the user namespace
     try:
+        from py4j.protocol import Py4JJavaError
         from IPython.core.getipython import get_ipython
+        import pixiedust.display
+        import pixiedust.services
         get_ipython().user_ns["display"]=display.display
 
         #javaBridge and scalaBridge only work in the driver, not an executor
@@ -57,6 +57,6 @@ with warnings.catch_warnings():
 
         from pixiedust.utils import checkVersion
         checkVersion()
-    except NameError:
+    except (NameError, Py4JJavaError):
         #IPython not available we must be in a spark executor
         pass

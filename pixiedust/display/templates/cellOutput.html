@@ -207,14 +207,30 @@
   .pixiedust .rendererOpt.checkbox-primary input[type="checkbox"]:checked + label::after {
     color: #fff;
   }
+  .pixiedust-app .modal-dialog {
+    width: 95% !important;
+  }
+  .pixiedust-app .modal-dialog .pixiedust {
+    border: none;
+    height: calc(100vh - 275px);
+  }
+  .pixiedust-app .modal-dialog .expandButton {
+    visibility: hidden;
+  }
+  .pixiedust-app .pixiedust-output-wrapper,
+  .pixiedust-app .pixiedustWrapperHTML,
+  .pixiedust-app [pixiedust]:not(.pixiedust) {
+    height: 100%;
+    position: relative;
+  }
 </style>
 
-<div class="pixiedust">
+<div class="pixiedust" pixiedust="{{pd_controls|htmlAttribute}}">
   <button class="btn btn-default btn-sm expandButton" data-toggle="collapse"
           data-target="#pixiedust-output-wrapper-{{this.getPrefix()}}" title="Expand/Collapse Pixiedust output">
     <i class="fa"></i>
   </button>
-  <div id="pixiedust-output-wrapper-{{this.getPrefix()}}" class="collapse in">
+  <div id="pixiedust-output-wrapper-{{this.getPrefix()}}" class="pixiedust-output-wrapper collapse in">
     {%if numMenu > 1 %}
       <div class="pixiedust-toolbar btn-group" role="group" style="margin-bottom:15px">  
       {%for key, menuInfoList in menuTree|iteritems%}
@@ -255,6 +271,6 @@
       </div>
     {%endif%}
     <div id="wrapperJS{{this.getPrefix()}}"></div>
-    <div id="wrapperHTML{{this.getPrefix()}}" style="min-height:100px"></div>
+    <div id="wrapperHTML{{this.getPrefix()}}" class="pixiedustWrapperHTML" style="min-height:100px"></div>
   </div>
 </div>

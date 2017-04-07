@@ -1,16 +1,14 @@
-{% macro executeDisplayfunction(options="{}", useCellMetadata=False, divId=None) -%}
-{% set targetId=divId if divId and divId.startswith("$") else ("'"+divId+"'") if divId else "'wrapperHTML" + prefix + "'" %}
-function() {
+!function() {
     function getTargetNode(){
-        var n = $('#' + {{targetId}});
+        var n = $('#' + ($targetDivId || "wrapperHTML"));
         if (n.length == 0 ){
-            n = $('#wrapperHTML{{prefix}}');
+            n = $('#wrapperHTML' + pd_prefix);
         }
         return n;
     }
-    cellId = typeof cellId === "undefined" ? "" : cellId;
+    var cellId = options.cell_id || "";
     var curCell=IPython.notebook.get_cells().filter(function(cell){
-        return cell.cell_id=="{{this.options.get("cell_id","cellId")}}".replace("cellId",cellId);
+        return cell.cell_id==cellId;
     });
     curCell=curCell.length>0?curCell[0]:null;
     console.log("curCell",curCell);
@@ -18,6 +16,14 @@ function() {
     //Resend the display command
     var callbacks = {
         shell : {
+            reply : function(){
+                if ( !callbacks.response ){
+                    getTargetNode().html("")
+                    if (user_controls.onDisplayDone){
+                        user_controls.onDisplayDone();
+                    }
+                }
+            },
             payload : {
                 set_next_input : function(payload){
                     if (curCell){
@@ -28,15 +34,19 @@ function() {
         },
         iopub:{
             output:function(msg){
+                callbacks.response = true;
                 console.log("msg", msg);
-                if ({{"false" if "cell_id" in this.options else "true"}}){
-                    curCell.output_area.handle_output.apply(curCell.output_area, arguments);
-                    curCell.output_area.outputs=[];
+                if (cellId == ""){
+                    if (curCell){
+                        curCell.output_area.handle_output.apply(curCell.output_area, arguments);
+                        curCell.output_area.outputs=[];
+                    }else{
+                        console.log("Could not find current cell");
+                    }
                     return;
                 }
                 var msg_type=msg.header.msg_type;
                 var content = msg.content;
-                var executionTime = $("#execution{{prefix}}");
                 if(msg_type==="stream"){
                     getTargetNode().html(content.text);
                 }else if (msg_type==="display_data" || msg_type==="execute_result"){
@@ -114,101 +124,87 @@ function() {
                             getTargetNode().html("<pre>" + data +"</pre>");
                         }
                     });
+                }else{
+                    callbacks.response = false;
                 }
-
-                //Append profiling info
-                if (executionTime.length > 0 && $("#execution{{prefix}}").length == 0 ){
-                    getTargetNode().append(executionTime);
-                }else if (startWallToWall && $("#execution{{prefix}}").length > 0 ){
-                    $("#execution{{prefix}}").append($("<div/>").text("Wall to Wall time: " + ( (new Date().getTime() - startWallToWall)/1000 ) + "s"));
-                }
-
-                if (typeof onDisplayDone{{prefix}} != "undefined"){
-                    onDisplayDone{{prefix}}();
+                if (user_controls.onDisplayDone){
+                    user_controls.onDisplayDone();
                 }
             }
         }
     }
     
     if (IPython && IPython.notebook && IPython.notebook.session && IPython.notebook.session.kernel){
-        var command = "{{this._genDisplayScript(menuInfo)}}".replace("cellId",cellId);
-        function addOptions(options, override=true){
-            function getStringRep(v) {
-                return "'" + v + "'";
+        var command = user_controls.script || pd_controls.command.replace("cellId",cellId);
+        if ( !user_controls.script){
+            function addOptions(options, override=true){
+                function getStringRep(v) {
+                    return "'" + v + "'";
+                }
+                for (var key in (options||{})){
+                    var value = options[key];
+                    var hasValue = value != null && typeof value !== 'undefined' && value !== '';
+                    var replaceValue = hasValue ? (key+"=" + getStringRep(value) ) : "";
+                    var pattern = (hasValue?"":",")+"\\s*" + key + "\\s*=\\s*'(\\\\'|[^'])*'";
+                    var rpattern=new RegExp(pattern);
+                    var n = command.search(rpattern);
+                    if ( n >= 0 ){
+                        if (override){
+                            command = command.replace(rpattern, replaceValue);
+                        }
+                    }else if (hasValue){
+                        var n = command.lastIndexOf(")");
+                        command = [command.slice(0, n), (command[n-1]=="("? "":",") + replaceValue, command.slice(n)].join('')
+                    }        
+                }
             }
-            for (var key in (options||{})){
-                var value = options[key];
-                var hasValue = value != null && typeof value !== 'undefined' && value !== '';
-                var replaceValue = hasValue ? (key+"=" + getStringRep(value) ) : "";
-                var pattern = (hasValue?"":",")+"\\s*" + key + "\\s*=\\s*'(\\\\'|[^'])*'";
-                var rpattern=new RegExp(pattern);
-                var n = command.search(rpattern);
-                if ( n >= 0 ){
-                    if (override){
-                        command = command.replace(rpattern, replaceValue);
-                    }
-                }else if (hasValue){
-                    var n = command.lastIndexOf(")");
-                    command = [command.slice(0, n), (command[n-1]=="("? "":",") + replaceValue, command.slice(n)].join('')
-                }        
+            if(typeof cellMetadata != "undefined" && cellMetadata.displayParams){
+                addOptions(cellMetadata.displayParams);
+                addOptions({"showchrome":"true"});
+            }else if (curCell && curCell._metadata.pixiedust ){
+                addOptions(curCell._metadata.pixiedust.displayParams || {}, pd_controls.useCellMetadata);
             }
-        }
-        if(typeof cellMetadata != "undefined" && cellMetadata.displayParams){
-            addOptions(cellMetadata.displayParams);
-            addOptions({"showchrome":"true"});
-        }else if (curCell && curCell._metadata.pixiedust ){
-            addOptions(curCell._metadata.pixiedust.displayParams || {}, ('{{useCellMetadata}}'=='True') );
-        }
-        addOptions({{options|oneline|trim}});
-        {#Give a chance to the caller to add extra template fragment here#}
-        {{caller()}}
-        var pattern = "\\w*\\s*=\\s*'(\\\\'|[^'])*'";
-        var rpattern=new RegExp(pattern,"g");
-        var n = command.match(rpattern);
-        var displayParams={}
-        for (var i = 0; i < n.length; i++){
-            var parts=n[i].split("=");
-            var key = parts[0].trim();
-            var value = parts[1].trim()
-            if (!key.startsWith("nostore_") && key != "showchrome" && key != "prefix" && key != "cell_id"){
-                displayParams[key] = value.substring(1,value.length-1);
+            addOptions(user_controls.options||{});
+            var pattern = "\\w*\\s*=\\s*'(\\\\'|[^'])*'";
+            var rpattern=new RegExp(pattern,"g");
+            var n = command.match(rpattern);
+            var displayParams={}
+            for (var i = 0; i < n.length; i++){
+                var parts=n[i].split("=");
+                var key = parts[0].trim();
+                var value = parts[1].trim()
+                if (!key.startsWith("nostore_") && key != "showchrome" && key != "prefix" && key != "cell_id"){
+                    displayParams[key] = value.substring(1,value.length-1);
+                }
             }
+
+            {% if this.scalaKernel %}
+            command=command.replace(/(\w*?)\s*=\s*('(\\'|[^'])*'?)/g, function(a, b, c){
+                return '("' + b + '","' + c.substring(1, c.length-1) + '")';
+            })
+            {% endif %}
         }
-        {%if not this.nostore_params%}
         if(curCell&&curCell.output_area){
-            curCell._metadata.pixiedust = curCell._metadata.pixiedust || {}
-            curCell._metadata.pixiedust.displayParams=displayParams
-            curCell.output_area.outputs=[];
-            var old_msg_id = curCell.last_msg_id;
-            if (old_msg_id) {
-                curCell.kernel.clear_callbacks_for_msg(old_msg_id);
+            if ( !user_controls.nostoreMedatadata ){
+                curCell._metadata.pixiedust = curCell._metadata.pixiedust || {}
+                curCell._metadata.pixiedust.displayParams=displayParams
+                curCell.output_area.outputs=[];
+                var old_msg_id = curCell.last_msg_id;
+                if (old_msg_id) {
+                    curCell.kernel.clear_callbacks_for_msg(old_msg_id);
+                }
             }
         }else{
             console.log("couldn't find the cell");
         }
-        {%endif%}
-        $('#wrapperJS{{prefix}}').html("")
-        getTargetNode().html('<div style="width:100px;height:60px;left:47%;position:relative"><i class="fa fa-circle-o-notch fa-spin" style="font-size:48px"></i></div>'+
-        '<div style="text-align:center">Loading your data. Please wait...</div>');
-        startWallToWall = new Date().getTime();
-        {% if this.scalaKernel %}
-        command=command.replace(/(\w*?)\s*=\s*('(\\'|[^'])*'?)/g, function(a, b, c){
-            return '("' + b + '","' + c.substring(1, c.length-1) + '")';
-        })
-        {% endif %}
+        $('#wrapperJS' + pd_prefix).html("")
+        getTargetNode().html(
+            '<div style="width:100px;height:60px;left:47%;position:relative">'+
+                '<i class="fa fa-circle-o-notch fa-spin" style="font-size:48px"></i>'+
+            '</div>'+
+            '<div style="text-align:center">Loading your data. Please wait...</div>'
+        );
         console.log("Running command2",command);
         IPython.notebook.session.kernel.execute(command, callbacks, {silent:true,store_history:false,stop_on_error:true});
     }
-}
-{% endmacro %}
-
-{% macro executeDisplay(options="{}",useCellMetadata=False, divId=None) -%}
-    {%if caller%}
-        {% set content=caller() %}
-    {%else%}
-        {% set content="" %}
-    {%endif%}
-    !{%call executeDisplayfunction(options, useCellMetadata, divId)%}
-        {{content}}
-    {%endcall%}()
-{%- endmacro %}
+}()
