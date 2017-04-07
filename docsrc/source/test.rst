@@ -1,5 +1,5 @@
 Test
-===========
+====
 
 PixieDust provides several `notebooks <https://github.com/ibm-cds-labs/pixiedust/tree/master/tests>`_ that you can run to test and check stability of various features. Tests are maintained using `Travis CI <https://travis-ci.org/ibm-cds-labs/pixiedust>`_.
 

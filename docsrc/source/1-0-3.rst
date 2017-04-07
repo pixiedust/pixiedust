@@ -1,0 +1,13 @@
+1.0.3
+=====
+
+Here's what's new in Release 1.0.3 (8 April 2017):
+
+**Bug fixes**
+
+- PixieDust will now install locally when using Python 3.5 (`#290 <https://github.com/ibm-cds-labs/pixiedust/issues/290>`_).
+- Custom chart titles no longer appear twice when rendering Mapbox visualizations (`#262 <https://github.com/ibm-cds-labs/pixiedust/issues/262>`_).
+
+**Enhancements**
+
+- Added feature for time-series data. PixieDust now gives users the option to convert Unix timestamps (previously interpreted as `long` data types) to datetime64 values, so visualizations can be sorted temporally. (`#278 <https://github.com/ibm-cds-labs/pixiedust/issues/278>`_ & `#279 <https://github.com/ibm-cds-labs/pixiedust/issues/279>`_).
