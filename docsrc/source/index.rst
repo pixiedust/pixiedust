@@ -44,6 +44,7 @@ Get Started
 
    use
    develop
+   releasenotes
 
 
 

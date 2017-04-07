@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Display Data &mdash; PixieDust Documentation</title>
+    <title>Display Data &#8212; PixieDust Documentation</title>
     
     <link rel="stylesheet" href="_static/better.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -18,15 +18,16 @@
         VERSION:     '1.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="shortcut icon" href="_static/pd_icon.ico"/>
-    <link rel="top" title="PixieDust Documentation" href="index.html" />
-    <link rel="up" title="Use PixieDust" href="use.html" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Package Manager" href="packagemanager.html" />
     <link rel="prev" title="Load Data" href="loaddata.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
@@ -62,8 +63,8 @@
 <h2>Get Started<a class="headerlink" href="#get-started" title="Permalink to this headline">¶</a></h2>
 <p>Once you&#8217;ve imported the PixieDust module, start with the data. Here&#8217;s some sample code that creates a data frame:</p>
 <blockquote>
-<div><div class="highlight-python"><div class="highlight"><pre><span></span><span class="c1">#import pixiedust display module</span>
-<span class="kn">from</span> <span class="nn">pixiedust.display</span> <span class="kn">import</span> <span class="o">*</span>
+<div><div class="highlight-default"><div class="highlight"><pre><span></span><span class="c1">#import pixiedust display module</span>
+<span class="kn">from</span> <span class="nn">pixiedust.display</span> <span class="k">import</span> <span class="o">*</span>
 
 <span class="c1">#Create a dataframe with Quarterly sales results</span>
 <span class="n">sqlContext</span> <span class="o">=</span> <span class="n">SQLContext</span><span class="p">(</span><span class="n">sc</span><span class="p">)</span>
@@ -94,7 +95,7 @@
 </div></blockquote>
 <p>Then, in a single command, you  display that dataframe: <code class="docutils literal"><span class="pre">dd</span></code>.</p>
 <blockquote>
-<div><div class="highlight-python"><div class="highlight"><pre><span></span><span class="c1">#call a simple display api to visualize the data</span>
+<div><div class="highlight-default"><div class="highlight"><pre><span></span><span class="c1">#call a simple display api to visualize the data</span>
 <span class="n">display</span><span class="p">(</span><span class="n">dd</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -149,18 +150,14 @@
 <p class="last">To directly access your option settings, you can edit cell metadata. From the Jupyter menu, choose <strong>View &gt; Cell Toolbar &gt; Edit Metadata</strong>. On the upper right of your <code class="docutils literal"><span class="pre">display()</span></code> cell, click the <strong>Edit Metadata</strong> button. Jupyter shows you the cell&#8217;s JSON, which you can edit and save.</p>
 </div>
 <p>Set these common options for every chart:</p>
-<ul>
-<li><p class="first"><strong>Chart Title.</strong> Enter an apt, descriptive title</p>
-</li>
-<li><p class="first"><strong>Fields.</strong> List of available field names derived from your DataFrame schema</p>
-</li>
-<li><p class="first"><strong>Keys.</strong> Field(s) to serve as the x-Axis</p>
-</li>
-<li><p class="first"><strong>Values.</strong> Field(s) to serve as the y-Axis</p>
-</li>
+<ul class="simple">
+<li><strong>Chart Title.</strong> Enter an apt, descriptive title</li>
+<li><strong>Fields.</strong> List of available field names derived from your DataFrame schema</li>
+<li><strong>Keys.</strong> Field(s) to serve as the x-Axis</li>
+<li><strong>Values.</strong> Field(s) to serve as the y-Axis</li>
 <li><dl class="first docutils">
 <dt><strong>Aggregation.</strong> Type of aggregation to be performed on the data. Options include:</dt>
-<dd><ul class="first last simple">
+<dd><ul class="first last">
 <li><strong>SUM</strong> sum or total of values for the key</li>
 <li><strong>AVG</strong> average of values for the key</li>
 <li><strong>MIN</strong> Min (lowest) of values for the key</li>
@@ -313,7 +310,7 @@
 <li class="toctree-l1 current"><a class="reference internal" href="use.html">Use PixieDust</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="install.html">Install PixieDust</a></li>
 <li class="toctree-l2"><a class="reference internal" href="loaddata.html">Load Data</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="">Display Data</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Display Data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="packagemanager.html">Package Manager</a></li>
 <li class="toctree-l2"><a class="reference internal" href="scalabridge.html">Use Scala in a Python Notebook</a></li>
 <li class="toctree-l2"><a class="reference internal" href="sparkmonitor.html">Spark Progress Monitor</a></li>
@@ -322,19 +319,17 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="develop.html">Develop for PixieDust</a></li>
+<li class="toctree-l1"><a class="reference internal" href="releasenotes.html">Release Notes</a></li>
 </ul>
 
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -343,7 +338,7 @@
     </div>
   <footer id="pagefooter">&copy; 2017, IBM.
       Created using <a href="http://sphinx-doc.org/">Sphinx</a>
-      1.3.5.
+      1.5.1.
 
   </footer>
 
