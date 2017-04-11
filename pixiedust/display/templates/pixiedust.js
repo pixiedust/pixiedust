@@ -22,9 +22,6 @@ var pixiedust = (function(){
             var pd_prefix = pd_controls.prefix;
             var $targetDivId = user_controls.targetDivId;
             {%include "pd_executeDisplay.js"%}
-            {# call display.executeDisplay(divId="$targetDivId")
-                addOptions( user_controls.options || {} );
-             endcall #}
         },
         executeInDialog:function(pd_controls, user_controls){
             pd_controls = pd_controls || {};
@@ -256,7 +253,7 @@ $(document).on("pd_event", function(event, eventInfo){
                 if (value){
                     {#Inject eventInfo#}
                     if (value.script){
-                        value.script = "eventInfo="+JSON.stringify(eventInfo) + "\n" + value.script;
+                        value.script = "true=True\nfalse=False\neventInfo="+JSON.stringify(eventInfo) + "\n" + value.script;
                     }
                     pixiedust.executeDisplay(pd_controls, value);
                 }
