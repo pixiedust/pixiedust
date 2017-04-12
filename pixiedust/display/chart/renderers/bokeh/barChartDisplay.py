@@ -20,6 +20,7 @@ from .bokehBaseDisplay import BokehBaseDisplay
 from pixiedust.utils import Logger
 from bokeh.charts import Bar
 from bokeh.charts.operations import blend
+import numpy
 import bokeh.plotting as gridplot
 import sys
 
@@ -47,6 +48,18 @@ class BarChartRenderer(BokehBaseDisplay):
         stacked = self.options.get("charttype", "grouped") == "stacked"
         subplots = self.isSubplot()
         workingPDF = self.getWorkingPandasDataFrame().copy()
+
+        #Bokeh doesn't support datetime as index in Bar chart. Convert to String
+        if len(keyFields) == 1:
+            dtype = workingPDF[keyFields[0]].dtype.type if keyFields[0] in workingPDF else None
+            if numpy.issubdtype(dtype, numpy.datetime64):
+                dateFormat = self.options.get("dateFormat", None)
+                try:
+                    workingPDF[keyFields[0]] = workingPDF[keyFields[0]].apply(lambda x: str(x).replace(':','-') if dateFormat is None else x.strftime(dateFormat))
+                    self.debug("david {}".format(workingPDF))
+                except:
+                    self.exception("Error converting dateFormat {}".format(dateFormat))
+                    workingPDF[keyFields[0]] = workingPDF[keyFields[0]].apply(lambda x: str(x).replace(':','-'))
 
         for index, row in workingPDF.iterrows():
             for k in keyFields:
