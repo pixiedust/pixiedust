@@ -56,7 +56,6 @@ class BarChartRenderer(BokehBaseDisplay):
                 dateFormat = self.options.get("dateFormat", None)
                 try:
                     workingPDF[keyFields[0]] = workingPDF[keyFields[0]].apply(lambda x: str(x).replace(':','-') if dateFormat is None else x.strftime(dateFormat))
-                    self.debug("david {}".format(workingPDF))
                 except:
                     self.exception("Error converting dateFormat {}".format(dateFormat))
                     workingPDF[keyFields[0]] = workingPDF[keyFields[0]].apply(lambda x: str(x).replace(':','-'))
