@@ -20,6 +20,7 @@ from .bokehBaseDisplay import BokehBaseDisplay
 from pixiedust.utils import Logger
 from bokeh.charts import Line
 from bokeh.plotting import figure
+import pandas as pd
 import numpy as np
 import sys
 
@@ -36,6 +37,14 @@ class LineChartRenderer(BokehBaseDisplay):
     
         clusterby = self.options.get("clusterby")
         return [clusterby] if clusterby is not None else []
+
+    def safeList(self, index):
+        if np.issubdtype(index.dtype, np.datetime64):
+            dateFormat = self.options.get("dateFormat", None)
+            def convert(x):
+                return str(x).replace(':','-') if dateFormat is None else x.strftime(dateFormat)
+            return [convert(pd.to_datetime(x)) for x in index.values]
+        return index.values.tolist()
 
     def createBokehChart(self):
         keyFields = self.getKeyFields()
@@ -59,7 +68,7 @@ class LineChartRenderer(BokehBaseDisplay):
                 )
 
                 if not subplots:
-                    fig = figure(x_range=pivot.index.values.tolist() if not np.issubdtype(pivot.index.dtype, np.number) else None)
+                    fig = figure(x_range=self.safeList(pivot.index) if not np.issubdtype(pivot.index.dtype, np.number) else None)
                     charts.append(fig)
                 for i,col in enumerate(pivot.columns[:10]): #max 10
                     if subplots:
