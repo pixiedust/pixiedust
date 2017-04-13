@@ -1,10 +1,6 @@
 !function() {
     function getTargetNode(){
-        var n = $('#' + ($targetDivId || "wrapperHTML"));
-        if (n.length == 0 ){
-            n = $('#wrapperHTML' + pd_prefix);
-        }
-        return n;
+        return $('#' + ($targetDivId || ("wrapperHTML"+ pd_prefix)));
     }
     var cellId = options.cell_id || "";
     var curCell=IPython.notebook.get_cells().filter(function(cell){

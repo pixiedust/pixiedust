@@ -30,6 +30,9 @@
                 }
             }
             var snifferOptions = [{'nostore_cw':getCellWidth()},{'nostore_pixiedust':(typeof pixiedust != "undefined")}];
+            {%if org_params%}
+                snifferOptions.push({'org_params':'{{org_params}}'});
+            {%endif%}
             {%for cb in this.snifferCallbacks%}
                 snifferOptions.push({{cb()}})
             {%endfor%}

@@ -20,6 +20,9 @@ from .bokehBaseDisplay import BokehBaseDisplay
 from pixiedust.utils import Logger
 from bokeh.charts import Bar
 from bokeh.charts.operations import blend
+from bokeh.charts.attributes import  CatAttr
+import pandas as pd
+import numpy
 import bokeh.plotting as gridplot
 import sys
 
@@ -48,6 +51,17 @@ class BarChartRenderer(BokehBaseDisplay):
         subplots = self.isSubplot()
         workingPDF = self.getWorkingPandasDataFrame().copy()
 
+        #Bokeh doesn't support datetime as index in Bar chart. Convert to String
+        if len(keyFields) == 1:
+            dtype = workingPDF[keyFields[0]].dtype.type if keyFields[0] in workingPDF else None
+            if numpy.issubdtype(dtype, numpy.datetime64):
+                dateFormat = self.options.get("dateFormat", None)
+                try:
+                    workingPDF[keyFields[0]] = workingPDF[keyFields[0]].apply(lambda x: str(x).replace(':','-') if dateFormat is None else x.strftime(dateFormat))
+                except:
+                    self.exception("Error converting dateFormat {}".format(dateFormat))
+                    workingPDF[keyFields[0]] = workingPDF[keyFields[0]].apply(lambda x: str(x).replace(':','-'))
+
         for index, row in workingPDF.iterrows():
             for k in keyFields:
                 if isinstance(row[k], str if sys.version >= '3' else basestring):
@@ -58,10 +72,11 @@ class BarChartRenderer(BokehBaseDisplay):
         def goChart(label, stack_or_group, values, ylabel=None, color=None):
             if ylabel is None:
                 ylabel=values
+            label=label if isinstance(label, (list, tuple)) else [label]
             if stacked:
-                charts.append( Bar(workingPDF, label=label, stack=stack_or_group, color=color, values=values, legend=self.showLegend(), ylabel=ylabel))
+                charts.append( Bar(workingPDF, label=CatAttr(columns=label, sort=False), stack=stack_or_group, color=color, values=values, legend=self.showLegend(), ylabel=ylabel))
             else:
-                charts.append( Bar(workingPDF, label=label, group=stack_or_group, color=color, values=values, legend=self.showLegend(), ylabel=ylabel))
+                charts.append( Bar(workingPDF, label=CatAttr(columns=label, sort=False), group=stack_or_group, color=color, values=values, legend=self.showLegend(), ylabel=ylabel))
 
         if clusterby is not None and (subplots or len(valueFields)<=1):
             subplots = subplots if len(valueFields)==1 or subplots else False
@@ -71,10 +86,10 @@ class BarChartRenderer(BokehBaseDisplay):
                         index=keyFields[0], columns=clusterby, values=valueField
                     )
                     for i,col in enumerate(pivot.columns[:10]): #max 10
-                        data = {'values':pivot[col].values, 'names': pivot.index.values}
+                        data = pd.DataFrame({'values':pivot[col].values, 'names': pivot.index.values})
                         if subplots:                        
                             charts.append( 
-                                Bar(data, label='names', color = Colors.hexRGB( 1.*i/2 ), values='values', ylabel=valueField, legend=False, 
+                                Bar(data, label=CatAttr(columns=['names'], sort=False), color = Colors.hexRGB( 1.*i/2 ), values='values', ylabel=valueField, legend=False, 
                                     title="{0} = {1}".format(clusterby, pivot.columns[i])
                                 )
                             )

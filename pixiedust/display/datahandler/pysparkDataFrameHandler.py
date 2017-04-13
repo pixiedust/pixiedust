@@ -101,7 +101,7 @@ class PySparkDataFrameDataHandler(object):
                 self.exception("Unable to convert field {} to datetime".format(field))
 
         #sort by xFields
-        pdf.sort_values(extraFields + xFields, inplace=True)
+        pdf.sort_values(xFields + extraFields, inplace=True)
         return pdf
 
     """
