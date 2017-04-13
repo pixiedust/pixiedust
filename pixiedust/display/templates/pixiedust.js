@@ -142,10 +142,10 @@ function readExecInfo(pd_controls, element){
     if (w){
         execInfo.options.nostore_cw= w;
     }
-    if (execInfo.options.runInDialog == 'true') {
+    if ($(element).parents(".modal-dialog").length > 0 ) {
         h = $("#" + execInfo.targetDivId).height()
         if (h){
-            execInfo.options.nostore_ch= h;
+            execInfo.options.nostore_ch= h-10;
         }
     }
 
@@ -177,9 +177,12 @@ function readExecInfo(pd_controls, element){
             execInfo.script = "from pixiedust.utils.shellAccess import ShellAccess\n"+
                 "self=ShellAccess['" + entity + "']\n" +
                 resolveScriptMacros(execInfo.script);
-            if (!execInfo.targetDivId || execInfo.refresh || execInfo.entity){
+            if ( (!execInfo.targetDivId || execInfo.refresh || execInfo.entity) && $(element).children("target[pd_target]").length == 0){
                 {#include a refresh of the whole screen#}
                 execInfo.script += "\n" + applyEntity(pd_controls.command, execInfo.entity, execInfo.options)
+            }else{
+                {#make sure we have a targetDivId#}
+                execInfo.targetDivId=execInfo.targetDivId || "dummy";
             }
         }else{
             console.log("Unable to extract entity variable from command", pd_controls.command);
