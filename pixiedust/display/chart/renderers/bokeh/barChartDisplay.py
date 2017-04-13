@@ -51,16 +51,17 @@ class BarChartRenderer(BokehBaseDisplay):
         subplots = self.isSubplot()
         workingPDF = self.getWorkingPandasDataFrame().copy()
 
-        #Bokeh doesn't support datetime as index in Bar chart. Convert to String
-        if len(keyFields) == 1:
-            dtype = workingPDF[keyFields[0]].dtype.type if keyFields[0] in workingPDF else None
-            if numpy.issubdtype(dtype, numpy.datetime64):
-                dateFormat = self.options.get("dateFormat", None)
-                try:
-                    workingPDF[keyFields[0]] = workingPDF[keyFields[0]].apply(lambda x: str(x).replace(':','-') if dateFormat is None else x.strftime(dateFormat))
-                except:
-                    self.exception("Error converting dateFormat {}".format(dateFormat))
-                    workingPDF[keyFields[0]] = workingPDF[keyFields[0]].apply(lambda x: str(x).replace(':','-'))
+        def convertPDFDate(df, col):
+            #Bokeh doesn't support datetime as index in Bar chart. Convert to String
+            if len(keyFields) == 1:
+                dtype = df[col].dtype.type if col in df else None
+                if numpy.issubdtype(dtype, numpy.datetime64):
+                    dateFormat = self.options.get("dateFormat", None)
+                    try:
+                        df[col] = df[col].apply(lambda x: str(x).replace(':','-') if dateFormat is None else x.strftime(dateFormat))
+                    except:
+                        self.exception("Error converting dateFormat {}".format(dateFormat))
+                        df[col] = df[col].apply(lambda x: str(x).replace(':','-'))
 
         for index, row in workingPDF.iterrows():
             for k in keyFields:
@@ -70,6 +71,7 @@ class BarChartRenderer(BokehBaseDisplay):
 
         charts=[]
         def goChart(label, stack_or_group, values, ylabel=None, color=None):
+            convertPDFDate(workingPDF, keyFields[0])
             if ylabel is None:
                 ylabel=values
             label=label if isinstance(label, (list, tuple)) else [label]
@@ -87,6 +89,7 @@ class BarChartRenderer(BokehBaseDisplay):
                     )
                     for i,col in enumerate(pivot.columns[:10]): #max 10
                         data = pd.DataFrame({'values':pivot[col].values, 'names': pivot.index.values})
+                        convertPDFDate(data, 'names')
                         if subplots:                        
                             charts.append( 
                                 Bar(data, label=CatAttr(columns=['names'], sort=False), color = Colors.hexRGB( 1.*i/2 ), values='values', ylabel=valueField, legend=False, 
