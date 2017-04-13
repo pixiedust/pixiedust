@@ -15,6 +15,7 @@
 # -------------------------------------------------------------------------------
 from pixiedust.utils.dataFrameAdapter import PandasDataFrameAdapter
 import pixiedust.utils.dataFrameMisc as dataFrameMisc
+from datetime import datetime
 import pandas as pd
 import numpy as np
 from pixiedust.utils import Logger
@@ -88,10 +89,14 @@ class PandasDataFrameDataHandler(object):
                 workingDF.insert(len(workingDF.columns), key, value)
 
         #check if the user wants timeseries
-        if len(xFields) == 1 and self.options.get("to_datetime", 'false') == 'true':
+        if len(xFields) == 1 and self.options.get("timeseries", 'false') == 'true':
             field = xFields[0]
             try:
-                workingDF[field] = pd.to_datetime(workingDF[field])
+                inputDateFormat = self.options.get("inputDateFormat", None)
+                if inputDateFormat is not None:
+                    workingDF[field] = workingDF[field].apply(lambda x: datetime.strptime(str(x), inputDateFormat))
+                else:
+                    workingDF[field] = pd.to_datetime(workingDF[field])
             except:
                 self.exception("Unable to convert field {} to datetime".format(field))
         

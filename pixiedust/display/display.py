@@ -412,7 +412,8 @@ class CellHandshakeMeta(DisplayHandlerMeta):
        return []
     def newDisplayHandler(self,options,entity):
         return CellHandshake(options,entity)
-        
+
+@Logger()    
 class CellHandshake(Display):
     snifferCallbacks = []
 
@@ -425,7 +426,7 @@ class CellHandshake(Display):
         CellHandshake.snifferCallbacks.append(sniffer)
     def render(self):
         ipythonDisplay(HTML(
-            self.renderTemplate("handshake.html")
+            self.renderTemplate("handshake.html", org_params = ','.join(list(self.options.keys())))
         ))
         
     def doRender(self, handlerId):
