@@ -75,9 +75,13 @@ def PixieApp(cls):
     #reset the class routing in case the cell is being run multiple time
     clsName = "{}_{}_Display".format(inspect.getmodule(cls).__name__, cls.__name__)
     PixieDustApp.routesByClass[clsName] = []
-    for name, method in iteritems(cls.__dict__):
-        if hasattr(method, "pixiedust_route"):
-            PixieDustApp.routesByClass[clsName].append( (method.pixiedust_route,name) )
+    def walk(cl):
+        for name, method in iteritems(cl.__dict__):
+            if hasattr(method, "pixiedust_route"):
+                PixieDustApp.routesByClass[clsName].append( (method.pixiedust_route,name) )
+        for c in [c for c in cl.__bases__]:
+            walk(c)
+    walk(cls)
 
     #re-order the routes according to the number of constraints e.g. from more to less specific
     p = PixieDustApp.routesByClass[clsName]
