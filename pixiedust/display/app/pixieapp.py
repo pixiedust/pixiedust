@@ -49,16 +49,21 @@ class PixieDustApp(Display):
     def doRender(self, handlerId):
         if self.__class__.__name__ in PixieDustApp.routesByClass:
             defRoute = None
-            for t in PixieDustApp.routesByClass[self.__class__.__name__]:
-                if not t[0]:
-                    defRoute = t[1]
-                elif self.matchRoute(t[0]):
-                    self.debug("match found: {}".format(t[0]))
-                    getattr(self, t[1])()
+            retValue = None
+            try:
+                for t in PixieDustApp.routesByClass[self.__class__.__name__]:
+                    if not t[0]:
+                        defRoute = t[1]
+                    elif self.matchRoute(t[0]):
+                        self.debug("match found: {}".format(t[0]))
+                        retValue = getattr(self, t[1])()
+                        return
+                if defRoute:
+                    retValue = getattr(self, defRoute)()
                     return
-            if defRoute:
-                getattr(self, defRoute)()
-                return
+            finally:
+                if retValue is not None:
+                    self._addHTMLTemplateString(retValue)
 
         print("Didn't find any routes for {}".format(self))
 
@@ -73,6 +78,10 @@ def PixieApp(cls):
     for name, method in iteritems(cls.__dict__):
         if hasattr(method, "pixiedust_route"):
             PixieDustApp.routesByClass[clsName].append( (method.pixiedust_route,name) )
+
+    #re-order the routes according to the number of constraints e.g. from more to less specific
+    p = PixieDustApp.routesByClass[clsName]
+    PixieDustApp.routesByClass[clsName] = [p[a[1]] for a in sorted([(len(a[0]), i) for i,a in enumerate(p)], reverse=True)]
 
     def __init__(self, options=None, entity=None, dataHandler=None):
         PixieDustApp.__init__(self, options or {}, entity, dataHandler)

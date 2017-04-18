@@ -164,12 +164,25 @@
             var pattern = "\\w*\\s*=\\s*'(\\\\'|[^'])*'";
             var rpattern=new RegExp(pattern,"g");
             var n = command.match(rpattern);
+            {#find the org_params if any#}
+            var org_params = {}
+            for (var i=0; i<n.length;i++){
+                var parts = n[i].split("=")
+                if (parts[0].trim() == "org_params"){
+                    var value = parts[1].trim()
+                    var values = value.substring(1,value.length-1).split(",");
+                    for (var p in values){
+                        org_params[values[p].trim()] = true;
+                    }
+                    break;
+                }
+            }
             var displayParams={}
             for (var i = 0; i < n.length; i++){
                 var parts=n[i].split("=");
                 var key = parts[0].trim();
                 var value = parts[1].trim()
-                if (!key.startsWith("nostore_") && key != "showchrome" && key != "prefix" && key != "cell_id"){
+                if (!key.startsWith("nostore_") && key != "showchrome" && key != "prefix" && key != "cell_id" && key != "org_params" && !!!org_params[key]){
                     displayParams[key] = value.substring(1,value.length-1);
                 }
             }
