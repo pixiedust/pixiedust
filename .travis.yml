@@ -1,46 +1,35 @@
 language: python
 python:
-    - "2.7"
-    - "3.5"
-
+- '2.7'
+- '3.5'
 before_install:
-    - echo Installing Anaconda. Path is $PATH
-    - cd
-    - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
-        wget https://repo.continuum.io/archive/Anaconda2-4.2.0-Linux-x86_64.sh -O anaconda.sh;
-      else
-        wget https://repo.continuum.io/archive/Anaconda3-4.2.0-Linux-x86_64.sh -O anaconda.sh;
-      fi
-    - bash anaconda.sh -b -p $HOME/anaconda
-    - export PATH="$HOME/anaconda/bin:$PATH"
-    - echo Done installing Anaconda. Path is $PATH
-    - echo Install scala
-    - wget http://www.scala-lang.org/files/archive/scala-2.10.4.tgz
-    - tar -xvf scala-2.10.4.tgz
-    - export SCALA_HOME=~/scala-2.10.4
-    - echo Installing Spark
-    - wget http://d3kbcqa49mib13.cloudfront.net/spark-1.6.0-bin-hadoop2.6.tgz
-    - tar -xvf spark-1.6.0-bin-hadoop2.6.tgz
-    - export SPARK_HOME=~/spark-1.6.0-bin-hadoop2.6
-    - export PIXIEDUST_HOME=~/pixiedust-test-$TRAVIS_PYTHON_VERSION
-
+- echo Installing Anaconda. Path is $PATH
+- cd
+- if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then wget https://repo.continuum.io/archive/Anaconda2-4.2.0-Linux-x86_64.sh
+  -O anaconda.sh; else wget https://repo.continuum.io/archive/Anaconda3-4.2.0-Linux-x86_64.sh
+  -O anaconda.sh; fi
+- bash anaconda.sh -b -p $HOME/anaconda
+- export PATH="$HOME/anaconda/bin:$PATH"
+- echo Done installing Anaconda. Path is $PATH
+- echo Install scala
+- wget http://www.scala-lang.org/files/archive/scala-2.10.4.tgz
+- tar -xvf scala-2.10.4.tgz
+- export SCALA_HOME=~/scala-2.10.4
+- echo Installing Spark
+- wget http://d3kbcqa49mib13.cloudfront.net/spark-1.6.0-bin-hadoop2.6.tgz
+- tar -xvf spark-1.6.0-bin-hadoop2.6.tgz
+- export SPARK_HOME=~/spark-1.6.0-bin-hadoop2.6
+- export PIXIEDUST_HOME=~/pixiedust-test-$TRAVIS_PYTHON_VERSION
 install:
-    - conda create -y -q -n pixiedust-travis-test python=$TRAVIS_PYTHON_VERSION
-    - source activate pixiedust-travis-test
-    - conda install -y jupyter matplotlib pandas seaborn bokeh requests pyyaml
-    - pip install pandas_datareader
-    - cd $TRAVIS_BUILD_DIR
-    - python setup.py install
-
+- conda create -y -q -n pixiedust-travis-test python=$TRAVIS_PYTHON_VERSION
+- source activate pixiedust-travis-test
+- conda install -y jupyter matplotlib pandas seaborn bokeh requests pyyaml
+- pip install pandas_datareader
+- cd $TRAVIS_BUILD_DIR
+- python setup.py install
 script:
-    - python $TRAVIS_BUILD_DIR/tests/runPixiedustNotebooks.py 
-
+- python $TRAVIS_BUILD_DIR/tests/runPixiedustNotebooks.py
 sudo: false
-
 notifications:
   slack:
-    rooms:
-      secure: "ZbPB01PfMrOAnneykn9CQTYSx5nMTPANf6Jn949T7enho/xc7oU2SXONb7erO6BeyHb27AGTVlOkfeFRH/ekUt9QOnBZU1ZdomkGXaD96ZVHk2uvtlYsdw16l7sS7InQrhveLAGPCF2+9TChwciwSpT7/dZ1Smf0BShrhlCfLvp
-8Z26DX9k31TSGvsYmuXLCHJqnxVpMVof22az9dLLT/eMD11zwWYyOR3aiYhx8YOiTM8hSQWxjSuD4OQpH1ng/BYANR+DJSWyYUCELuoEx9a7QqKU4U7uIUo0rifUbtD0uBM4+P7rnoircAto0f1mmJNh09CUgCu4YeXHFy7XCAXRAhwUE9Mgoy
-4T20lQDUGw35SJuyGuay8tQnE1QJJUn+2ThHgfZ33eGU9M1G9zRyCRwn33vVtZhtdrs1V0AdZ8VCI0tG0+bVb4NF4rTdgBhBRBSNaegXU61fe4BzP//b5CwPh1E6a2N/lTxkuRSBfcOOPRXkHz2DpUUvUStDrtsa8ux3PnfqYqoFlysDIhR2/E
-UAp6QB7dKIdd0/+NF6eGvIzGYuKMcVmINdtAv3AE+unwYPN2F9VS/j0sWEwLhrrgHiYW7VxIBDnIaKCvf59rHz+siisrAiZS6OPzqsUWdOceNXAYZ31cC05PAtTjyYaYkAff8QMpIwMBDsSWHVAQ="
+    secure: ZGBIE0S/C0pQ4Vmm4KfIyroRX2hU0SCx7BNwcpDc2LoigeWjS6Bs46b0NKuL+ydSeQgoB5esl2WwM08cm0wTVmLd+U07oMMVmqfR6hizCuTbP64j3DNVoE2B5DPxZ/0BSrEWmcEU48Z1CK5Bp3upuq2BcL5JC2x4JQ3F5TOS+UoB7tJ0wNOb/wleWNV/4aEmcrotAkoQLj4RPzyseYpBo3Ix0qXVAtwTHaQE8rKJw+FrwigzR8wd2Vxj7jBuADNPKh9m5r1JFFZGEBPXTlKq8HIlVLWSVdmqzVzJd3p2uFuSs0+snmWb67ZifEnkcmtkFCMcLL02wowmnPnnRU6Dvc5Y9t3xKCHXony0fJXYXlOo6Aq/tWYsxHHyN8RtsQVaioj7gYWiqtAyor2cuGi71FhQ55LydjScUEXUNottEnj/hPvDKa9qEAQU/CVcNw37Um8V/xm2WoPsFkh+9cf6IyRSf9T5wIPjfLROIZ3y91p4y4g4oQ8FpvEvhXD9buuPNkRAu91TvdCiMFIPFOYv7sIiDFIDJzih3+MGNJWwyMquOfmsKrwB/rhCWEExtURxl98P2okjFW74l5zQ7nBnOgSLQwPe3h8PC100ukl3BaWWAPTH93kRsqXLzpbSMd8t6BzOLw7nZ+QT9HImx2teFFGkVIVwZuTuEyscyNvd1qU=
