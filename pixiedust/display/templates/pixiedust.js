@@ -167,6 +167,10 @@ function readExecInfo(pd_controls, element){
         return addOptions(c, doptions);
     }
 
+    if (!hasOptions && execInfo.refresh && !execInfo.script){
+        execInfo.script = "#refresh";
+    }
+
     if (execInfo.script){
         execInfo.script = execInfo.script.trim()
         {#set up the self variable#}
