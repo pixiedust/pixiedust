@@ -138,16 +138,38 @@ function readExecInfo(pd_controls, element){
     if (execInfo.options.targetDivId){
         execInfo.options.no_margin=true;
     }
-    w = $("#" + execInfo.targetDivId).width()
-    if (w){
+
+    // unhide parents temporarily to properly calculate width/height
+    var parentStyles = [];
+    var hiddenBlockStyle = 'visibility: hidden !important; display: block !important;';
+    var tDiv = $("#" + execInfo.targetDivId);
+    var tDivParents = tDiv.parents().addBack().filter(':hidden');
+    tDivParents.each(function() {
+        var currentStyle = $(this).attr('style');
+        parentStyles.push(currentStyle);
+        $(this).attr('style', currentStyle ? currentStyle + ';' + hiddenBlockStyle : hiddenBlockStyle);
+    });
+
+    // calculate width/height
+    w = tDiv.width()
+    if (w) {
         execInfo.options.nostore_cw= w;
     }
     if ($(element).parents(".modal-dialog").length > 0 ) {
-        h = $("#" + execInfo.targetDivId).height()
-        if (h){
-            execInfo.options.nostore_ch= h-10;
+        h = tDiv.height()
+        if (h) {
+            execInfo.options.nostore_ch = h-10;
         }
     }
+
+    // re-hide parents
+    tDivParents.each(function(i) {
+        if (parentStyles[i] === undefined) {
+            $(this).removeAttr('style');
+        } else {
+            $(this).attr('style', parentStyles[i]);
+        }
+    });
 
     execInfo.script = element.getAttribute("pd_script");
     if (!execInfo.script){
