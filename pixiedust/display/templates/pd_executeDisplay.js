@@ -213,7 +213,7 @@
                     '<i class="fa fa-circle-o-notch fa-spin" style="font-size:48px"></i>'+
                 '</div>'+
                 '<div style="text-align:center">' +
-                    getTargetNode().attr("pd_loading_msg") || "Loading your data. Please wait..." +
+                    (getTargetNode().attr("pd_loading_msg") || "Loading your data. Please wait...") +
                 '</div>'
             );
         }
