@@ -207,12 +207,14 @@
             console.log("couldn't find the cell");
         }
         $('#wrapperJS' + pd_prefix).html("")
-        getTargetNode().html(
-            '<div style="width:100px;height:60px;left:47%;position:relative">'+
-                '<i class="fa fa-circle-o-notch fa-spin" style="font-size:48px"></i>'+
-            '</div>'+
-            '<div style="text-align:center">Loading your data. Please wait...</div>'
-        );
+        if (!getTargetNode().hasClass( "no_loading_msg" )){
+            getTargetNode().html(
+                '<div style="width:100px;height:60px;left:47%;position:relative">'+
+                    '<i class="fa fa-circle-o-notch fa-spin" style="font-size:48px"></i>'+
+                '</div>'+
+                '<div style="text-align:center">Loading your data. Please wait...</div>'
+            );
+        }
         console.log("Running command2",command);
         IPython.notebook.session.kernel.execute(command, callbacks, {silent:true,store_history:false,stop_on_error:true});
     }

@@ -112,6 +112,8 @@ def PixieApp(cls):
         if runInDialog:
             options.update( self.getDialogOptions() )
 
+        options.update( {'handlerId': decoName(cls, "id") })
+
         s = "display({}{})".format(var, reduce(lambda k,v: k + "," + v[0] + "='" + v[1] + "'", iteritems(options), ""))
         try:
             sys.modules['pixiedust.display'].pixiedust_display_callerText = s
