@@ -212,7 +212,9 @@
                 '<div style="width:100px;height:60px;left:47%;position:relative">'+
                     '<i class="fa fa-circle-o-notch fa-spin" style="font-size:48px"></i>'+
                 '</div>'+
-                '<div style="text-align:center">Loading your data. Please wait...</div>'
+                '<div style="text-align:center">' +
+                    getTargetNode().attr("pd_loading_msg") || "Loading your data. Please wait..." +
+                '</div>'
             );
         }
         console.log("Running command2",command);
