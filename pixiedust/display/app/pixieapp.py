@@ -51,7 +51,8 @@ class PixieDustApp(Display):
             defRoute = None
             retValue = None
             try:
-                for t in PixieDustApp.routesByClass[self.__class__.__name__]:
+                dispatchKey = "widgets" if "widget" in self.options else "routes"
+                for t in PixieDustApp.routesByClass[self.__class__.__name__][dispatchKey]:
                     if not t[0]:
                         defRoute = t[1]
                     elif self.matchRoute(t[0]):
@@ -74,18 +75,23 @@ class PixieDustApp(Display):
 def PixieApp(cls):
     #reset the class routing in case the cell is being run multiple time
     clsName = "{}_{}_Display".format(inspect.getmodule(cls).__name__, cls.__name__)
-    PixieDustApp.routesByClass[clsName] = []
+    PixieDustApp.routesByClass[clsName] = {"routes":[], "widgets":[]}
+    #put the routes that define a widget in a separate bucket
+
     def walk(cl):
         for name, method in iteritems(cl.__dict__):
             if hasattr(method, "pixiedust_route"):
-                PixieDustApp.routesByClass[clsName].append( (method.pixiedust_route,name) )
+                if "widget" in method.pixiedust_route:
+                    PixieDustApp.routesByClass[clsName]["widgets"].append( (method.pixiedust_route,name) )
+                else:
+                    PixieDustApp.routesByClass[clsName]["routes"].append( (method.pixiedust_route,name) )
         for c in [c for c in cl.__bases__]:
             walk(c)
     walk(cls)
 
     #re-order the routes according to the number of constraints e.g. from more to less specific
-    p = PixieDustApp.routesByClass[clsName]
-    PixieDustApp.routesByClass[clsName] = [p[a[1]] for a in sorted([(len(a[0]), i) for i,a in enumerate(p)], reverse=True)]
+    p = PixieDustApp.routesByClass[clsName]["routes"]
+    PixieDustApp.routesByClass[clsName]["routes"] = [p[a[1]] for a in sorted([(len(a[0]), i) for i,a in enumerate(p)], reverse=True)]
 
     def __init__(self, options=None, entity=None, dataHandler=None):
         PixieDustApp.__init__(self, options or {}, entity, dataHandler)

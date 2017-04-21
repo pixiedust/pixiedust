@@ -139,6 +139,8 @@ function readExecInfo(pd_controls, element){
         execInfo.options.no_margin=true;
     }
 
+    execInfo.options.widget = event.target.getAttribute("pd_widget");
+
     // unhide parents temporarily to properly calculate width/height
     var parentStyles = [];
     var hiddenBlockStyle = 'visibility: hidden !important; display: block !important;';
@@ -189,7 +191,7 @@ function readExecInfo(pd_controls, element){
         return addOptions(c, doptions);
     }
 
-    if (!hasOptions && execInfo.refresh && !execInfo.script){
+    if (!hasOptions && (execInfo.refresh || execInfo.options.widget) && !execInfo.script){
         execInfo.script = "#refresh";
     }
 
@@ -258,6 +260,19 @@ $(document).on( "click", "[pixiedust]", function(event){
     $.each( execQueue, function(index, value){
         if (value){
             event.stopImmediatePropagation();
+            pixiedust.executeDisplay(pd_controls, value);
+        }
+    });
+});
+
+$(document).on( "DOMNodeInserted", "[pd_widget]", function(event){
+    event.stopImmediatePropagation();
+    execQueue = runElement(event.target);
+    {#execute#}
+    $.each( execQueue, function(index, value){
+        if (value){
+            value.targetDivId = $(event.target).uniqueId().attr('id');
+            $(event.target).removeAttr("pd_widget");
             pixiedust.executeDisplay(pd_controls, value);
         }
     });

@@ -30,9 +30,8 @@ function() {
             output:function(msg){
                 console.log("msg", msg);
                 if ({{"false" if "cell_id" in this.options else "true"}}){
+                    curCell.output_area.clear_output(false, true);
                     curCell.output_area.handle_output.apply(curCell.output_area, arguments);
-                    curCell.output_area.outputs=[];
-                    return;
                 }
                 var msg_type=msg.header.msg_type;
                 var content = msg.content;
@@ -155,7 +154,6 @@ function() {
         }
         if(typeof cellMetadata != "undefined" && cellMetadata.displayParams){
             addOptions(cellMetadata.displayParams);
-            addOptions({"showchrome":"true"});
         }else if (curCell && curCell._metadata.pixiedust ){
             addOptions(curCell._metadata.pixiedust.displayParams || {}, ('{{useCellMetadata}}'=='True') );
         }
