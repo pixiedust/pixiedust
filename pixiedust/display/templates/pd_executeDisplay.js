@@ -44,7 +44,11 @@
                 var msg_type=msg.header.msg_type;
                 var content = msg.content;
                 if(msg_type==="stream"){
-                    getTargetNode().html(content.text);
+                    if (user_controls.onSuccess){
+                        user_controls.onSuccess(content.text);
+                    }else{
+                        getTargetNode().html(content.text);
+                    }
                 }else if (msg_type==="display_data" || msg_type==="execute_result"){
                     var html=null;
                     if (!!content.data["text/html"]){
@@ -65,7 +69,11 @@
                     
                     if (html){
                         try{
-                            getTargetNode().html(html);
+                            if (user_controls.onSuccess){
+                                user_controls.onSuccess(html);
+                            }else{
+                                getTargetNode().html(html);
+                            }
                         }catch(e){
                             console.log("Invalid html output", e, html);
                             getTargetNode().html( "Invalid html output: " + e.message + "<pre>" 
@@ -117,7 +125,11 @@
                             data = utils.fixConsole(data);
                             data = utils.fixCarriageReturn(data);
                             data = utils.autoLinkUrls(data);
-                            getTargetNode().html("<pre>" + data +"</pre>");
+                            if (user_controls.onError){
+                                user_controls.onError(data);
+                            }else{
+                                getTargetNode().html("<pre>" + data +"</pre>");
+                            }
                         }
                     });
                 }else{

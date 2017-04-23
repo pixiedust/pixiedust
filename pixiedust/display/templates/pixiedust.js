@@ -30,9 +30,15 @@ var pixiedust = (function(){
             var global={};
             require(['base/js/dialog'],function(dialog){
                 var modal = dialog.modal;
+                var attr_pd_ctrl = JSON.stringify(pd_controls).trim()
+                    .replace(/&/g, '&amp;')
+                    .replace(/'/g, '&apos;')
+                    .replace(/"/g, '&quot;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;');
                 var options = {
                     title: "Pixiedust: " + (displayOptions.title || "Dialog"),
-                    body: '<div id="dialog{{prefix}}root"></div>',
+                    body: '<div id="dialog{{prefix}}root" pixiedust="' + attr_pd_ctrl + '"></div>',
                     sanitize:false,
                     notebook: IPython.notebook,
                     keyboard_manager: IPython.notebook.keyboard_manager,
@@ -62,7 +68,16 @@ var pixiedust = (function(){
                         };
                     }
                     IPython.keyboard_manager.register_events(modal_obj);
-                    user_controls.targetDivId = "dialog{{prefix}}root";
+                    user_controls.options.targetDivId = user_controls.targetDivId = "dialog{{prefix}}root";
+                    user_controls.onDisplayDone = function(){
+                        debugger;
+                        var dlg = $("#dialog{{prefix}}root > pd_dialog")
+                        try{
+                            eval(dlg.find("pd_onload").text().trim() || "");
+                        }catch(e){
+                            console.error(e);
+                        }
+                    }
                     pixiedust.executeDisplay(pd_controls, user_controls);
                 });
                 modal_obj.on("hidden.bs.modal", function () {
@@ -205,7 +220,7 @@ function readExecInfo(pd_controls, element){
             execInfo.script = "from pixiedust.utils.shellAccess import ShellAccess\n"+
                 "self=ShellAccess['" + entity + "']\n" +
                 resolveScriptMacros(execInfo.script);
-            if ( (!execInfo.targetDivId || execInfo.refresh || execInfo.entity) && $(element).children("target[pd_target]").length == 0){
+            if ( ( (!execInfo.options.dialog && !execInfo.targetDivId) || execInfo.refresh || execInfo.entity) && $(element).children("target[pd_target]").length == 0){
                 {#include a refresh of the whole screen#}
                 execInfo.script += "\n" + applyEntity(pd_controls.command, execInfo.entity, execInfo.options)
             }else{
@@ -218,7 +233,7 @@ function readExecInfo(pd_controls, element){
     }
 
     if (!hasOptions && !execInfo.targetDivId && !execInfo.script){
-        return null;
+        return element.hasAttribute("pixiedust")?null:readExecInfo(pd_controls, element.parentElement);
     }
 
     if (!execInfo.script){
@@ -228,12 +243,20 @@ function readExecInfo(pd_controls, element){
     {#pixieapps never write their metadata on the cell #}
     execInfo.nostoreMedatadata = true;
 
+    execInfo.execute = function(){
+        if ( this.options.dialog == 'true' ){
+            pixiedust.executeInDialog(pd_controls, this);
+        }else{
+            pixiedust.executeDisplay(pd_controls, this);
+        }
+    }
+
     console.log("execution info: ", execInfo);
     return execInfo;
 }
 
 function runElement(element){
-    pd_controls = element.getAttribute("pixiedust");
+    var pd_controls = element.getAttribute("pixiedust");
     if (!pd_controls){
         $(element).parents("[pixiedust]").each(function(){
             pd_controls = pd_controls || this.getAttribute("pixiedust");
@@ -260,7 +283,7 @@ $(document).on( "click", "[pixiedust]", function(event){
     $.each( execQueue, function(index, value){
         if (value){
             event.stopImmediatePropagation();
-            pixiedust.executeDisplay(pd_controls, value);
+            value.execute();
         }
     });
 });
@@ -273,7 +296,7 @@ $(document).on( "DOMNodeInserted", "[pd_widget]", function(event){
         if (value){
             value.targetDivId = $(event.target).uniqueId().attr('id');
             $(event.target).removeAttr("pd_widget");
-            pixiedust.executeDisplay(pd_controls, value);
+            value.execute();
         }
     });
 });

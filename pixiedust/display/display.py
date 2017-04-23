@@ -278,9 +278,12 @@ class Display(with_metaclass(ABCMeta)):
     def _addHTMLTemplate(self, templateName, **kwargs):
         self._addHTML(self.renderTemplate(templateName, **kwargs))
 
+    def renderTemplateString(self, source, **kwargs):
+        return self.env.from_string(source).render(self._getTemplateArgs(**kwargs))
+
     def _addHTMLTemplateString(self, source, **kwargs):
         self._addHTML(
-            self.env.from_string(source).render(self._getTemplateArgs(**kwargs))
+            self.renderTemplateString(source, **kwargs)
         )
 
     def _addJavascript(self, javascript):
