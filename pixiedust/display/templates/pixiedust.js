@@ -46,6 +46,13 @@ var pixiedust = (function(){
                         OK: {
                             class : "btn-primary btn-ok",
                             click: function() {
+                                var dlg = $("#dialog{{prefix}}root > pd_dialog")
+                                try{
+                                    return new Function('global', 'modal_obj', dlg.find("pd_ok").text().trim())(global, modal_obj);
+                                }catch(e){
+                                    console.error(e);
+                                    return false;
+                                }
                             }
                         },
                         Cancel: {
@@ -70,10 +77,9 @@ var pixiedust = (function(){
                     IPython.keyboard_manager.register_events(modal_obj);
                     user_controls.options.targetDivId = user_controls.targetDivId = "dialog{{prefix}}root";
                     user_controls.onDisplayDone = function(){
-                        debugger;
                         var dlg = $("#dialog{{prefix}}root > pd_dialog")
                         try{
-                            eval(dlg.find("pd_onload").text().trim() || "");
+                            new Function('global', 'modal_obj', dlg.find("pd_onload").text().trim())(global, modal_obj);
                         }catch(e){
                             console.error(e);
                         }

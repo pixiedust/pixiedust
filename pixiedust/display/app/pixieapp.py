@@ -21,6 +21,7 @@ from six import iteritems
 from abc import ABCMeta
 import inspect
 import sys
+from six import string_types
 
 def route(**kw):
     def route_dec(fn):
@@ -63,8 +64,20 @@ class PixieDustApp(Display):
                     retValue = getattr(self, defRoute)()
                     return
             finally:
-                if retValue is not None:
+                if isinstance(retValue, string_types):
                     self._addHTMLTemplateString(retValue)
+                elif isinstance(retValue, dict):
+                    body = self.renderTemplateString(retValue.get("body", ""))
+                    jsOnLoad = self.renderTemplateString(retValue.get("jsOnLoad", ""))
+                    jsOK = self.renderTemplateString(retValue.get("jsOK", ""))
+                    if body is not None:
+                        self._addHTMLTemplateString("""
+                        {{body}}
+                        <pd_dialog>
+                            <pd_onload>{{jsOnLoad|htmlAttribute}}</pd_onload>
+                            <pd_ok>{{jsOK|htmlAttribute}}</pd_ok>
+                        </pd_dialog>
+                        """, body=body, jsOnLoad=jsOnLoad, jsOK=jsOK)
 
         print("Didn't find any routes for {}".format(self))
 
