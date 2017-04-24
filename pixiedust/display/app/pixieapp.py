@@ -70,6 +70,9 @@ class PixieDustApp(Display):
                     body = self.renderTemplateString(retValue.get("body", ""))
                     jsOnLoad = self.renderTemplateString(retValue.get("jsOnLoad", ""))
                     jsOK = self.renderTemplateString(retValue.get("jsOK", ""))
+                    dialogRoot = retValue.get("dialogRoot", None)
+                    if dialogRoot is not None:
+                        jsOnLoad = """pixiedust.dialogRoot="{}";\n{}""".format(self.renderTemplateString(dialogRoot), jsOnLoad)
                     if body is not None:
                         self._addHTMLTemplateString("""
                         {{body}}

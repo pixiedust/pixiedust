@@ -32,6 +32,7 @@ function() {
                 if ({{"false" if "cell_id" in this.options else "true"}}){
                     curCell.output_area.clear_output(false, true);
                     curCell.output_area.handle_output.apply(curCell.output_area, arguments);
+                    return;
                 }
                 var msg_type=msg.header.msg_type;
                 var content = msg.content;
