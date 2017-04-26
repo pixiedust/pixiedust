@@ -113,6 +113,9 @@ def PixieApp(cls):
         PixieDustApp.__init__(self, options or {}, entity, dataHandler)
         self.nostore_params = True
 
+    def getPixieAppEntity(self):
+        return self.pixieapp_entity if hasattr(self, "pixieapp_entity") else None
+
     def decoName(cls, suffix):
         return "{}_{}_{}".format(cls.__module__, cls.__name__, suffix)
 
@@ -143,10 +146,8 @@ def PixieApp(cls):
             return eval(s, globals(), locals())
         finally:
             del sys.modules['pixiedust.display'].pixiedust_display_callerText
-
-    cls.run = run
         
-    displayClass = type( decoName(cls, "Display"), (cls,PixieDustApp, ),{"__init__": __init__})
+    displayClass = type( decoName(cls, "Display"), (cls,PixieDustApp, ),{"__init__": __init__, "run": run, "getPixieAppEntity":getPixieAppEntity})
     
     @addId
     def getMenuInfo(self, entity, dataHandler=None):
