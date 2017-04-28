@@ -215,7 +215,7 @@ pd_script,pd_dialog{
 }
 .pixiedust-app .modal-dialog .pixiedust {
     border: none;
-    height: calc(100vh - 275px);
+    height: calc(100vh - 200px);
 }
 .pixiedust-app .modal-dialog .expandButton {
     visibility: hidden;

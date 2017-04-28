@@ -63,9 +63,31 @@ var pixiedust = (function(){
                         }
                     }
                 };
+
+                function resizeDialog() {
+                    global.modalBodyStyle = $('.pixiedust .modal-body').attr('style');
+                    global.modalFooterStyle = $('.pixiedust .modal-footer').attr('style');
+                    $('.pixiedust .modal-body').attr('style', global.modalBodyStyle ? global.modalBodyStyle + ';padding:5px 20px !important;' : 'padding:5px 20px !important;');
+                    $('.pixiedust .modal-footer').attr('style', 'display:none !important;');
+                };
+
+                function resetDialog() {
+                    if (global.modalBodyStyle) {
+                        $('.pixiedust .modal-body').attr('style', global.modalBodyStyle);
+                    } else {
+                        $('.pixiedust .modal-body').removeAttr('style');
+                    }
+                    if (global.modalFooterStyle) {
+                        $('.pixiedust .modal-footer').attr('style', global.modalFooterStyle);
+                    } else {
+                        $('.pixiedust .modal-footer').removeAttr('style');
+                    }
+                };
+
                 var modal_obj = modal(options);
                 modal_obj.addClass('pixiedust pixiedust-app');
                 modal_obj.on('shown.bs.modal', function(){
+                    resizeDialog();
                     var isFF = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
                     if( isFF && options.keyboard_manager){
                         {#Only on FF, blur event issue, hard disable keyboard manager#}
@@ -91,6 +113,7 @@ var pixiedust = (function(){
                     pixiedust.executeDisplay(pd_controls, user_controls);
                 });
                 modal_obj.on("hidden.bs.modal", function () {
+                    resetDialog();
                     if ( global.KMEnableProto ){
                         var KeyboardManager = require('notebook/js/keyboardmanager').KeyboardManager;
                         KeyboardManager.prototype.enable = global.KMEnableProto;
