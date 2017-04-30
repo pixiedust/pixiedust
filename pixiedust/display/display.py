@@ -245,6 +245,7 @@ class Display(with_metaclass(ABCMeta)):
             ipythonDisplay(Javascript(js))
     
     def render(self):
+        self._checkPixieDustJS()
         handlerId=self.options.get("handlerId")
         if handlerId is None or not self.noChrome:
             #get the first menuInfo for this handler and generate a js call
