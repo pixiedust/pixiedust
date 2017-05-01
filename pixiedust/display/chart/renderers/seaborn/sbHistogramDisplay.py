@@ -22,6 +22,7 @@ from pixiedust.utils import Logger
 import numpy as np
 import pandas as pd
 import seaborn as sns
+import math
 
 @PixiedustRenderer(id="histogram")
 @Logger()
@@ -40,6 +41,9 @@ class sbHistogramDisplay(SeabornBaseDisplay):
     def getDefaultKeyFields(self, handlerId, aggregation):
         return []
 
+    def canRenderChart(self):
+        return (True, None)
+
     def getNumFigures(self):
         return len(self.getValueFields())
 
@@ -51,7 +55,8 @@ class sbHistogramDisplay(SeabornBaseDisplay):
     def matplotlibRender(self, fig, ax):
         rug=self.options.get("rug","false") == "true"
         kde=self.options.get("kde","true") == "true"
-        binsize = int(self.options.get('binsize', 10))
+        defaultbin = math.sqrt(len(self.getWorkingPandasDataFrame().index))
+        binsize = int(self.options.get('binsize', defaultbin))
 
         def plot(ax, valueField=None, color=None):
             data = self.getWorkingPandasDataFrame()[valueField]

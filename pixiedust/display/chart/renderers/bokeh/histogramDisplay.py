@@ -28,7 +28,7 @@ import math
 class HistogramRenderer(BokehBaseDisplay):
     
     def supportsAggregation(self, handlerId):
-        return True
+        return False
 
     def supportsKeyFields(self, handlerId):
         return False
@@ -66,7 +66,8 @@ class HistogramRenderer(BokehBaseDisplay):
     def createBokehChart(self):
         plotwidth = int(self.getPreferredOutputWidth()/2)
         plotheight = int(self.getPreferredOutputHeight() * 0.75)
-        binsize = int(self.options.get('binsize', 10))  
+        defaultbin = math.sqrt(len(self.getWorkingPandasDataFrame().index))
+        binsize = int(self.options.get('binsize', defaultbin))
         valueFields = self.getValueFields()
         histograms = []
         if len(valueFields) != 1:

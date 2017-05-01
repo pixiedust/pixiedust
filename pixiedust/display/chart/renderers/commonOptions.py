@@ -149,14 +149,16 @@ def histogram(displayObject):
             }
         })
     count = len(displayObject.getWorkingPandasDataFrame().index)
+    default = math.sqrt(count)
+    vals = len(displayObject.getWorkingPandasDataFrame().groupby(displayObject.getValueFields()[0]).size())
     options.append({
         'name': 'binsize',
         'description': 'Bin size',
         'metadata': {
             'type': 'slider',
-            'max': int(max(math.ceil(count / 2), 4)),
-            'min': int(max(math.floor(count / 20), 2)),
-            'default': int(max(math.ceil(count / 4), 3))
+            'max': int(max(vals, default) + 10),
+            'min': int(max((min(vals, default) - 10), 2)),
+            'default': int(default)
         }
     })
     return options
