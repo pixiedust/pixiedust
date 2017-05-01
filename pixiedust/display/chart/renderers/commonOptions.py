@@ -23,6 +23,18 @@ def append(displayObject, arr, option):
     if option is not None and displayObject.acceptOption(option["name"]):
         arr.append(option)
 
+def chartSize():
+    return {
+        'name': 'chartsize',
+        'description': 'Chart Size',
+        'metadata': {
+            'type': 'slider',
+            'max': 100,
+            'min': 50,
+            'default': 100
+        }
+    }
+
 def clusterBy(displayObject):
     return { 
         'name': 'clusterby',
@@ -56,6 +68,7 @@ def timeSeries(displayObject):
 
 def barChart(displayObject):
     options = []
+    options.append(chartSize())
     options.append(clusterBy(displayObject))
     append(displayObject, options, timeSeries(displayObject))
 
@@ -94,7 +107,7 @@ def barChart(displayObject):
 
 def lineChart(displayObject):
     options = []
-
+    options.append(chartSize())
     options.append(clusterBy(displayObject))
     append(displayObject, options, timeSeries(displayObject))
 
@@ -138,6 +151,7 @@ def lineChart(displayObject):
 
 def histogram(displayObject):
     options = []
+    options.append(chartSize())
     if len(displayObject.getValueFields()) > 1:
         append(displayObject, options, {
             'name': 'histoChartType',
@@ -163,6 +177,16 @@ def histogram(displayObject):
     })
     return options
 
+def pieChart(displayObject):
+    options = []
+    options.append(chartSize())
+    return options
+
+def scatterPlot(displayObject):
+    options = []
+    options.append(chartSize())
+    return options
+
 commonOptions = {}
-for f in [barChart,lineChart,histogram]:
+for f in [barChart,lineChart,histogram,pieChart,scatterPlot]:
     commonOptions.update({f.__name__:f})

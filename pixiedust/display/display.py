@@ -202,7 +202,8 @@ class Display(with_metaclass(ABCMeta)):
         return 0.8 if "no_margin" not in self.options else 1.0
 
     def getPreferredOutputWidth(self):
-        return float(self.options.get("nostore_cw", 1000)) * self.getWidthScaleFactor()
+        sizeratio = float(self.options.get('chartsize', 100)) / 100
+        return float(self.options.get("nostore_cw", 1000)) * sizeratio * self.getWidthScaleFactor()
 
     def getPreferredOutputHeight(self):
         ch = self.options.get("nostore_ch", None)
