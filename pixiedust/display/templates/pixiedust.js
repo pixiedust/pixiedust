@@ -133,7 +133,7 @@ function resolveScriptMacros(script){
             console.log("Warning: Unable to resolve value for element ", b);
             return a;
         }
-        return "\"" + v + "\"";
+        return "\"" +v.split('"').join('&quot;').split('\n').join('\\n') + "\"";
     });
     return script;
 }
