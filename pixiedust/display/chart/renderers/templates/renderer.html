@@ -20,7 +20,7 @@
             {% if optTypes.update({option.metadata.type: True}) %} {% endif %}
             {% if option.metadata.type == 'slider' %}
                 <div class="rendererOpt">
-                    <label class="field">{{option.description or option.name}}: <span id="slideval{{option.name}}{{prefix}}">{{this.options.get(option.name,None) or option.metadata.default}}</span>&#37;</label>
+                    <label class="field">{{option.description or option.name}}: <span id="slideval{{option.name}}{{prefix}}">{{this.options.get(option.name,None) or option.metadata.default}}</span></label>
                     <div id="slider{{option.name}}{{prefix}}"
                         name="{{option.name}}"
                         data-min={{option.metadata.min}}
