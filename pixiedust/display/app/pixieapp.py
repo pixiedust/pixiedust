@@ -111,6 +111,8 @@ def PixieApp(cls):
 
     def __init__(self, options=None, entity=None, dataHandler=None):
         PixieDustApp.__init__(self, options or {}, entity, dataHandler)
+        if hasattr(cls, "setup"):
+            cls.setup(self)
         self.nostore_params = True
 
     def getPixieAppEntity(self):

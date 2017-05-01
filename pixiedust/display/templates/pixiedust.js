@@ -219,7 +219,7 @@ function readExecInfo(pd_controls, element){
         execInfo.options.no_margin=true;
     }
 
-    execInfo.options.widget = event.target.getAttribute("pd_widget");
+    execInfo.options.widget = element.getAttribute("pd_widget");
 
     // unhide parents temporarily to properly calculate width/height
     var parentStyles = [];
@@ -414,7 +414,7 @@ $(document).on("pd_event", function(event, eventInfo){
                     if (value.script){
                         value.script = "true=True\nfalse=False\neventInfo="+JSON.stringify(eventInfo) + "\n" + value.script;
                     }
-                    pixiedust.executeDisplay(pd_controls, value);
+                    value.execute();
                 }
             });
         });
