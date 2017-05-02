@@ -264,6 +264,7 @@ function readExecInfo(pd_controls, element){
     }
 
     execInfo.refresh = element.hasAttribute("pd_refresh");
+    execInfo.norefresh = element.hasAttribute("pd_norefresh");
     execInfo.entity = element.hasAttribute("pd_entity") ? element.getAttribute("pd_entity") || "pixieapp_entity" : null;
 
     function applyEntity(c, e, doptions){
@@ -296,7 +297,7 @@ function readExecInfo(pd_controls, element){
                 resolveScriptMacros( getParentScript(element) ) + '\n' +
                 resolveScriptMacros(execInfo.script);
             
-            if ( ( (!dialog && !execInfo.targetDivId) || execInfo.refresh || execInfo.entity) && $(element).children("target[pd_target]").length == 0){
+            if ( ( (!dialog && !execInfo.targetDivId) || execInfo.refresh || execInfo.entity) && !execInfo.norefresh && $(element).children("target[pd_target]").length == 0){
                 {#include a refresh of the whole screen#}
                 execInfo.script += "\n" + applyEntity(pd_controls.command, execInfo.entity, execInfo.options)
             }else{
