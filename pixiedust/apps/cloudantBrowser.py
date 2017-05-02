@@ -42,12 +42,13 @@ class CloudantBrowser(ConnectionWidget):
         self.username = credentials['username']
         self.password = credentials['password']
         self.selectedConnection = None
-        # return "HOST = " + self.host + "; USERNAME = " + self.username + "; PASSWORD = " + self.password
         return self._view_dbs()
 
     @route(view=view_dbs)
     def _view_dbs(self):
-        output = ''
+        output = '<p>'
+        output += '<button type="submit" class="btn btn-primary" pd_options="view=None">Back</button>'
+        output += '</p>'
         self.all_docs_limit = 10
         self.all_docs_skip = 0
         self.query = None
@@ -61,7 +62,7 @@ class CloudantBrowser(ConnectionWidget):
         self.view_name = None
         self.view_limit = 10
         self.view_skip = 0
-        sparkSession = SparkSession.builder \
+        SparkSession.builder \
             .config("cloudant.host", self.host) \
             .config("cloudant.username", self.username) \
             .config("cloudant.password", self.password) \
@@ -69,7 +70,7 @@ class CloudantBrowser(ConnectionWidget):
         dbs = self.get_all_dbs(self.host, self.username, self.password)
         for db in dbs:
             output += '<p>'
-            output += '<a pd_options="view={}">{}'.format(view_db,db)
+            output += '<a href="#" pd_options="view={}">{}'.format(view_db, db)
             output += '<pd_script>self.db="{}"</pd_script>'.format(db)
             output += '</a>'
             output += '</p>'
@@ -99,17 +100,17 @@ class CloudantBrowser(ConnectionWidget):
             </button>
         </p>
         <p>
-            <a>All Documents
+            <a href="#">All Documents
                 <target pd_target="target{{prefix}}" pd_options="view=""" + view_db_all_docs + """" />
             </a>
         </p>
         <p>
-            <a>Design Documents
+            <a href="#">Design Documents
                 <target pd_target="target{{prefix}}" pd_options="view=""" + view_db_design_docs + """" />
             </a>
         </p>
         <p>
-            <a>Query
+            <a href="#">Query
                 <target pd_target="target{{prefix}}" pd_options="view=""" + view_db_query + """" />
             </a>
         </p>""" + search_index_html + view_list_html + """
@@ -147,7 +148,7 @@ class CloudantBrowser(ConnectionWidget):
                 for key in doc[design_doc_type]:
                     html += """
         <p>
-            <a>""" + key + """
+            <a href="#">""" + key + """
                 <target pd_target="target{{prefix}}" pd_options="view=""" + route_name + """" />
                 <pd_script>self.""" + doc_var_name + """='""" + doc['_id'][len('_design/'):] + """'
 self.""" + type_var_name + """='""" + key + """'</pd_script>
@@ -394,8 +395,8 @@ self.search_bookmark=""" + next_bookmark_str + """</pd_script>
 
     @route(view=view_generate_dataframe_all_docs)
     def _generate_dataframe_all_docs(self):
-        sparkSession = SparkSession.builder.getOrCreate()
-        df_reader = sparkSession.read.format("com.cloudant.spark")
+        spark_session = SparkSession.builder.getOrCreate()
+        df_reader = spark_session.read.format("com.cloudant.spark")
         self.df = df_reader.load(self.db)
         output = 'DataFrame generated for {}/all docs. Access by calling app.get_data_frame()'.format(self.db)
         return """
@@ -406,8 +407,8 @@ self.search_bookmark=""" + next_bookmark_str + """</pd_script>
     def _generate_dataframe_query(self):
         response = self.run_query(self.host, self.username, self.password, self.db, self.query, -1, 0)
         if 'docs' in response.keys():
-            sparkSession = SparkSession.builder.getOrCreate()
-            self.df = sparkSession.createDataFrame(response['docs'])
+            spark_session = SparkSession.builder.getOrCreate()
+            self.df = spark_session.createDataFrame(response['docs'])
             output = 'DataFrame generated for {}/query. Access by calling app.get_data_frame()'.format(self.db)
         else:
             output = 'No documents found.'
@@ -434,8 +435,8 @@ self.search_bookmark=""" + next_bookmark_str + """</pd_script>
             else:
                 break
         if len(docs) > 0:
-            sparkSession = SparkSession.builder.getOrCreate()
-            self.df = sparkSession.createDataFrame(docs)
+            spark_session = SparkSession.builder.getOrCreate()
+            self.df = spark_session.createDataFrame(docs)
             output = 'DataFrame generated for {}/search. Access by calling app.get_data_frame()'.format(self.db)
         else:
             output = 'No documents found.'
@@ -444,8 +445,8 @@ self.search_bookmark=""" + next_bookmark_str + """</pd_script>
 
     @route(view=view_generate_dataframe_view)
     def _generate_dataframe_view(self):
-        sparkSession = SparkSession.builder.getOrCreate()
-        self.df = sparkSession.read.format("com.cloudant.spark") \
+        spark_session = SparkSession.builder.getOrCreate()
+        self.df = spark_session.read.format("com.cloudant.spark") \
             .option("index", "_design/{}/_view/{}".format(self.view_doc, self.view_name)) \
             .load(self.db)
         output = 'DataFrame generated for {}/{}/{}. Access by calling app.get_data_frame()' \
