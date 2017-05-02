@@ -20,6 +20,15 @@ from pixiedust.services.serviceManager import *
 class ConnectionWidget(CFPixieApp):
     def getConnections(self):
         return getConnections("cloudant")
+
+    def selectBluemixCredentials(self, credentials_str):
+        credentials = json.loads(credentials_str)
+        payload = {}
+        payload['name'] = credentials['host']
+        payload['credentials'] = credentials
+        addConnection('cloudant', payload)
+        self.selectedConnection = payload['name']
+        return self.dataSourcesList()
     
     @route(selectedConnection="*", editConnection="*")
     def _editConnection(self):
@@ -113,6 +122,8 @@ try {
     @route(selectedConnection="*", deleteConnection="true")
     def _deleteConnection(self):
         deleteConnection("cloudant", self.selectedConnection)
+        self.deleteConnection = "false"
+        return self.dataSourcesList()
         
     @route(selectedConnection="*", browseBMConnection="true")
     def _browseBMConnection(self):
@@ -143,7 +154,13 @@ try {
     
     @route(widget="DataSourcesList")
     def dataSourcesList(self):
-        return """
+        num_connections = len(self.getConnections())
+        select_conn_script = ' pd_script="self.selectedConnection ='
+        if num_connections > 0:
+            select_conn_script += '$val(connection{{prefix}})"'
+        else:
+            select_conn_script += '\'none\'"'
+        output = """
 <div>
     <div class="form-group">
       <label for="connection{{prefix}}" class="control-label col-sm-2">Select a cloudant connection:</label>
@@ -155,18 +172,25 @@ try {
         </select>
       </div>
       <div class="col-sm-2 btn-toolbar" role="toolbar">
-        <div class="btn-group" role="group" pd_script="self.selectedConnection = $val(connection{{prefix}})">
-            <button type="button" class="btn btn-default">Go</button>
+        <div class="btn-group" role="group\"""" + select_conn_script + """>
+"""
+        if num_connections > 0:
+            output += """
+            <button type="button" class="btn btn-default">Go</button>'
             <button type="button" class="btn btn-default" pixiedust pd_options="dialog=true;editConnection=true">
                 <i class="fa fa-pencil-square-o"/>
-            </button>
+            </button>"""
+        output += """
             <button type="button" class="btn btn-default" pixiedust pd_options="dialog=true;newConnection=true">
                 <i class="fa fa-plus"/>
-            </button>
-            <button type="button" class="btn btn-default" pixiedust pd_options="deleteConnection=true">
+            </button>"""
+        if num_connections > 0:
+            output += """
+            <button type="button" class="btn btn-default" pixiedust>
                 <pd_script type="preRun">
                     return confirm("Delete " + $("#connection{{prefix}}").val() + "?");
                 </pd_script>
+                <pd_script>self.deleteConnection="true"</pd_script>
                 <i class="fa fa-trash"/>
             </button>
         </div>
@@ -174,3 +198,4 @@ try {
     </div>
 </div>
 """
+        return output
