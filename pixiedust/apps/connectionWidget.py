@@ -16,19 +16,41 @@
 from .cfBrowser import CFPixieApp
 from pixiedust.display.app import *
 from pixiedust.services.serviceManager import *
+from pixiedust.utils import Logger
 
+@Logger()
 class ConnectionWidget(CFPixieApp):
     def getConnections(self):
         return getConnections("cloudant")
 
     def selectBluemixCredentials(self, credentials_str):
+        self.debug("In selectBluemixCredentials {}".format(credentials_str))
         credentials = json.loads(credentials_str)
         payload = {}
         payload['name'] = credentials['host']
         payload['credentials'] = credentials
         addConnection('cloudant', payload)
         self.selectedConnection = payload['name']
-        return self.dataSourcesList()
+        #return self.dataSourcesList()
+        return """
+<script>
+    pixiedust.executeDisplay({{pd_controls}}, {
+        'targetDivId': "dummy",
+        'script': "import json\\nprint(json.dumps( self.getConnections()))",
+        'onError': function(error){
+            alert(error);
+        },
+        'onSuccess': function(results){
+            var options = []
+            $.each(JSON.parse(results), function(key, value){
+                var selected = (value.name=="{{this.selectedConnection}}") ? 'selected="selected"' : "";
+                options.push('<option ' + selected + ' value="'+ value.name +'">'+ value.name +'</option>');
+            });
+            $("#connection{{prefix}}").html(options.join(''));
+        }
+    });
+</script>
+        """
     
     @route(selectedConnection="*", editConnection="*")
     def _editConnection(self):
@@ -167,7 +189,8 @@ try {
       <div class="col-sm-7">
         <select class="form-control" id="connection{{prefix}}">
           {%for conn in this.getConnections() %}
-              <option value="{{conn.name|escape}}">{{conn.name|escape}}</option>
+              {%set selected=(this.selectedConnection==conn.name)%}
+              <option {%if selected%}selected="selected"{%endif%}  value="{{conn.name|escape}}">{{conn.name|escape}}</option>
           {%endfor%}
         </select>
       </div>
