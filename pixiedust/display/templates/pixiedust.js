@@ -43,6 +43,7 @@ var pixiedust = (function(){
                     sanitize:false,
                     notebook: IPython.notebook,
                     keyboard_manager: IPython.notebook.keyboard_manager,
+                    maximize_modal: (displayOptions.maximize === "true"),
                     buttons: {
                         OK: {
                             class : "btn-primary btn-ok",
@@ -86,6 +87,9 @@ var pixiedust = (function(){
 
                 var modal_obj = modal(options);
                 modal_obj.addClass('pixiedust pixiedust-app');
+                if (options.maximize_modal) {
+                    modal_obj.addClass('pixiedust pixiedust-app pixiedust-maximize');
+                }
                 modal_obj.on('shown.bs.modal', function(){
                     resizeDialog();
                     var isFF = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
