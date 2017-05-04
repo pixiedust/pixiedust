@@ -24,7 +24,7 @@ api_base_url = 'api.ng.bluemix.net'
 login_base_url = 'login.ng.bluemix.net'
     
 @PixieApp
-class CFPixieApp: 
+class CFBrowser:
 
 
     def get_data_frame(self):
@@ -149,8 +149,9 @@ self.select_space="true"
 <div class="form-group">
     <div class="col-sm-2"></div>
     <div class="col-sm-5">
-        <button type="submit" class="btn btn-primary" data-dismiss="modal">
-            <b>""" + svc['entity']['name'] + """</b>
+        <b>""" + svc['entity']['name'] + """</b><br>
+        """ + svc_key_entity['credentials']['host'] + """<br>
+        <button type="submit" class="btn btn-primary" data-dismiss="modal">Select
             <pd_script>self.service_name=\"""" + svc['entity']['name'].replace('"', '\\"') + """\"
 self.credentials=\"""" + credentials_str + """\"
 self.select_space="false"

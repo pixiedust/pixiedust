@@ -52,20 +52,21 @@ class CloudantBrowser(ConnectionWidget):
 <div class="row">
     <div class="col-sm-10" style="padding: 10px;">
         <p><a href="#" pd_options="view=None">Back</a></p>
-        <h2>Databases</h2>
+        <h3>Databases</h3>
 """
-        self.all_docs_limit = 10
+        self.all_docs_limit = 5
         self.all_docs_skip = 0
         self.query = None
-        self.query_limit = 10
+        self.query_limit = 5
         self.query_skip = 0
         self.search_query = None
-        self.search_limit = 10
+        self.search_limit = 5
         self.search_max_limit = 200
+        self.search_skip = 0
         self.search_bookmark = None
         self.search_prev_bookmark = None
         self.view_name = None
-        self.view_limit = 10
+        self.view_limit = 5
         self.view_skip = 0
         SparkSession.builder \
             .config("cloudant.host", self.host) \
@@ -75,9 +76,9 @@ class CloudantBrowser(ConnectionWidget):
         dbs = self.get_all_dbs(self.host, self.username, self.password)
         for db in dbs:
             output += '<p>'
-            output += '<h3><a href="#" pd_options="view={}">{}'.format(view_db, db)
+            output += '<h4 style="margin: 0px"><a href="#" pd_options="view={}">{}'.format(view_db, db)
             output += '<pd_script>self.db="{}"</pd_script>'.format(db)
-            output += '</a></h3>'
+            output += '</a></h4>'
             output += '</p>'
         output += """
     </div>
@@ -98,26 +99,28 @@ class CloudantBrowser(ConnectionWidget):
 <div class="row">
     <div class="col-sm-2" style="padding: 10px;">
         <p><a href="#" pd_options="view=""" + view_dbs + """">Back</a></p>
-        <b><h2>""" + self.db + """</h2></b>
+        <b><h3>""" + self.db + """</h3></b>
         <p>
-            <h3>
+            <h4 style="margin: 0px">
                 <a href="#">All Documents
                     <target pd_target="target{{prefix}}" pd_options="view=""" + view_db_all_docs + """" />
                 </a>              
-            </h3>
+            </h4>
         </p>
          <p>
-            <h3>
+            <h4 style="margin: 0px">
                 <a href="#">Query
                     <target pd_target="target{{prefix}}" pd_options="view=""" + view_db_query + """" />
                 </a>
-            </h3>
+            </h4>
         </p>
-        <!--<p>
-            <h3>
-                <a href="#" pd_options="view=""" + view_db_design_docs + """">Design Documents</a>
-            </h3>
-        </p>-->
+        <p>
+            <h4 style="margin: 0px">
+                <a href="#">Design Documents
+                    <target pd_target="target{{prefix}}" pd_options="view=""" + view_db_design_docs + """" />
+                </a>
+            </h4>
+        </p>
 """ + search_index_html + """
 """ + view_list_html + """
     </div>
@@ -140,26 +143,26 @@ class CloudantBrowser(ConnectionWidget):
                 docs.append(doc)
         if len(docs) > 0:
             html += """
-<p><h3>""" + title + """</h3></p>
+<p><h4 style="margin: 0px">""" + title + """</h3></p>
 """
             i = -1
             for doc in docs:
                 i = i + 1
                 html += """
 <p>
-    <a href="#""" + design_doc_type + str(i) + """-{{prefix}}" data-toggle="collapse" style="text-decoration: none;"><h3><b>""" + doc['_id'] + """</b></h3></a>
+    <a href="#""" + design_doc_type + str(i) + """-{{prefix}}" data-toggle="collapse" style="text-decoration: none;"><h4 style="margin: 0px"><b>""" + doc['_id'] + """</b></h4></a>
     <div id=\"""" + design_doc_type + str(i) + """-{{prefix}}" class="collapse in" style="padding-top: 10px;">
 """
                 for key in doc[design_doc_type]:
                     html += """
         <p>
-            <h3 style="margin-top: 0px; margin-left: 20px;">
+            <h4 style="margin-top: 0px; margin-left: 20px;">
                 <a href="#">""" + key + """
                     <target pd_target="target{{prefix}}" pd_options="view=""" + route_name + """" />
                     <pd_script>self.""" + doc_var_name + """='""" + doc['_id'][len('_design/'):] + """'
 self.""" + type_var_name + """='""" + key + """'</pd_script>
                 </a>
-            </h3>
+            </h4>
         </p>
 """
             html += """
@@ -207,9 +210,10 @@ self.""" + type_var_name + """='""" + key + """'</pd_script>
     <button type="submit" class="btn btn-info">Next
         <target pd_target="target2{{prefix}}" pd_options="view=""" + view_db_all_docs_page + """" />
         <pd_script>self.all_docs_skip=""" + str(next_skip) + """</pd_script>
-    </button>
-</div>
-"""
+    </button>"""
+                output += '<span style="padding-left: 5px"><b>{} to {} of {}</b></span>'.format(self.all_docs_skip+1, self.all_docs_skip+len(response['rows']), response['total_rows'])
+                output += """
+</div>"""
             output += self.get_dataframe_button(view_generate_dataframe_all_docs, 'target2')
         else:
             output = """<p><b>No documents found.</b></p>"""
@@ -218,13 +222,20 @@ self.""" + type_var_name + """='""" + key + """'</pd_script>
 
     @route(view=view_db_design_docs)
     def _view_design_docs(self):
+        output = self.get_dialog_chrome_top('Design Documents', None)
+        output += """
+<div class="row">
+    <div id="target2{{prefix}}">"""
         response = self.get_design_docs(self.host, self.username, self.password, self.db, -1)
         if 'rows' in response.keys():
-            return self.format_docs(map(lambda row: row['doc'], response['rows']), None, None)
+            output += self.format_docs(map(lambda row: row['doc'], response['rows']))
         else:
-            return """
-<b>No documents found.</b>
-"""
+            output = """<p><b>No documents found.</b></p>"""
+        output += """
+    </div>
+</div>"""
+        output += self.get_dialog_chrome_bottom()
+        return output
 
     @route(view=view_db_query)
     def _view_query(self):
@@ -240,7 +251,6 @@ self.""" + type_var_name + """='""" + key + """'</pd_script>
         output += """
 <div class="row">
     <div class="form-group">
-        <!--<label for="query{{prefix}}" class="control-label col-sm-2">Query:</label>-->
         <textarea rows="6" class="form-control" id="query{{prefix}}" style="font-family: monospace;">""" + self.query + """</textarea>
     </div>
     <div class="form-group">  
@@ -292,9 +302,10 @@ self.""" + type_var_name + """='""" + key + """'</pd_script>
     <button type="submit" class="btn btn-info">Next
         <target pd_target="target2{{prefix}}" pd_options="view=""" + view_db_query_results_page + """" />
         <pd_script>self.query_skip=""" + str(next_skip) + """</pd_script>
-    </button>
-</div>
-"""
+    </button>"""
+                output += '<span style="padding-left: 5px"><b>{} to {}</b></span>'.format(self.query_skip+1, self.query_skip+len(response['docs']))
+                output += """
+</div>"""
             output += self.get_dataframe_button(view_generate_dataframe_query, 'target2')
         else:
             output = """<b>No documents found.</b>"""
@@ -309,19 +320,18 @@ self.""" + type_var_name + """='""" + key + """'</pd_script>
         self.search_prev_bookmark=None
         output = self.get_dialog_chrome_top('Search', '{}/{}'.format(self.search_doc, self.search_index))
         output += """
-<div class="row form-horizontal" style="margin-top: 15px;">
-    <label for="search{{prefix}}" class="control-label col-sm-2" style="margin-right: 5px;">Search:</label>
-    <div class="col-sm-5">
+<div class="row">
+    <div class="form-group">
         <input type="text" class="form-control" id="search{{prefix}}" value="{{self.search_query}}" />
     </div>
-    <div class="col-sm-1">
+    <div class="form-group">
         <button type="submit" class="btn btn-primary">Go
             <target pd_target="target2{{prefix}}" pd_options="view=""" + view_db_search_results + """" />
             <pd_script>self.search_query=$val(search{{prefix}})</pd_script>
         </button>
     </div>
 </div>
-<div class="row" style="margin-top: 15px;">
+<div class="row">
     <div id="target2{{prefix}}"></div>
 </div>
 """
@@ -331,6 +341,7 @@ self.""" + type_var_name + """='""" + key + """'</pd_script>
     @route(view=view_db_search_results)
     def _view_search_results(self):
         self.search_bookmark = None
+        self.search_skip = 0
         return self._view_search_results_page()
 
     @route(view=view_db_search_results_page)
@@ -356,7 +367,8 @@ self.""" + type_var_name + """='""" + key + """'</pd_script>
                     output +="""
     <button type="submit" class="btn btn-info">Previous
         <target pd_target="target2{{prefix}}" pd_options="view=""" + view_db_search_results_page + """" />
-        <pd_script>self.search_bookmark=""" + prev_bookmark_str + """</pd_script>
+        <pd_script>self.search_bookmark=""" + prev_bookmark_str + """
+self.search_skip=""" + str(self.search_skip - self.search_limit) + """</pd_script>
     </button>"""
                 if next_bookmark is not None:
                     if self.search_bookmark is None:
@@ -371,10 +383,12 @@ self.""" + type_var_name + """='""" + key + """'</pd_script>
     <button type="submit" class="btn btn-info">Next
         <target pd_target="target2{{prefix}}" pd_options="view=""" + view_db_search_results_page + """" />
         <pd_script>self.search_prev_bookmark=""" + prev_bookmark_str + """
-self.search_bookmark=""" + next_bookmark_str + """</pd_script>
-    </button>
-</div>
-"""
+self.search_bookmark=""" + next_bookmark_str + """
+self.search_skip=""" + str(self.search_skip + self.search_limit) + """</pd_script>
+    </button>"""
+                output += '<span style="padding-left: 5px"><b>{} to {}</b></span>'.format(self.search_skip+1, self.search_skip+len(response['rows']))
+                output += """
+</div>"""
             output += self.get_dataframe_button(view_generate_dataframe_search, 'target2')
         else:
             output = """<b>No documents found.</b>"""
@@ -424,9 +438,10 @@ self.search_bookmark=""" + next_bookmark_str + """</pd_script>
     <button type="submit" class="btn btn-info">Next
         <target pd_target="target2{{prefix}}" pd_options="view=""" + view_db_view_page + """" />
         <pd_script>self.view_skip=""" + str(next_skip) + """</pd_script>
-    </button>
-</div>
-"""
+    </button>"""
+                output += '<span style="padding-left: 5px"><b>{} to {} of {}</b></span>'.format(self.view_skip+1, self.view_skip+len(response['rows']), response['total_rows'])
+                output += """
+</div>"""
             output += self.get_dataframe_button(view_generate_dataframe_view, 'target2')
         else:
             output = """<p><b>No documents found.</b></p>"""
@@ -573,7 +588,7 @@ self.search_bookmark=""" + next_bookmark_str + """</pd_script>
             j = 0
             content = json.dumps(doc, indent=2, sort_keys=True).encode('utf-8')
             content = self.escape_html(content)
-            title = '<pre style="font-size: 10pt;">' + doc['_id'] + ' {</pre>'
+            title = '<pre style="font-size: 9pt;">' + doc['_id'] + ' {</pre>'
             for key in sorted(doc.keys()):
                 if key == '_id' or key == '_rev' or isinstance(doc[key], list):
                     continue
@@ -582,7 +597,7 @@ self.search_bookmark=""" + next_bookmark_str + """</pd_script>
                         value = str(doc[key].encode('utf-8'))
                         if len(value) > 20:
                             value = value[0:20] + '...'
-                        title += '<pre style="font-size: 10pt;">  "{}": "{}"</pre>'.format(key, value)
+                        title += '<pre style="font-size: 9pt;">  "{}": "{}"</pre>'.format(key, value)
                         j = j + 1
                         if j >= 3:
                             break
@@ -592,9 +607,9 @@ self.search_bookmark=""" + next_bookmark_str + """</pd_script>
             output += '<div style="margin-top: 5px;">'
             output += '<a href="#doc' + str(i) + '-{{prefix}}" style="text-decoration: none;" data-toggle="collapse">' + title + '</a>'
             output += '<div id="doc' + str(i) + '-{{prefix}}" class="collapse">'
-            output += '<pre style="margin: 0px 20px 0px 20px; padding: 10px; font-size: 10pt; background-color: white; max-height: 200px; white-space: pre; overflow: scroll; border-style: solid; border-radius: 2px; border-width: 1px; border-color: #aaa;">{}</pre>'.format(content)
+            output += '<pre style="margin: 0px 20px 0px 20px; padding: 10px; font-size: 9pt; background-color: white; max-height: 200px; white-space: pre; overflow: scroll; border-style: solid; border-radius: 2px; border-width: 1px; border-color: #aaa;">{}</pre>'.format(content)
             output += '</div>'
-            output += '<a href="#doc' + str(i) + '-{{prefix}}" style="text-decoration: none;" data-toggle="collapse"><pre style="font-size: 10pt;">}</pre></a>'
+            output += '<a href="#doc' + str(i) + '-{{prefix}}" style="text-decoration: none;" data-toggle="collapse"><pre style="font-size: 9pt;">}</pre></a>'
             output += '</div>'
         return output
 
@@ -604,7 +619,7 @@ self.search_bookmark=""" + next_bookmark_str + """</pd_script>
             subtitle_str = ' ({})'.format(subtitle)
         return """
 <div class="row" style="padding: 0x; margin: 10px; border-style: solid; border-radius: 4px 4px 0 0; border-width: 1px; border-color: #ddd;">
-    <h3 style="padding: 0px 0px 10px 10px;">""" + title + subtitle_str + """</h3>
+    <h4 style="padding: 0px 0px 10px 10px;">""" + title + subtitle_str + """</h4>
     <div id="target{{prefix}}" class="row" style="padding: 15px; margin-bottom: 0px; background-color: #f5f5f5;">"""
 
     def get_dialog_chrome_bottom(self):
