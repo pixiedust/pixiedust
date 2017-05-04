@@ -151,7 +151,8 @@ self.select_space="true"
     <div class="col-sm-5">
         <button type="submit" class="btn btn-primary" data-dismiss="modal">
             <b>""" + svc['entity']['name'] + """</b>
-            <pd_script>self.credentials=\"""" + credentials_str + """\"
+            <pd_script>self.service_name=\"""" + svc['entity']['name'].replace('"', '\\"') + """\"
+self.credentials=\"""" + credentials_str + """\"
 self.select_space="false"
 self.select_credentials="true"</pd_script>
         </button>
@@ -161,7 +162,7 @@ self.select_credentials="true"</pd_script>
 
     @route(select_credentials="true")
     def _select_credentials(self):
-        return self.selectBluemixCredentials(self.credentials)
+        return self.selectBluemixCredentials(self.service_name, self.credentials)
 
     def is_valid_access_token(self, access_token):
         url = 'https://{}/v2/organizations'.format(api_base_url)

@@ -21,10 +21,10 @@ class ConnectionWidget(CFPixieApp):
     def getConnections(self):
         return getConnections("cloudant")
 
-    def selectBluemixCredentials(self, credentials_str):
+    def selectBluemixCredentials(self, service_name, credentials_str):
         credentials = json.loads(credentials_str)
         payload = {}
-        payload['name'] = credentials['host']
+        payload['name'] = service_name
         payload['credentials'] = credentials
         addConnection('cloudant', payload)
         self.selectedConnection = payload['name']
