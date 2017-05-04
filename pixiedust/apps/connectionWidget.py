@@ -13,22 +13,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # -------------------------------------------------------------------------------
-from .cfBrowser import CFPixieApp
+from .cfBrowser import CFBrowser
 from pixiedust.display.app import *
 from pixiedust.services.serviceManager import *
 from pixiedust.utils import Logger
 
 @Logger()
-class ConnectionWidget(CFPixieApp):
+class ConnectionWidget(CFBrowser):
     def getConnections(self):
         return getConnections("cloudant")
 
-    def selectBluemixCredentials(self, credentials_str):
-        self.debug("In selectBluemixCredentials {}".format(credentials_str))
+    def selectBluemixCredentials(self, service_name, credentials_str):
         credentials = json.loads(credentials_str)
-        payload = {}
-        payload['name'] = credentials['host']
-        payload['credentials'] = credentials
+        payload = {'name': service_name, 'credentials': credentials}
         addConnection('cloudant', payload)
         self.selectedConnection = payload['name']
         #return self.dataSourcesList()
