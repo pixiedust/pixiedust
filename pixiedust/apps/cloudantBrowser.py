@@ -646,7 +646,7 @@ self.search_skip=""" + str(self.search_skip + self.search_limit) + """</pd_scrip
                 .option("cloudant.password", self.password)
 
     def get_dataframe_builder(self):
-        if self.sql_context is None and self.spark_session is None is None:
+        if self.sql_context is None and self.spark_session is None:
             spark_context = SparkContext.getOrCreate()
             spark_major_version = int(spark_context.version[0:spark_context.version.index('.')])
             if spark_major_version >= 2:
