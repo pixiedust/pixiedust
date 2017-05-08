@@ -41,6 +41,8 @@ class CloudantBrowser(ConnectionWidget):
     def start(self):
         connection = getConnection('cloudant', self.selectedConnection)
         credentials = json.loads(connection['PAYLOAD'])['credentials']
+        self.spark_session = None
+        self.sql_context = None
         self.host = credentials['host']
         self.username = credentials['username']
         self.password = credentials['password']
@@ -49,9 +51,12 @@ class CloudantBrowser(ConnectionWidget):
 
     @route(view=view_dbs)
     def _view_dbs(self):
-        self.spark_major_version = None
-        self.spark_context = None
-        self.spark_session = None
+        output = """
+<div class="row">
+    <div class="col-sm-10" style="padding: 10px;">
+        <p><a href="#" pd_options="view=None">Back</a></p>
+        <h3>Databases</h3>
+"""
         self.all_docs_limit = 5
         self.all_docs_skip = 0
         self.query = None
@@ -67,12 +72,6 @@ class CloudantBrowser(ConnectionWidget):
         self.view_limit = 5
         self.view_skip = 0
         dbs = self.get_all_dbs(self.host, self.username, self.password)
-        output = """
-<div class="row">
-    <div class="col-sm-10" style="padding: 10px;">
-        <p><a href="#" pd_options="view=None">Back</a></p>
-        <h3>Databases</h3>
-"""
         for db in dbs:
             output += '<p>'
             output += '<h4 style="margin: 0px"><a href="#" pd_options="view={}">{}'.format(view_db, db)
@@ -636,29 +635,29 @@ self.search_skip=""" + str(self.search_skip + self.search_limit) + """</pd_scrip
         return escape(text)
 
     def get_dataframe_reader(self):
-        if self.spark_major_version is None:
+        if self.sql_context is None and self.spark_session is None:
             self.get_dataframe_builder()
         if self.spark_session is not None:
             return self.spark_session.read.format("com.cloudant.spark")
         else:
-            return self.spark_sql_context.read.format("com.cloudant.spark") \
+            return self.sql_context.read.format("com.cloudant.spark") \
                 .option("cloudant.host", self.host) \
                 .option("cloudant.username", self.username) \
                 .option("cloudant.password", self.password)
 
     def get_dataframe_builder(self):
-        if self.spark_major_version is None:
-            self.spark_context = SparkContext.getOrCreate()
-            self.spark_major_version = int(self.spark_context.version[0:self.spark_context.version.index('.')])
-            if self.spark_major_version >= 2:
+        if self.sql_context is None and self.spark_session is None is None:
+            spark_context = SparkContext.getOrCreate()
+            spark_major_version = int(spark_context.version[0:spark_context.version.index('.')])
+            if spark_major_version >= 2:
                 self.spark_session = SparkSession.builder \
                     .config("cloudant.host", self.host) \
                     .config("cloudant.username", self.username) \
                     .config("cloudant.password", self.password) \
                     .getOrCreate()
             else:
-                self.spark_sql_context = SQLContext(self.spark_context)
+                self.sql_context = SQLContext(spark_context)
         if self.spark_session is not None:
             return self.spark_session
         else:
-            return self.spark_sql_context
+            return self.sql_context
