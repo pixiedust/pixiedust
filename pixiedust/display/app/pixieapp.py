@@ -21,6 +21,7 @@ from six import iteritems
 from abc import ABCMeta
 import inspect
 import sys
+from six import string_types
 
 def route(**kw):
     def route_dec(fn):
@@ -49,16 +50,37 @@ class PixieDustApp(Display):
     def doRender(self, handlerId):
         if self.__class__.__name__ in PixieDustApp.routesByClass:
             defRoute = None
-            for t in PixieDustApp.routesByClass[self.__class__.__name__]:
-                if not t[0]:
-                    defRoute = t[1]
-                elif self.matchRoute(t[0]):
-                    self.debug("match found: {}".format(t[0]))
-                    getattr(self, t[1])()
+            retValue = None
+            try:
+                dispatchKey = "widgets" if "widget" in self.options else "routes"
+                for t in PixieDustApp.routesByClass[self.__class__.__name__][dispatchKey]:
+                    if not t[0]:
+                        defRoute = t[1]
+                    elif self.matchRoute(t[0]):
+                        self.debug("match found: {}".format(t[0]))
+                        retValue = getattr(self, t[1])()
+                        return
+                if defRoute:
+                    retValue = getattr(self, defRoute)()
                     return
-            if defRoute:
-                getattr(self, defRoute)()
-                return
+            finally:
+                if isinstance(retValue, string_types):
+                    self._addHTMLTemplateString(retValue)
+                elif isinstance(retValue, dict):
+                    body = self.renderTemplateString(retValue.get("body", ""))
+                    jsOnLoad = self.renderTemplateString(retValue.get("jsOnLoad", ""))
+                    jsOK = self.renderTemplateString(retValue.get("jsOK", ""))
+                    dialogRoot = retValue.get("dialogRoot", None)
+                    if dialogRoot is not None:
+                        jsOnLoad = """pixiedust.dialogRoot="{}";\n{}""".format(self.renderTemplateString(dialogRoot), jsOnLoad)
+                    if body is not None:
+                        self._addHTMLTemplateString("""
+                        {{body}}
+                        <pd_dialog>
+                            <pd_onload>{{jsOnLoad|htmlAttribute}}</pd_onload>
+                            <pd_ok>{{jsOK|htmlAttribute}}</pd_ok>
+                        </pd_dialog>
+                        """, body=body, jsOnLoad=jsOnLoad, jsOK=jsOK)
 
         print("Didn't find any routes for {}".format(self))
 
@@ -69,14 +91,30 @@ class PixieDustApp(Display):
 def PixieApp(cls):
     #reset the class routing in case the cell is being run multiple time
     clsName = "{}_{}_Display".format(inspect.getmodule(cls).__name__, cls.__name__)
-    PixieDustApp.routesByClass[clsName] = []
-    for name, method in iteritems(cls.__dict__):
-        if hasattr(method, "pixiedust_route"):
-            PixieDustApp.routesByClass[clsName].append( (method.pixiedust_route,name) )
+    PixieDustApp.routesByClass[clsName] = {"routes":[], "widgets":[]}
+    #put the routes that define a widget in a separate bucket
+
+    def walk(cl):
+        for name, method in iteritems(cl.__dict__):
+            if hasattr(method, "pixiedust_route"):
+                if "widget" in method.pixiedust_route:
+                    PixieDustApp.routesByClass[clsName]["widgets"].append( (method.pixiedust_route,name) )
+                else:
+                    PixieDustApp.routesByClass[clsName]["routes"].append( (method.pixiedust_route,name) )
+        for c in [c for c in cl.__bases__]:
+            walk(c)
+    walk(cls)
+
+    #re-order the routes according to the number of constraints e.g. from more to less specific
+    p = PixieDustApp.routesByClass[clsName]["routes"]
+    PixieDustApp.routesByClass[clsName]["routes"] = [p[a[1]] for a in sorted([(len(a[0]), i) for i,a in enumerate(p)], reverse=True)]
 
     def __init__(self, options=None, entity=None, dataHandler=None):
         PixieDustApp.__init__(self, options or {}, entity, dataHandler)
         self.nostore_params = True
+
+    def getPixieAppEntity(self):
+        return self.pixieapp_entity if hasattr(self, "pixieapp_entity") else None
 
     def decoName(cls, suffix):
         return "{}_{}_{}".format(cls.__module__, cls.__name__, suffix)
@@ -99,6 +137,8 @@ def PixieApp(cls):
         if runInDialog:
             options.update( self.getDialogOptions() )
 
+        options.update( {'handlerId': decoName(cls, "id") })
+
         s = "display({}{})".format(var, reduce(lambda k,v: k + "," + v[0] + "='" + v[1] + "'", iteritems(options), ""))
         try:
             sys.modules['pixiedust.display'].pixiedust_display_callerText = s
@@ -106,10 +146,8 @@ def PixieApp(cls):
             return eval(s, globals(), locals())
         finally:
             del sys.modules['pixiedust.display'].pixiedust_display_callerText
-
-    cls.run = run
         
-    displayClass = type( decoName(cls, "Display"), (cls,PixieDustApp, ),{"__init__": __init__})
+    displayClass = type( decoName(cls, "Display"), (cls,PixieDustApp, ),{"__init__": __init__, "run": run, "getPixieAppEntity":getPixieAppEntity})
     
     @addId
     def getMenuInfo(self, entity, dataHandler=None):

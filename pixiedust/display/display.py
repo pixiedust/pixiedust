@@ -245,9 +245,6 @@ class Display(with_metaclass(ABCMeta)):
             ipythonDisplay(Javascript(js))
     
     def render(self):
-        #Experimental, not ready for prime time yet
-        self._checkPixieDustJS()
-
         handlerId=self.options.get("handlerId")
         if handlerId is None or not self.noChrome:
             #get the first menuInfo for this handler and generate a js call
@@ -281,9 +278,12 @@ class Display(with_metaclass(ABCMeta)):
     def _addHTMLTemplate(self, templateName, **kwargs):
         self._addHTML(self.renderTemplate(templateName, **kwargs))
 
+    def renderTemplateString(self, source, **kwargs):
+        return self.env.from_string(source).render(self._getTemplateArgs(**kwargs))
+
     def _addHTMLTemplateString(self, source, **kwargs):
         self._addHTML(
-            self.env.from_string(source).render(self._getTemplateArgs(**kwargs))
+            self.renderTemplateString(source, **kwargs)
         )
 
     def _addJavascript(self, javascript):
@@ -425,6 +425,7 @@ class CellHandshake(Display):
     def addCallbackSniffer(sniffer):
         CellHandshake.snifferCallbacks.append(sniffer)
     def render(self):
+        self._checkPixieDustJS()
         ipythonDisplay(HTML(
             self.renderTemplate("handshake.html", org_params = ','.join(list(self.options.keys())))
         ))

@@ -44,7 +44,11 @@
                 var msg_type=msg.header.msg_type;
                 var content = msg.content;
                 if(msg_type==="stream"){
-                    getTargetNode().html(content.text);
+                    if (user_controls.onSuccess){
+                        user_controls.onSuccess(content.text);
+                    }else{
+                        getTargetNode().html(content.text);
+                    }
                 }else if (msg_type==="display_data" || msg_type==="execute_result"){
                     var html=null;
                     if (!!content.data["text/html"]){
@@ -65,7 +69,11 @@
                     
                     if (html){
                         try{
-                            getTargetNode().html(html);
+                            if (user_controls.onSuccess){
+                                user_controls.onSuccess(html);
+                            }else{
+                                getTargetNode().html(html);
+                            }
                         }catch(e){
                             console.log("Invalid html output", e, html);
                             getTargetNode().html( "Invalid html output: " + e.message + "<pre>" 
@@ -117,7 +125,11 @@
                             data = utils.fixConsole(data);
                             data = utils.fixCarriageReturn(data);
                             data = utils.autoLinkUrls(data);
-                            getTargetNode().html("<pre>" + data +"</pre>");
+                            if (user_controls.onError){
+                                user_controls.onError(data);
+                            }else{
+                                getTargetNode().html("<pre>" + data +"</pre>");
+                            }
                         }
                     });
                 }else{
@@ -164,12 +176,25 @@
             var pattern = "\\w*\\s*=\\s*'(\\\\'|[^'])*'";
             var rpattern=new RegExp(pattern,"g");
             var n = command.match(rpattern);
+            {#find the org_params if any#}
+            var org_params = {}
+            for (var i=0; i<n.length;i++){
+                var parts = n[i].split("=")
+                if (parts[0].trim() == "org_params"){
+                    var value = parts[1].trim()
+                    var values = value.substring(1,value.length-1).split(",");
+                    for (var p in values){
+                        org_params[values[p].trim()] = true;
+                    }
+                    break;
+                }
+            }
             var displayParams={}
             for (var i = 0; i < n.length; i++){
                 var parts=n[i].split("=");
                 var key = parts[0].trim();
                 var value = parts[1].trim()
-                if (!key.startsWith("nostore_") && key != "showchrome" && key != "prefix" && key != "cell_id"){
+                if (!key.startsWith("nostore_") && key != "showchrome" && key != "prefix" && key != "cell_id" && key != "org_params" && !!!org_params[key]){
                     displayParams[key] = value.substring(1,value.length-1);
                 }
             }
@@ -194,12 +219,16 @@
             console.log("couldn't find the cell");
         }
         $('#wrapperJS' + pd_prefix).html("")
-        getTargetNode().html(
-            '<div style="width:100px;height:60px;left:47%;position:relative">'+
-                '<i class="fa fa-circle-o-notch fa-spin" style="font-size:48px"></i>'+
-            '</div>'+
-            '<div style="text-align:center">Loading your data. Please wait...</div>'
-        );
+        if (!getTargetNode().hasClass( "no_loading_msg" )){
+            getTargetNode().html(
+                '<div style="width:100px;height:60px;left:47%;position:relative">'+
+                    '<i class="fa fa-circle-o-notch fa-spin" style="font-size:48px"></i>'+
+                '</div>'+
+                '<div style="text-align:center">' +
+                    (getTargetNode().attr("pd_loading_msg") || "Loading your data. Please wait...") +
+                '</div>'
+            );
+        }
         console.log("Running command2",command);
         IPython.notebook.session.kernel.execute(command, callbacks, {silent:true,store_history:false,stop_on_error:true});
     }
