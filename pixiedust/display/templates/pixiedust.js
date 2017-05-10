@@ -43,6 +43,7 @@ var pixiedust = (function(){
                     sanitize:false,
                     notebook: IPython.notebook,
                     keyboard_manager: IPython.notebook.keyboard_manager,
+                    maximize_modal: (displayOptions.maximize === "true"),
                     buttons: {
                         OK: {
                             class : "btn-primary btn-ok",
@@ -63,9 +64,34 @@ var pixiedust = (function(){
                         }
                     }
                 };
+
+                function resizeDialog() {
+                    global.modalBodyStyle = $('.pixiedust .modal-body').attr('style');
+                    global.modalFooterStyle = $('.pixiedust .modal-footer').attr('style');
+                    $('.pixiedust .modal-body').attr('style', global.modalBodyStyle ? global.modalBodyStyle + ';padding:5px 20px !important;' : 'padding:5px 20px !important;');
+                    $('.pixiedust .modal-footer').attr('style', 'display:none !important;');
+                };
+
+                function resetDialog() {
+                    if (global.modalBodyStyle) {
+                        $('.pixiedust .modal-body').attr('style', global.modalBodyStyle);
+                    } else {
+                        $('.pixiedust .modal-body').removeAttr('style');
+                    }
+                    if (global.modalFooterStyle) {
+                        $('.pixiedust .modal-footer').attr('style', global.modalFooterStyle);
+                    } else {
+                        $('.pixiedust .modal-footer').removeAttr('style');
+                    }
+                };
+
                 var modal_obj = modal(options);
                 modal_obj.addClass('pixiedust pixiedust-app');
+                if (options.maximize_modal) {
+                    modal_obj.addClass('pixiedust pixiedust-app pixiedust-maximize');
+                }
                 modal_obj.on('shown.bs.modal', function(){
+                    resizeDialog();
                     var isFF = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
                     if( isFF && options.keyboard_manager){
                         {#Only on FF, blur event issue, hard disable keyboard manager#}
@@ -91,6 +117,7 @@ var pixiedust = (function(){
                     pixiedust.executeDisplay(pd_controls, user_controls);
                 });
                 modal_obj.on("hidden.bs.modal", function () {
+                    resetDialog();
                     if ( global.KMEnableProto ){
                         var KeyboardManager = require('notebook/js/keyboardmanager').KeyboardManager;
                         KeyboardManager.prototype.enable = global.KMEnableProto;
@@ -110,7 +137,7 @@ function resolveScriptMacros(script){
             console.log("Warning: Unable to resolve value for element ", b);
             return a;
         }
-        return "\"" + v + "\"";
+        return "\"" +v.split('"').join('&quot;').split('\n').join('\\n') + "\"";
     });
     return script;
 }
@@ -196,7 +223,7 @@ function readExecInfo(pd_controls, element){
         execInfo.options.no_margin=true;
     }
 
-    execInfo.options.widget = event.target.getAttribute("pd_widget");
+    execInfo.options.widget = element.getAttribute("pd_widget");
 
     // unhide parents temporarily to properly calculate width/height
     var parentStyles = [];
@@ -241,6 +268,7 @@ function readExecInfo(pd_controls, element){
     }
 
     execInfo.refresh = element.hasAttribute("pd_refresh");
+    execInfo.norefresh = element.hasAttribute("pd_norefresh");
     execInfo.entity = element.hasAttribute("pd_entity") ? element.getAttribute("pd_entity") || "pixieapp_entity" : null;
 
     function applyEntity(c, e, doptions){
@@ -273,7 +301,7 @@ function readExecInfo(pd_controls, element){
                 resolveScriptMacros( getParentScript(element) ) + '\n' +
                 resolveScriptMacros(execInfo.script);
             
-            if ( ( (!dialog && !execInfo.targetDivId) || execInfo.refresh || execInfo.entity) && $(element).children("target[pd_target]").length == 0){
+            if ( ( (!dialog && !execInfo.targetDivId) || execInfo.refresh || execInfo.entity) && !execInfo.norefresh && $(element).children("target[pd_target]").length == 0){
                 {#include a refresh of the whole screen#}
                 execInfo.script += "\n" + applyEntity(pd_controls.command, execInfo.entity, execInfo.options)
             }else{
@@ -391,7 +419,7 @@ $(document).on("pd_event", function(event, eventInfo){
                     if (value.script){
                         value.script = "true=True\nfalse=False\neventInfo="+JSON.stringify(eventInfo) + "\n" + value.script;
                     }
-                    pixiedust.executeDisplay(pd_controls, value);
+                    value.execute();
                 }
             });
         });

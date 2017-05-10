@@ -21,6 +21,7 @@ import matplotlib.pyplot as plt
 import mpld3
 import numpy as np
 import pixiedust
+import math
 
 myLogger = pixiedust.getLogger(__name__)
 
@@ -47,10 +48,14 @@ class HistogramDisplay(MatplotlibBaseDisplay):
     def isSubplots(self):
         return len(self.getValueFields()) > 1 and self.options.get("histoChartType", "stacked") == "subplots"
 
+    def canRenderChart(self):
+        return (True, None)
+
     def matplotlibRender(self, fig, ax):
         stacked = len(self.getValueFields()) > 1 and self.options.get("histoChartType", "stacked") == "stacked"
         subplots = self.isSubplots()
-        binsize = int(self.options.get('binsize', 10))
+        defaultbin = math.sqrt(len(self.getWorkingPandasDataFrame().index))
+        binsize = int(self.options.get('binsize', defaultbin))
 
         def plot(ax, valueField=None, color=None):
             data = self.getWorkingPandasDataFrame() if valueField is None else self.getWorkingPandasDataFrame()[valueField]

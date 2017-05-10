@@ -20,12 +20,12 @@
             {% if optTypes.update({option.metadata.type: True}) %} {% endif %}
             {% if option.metadata.type == 'slider' %}
                 <div class="rendererOpt">
-                    <label class="field">{{option.description or option.name}}: <span id="slideval{{option.name}}{{prefix}}">{{option.metadata.default}}</span></label>
+                    <label class="field">{{option.description or option.name}}: <span id="slideval{{option.name}}{{prefix}}">{{this.options.get(option.name,None) or option.metadata.default}}</span></label>
                     <div id="slider{{option.name}}{{prefix}}"
                         name="{{option.name}}"
                         data-min={{option.metadata.min}}
                         data-max={{option.metadata.max}}
-                        data-default={{option.metadata.default}}
+                        data-default={{this.options.get(option.name,None) or option.metadata.default}}
                         style="margin: 0 0.6em;"></div>
                 </div>
             {%endif%}
@@ -93,8 +93,8 @@ $("[id^=optionchecked][id$={{prefix}}]").change(function(){
 });
 {%endif%}
 {%if optTypes.get("slider",False)%}
-if ($("[id^=slider][id$={{prefix}}]").length > 0) {
-    var sliderElt = $("[id^=slider][id$={{prefix}}]")
+$("[id^=slider][id$={{prefix}}]").each(function() {
+    var sliderElt = $(this)
     var thisOption = sliderElt.attr('name')
     var min = sliderElt.data("min")
     var max = sliderElt.data("max")
@@ -104,7 +104,7 @@ if ($("[id^=slider][id$={{prefix}}]").length > 0) {
         max: isNaN(max) ? 100 : max,
         value: isNaN(val) ? 50 : val,
         change: function(evt, ui) {
-            $("[id^=slideval][id$={{prefix}}]").text(ui.value);
+            $("[id=slideval" + thisOption + "{{prefix}}]").text(ui.value);
             {% call display.executeDisplay( useCellMetadata=True, divId="chartFigure" + prefix ) %}
                 var o = {};
                 o[thisOption] = ui.value;
@@ -113,9 +113,9 @@ if ($("[id^=slider][id$={{prefix}}]").length > 0) {
             {% endcall %}    
         },
         slide: function(evt, ui) {
-            $("[id^=slideval][id$={{prefix}}]").text(ui.value)
+            $("[id=slideval" + thisOption + "{{prefix}}]").text(ui.value)
         }
     });
-}
+})
 {%endif%}
 </script>

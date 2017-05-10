@@ -41,7 +41,7 @@ class PixieDustApp(Display):
             #make sure we don't have a conflict with an existing function
             if callable(option):
                 option = None
-            if not option:
+            if option is None:
                 option = self.options.get(key,None)
             if  (option is None and value=="*") or (value != "*" and option != value):
                 return False
@@ -111,6 +111,8 @@ def PixieApp(cls):
 
     def __init__(self, options=None, entity=None, dataHandler=None):
         PixieDustApp.__init__(self, options or {}, entity, dataHandler)
+        if hasattr(cls, "setup"):
+            cls.setup(self)
         self.nostore_params = True
 
     def getPixieAppEntity(self):
@@ -132,9 +134,9 @@ def PixieApp(cls):
             var = cls.__name__ + "_instance"
             ShellAccess[var] = self
 
-        runInDialog = kwargs.get("runInDialog", "false") is "true"
-        options = {"runInDialog": "true" if runInDialog else "false"}
-        if runInDialog:
+        self.runInDialog = kwargs.get("runInDialog", "false") is "true"
+        options = {"runInDialog": "true" if self.runInDialog else "false"}
+        if self.runInDialog:
             options.update( self.getDialogOptions() )
 
         options.update( {'handlerId': decoName(cls, "id") })

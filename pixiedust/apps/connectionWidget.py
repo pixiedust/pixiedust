@@ -13,13 +13,41 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # -------------------------------------------------------------------------------
-from .cfBrowser import CFPixieApp
+from .cfBrowser import CFBrowser
 from pixiedust.display.app import *
 from pixiedust.services.serviceManager import *
+from pixiedust.utils import Logger
 
-class ConnectionWidget(CFPixieApp):
+@Logger()
+class ConnectionWidget(CFBrowser):
     def getConnections(self):
         return getConnections("cloudant")
+
+    def selectBluemixCredentials(self, service_name, credentials_str):
+        credentials = json.loads(credentials_str)
+        payload = {'name': service_name, 'credentials': credentials}
+        addConnection('cloudant', payload)
+        self.selectedConnection = payload['name']
+        #return self.dataSourcesList()
+        return """
+<script>
+    pixiedust.executeDisplay({{pd_controls}}, {
+        'targetDivId': "dummy",
+        'script': "import json\\nprint(json.dumps( self.getConnections()))",
+        'onError': function(error){
+            alert(error);
+        },
+        'onSuccess': function(results){
+            var options = []
+            $.each(JSON.parse(results), function(key, value){
+                var selected = (value.name=="{{this.selectedConnection}}") ? 'selected="selected"' : "";
+                options.push('<option ' + selected + ' value="'+ value.name +'">'+ value.name +'</option>');
+            });
+            $("#connection{{prefix}}").html(options.join(''));
+        }
+    });
+</script>
+        """
     
     @route(selectedConnection="*", editConnection="*")
     def _editConnection(self):
@@ -113,6 +141,8 @@ try {
     @route(selectedConnection="*", deleteConnection="true")
     def _deleteConnection(self):
         deleteConnection("cloudant", self.selectedConnection)
+        self.deleteConnection = "false"
+        return self.dataSourcesList()
         
     @route(selectedConnection="*", browseBMConnection="true")
     def _browseBMConnection(self):
@@ -143,30 +173,44 @@ try {
     
     @route(widget="DataSourcesList")
     def dataSourcesList(self):
-        return """
+        num_connections = len(self.getConnections())
+        select_conn_script = ' pd_script="self.selectedConnection ='
+        if num_connections > 0:
+            select_conn_script += '$val(connection{{prefix}})"'
+        else:
+            select_conn_script += '\'none\'"'
+        output = """
 <div>
     <div class="form-group">
       <label for="connection{{prefix}}" class="control-label col-sm-2">Select a cloudant connection:</label>
       <div class="col-sm-7">
         <select class="form-control" id="connection{{prefix}}">
           {%for conn in this.getConnections() %}
-              <option value="{{conn.name|escape}}">{{conn.name|escape}}</option>
+              {%set selected=(this.selectedConnection==conn.name)%}
+              <option {%if selected%}selected="selected"{%endif%}  value="{{conn.name|escape}}">{{conn.name|escape}}</option>
           {%endfor%}
         </select>
       </div>
       <div class="col-sm-2 btn-toolbar" role="toolbar">
-        <div class="btn-group" role="group" pd_script="self.selectedConnection = $val(connection{{prefix}})">
-            <button type="button" class="btn btn-default">Go</button>
+        <div class="btn-group" role="group\"""" + select_conn_script + """>
+"""
+        if num_connections > 0:
+            output += """
+            <button type="button" class="btn btn-default">Go</button>'
             <button type="button" class="btn btn-default" pixiedust pd_options="dialog=true;editConnection=true">
                 <i class="fa fa-pencil-square-o"/>
-            </button>
+            </button>"""
+        output += """
             <button type="button" class="btn btn-default" pixiedust pd_options="dialog=true;newConnection=true">
                 <i class="fa fa-plus"/>
-            </button>
-            <button type="button" class="btn btn-default" pixiedust pd_options="deleteConnection=true">
+            </button>"""
+        if num_connections > 0:
+            output += """
+            <button type="button" class="btn btn-default" pixiedust>
                 <pd_script type="preRun">
                     return confirm("Delete " + $("#connection{{prefix}}").val() + "?");
                 </pd_script>
+                <pd_script>self.deleteConnection="true"</pd_script>
                 <i class="fa fa-trash"/>
             </button>
         </div>
@@ -174,3 +218,4 @@ try {
     </div>
 </div>
 """
+        return output

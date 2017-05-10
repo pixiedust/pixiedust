@@ -215,7 +215,7 @@ pd_script,pd_dialog{
 }
 .pixiedust-app .modal-dialog .pixiedust {
     border: none;
-    height: calc(100vh - 275px);
+    height: calc(100vh - 200px);
 }
 .pixiedust-app .modal-dialog .expandButton {
     visibility: hidden;
@@ -225,4 +225,20 @@ pd_script,pd_dialog{
 .pixiedust-app [pixiedust]:not(.pixiedust) {
     height: 100%;
     position: relative;
+}
+.pixiedust-app.pixiedust-maximize.modal {
+    border: 0 none;
+    margin: 0;
+    padding: 0 !important;
+}
+.pixiedust-app.pixiedust-maximize .modal-dialog {
+    height: 100% !important;
+    margin: 0;
+    overflow: hidden;
+    padding: 0;
+    width: 100% !important;
+}
+.pixiedust-app.pixiedust-maximize .modal-dialog .pixiedust {
+    height: calc(100vh - 88px);
+    padding: 0px;
 }

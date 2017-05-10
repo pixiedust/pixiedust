@@ -24,8 +24,9 @@ api_base_url = 'api.ng.bluemix.net'
 login_base_url = 'login.ng.bluemix.net'
     
 @PixieApp
-class CFPixieApp: 
-    
+class CFBrowser:
+
+
     def get_data_frame(self):
         return self.df
     
@@ -101,107 +102,69 @@ self.select_space="true"
 </div>
 """)
         
+#     # @route(select_space="true")
+#     def _select_space(self):
+#         self._addHTMLTemplateString("""
+# <div class="row" pixiedust="{{pd_controls|htmlAttribute}}">
+#     <div class="form-group col-sm-2" style="padding-right:10px;">
+#         <p>
+#             <button type="submit" class="btn btn-primary" pd_target="target{{prefix}}">Get Apps
+#                 <pd_script>self.print_apps()</pd_script>
+#             </button>
+#         </p>
+#         <p>
+#             <button type="submit" class="btn btn-primary" pd_target="target{{prefix}}">Get Services
+#                 <pd_script>self.print_services()</pd_script>
+#             </button>
+#         </p>
+#     </div>
+#     <div class="form-group col-sm-10">
+#         <div id="target{{prefix}}"></div>
+#     </div>
+# </div>
+# """)
+#
+#     def print_apps(self):
+#         apps = self.get_apps(self.access_token, self.space_id)
+#         for app in apps:
+#             print('<p>{}</p>'.format(app['entity']['name']))
+
     @route(select_space="true")
     def _select_space(self):
-        self._addHTMLTemplateString("""
-<div class="row" pixiedust="{{pd_controls|htmlAttribute}}">
-    <div class="form-group col-sm-2" style="padding-right:10px;">    
-        <p>
-            <button type="submit" class="btn btn-primary" pd_target="target{{prefix}}">Get Apps
-                <pd_script>self.print_apps()</pd_script>
-            </button>
-        </p>
-        <p>
-            <button type="submit" class="btn btn-primary" pd_target="target{{prefix}}">Get Services
-                <pd_script>self.print_services()</pd_script>
-            </button>
-        </p>
-    </div>
-    <div class="form-group col-sm-10">
-        <div id="target{{prefix}}"></div>
-    </div>
-</div>
-""")
-        
-    def print_apps(self):
-        apps = self.get_apps(self.access_token, self.space_id)
-        for app in apps:
-            print('<p>{}</p>'.format(app['entity']['name']))
-        
-    def print_services(self):
         svcs = self.get_services(self.access_token, self.space_id)
-        output = ''
+        output = """
+<div>
+    <div class="form-horizontal">
+"""
         for svc in svcs:
             svc_label = self.get_service_label(self.access_token, svc['entity']['service_plan_guid'])
-            output += '<p>'
-            output += '<b>{}</b>: {}<br>'.format(svc['entity']['name'], svc_label)
-            if True or svc_label == 'cloudantNoSQLDB':
+            if svc_label == 'cloudantNoSQLDB':
                 svc_keys = self.get_service_keys(self.access_token, svc['metadata']['guid'])
                 for svc_key in svc_keys:
                     svc_key_entity = svc_key['entity']
                     if 'credentials' in svc_key_entity.keys():
-                        cloudant_url = svc_key_entity['credentials']['url']
-                        #output += '<a href="{}" target="_blank">{}</a>'.format(cloudant_url, cloudant_url)
-                        output += '<button type="submit" class="btn btn-primary">Manage'
-                        output += '<pd_script>'
-                        output += 'self.cloudant_host="{}"\n'.format(svc_key_entity['credentials']['host'])
-                        output += 'self.cloudant_username="{}"\n'.format(svc_key_entity['credentials']['username'])
-                        output += 'self.cloudant_password="{}"\n'.format(svc_key_entity['credentials']['password'])
-                        output += 'self.select_space="false"\n'
-                        output += 'self.manage_cloudant="true"'
-                        output += '</pd_script>'
-                        output += '</button>'
-                    else:
-                       output += "Credentials not found"
-            else:
-                output += "svc_label {}".format(svc)
-            output += '</p>'
-        print(output)
-        
-    @route(manage_cloudant="true")
-    def _manage_cloudant(self):
-        output = '<ul>'
-        dbs = self.cloudant_all_dbs(self.cloudant_host, self.cloudant_username, self.cloudant_password)
-        for db in dbs:
-            output += '<li>{}'.format(db)
-            output += '<button type="submit" class="btn btn-primary">Get DataFrame'
-            output += '<pd_script>'
-            output += 'self.cloudant_db="{}"\n'.format(db)
-            output += 'self.manage_cloudant="false"\n'
-            output += 'self.generate_cloudant_dataframe="true"'
-            output += '</button>'
-            output += '</li>'
-        self._addHTMLTemplateString("""
-<div class="row" pixiedust="{{pd_controls|htmlAttribute}}">
-    <div class="form-group col-sm-2" style="padding-right:10px;">    
-        <p>""" + output + """</p>
+                        credentials_str = json.dumps(svc_key_entity['credentials'])
+                        credentials_str = credentials_str.replace('"', '\\"')
+                        output += """
+<div class="form-group">
+    <div class="col-sm-2"></div>
+    <div class="col-sm-5">
+        <b>""" + svc['entity']['name'] + """</b><br>
+        """ + svc_key_entity['credentials']['host'] + """<br>
+        <button type="submit" class="btn btn-primary" data-dismiss="modal">Select
+            <pd_script>self.service_name=\"""" + svc['entity']['name'].replace('"', '\\"') + """\"
+self.credentials=\"""" + credentials_str + """\"
+self.select_space="false"
+self.select_credentials="true"</pd_script>
+        </button>
     </div>
-    <div class="form-group col-sm-10">
-        <div id="target{{prefix}}"></div>
-    </div>
-</div>
-""")
-        
-    @route(generate_cloudant_dataframe="true")
-    def _generate_cloudant_dataframe(self):
-        sparkSession = SparkSession.builder.getOrCreate()
-        self.df = sparkSession.read.format("com.cloudant.spark").\
-            option("cloudant.host", self.cloudant_host).\
-            option("cloudant.username", self.cloudant_username).\
-            option("cloudant.password", self.cloudant_password).\
-            load(self.cloudant_db)
-        output = 'DataFrame generated for {}. Access by calling app.get_data_frame()'.format(self.cloudant_db)
-        self._addHTMLTemplateString("""
-<div class="row" pixiedust="{{pd_controls|htmlAttribute}}">
-    <div class="form-group col-sm-2" style="padding-right:10px;">    
-        <p>""" + output + """</p>
-    </div>
-    <div class="form-group col-sm-10">
-        <div id="target{{prefix}}"></div>
-    </div>
-</div>
-""")
-        
+</div>"""
+        return output
+
+    @route(select_credentials="true")
+    def _select_credentials(self):
+        return self.selectBluemixCredentials(self.service_name, self.credentials)
+
     def is_valid_access_token(self, access_token):
         url = 'https://{}/v2/organizations'.format(api_base_url)
         authHeader = 'Bearer {}'.format(access_token)
