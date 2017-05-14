@@ -254,7 +254,7 @@ self.""" + type_var_name + """='""" + key + """'</pd_script>
     <div class="form-group">  
         <button type="submit" class="btn btn-primary">Go
             <target pd_target="target2{{prefix}}" pd_options="view=""" + view_db_query_results + """" />
-            <pd_script>self.query=$val(query{{prefix}})</pd_script>
+            <pd_script>self.query="$val(query{{prefix}})"</pd_script>
         </button>
     </div>
 </div>
@@ -325,7 +325,7 @@ self.""" + type_var_name + """='""" + key + """'</pd_script>
     <div class="form-group">
         <button type="submit" class="btn btn-primary">Go
             <target pd_target="target2{{prefix}}" pd_options="view=""" + view_db_search_results + """" />
-            <pd_script>self.search_query=$val(search{{prefix}})</pd_script>
+            <pd_script>self.search_query="$val(search{{prefix}})"</pd_script>
         </button>
     </div>
 </div>

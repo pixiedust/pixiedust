@@ -131,13 +131,19 @@ var pixiedust = (function(){
 })();
 
 function resolveScriptMacros(script){
-    script = script.replace(/\$val\(\"?(\w*)\"?\)/g, function(a,b){
+    script = script && script.replace(/\$val\(\"?(\w*)\"?\)/g, function(a,b){
         var v = $("#" + b ).val();
+        if (!v && window[b] && typeof window[b] === "function"){
+            v = window[b]();
+        }
+        if (!v && pixiedust[b] && typeof pixiedust[b] === "function"){
+            v = pixiedust[b]();
+        }
         if (!v){
             console.log("Warning: Unable to resolve value for element ", b);
             return a;
         }
-        return "\"" +v.split('"').join('&quot;').split('\n').join('\\n') + "\"";
+        return v.split('"').join('&quot;').split('\n').join('\\n');
     });
     return script;
 }
@@ -206,7 +212,7 @@ function readExecInfo(pd_controls, element){
             execInfo.options[this.name.replace("option_", "")] = this.value || null;
         }
     });
-    var pd_options = element.getAttribute("pd_options");
+    var pd_options = resolveScriptMacros(element.getAttribute("pd_options"));
     if (pd_options){
         var parts = pd_options.split(";");
         $.each( parts, function(){
