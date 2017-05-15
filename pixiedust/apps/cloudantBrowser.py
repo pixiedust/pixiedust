@@ -44,6 +44,8 @@ class CloudantBrowser(ConnectionWidget):
         self.spark_session = None
         self.sql_context = None
         self.host = credentials['host']
+        self.protocol = credentials.get('protocol', 'https')
+        self.port = credentials.get('port', 443)
         self.username = credentials['username']
         self.password = credentials['password']
         self.selectedConnection = None
@@ -505,7 +507,7 @@ self.search_skip=""" + str(self.search_skip + self.search_limit) + """</pd_scrip
 """
 
     def get_all_dbs(self, host, username, password):
-        url = 'https://{}/_all_dbs'.format(host)
+        url = '{0}://{1}/_all_dbs'.format(self.protocol, host)
         r = requests.get(url, headers={
             'Authorization': 'Basic {}'.format(base64.b64encode('{}:{}'.format(username, password))),
             'Accept': 'application/json'
@@ -513,7 +515,7 @@ self.search_skip=""" + str(self.search_skip + self.search_limit) + """</pd_scrip
         return r.json()
 
     def get_all_docs(self, host, username, password, db, limit, skip):
-        url = 'https://{}/{}/_all_docs?include_docs=true'.format(host,db)
+        url = '{}://{}/{}/_all_docs?include_docs=true'.format(self.protocol, host,db)
         if limit > 0:
             url = '{}&limit={}'.format(url,limit)
         if skip > 0:
@@ -525,7 +527,7 @@ self.search_skip=""" + str(self.search_skip + self.search_limit) + """</pd_scrip
         return r.json()
 
     def get_design_docs(self, host, username, password, db, limit):
-        url = 'https://{}/{}/_all_docs?startkey="_design/"&endkey="_design0"&include_docs=true'.format(host,db)
+        url = '{}://{}/{}/_all_docs?startkey="_design/"&endkey="_design0"&include_docs=true'.format(self.protocol, host,db)
         if limit > 0:
             url = '{}&limit={}'.format(url,limit)
         r = requests.get(url, headers={
@@ -541,7 +543,7 @@ self.search_skip=""" + str(self.search_skip + self.search_limit) + """</pd_scrip
             if skip > 0:
                 query_json['skip'] = skip
             query = json.dumps(query_json)
-        url = 'https://{}/{}/_find'.format(host, db)
+        url = '{}://{}/{}/_find'.format(self.protocol, host, db)
         r = requests.post(url, data=query, headers={
             'Authorization': 'Basic {}'.format(base64.b64encode('{}:{}'.format(username, password))),
             'Content-Type': 'application/json',
@@ -550,7 +552,7 @@ self.search_skip=""" + str(self.search_skip + self.search_limit) + """</pd_scrip
         return r.json()
 
     def run_search(self, host, username, password, db, design_doc, index, query, limit, bookmark):
-        url = 'https://{}/{}/_design/{}/_search/{}?q={}&include_docs=true'.format(host, db, design_doc, index, query)
+        url = '{}://{}/{}/_design/{}/_search/{}?q={}&include_docs=true'.format(self.protocol, host, db, design_doc, index, query)
         if limit > 0:
             url = '{}&limit={}'.format(url,limit)
             if bookmark:
@@ -562,7 +564,7 @@ self.search_skip=""" + str(self.search_skip + self.search_limit) + """</pd_scrip
         return r.json()
 
     def get_view(self, host, username, password, db, design_doc, view, limit, skip):
-        url = 'https://{}/{}/_design/{}/_view/{}?include_docs=true'.format(host, db, design_doc, view)
+        url = '{}://{}/{}/_design/{}/_view/{}?include_docs=true'.format(self.protocol, host, db, design_doc, view)
         if limit > 0:
             url = '{}&limit={}'.format(url, limit)
         if skip > 0:
