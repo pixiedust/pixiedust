@@ -48,10 +48,10 @@ body { background-color:#333; margin:0px !important; overflow: hidden;font-famil
 
 <script>
     window.maploadtime = 1;
-    mapboxgl.accessToken="{{this.options.get("mapboxtoken")}}";
+    mapboxgl.accessToken="{{this.options.get('mapboxtoken')}}";
     var map = new mapboxgl.Map({
         container: "map{{prefix}}",
-        style: "mapbox://styles/mapbox/{{this.options.get("basemap", "light-v9")}}"
+        style: "mapbox://styles/mapbox/{{this.options.get('basemap', 'light-v9')}}"
     });
     var popup = new mapboxgl.Popup({closeButton: false,closeOnClick: true});
     
