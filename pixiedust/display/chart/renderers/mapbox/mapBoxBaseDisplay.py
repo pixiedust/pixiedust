@@ -41,11 +41,17 @@ class MapBoxBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
 			},
 			{ 'name': 'kind',
 			  'metadata': {
-					'type': "dropdown",
+					'type': 'dropdown',
 					'values': ["simple","choropleth","densitymap"],
 					'default': "simple"
 				}
-			}
+			},
+			{'name': 'basemap', 
+			 'metadata': {
+				 'type': 'dropdown', 
+				 'values': ['light-v9', 'satellite-v9', 'dark-v9','outdoors-v9'], 
+				 'default': 'light-v9'
+			 }}
 		]
 
     
