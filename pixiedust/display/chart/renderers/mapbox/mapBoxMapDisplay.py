@@ -103,9 +103,6 @@ class MapViewDisplay(MapBoxBaseDisplay):
             mapValueField = valueFields[0]
             self.options["mapValueField"] = mapValueField
 
-        if not self.options.get("basemap"): 
-            self.options["basemap"] = "light-v9"
-
         if not self.options.get("kind"): 
             self.options["kind"] = "choropleth"
         # if there's a numeric value field paint the data as a choropleth map
