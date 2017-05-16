@@ -23,6 +23,18 @@ def append(displayObject, arr, option):
     if option is not None and displayObject.acceptOption(option["name"]):
         arr.append(option)
 
+def chartSize():
+    return {
+        'name': 'chartsize',
+        'description': 'Chart Size',
+        'metadata': {
+            'type': 'slider',
+            'max': 100,
+            'min': 50,
+            'default': 100
+        }
+    }
+
 def clusterBy(displayObject):
     return { 
         'name': 'clusterby',
@@ -56,6 +68,7 @@ def timeSeries(displayObject):
 
 def barChart(displayObject):
     options = []
+    options.append(chartSize())
     options.append(clusterBy(displayObject))
     append(displayObject, options, timeSeries(displayObject))
 
@@ -94,7 +107,7 @@ def barChart(displayObject):
 
 def lineChart(displayObject):
     options = []
-
+    options.append(chartSize())
     options.append(clusterBy(displayObject))
     append(displayObject, options, timeSeries(displayObject))
 
@@ -138,6 +151,7 @@ def lineChart(displayObject):
 
 def histogram(displayObject):
     options = []
+    options.append(chartSize())
     if len(displayObject.getValueFields()) > 1:
         append(displayObject, options, {
             'name': 'histoChartType',
@@ -149,18 +163,30 @@ def histogram(displayObject):
             }
         })
     count = len(displayObject.getWorkingPandasDataFrame().index)
+    default = math.sqrt(count)
+    vals = len(displayObject.getWorkingPandasDataFrame().groupby(displayObject.getValueFields()[0]).size())
     options.append({
         'name': 'binsize',
         'description': 'Bin size',
         'metadata': {
             'type': 'slider',
-            'max': int(max(math.ceil(count / 2), 4)),
-            'min': int(max(math.floor(count / 20), 2)),
-            'default': int(max(math.ceil(count / 4), 3))
+            'max': int(max(vals, default) + 10),
+            'min': int(max((min(vals, default) - 10), 2)),
+            'default': int(default)
         }
     })
     return options
 
+def pieChart(displayObject):
+    options = []
+    options.append(chartSize())
+    return options
+
+def scatterPlot(displayObject):
+    options = []
+    options.append(chartSize())
+    return options
+
 commonOptions = {}
-for f in [barChart,lineChart,histogram]:
+for f in [barChart,lineChart,histogram,pieChart,scatterPlot]:
     commonOptions.update({f.__name__:f})

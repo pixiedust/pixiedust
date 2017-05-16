@@ -1,3 +1,244 @@
-pd_script{
+pd_script,pd_dialog{
     display:none
+}
+
+.output_subarea.rendered_html {
+    max-width: 100%;
+    padding: 0;
+}
+.pixiedust {
+    border: 1px solid #ececec;
+    border-radius: 3px;
+    margin: 10px 0;
+    padding: 10px;
+
+    color: #333333;
+    font-size: small;
+    font-weight: 300;
+    letter-spacing: 0.5px;
+    line-height: normal;
+}
+.pixiedust .btn-group {
+    border-right: 0;
+}
+.pixiedust .display-type-button:not(:first-child) {
+    margin-left: 10px !important;
+}
+.pixiedust .btn-default {
+    border-radius: 0;
+}
+.pixiedust-toolbar .btn-default.focus,
+.pixiedust-toolbar .btn-default:focus,
+.pixiedust-toolbar .btn-default:hover,
+.pixiedust .chart-button-group .btn-default.focus,
+.pixiedust .chart-button-group .btn-default:focus,
+.pixiedust .chart-button-group .btn-default:hover {
+    background-color: #337ab7;
+    border-color: #2e6da4;
+    color: #ffffff;
+}
+.pixiedust .dropdown-menu {
+    background-color: #ffffff;
+    border-color: rgba(0, 0, 0, 0.15);
+    padding: 0;
+}
+.pixiedust .dropdown-menu ul {
+    list-style: outside none none;
+    margin: 0;
+    padding: 0;
+}
+.pixiedust .dropdown-menu li {
+    cursor: pointer;
+    padding: 8px 12px;
+}
+.pixiedust .dropdown-menu li:hover {
+    background-color: #337ab7;
+    color: #ffffff;
+    cursor: pointer;
+}
+.pixiedust .dropdown-menu li > span {
+    display: inline-block;
+    margin-left: 10px;
+}
+.pixiedust .btn .fa-chevron-down {
+    margin-left: 25px;
+}
+.pixiedust .btn-group.open .dropdown-toggle {
+    background-color: #337ab7;
+    border-color: #2e6da4;
+    color: #ffffff;
+}
+.pixiedust .modal-dialog {
+    width: 50vw;
+    min-width: 700px;
+}
+.pixiedust .modal-dialog .btn-default:focus,
+.pixiedust .modal-dialog .btn-default:hover {
+    background-color: #e6e6e6;
+    border-color: #adadad;
+}
+.pixiedust .modal-dialog .btn-primary {
+    background-color: #337ab7;
+    color: #fff;
+    transition: background-color 0.15s ease-out 0s;
+}
+.pixiedust .modal-dialog .btn-primary:focus,
+.pixiedust .modal-dialog .btn-primary:hover {
+    background-color: #286090;
+    border-color: #204d74;
+}
+.pixiedust .modal-header {
+    background-color: #337ab7;
+    color: #ffffff;
+}
+.pixiedust .modal-header .close {
+    color: #fff;
+    opacity: 1;
+    text-shadow: none;
+}
+.pixiedust .modal-header .close:hover {
+    opacity: 0.5;
+}
+.pixiedust .modal-body {
+    padding: 25px;
+}
+.pixiedust .modal-footer .btn {
+    min-width: 75px;
+}
+
+.pixiedust .executionTime {
+    color: gray;
+}
+
+.pixiedust .expandButton {
+    background-color: transparent;
+    border: 0 none;
+    font-size: 15px;
+    padding: 0;
+    position: relative;
+    right: 0;
+    text-align: right;
+    top: 0;
+    width: 100%;
+}
+.pixiedust .expandButton:hover,
+.pixiedust .expandButton:active,
+.pixiedust .expandButton:focus {
+    background-color: transparent;
+    color: #337ab7;
+}
+.pixiedust .expandButton:not(.collapsed) {
+    float: right;
+    width: initial;
+}
+.pixiedust .expandButton > i.fa:before {
+    content: "\f066";
+}
+.pixiedust .expandButton.collapsed > i.fa:before {
+    content: "\f065";
+}
+.pixiedust .expandButton.collapsed:before {
+    color: #999999;
+    content: "Pixiedust output minimized";
+    float: left;
+    font-size: 14px;
+    font-style: italic;
+    font-weight: 300;
+}
+.pixiedust .chart-button-group {
+    border-bottom: 1px solid #ececec;
+}
+.pixiedust .rendererOpt {
+    margin: 6px 0;
+    padding: 6px 0;
+}
+.pixiedust .rendererOpt:first-child {
+    margin-top: 0;
+    padding-top: 0;
+}
+.pixiedust .rendererOpt.checkbox { padding-left: 20px; }
+.pixiedust .rendererOpt.checkbox label {
+    display: inline-block;
+    position: relative;
+    padding-left: 5px;
+}
+.pixiedust .rendererOpt.checkbox label::before {
+    content: "";
+    display: inline-block;
+    position: absolute;
+    width: 17px;
+    height: 17px;
+    left: 0;
+    margin-left: -20px;
+    border: 1px solid #cccccc;
+    background-color: #fff;
+    -webkit-transition: border 0.15s ease-in-out, color 0.15s ease-in-out;
+    -o-transition: border 0.15s ease-in-out, color 0.15s ease-in-out;
+    transition: border 0.15s ease-in-out, color 0.15s ease-in-out;
+}
+.pixiedust .rendererOpt.checkbox label::after {
+    display: inline-block;
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    left: 0;
+    top: 0;
+    margin-left: -20px;
+    padding-left: 2px;
+    padding-top: 1px;
+}
+.pixiedust .rendererOpt.checkbox input[type="checkbox"] {
+    opacity: 0;
+    z-index: 1;
+}
+.pixiedust .rendererOpt.checkbox input[type="checkbox"]:focus + label::before {
+    outline: thin dotted;
+    outline: 5px auto -webkit-focus-ring-color;
+    outline-offset: -2px;
+}
+.pixiedust .rendererOpt.checkbox input[type="checkbox"]:checked + label::after {
+    font-family: 'FontAwesome';
+    content: "\f00c";
+}
+
+.pixiedust .rendererOpt.checkbox.checkbox-inline { margin-top: 0; }
+
+.pixiedust .rendererOpt.checkbox-primary input[type="checkbox"]:checked + label::before {
+    background-color: #337ab7;
+    border-color: #337ab7;
+}
+.pixiedust .rendererOpt.checkbox-primary input[type="checkbox"]:checked + label::after {
+    color: #fff;
+}
+.pixiedust-app .modal-dialog {
+    width: 95% !important;
+}
+.pixiedust-app .modal-dialog .pixiedust {
+    border: none;
+    height: calc(100vh - 200px);
+}
+.pixiedust-app .modal-dialog .expandButton {
+    visibility: hidden;
+}
+.pixiedust-app .pixiedust-output-wrapper,
+.pixiedust-app .pixiedustWrapperHTML,
+.pixiedust-app [pixiedust]:not(.pixiedust) {
+    height: 100%;
+    position: relative;
+}
+.pixiedust-app.pixiedust-maximize.modal {
+    border: 0 none;
+    margin: 0;
+    padding: 0 !important;
+}
+.pixiedust-app.pixiedust-maximize .modal-dialog {
+    height: 100% !important;
+    margin: 0;
+    overflow: hidden;
+    padding: 0;
+    width: 100% !important;
+}
+.pixiedust-app.pixiedust-maximize .modal-dialog .pixiedust {
+    height: calc(100vh - 88px);
+    padding: 0px;
 }

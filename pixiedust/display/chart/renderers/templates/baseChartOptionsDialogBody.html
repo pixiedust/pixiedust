@@ -158,7 +158,7 @@
 		<div class="col-sm-4" style="padding: 0px 5px 0px 5px;">
 			<div class="form-group">
 				<label class="field"># of Rows to Display:</label>
-				<input id="rows-count" class="form-control" name="rowCount" type="number" min="1" max="1000" value="{{this.options.get("rowCount") or 100}}">
+				<input id="rows-count" class="form-control" name="rowCount" type="number" min="1" max="10000" value="{{this.options.get("rowCount") or 500}}">
 			</div>
 		</div>
 		{%block customFormFields%}{%endblock%}
