@@ -3,23 +3,23 @@
  "ibm-map.dtd">
 <map xml:lang="en-us">
 	<title>PixieDust</title>
-	<topicref audience="cloud" format="html" scope="peer" navtitle="Use PixieDust" href="https://raw.githubusercontent.com/ibm-cds-labs/pixiedust/master/docs/use.html">
-		<topicref audience="cloud" format="html" scope="peer" navtitle="Install PixieDust" href="https://raw.githubusercontent.com/ibm-cds-labs/pixiedust/master/docs/install.html"></topicref>
-		<topicref audience="cloud" format="html" scope="peer" navtitle="Load Data" href="https://raw.githubusercontent.com/ibm-cds-labs/pixiedust/master/docs/loaddata.html"></topicref>
-		<topicref audience="cloud" format="html" scope="peer" navtitle="Display Data" href="https://raw.githubusercontent.com/ibm-cds-labs/pixiedust/master/docs/displayapi.html"></topicref>
-		<topicref audience="cloud" format="html" scope="peer" navtitle="Package Manager" href="https://raw.githubusercontent.com/ibm-cds-labs/pixiedust/master/docs/packagemanager.html"></topicref>
-		<topicref audience="cloud" format="html" scope="peer" navtitle="Use Scala in a Python Notebook" href="https://raw.githubusercontent.com/ibm-cds-labs/pixiedust/master/docs/scalabridge.html"></topicref>
-		<topicref audience="cloud" format="html" scope="peer" navtitle="Spark Progress Monitor" href="https://raw.githubusercontent.com/ibm-cds-labs/pixiedust/master/docs/sparkmonitor.html"></topicref>
-		<topicref audience="cloud" format="html" scope="peer" navtitle="Download Data" href="https://raw.githubusercontent.com/ibm-cds-labs/pixiedust/master/docs/download.html"></topicref>
-		<topicref audience="cloud" format="html" scope="peer" navtitle="Logging" href="https://raw.githubusercontent.com/ibm-cds-labs/pixiedust/master/docs/logging.html"></topicref>
+	<topicref format="html" scope="peer" navtitle="Use PixieDust" href="use.html">
+		<topicref format="html" scope="peer" navtitle="Install PixieDust" href="install.html"></topicref>
+		<topicref format="html" scope="peer" navtitle="Load Data" href="loaddata.html"></topicref>
+		<topicref format="html" scope="peer" navtitle="Display Data" href="displayapi.html"></topicref>
+		<topicref format="html" scope="peer" navtitle="Package Manager" href="packagemanager.html"></topicref>
+		<topicref format="html" scope="peer" navtitle="Use Scala in a Python Notebook" href="scalabridge.html"></topicref>
+		<topicref format="html" scope="peer" navtitle="Spark Progress Monitor" href="sparkmonitor.html"></topicref>
+		<topicref format="html" scope="peer" navtitle="Download Data" href="download.html"></topicref>
+		<topicref format="html" scope="peer" navtitle="Logging" href="logging.html"></topicref>
 	</topicref>
-	<topicref audience="cloud" format="html" scope="peer" navtitle="Develop for PixieDust" href="https://raw.githubusercontent.com/ibm-cds-labs/pixiedust/master/docs/develop.html">
-		<topicref audience="cloud" format="html" scope="peer" navtitle="Contribute" href="https://raw.githubusercontent.com/ibm-cds-labs/pixiedust/master/docs/contribute.html"></topicref>
-		<topicref audience="cloud" format="html" scope="peer" navtitle="Write a new PixieDust Visualization" href="https://raw.githubusercontent.com/ibm-cds-labs/pixiedust/master/docs/writeviz.html"></topicref>
-		<topicref audience="cloud" format="html" scope="peer" navtitle="Build a Renderer" href="https://raw.githubusercontent.com/ibm-cds-labs/pixiedust/master/docs/renderer.html"></topicref>
-		<topicref audience="cloud" format="html" scope="peer" navtitle="Test" href="https://raw.githubusercontent.com/ibm-cds-labs/pixiedust/master/docs/test.html"></topicref>
+	<topicref format="html" scope="peer" navtitle="Develop for PixieDust" href="develop.html">
+		<topicref format="html" scope="peer" navtitle="Contribute" href="contribute.html"></topicref>
+		<topicref format="html" scope="peer" navtitle="Write a new PixieDust Visualization" href="writeviz.html"></topicref>
+		<topicref format="html" scope="peer" navtitle="Build a Renderer" href="renderer.html"></topicref>
+		<topicref format="html" scope="peer" navtitle="Test" href="test.html"></topicref>
 	</topicref>
-	<topicref audience="cloud" format="html" scope="peer" navtitle="Release Notes" href="https://raw.githubusercontent.com/ibm-cds-labs/pixiedust/master/docs/releasenotes.html">
-		<topicref audience="cloud" format="html" scope="peer" navtitle="1.0.4" href="https://raw.githubusercontent.com/ibm-cds-labs/pixiedust/master/docs/1-0-4.html"></topicref>
+	<topicref format="html" scope="peer" navtitle="Release Notes" href="releasenotes.html">
+		<topicref format="html" scope="peer" navtitle="1.0.4" href="1-0-4.html"></topicref>
 	</topicref>
 </map>
