@@ -42,8 +42,8 @@ class MapBoxBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
 			{ 'name': 'kind',
 			  'metadata': {
 					'type': 'dropdown',
-					'values': ["simple","choropleth","densitymap"],
-					'default': "simple"
+					'values': ['simple','simple-cluster','choropleth','choropleth-cluster','densitymap'],
+					'default': 'simple'
 				}
 			},
 			{'name': 'basemap', 
