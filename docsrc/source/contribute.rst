@@ -29,7 +29,7 @@ Here are the steps for working with the `PixieDust GitHub repository <https://gi
 3. Make the edits in your branch.
 4. `Test <test.html>`_ to make sure your changes do not break existing behavior.
 5. Repeat steps 3 and 4 until you are ready to submit your updates.
-6. Submit a `pull request <https://help.github.com/articles/creating-a-pull-request/>`_.
+6. `Submit a pull request <https://help.github.com/articles/creating-a-pull-request/>`_.
 
 .. note::  While you work, regularly pull in changes from the PixieDust 'master' stream so you stay up-to-date and minimize merge conflicts when you submit your pull request. `See detailed instructions <https://help.github.com/articles/syncing-a-fork>`_. 
 
