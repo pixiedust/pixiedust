@@ -19,6 +19,12 @@ from .mapBoxBaseDisplay import MapBoxBaseDisplay
 from pixiedust.utils import cache
 from pixiedust.utils import Logger
 import json 
+import numpy
+
+def defaultJSONEncoding(o):
+    if isinstance(o, numpy.integer): 
+        return int(o)
+    raise TypeError
 
 @PixiedustRenderer(id="mapView")
 @Logger()
@@ -79,7 +85,7 @@ class MapViewDisplay(MapBoxBaseDisplay):
 
         min = [df[keyFields[lonFieldIdx]].min(), df[keyFields[latFieldIdx]].min()]
         max = [df[keyFields[lonFieldIdx]].max(), df[keyFields[latFieldIdx]].max()]
-        self.options["mapBounds"] = json.dumps([min,max])
+        self.options["mapBounds"] = json.dumps([min,max], default=defaultJSONEncoding)
 
         # Transform the data into GeoJSON for use in the Mapbox client API
         pygeojson = {'type':'FeatureCollection', 'features':[]}
@@ -94,7 +100,7 @@ class MapViewDisplay(MapBoxBaseDisplay):
                 feature['properties'][allProps[idx]] = row[valueFieldIdx+1]
             pygeojson['features'].append(feature)
 
-        self.options["mapData"] = json.dumps(pygeojson)
+        self.options["mapData"] = json.dumps(pygeojson,default=defaultJSONEncoding)
 
         paint = {'circle-radius':12,'circle-color':'#ff0000'}
         paint['circle-opacity'] = 1.0 if (self.options.get("kind") and self.options.get("kind").find("cluster") >= 0) else 0.25
@@ -117,7 +123,7 @@ class MapViewDisplay(MapBoxBaseDisplay):
             paint['circle-color']['stops'] = []
             for bin in bins: 
                 paint['circle-color']['stops'].append( [bin[0], bin[1]] )
-        self.options["mapStyle"] = json.dumps(paint)
+        self.options["mapStyle"] = json.dumps(paint,default=defaultJSONEncoding)
         w = self.getPreferredOutputWidth()
         h = self.getPreferredOutputHeight()
         body = self.renderTemplate("mapView.html", bins=bins, prefwidth=w, prefheight=h)
