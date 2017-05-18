@@ -79,6 +79,7 @@ class MapViewDisplay(MapBoxBaseDisplay):
 
         min = [df[keyFields[lonFieldIdx]].min(), df[keyFields[latFieldIdx]].min()]
         max = [df[keyFields[lonFieldIdx]].max(), df[keyFields[latFieldIdx]].max()]
+        self.options["mapBounds"] = json.dumps([min,max])
 
         # Transform the data into GeoJSON for use in the Mapbox client API
         pygeojson = {'type':'FeatureCollection', 'features':[]}
@@ -93,10 +94,11 @@ class MapViewDisplay(MapBoxBaseDisplay):
                 feature['properties'][allProps[idx]] = row[valueFieldIdx+1]
             pygeojson['features'].append(feature)
 
-        self.options["mapBounds"] = json.dumps([min,max])
         self.options["mapData"] = json.dumps(pygeojson)
 
         paint = {'circle-radius':12,'circle-color':'#ff0000'}
+        paint['circle-opacity'] = 1.0 if (self.options.get("kind") and self.options.get("kind").find("cluster") >= 0) else 0.25
+
         bins = []
 
         if len(valueFields) > 0:
@@ -104,9 +106,9 @@ class MapViewDisplay(MapBoxBaseDisplay):
             self.options["mapValueField"] = mapValueField
 
         if not self.options.get("kind"): 
-            self.options["kind"] = "choropleth"
+            self.options["kind"] = "choropleth-cluster"
         # if there's a numeric value field paint the data as a choropleth map
-        if self.options.get("kind") != "simple" and len(valueFields) > 0:
+        if self.options.get("kind") and self.options.get("kind").find("simple") < 0 and len(valueFields) > 0:
             minval = df[valueFields[0]].min()
             maxval = df[valueFields[0]].max()
             bins = [ (minval,'#ffffcc'), (df[valueFields[0]].quantile(0.25),'#a1dab4'), (df[valueFields[0]].quantile(0.5),'#41b6c4'), (df[valueFields[0]].quantile(0.75),'#2c7fb8'), (maxval,'#253494') ]
