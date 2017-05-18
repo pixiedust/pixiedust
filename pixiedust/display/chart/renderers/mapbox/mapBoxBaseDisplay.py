@@ -29,13 +29,29 @@ class MapBoxBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
 
 	def getChartOptions(self):
 		return [
+			{
+					'name': 'chartsize',
+					'description': 'Map Size',
+					'metadata': {
+							'type': 'slider',
+							'max': 100,
+							'min': 50,
+							'default': 90
+					}
+			},
 			{ 'name': 'kind',
 			  'metadata': {
-					'type': "dropdown",
-					'values': ["simple","choropleth","densitymap"],
-					'default': "simple"
+					'type': 'dropdown',
+					'values': ['simple','simple-cluster','choropleth','choropleth-cluster','densitymap'],
+					'default': 'simple'
 				}
-			}
+			},
+			{'name': 'basemap', 
+			 'metadata': {
+				 'type': 'dropdown', 
+				 'values': ['light-v9', 'satellite-v9', 'dark-v9','outdoors-v9'], 
+				 'default': 'light-v9'
+			 }}
 		]
 
     

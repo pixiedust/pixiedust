@@ -29,6 +29,16 @@ class GoogleBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
 
     def getChartOptions(self):
         return [
+            {
+                'name': 'chartsize',
+                'description': 'Map Size',
+                'metadata': {
+                    'type': 'slider',
+                    'max': 100,
+                    'min': 50,
+                    'default': 90
+                }
+            },
             { 'name': 'mapDisplayMode',
               'description': 'Display Mode',
 			  'metadata': {
