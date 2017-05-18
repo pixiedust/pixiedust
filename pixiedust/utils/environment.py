@@ -51,6 +51,17 @@ class Environment(with_metaclass(
         def javaClassPath(self):
             return JavaWrapper("java.lang.System").getProperty("java.class.path")
 
+        @property
+        @cache(fieldName="_isRunningOnDSX")
+        def isRunningOnDSX(self):
+            envVar = os.environ.get("RUNTIME_ENV_STOREFRONT")
+            return envVar is not None and envVar.startswith("bluemix/")
+
+        @property
+        @cache(fieldName="_pixiedustHome")
+        def pixiedustHome(self):
+            return os.environ.get("PIXIEDUST_HOME", os.path.expanduser('~'))
+
     env = _Environment()
 
 """
