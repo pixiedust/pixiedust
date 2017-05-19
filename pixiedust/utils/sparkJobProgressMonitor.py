@@ -17,6 +17,7 @@ from pixiedust.utils.template import PixiedustTemplateEnvironment
 from IPython.core.getipython import *
 from IPython.display import display, HTML, Javascript
 from pixiedust.utils.shellAccess import ShellAccess
+from pixiedust.utils.environment import Environment
 from functools import reduce
 import uuid
 import json
@@ -34,6 +35,10 @@ progressMonitor = None
 loadingProgressMonitor = False
 
 def enableSparkJobProgressMonitor():
+    if Environment.isRunningOnDSX:
+        print("Spark Job Progress Monitoring cannot be started on DSX")
+        return
+
     global progressMonitor, loadingProgressMonitor
     if progressMonitor is None and not loadingProgressMonitor:
         loadingProgressMonitor = True

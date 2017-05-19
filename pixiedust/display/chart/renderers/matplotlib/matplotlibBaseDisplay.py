@@ -95,7 +95,7 @@ class MatplotlibBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
             self.needsStretching = self.canStretch()
             if self.isStretchingOn():
                 #resize image width
-                fig.set_size_inches( totalWidth/self.getDPI(),fig.get_figheight())
+                fig.set_size_inches(min(totalWidth/self.getDPI(), 32768/self.getDPI()),fig.get_figheight())
             else:
                 self.addMessage("Some labels are not displayed because of a lack of space. Click on Stretch image to see them all")
                 #filter down the list to max 20
