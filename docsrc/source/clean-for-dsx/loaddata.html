@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+ <head>
+  <meta/>
+  <meta/>
+  <title>
+   Load Data
+  </title>
+ </head>
+ <body>
+  <div>
+   <h1>
+    Load Data
+   </h1>
+   <div>
+    <h1>
+     Sample Data Sets
+    </h1>
+    <p>
+     PixieDust comes with sample data. To start playing with the display() API and other PixieDust features, load and then visualize one of our many sample data sets.
+    </p>
+    <p>
+     To call the list of data sets, run the following command in your notebook:
+    </p>
+    <pre>pixiedust.sampleData()</pre>
+    <p>
+     You get a list of the data sets included with PixieDust.
+    </p>
+    <img alt="_images/sample_data_sets.png" src="../../../docs/_images/sample_data_sets.png"/>
+    <div>
+     <p>
+      Note
+     </p>
+     <p>
+      If you get an error, and you're running Spark 1.6, run the following command to manually install packages missing in 1.6 (You need to do so only once.):
+     </p>
+     <pre>pixiedust.installPackage("com.databricks:spark-csv_2.10:1.5.0")pixiedust.installPackage("org.apache.commons:commons-csv:0")</pre>
+    </div>
+    <p>
+     To create a pySpark DataFrame for one of the samples, just enter its number in the following command. For example, to load Set 6, Million Dollar Home sales, run the command:
+    </p>
+    <pre>home_df = pixiedust.sampleData(6)</pre>
+   </div>
+   <div>
+    <h1>
+     Load a CSV using its URL
+    </h1>
+    <p>
+     You can also replace the number with a URL. If you have a CSV file online, access it by entering the URL in the parentheses, like this:
+    </p>
+    <pre>home_df = pixiedust.sampleData("https://openobjectstore.mybluemix.net/misc/milliondollarhomes.csv")</pre>
+   </div>
+   <div>
+    <h1>
+     Other Data Sources
+    </h1>
+    <p>
+     PixieDust provides these sample data sets as a convenience to help you get started fast. To load or connect to your own data source, follow the steps you normally would from within a notebook. Our team has created some notebook tutorials which show how to connect to Cloudant, Twitter, and other data sources. See:
+     <a href="https://developer.ibm.com/clouddataservices/2016/08/04/predict-flight-delays-with-apache-spark-mllib-flightstats-and-weather-data/">
+      Predict Flight Delays with Apache Spark MLLib, FlightStats, and Weather Data
+     </a>
+     and
+     <a href="https://developer.ibm.com/clouddataservices/2015/10/06/sentiment-analysis-of-twitter-hashtags/">
+      Sentiment Analysis of Twitter Hashtags
+     </a>
+    </p>
+   </div>
+  </div>
+ </body>
+</html>

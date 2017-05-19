@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html>
+ <head>
+  <meta/>
+  <meta/>
+  <title>
+   Build a Renderer
+  </title>
+ </head>
+ <body>
+  <div>
+   <h1>
+    Build a Renderer
+   </h1>
+   <p>
+    A
+    <em>
+     rendering engine
+    </em>
+    turns your data into shapes and lines. PixieDust comes with a few built-in renderers like: matplotlib, Seaborn, Bokeh, Mapbox, and Google Maps. To switch between renderers, go to the upper right of your chart and click the
+    <strong>
+     Renderer
+    </strong>
+    dropdown:
+   </p>
+   <img alt="_images/renderer_dd.png" src="../../../docs/_images/renderer_dd.png"/>
+   <p>
+    Choices available on this list depends upon what display option you choose. For example, Mapbox and Google Maps are available only for maps.
+   </p>
+   <p>
+    You can use all these renderers right away without much extra effort. But what if your favorite rendering engine is missing?
+   </p>
+   <div>
+    <h1>
+     Introduction
+    </h1>
+    <p>
+     Adding a renderer is similar to
+     <a href="writeviz.html">
+      adding a display visualization
+     </a>
+     . (Though it's actually simpler since you don’t have to build the metadata, which is replaced by defining the chartID your renderer is for.) Renderers use the same apis as visualizations, but you need to define a few extra things:
+    </p>
+    <ul>
+     <li>
+      <p>
+       <code>
+        rendererId
+       </code>
+       (must be unique to this renderer)  use
+       <code>
+        @PixiedustRenderer
+       </code>
+       annotation
+      </p>
+     </li>
+     <li>
+      <p>
+       specify which charts the renderer can display, like
+       <strong>
+        map
+       </strong>
+       for example. List using same
+       <code>
+        @PixiedustRenderer
+       </code>
+       annotation
+      </p>
+     </li>
+     <li>
+      <p>
+       inherit from specialized class
+       <code>
+        BaseChartDisplay
+       </code>
+       .
+      </p>
+     </li>
+     <li>
+      <p>
+       (optional) create a set of dynamic options using the
+       <code>
+        @commonChartOptions
+       </code>
+       annotation
+      </p>
+     </li>
+     <li>
+      <p>
+       (optional) as necessary, override method(s) from BaseChartDisplay to control rendering. For example:
+       <code>
+        getNumFigures
+       </code>
+       ,
+       <code>
+        getExtraFields
+       </code>
+       , and so on.
+      </p>
+     </li>
+     <li>
+      <p>
+       implement
+       <code>
+        doRenderChart
+       </code>
+       method
+      </p>
+     </li>
+    </ul>
+    <p>
+     We'll soon post detailed instructions on how to implement this all manually, but there's no need to wait! Read on to learn how to add a sample renderer and start exploring the code.
+    </p>
+   </div>
+   <div>
+    <h1>
+     Add a Renderer
+    </h1>
+    <p>
+     Since no documentation is as good the code itself, we created a little tool to help you generate bootstrap project that generates boilerplate code that you can then study to understand how it all fits together.
+    </p>
+    <ol>
+     <li>
+      <p>
+       In Terminal or other command-line shell, navigate to the directory where you want to create the new project. This can be anywhere you choose.
+      </p>
+     </li>
+     <li>
+      <p>
+       Enter and run:
+      </p>
+     </li>
+    </ol>
+    <blockquote>
+     <p>
+      <code>
+       jupyter pixiedust generate
+      </code>
+     </p>
+    </blockquote>
+    <ol>
+     <li>
+      <p>
+       Respond to the questions/prompts to complete setup. Here's the entire exchange including the command you'll run in Step 4:
+      </p>
+      <img alt="_images/generate.png" src="../../../docs/_images/generate.png"/>
+     </li>
+     <li>
+      <p>
+       Install your new renderer.
+      </p>
+      <p>
+       If you're not already there, cd into your project directory and run the following command:
+      </p>
+      <p>
+       <code>
+        pip install
+        <span>
+         -e
+        </span>
+        .
+       </code>
+      </p>
+     </li>
+     <li>
+      <p>
+       Go to your notebook, and restart the kernel.
+      </p>
+     </li>
+     <li>
+      <p>
+       Run the command
+       <code>
+        import pixiedust
+       </code>
+      </p>
+     </li>
+     <li>
+      <p>
+       Run the command
+       <code>
+        import Sample
+       </code>
+       (or whatever you named your project)
+      </p>
+     </li>
+     <li>
+      <p>
+       Then load some data and run the display() command on it.
+      </p>
+     </li>
+     <li>
+      <p>
+       In the charts dropdown, choose a chart you specified that the renderer can display.
+      </p>
+     </li>
+     <li>
+      <p>
+       Click the
+       <strong>
+        Renderer
+       </strong>
+       dropdown.
+      </p>
+     </li>
+    </ol>
+    <blockquote>
+     <p>
+      You see your new renderer! Here's one named
+      <strong>
+       Sample
+      </strong>
+      :
+     </p>
+     <img alt="_images/sample_renderer.png" src="../../../docs/_images/sample_renderer.png"/>
+    </blockquote>
+    <p>
+     Explore the code in your new project directory. We've commented in some guidance that should help you understand what you're looking at.
+    </p>
+   </div>
+   <div>
+    <h1>
+     More to come
+    </h1>
+    <p>
+     Watch this space for more details on coding your own renderer.
+    </p>
+   </div>
+  </div>
+ </body>
+</html>

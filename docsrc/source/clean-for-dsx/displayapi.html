@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html>
+ <head>
+  <meta/>
+  <meta/>
+  <title>
+   Display Data
+  </title>
+ </head>
+ <body>
+  <div>
+   <h1>
+    Display Data
+   </h1>
+   <div>
+    <h1>
+     Introduction
+    </h1>
+    <p>
+     PixieDust lets you visualize your data in just a few clicks. There's no need to write the complex code that you used to need to generate notebook graphs. Just call PixieDust's
+     <code>
+      display()
+     </code>
+     API, and any lay person can render and change complex table and chart displays. You can even choose from multiple rendering engines, without needing to know any of the code that makes them run. Watch this video demo:
+    </p>
+    <div>
+     <iframe allowfullscreen="" frameborder="0" height="315" src="https://www.youtube.com/embed/FoOHFlkCaXI" width="560">
+     </iframe>
+    </div>
+    <br/>
+    <div>
+     <p>
+      Note
+     </p>
+     <p>
+      This video shows how to use PixieDust display in a Scala notebook. Full support for Scala notebooks is coming soon and will work exactly as shown.
+     </p>
+    </div>
+    <div>
+     <p>
+      Create your own
+     </p>
+     <p>
+      PixieDust is extensible. If you don't see the display option you want, create it. You can write your own visualization plugin, using HTML, JavaScript, and CSS.
+      <a href="writeviz.html">
+       Read how
+      </a>
+      .
+     </p>
+    </div>
+    <p>
+     The
+     <code>
+      display()
+     </code>
+     API  lets you visualize and chart your data in different ways. You can invoke the display API on any object, like a Spark DataFrame or Pandas DataFrame (support for additional formats is in development). PixieDust
+     <code>
+      display()
+     </code>
+     then introspects the object, determines what visualizations are capable of handling the data, and makes them available as menus within the output of the cell. If no visualization is found, then PixieDust
+     <code>
+      display()
+     </code>
+     shows an error message. PixieDust display comes with a set of built-in visualizations like tables, bar charts, line charts, scatter plots, maps, and more.
+    </p>
+   </div>
+   <div>
+    <h1>
+     Get Started
+    </h1>
+    <p>
+     Once you've imported the PixieDust module, start with the data. Here's some sample code that creates a data frame:
+    </p>
+    <blockquote>
+     <pre>#import pixiedust display modulefrom pixiedust.display import *#Create a dataframe with Quarterly sales resultssqlContext = SQLContext(sc)dd = sqlContext.createDataFrame(     [(2010, 'Camping Equipment', 3),     (2010, 'Golf Equipment', 1),     (2010, 'Mountaineering Equipment', 1),     (2010, 'Outdoor Protection', 2),     (2010, 'Personal Accessories', 2),     (2011, 'Camping Equipment', 4),     (2011, 'Golf Equipment', 5),     (2011, 'Mountaineering Equipment',2),     (2011, 'Outdoor Protection', 4),     (2011, 'Personal Accessories', 2),     (2012, 'Camping Equipment', 5),     (2012, 'Golf Equipment', 5),     (2012, 'Mountaineering Equipment', 3),     (2012, 'Outdoor Protection', 5),     (2012, 'Personal Accessories', 3),     (2013, 'Camping Equipment', 8),     (2013, 'Golf Equipment', 5),     (2013, 'Mountaineering Equipment', 3),     (2013, 'Outdoor Protection', 8),     (2013, 'Personal Accessories', 4)],     ["year", "zone", "unique_customers"])</pre>
+    </blockquote>
+    <p>
+     Then, in a single command, you  display that dataframe:
+     <code>
+      dd
+     </code>
+     .
+    </p>
+    <blockquote>
+     <pre>#call a simple display api to visualize the datadisplay(dd)</pre>
+    </blockquote>
+    <p>
+     <code>
+      display()
+     </code>
+     looks up into its internal registry to build a list of visualizations that can handle a Spark DataFrame and generates the a menu toobar for each of them. The cell output looks like this:
+    </p>
+    <img alt="_images/pd_chrome.png" src="../../../docs/_images/pd_chrome.png"/>
+    <p>
+     PixieDust spins up a robust user interface that contains all the features you need to create sophisticated visualizations in just a few clicks. It contains  dropdown lists and dialogs you can use to change chart type, data content, grouping, and more. Without writing a line of code, you can:
+    </p>
+    <div>
+     <p>
+      Under the hood
+     </p>
+     <p>
+      How does PixieDust generate this handy user interface?
+      <code>
+       display()
+      </code>
+      uses matplotlib to generate the charts and then mpld3 to transform the charts into D3 generated interactive charts that let users zoom, choose menus, see toolips, and more.
+     </p>
+    </div>
+    <ul>
+     <li>
+      <p>
+       choose a display option: table, bar chart, pie chart, scatter plot, map, etc.
+      </p>
+     </li>
+     <li>
+      <p>
+       set data content
+      </p>
+     </li>
+     <li>
+      <p>
+       switch between rendering engines like matplotlib, seaborn, and bokeh
+      </p>
+     </li>
+     <li>
+      <p>
+       zoom in for a more detailed view
+      </p>
+     </li>
+    </ul>
+    <p>
+     <code>
+      display()
+     </code>
+     simplifies notebook charting in one important way: It takes only one cell to to generate hundreds of visualization options. Unlike traditional notebooks where you build a series of visualizations over several cells, PixieDust needs only one cell to generate an interactive widget which lets you turn knobs to explore the data in a myriad of ways.
+    </p>
+   </div>
+   <div>
+    <h1>
+     Work with Tables, Charts, and Maps
+    </h1>
+    <p>
+     Pixiedust
+     <code>
+      display()
+     </code>
+     provides an extensive set of graphs and visualizations.
+    </p>
+    <div>
+     <h2>
+      Tables
+     </h2>
+     <p>
+      A great place to start is to view your data in a simple table format. To do so, click the table button:
+     </p>
+     <blockquote>
+      <img alt="_images/display_table.png" src="../../../docs/_images/display_table.png"/>
+     </blockquote>
+     <p>
+      You see extended information about your Spark DataFrame in 2 view options:
+     </p>
+     <ul>
+      <li>
+       <p>
+        <strong>
+         Schema
+        </strong>
+        gives detailed information about the DataFrame schema
+       </p>
+      </li>
+      <li>
+       <p>
+        <strong>
+         Table
+        </strong>
+        displays a sample of the data in an easy-to-read table format
+       </p>
+      </li>
+     </ul>
+    </div>
+    <div>
+     <h2>
+      Set Chart Content
+     </h2>
+     <ol>
+      <li>
+       <p>
+        Click the Chart dropdown menu and choose a chart type:
+       </p>
+       <img alt="_images/chartmenu.png" src="../../../docs/_images/chartmenu.png"/>
+      </li>
+      <li>
+       <p>
+        Configure the content of the chart by clicking the
+        <strong>
+         Options
+        </strong>
+        button.
+       </p>
+       <img alt="_images/optionsbutton.png" src="../../../docs/_images/optionsbutton.png"/>
+       <p>
+        The options dialog that opens contains a set of common configuration choices for every chart, plus a set of options specific to the chart type you selected.  For example, Bar Chart shows the following options dialog:
+       </p>
+       <blockquote>
+        <img alt="_images/options.png" src="../../../docs/_images/options.png"/>
+       </blockquote>
+      </li>
+     </ol>
+     <p>
+      To set keys and values, drag fields from the
+      <strong>
+       Fields
+      </strong>
+      list on the left and drop them where you want them.
+     </p>
+     <div>
+      <p>
+       Edit cell metadata directly
+      </p>
+      <p>
+       To directly access your option settings, you can edit cell metadata. From the Jupyter menu, choose
+       <strong>
+        View &gt; Cell Toolbar &gt; Edit Metadata
+       </strong>
+       . On the upper right of your
+       <code>
+        display()
+       </code>
+       cell, click the
+       <strong>
+        Edit Metadata
+       </strong>
+       button. Jupyter shows you the cell's JSON, which you can edit and save.
+      </p>
+     </div>
+     <p>
+      Set these common options for every chart:
+     </p>
+     <ul>
+      <li>
+       <p>
+        <strong>
+         Chart Title.
+        </strong>
+        Enter an apt, descriptive title
+       </p>
+      </li>
+      <li>
+       <p>
+        <strong>
+         Fields.
+        </strong>
+        List of available field names derived from your DataFrame schema
+       </p>
+      </li>
+      <li>
+       <p>
+        <strong>
+         Keys.
+        </strong>
+        Field(s) to serve as the x-Axis
+       </p>
+      </li>
+      <li>
+       <p>
+        <strong>
+         Values.
+        </strong>
+        Field(s) to serve as the y-Axis
+       </p>
+      </li>
+      <li>
+       <dl>
+        <dt>
+         <strong>
+          Aggregation.
+         </strong>
+         Type of aggregation to be performed on the data. Options include:
+        </dt>
+        <dd>
+         <ul>
+          <li>
+           <p>
+            <strong>
+             SUM
+            </strong>
+            sum or total of values for the key
+           </p>
+          </li>
+          <li>
+           <p>
+            <strong>
+             AVG
+            </strong>
+            average of values for the key
+           </p>
+          </li>
+          <li>
+           <p>
+            <strong>
+             MIN
+            </strong>
+            Min (lowest) of values for the key
+           </p>
+          </li>
+          <li>
+           <p>
+            <strong>
+             MAX
+            </strong>
+            Max (highest) of values for the key
+           </p>
+          </li>
+          <li>
+           <p>
+            <strong>
+             COUNT
+            </strong>
+            number of times the key occurs
+           </p>
+          </li>
+         </ul>
+        </dd>
+       </dl>
+      </li>
+     </ul>
+     <p>
+      Then choose the chart-specific options. Read on to learn how to configure individual chart types.
+     </p>
+     <div>
+      <p>
+       Note
+      </p>
+      <p>
+       Errors? Issues? If you get an error or encounter a problem displaying data, start troubleshooting by
+       <a href="logging.html">
+        checking the logs
+       </a>
+       .
+      </p>
+     </div>
+    </div>
+    <div>
+     <h2>
+      Choose a renderer
+     </h2>
+     <p>
+      PixieDust offers several different rendering engines you can use out-of-the-box to display your data.
+     </p>
+     <img alt="_images/renderer_menu.png" src="../../../docs/_images/renderer_menu.png"/>
+     <p>
+      The list of available renderers changes depending upon what chart type you're viewing.
+     </p>
+     <p>
+      The following renderers are currently built-in:
+     </p>
+     <div>
+      <p>
+       Create your own renderer
+      </p>
+      <p>
+       Is your favorite rendering engine missing from this list? You can add it. As mentioned, developers can code and contribute new visualizations. You can also
+       <a href="renderer.html">
+        add a new renderer
+       </a>
+       to use yourself or
+       <a href="contribute.html">
+        contribute
+       </a>
+       to the PixieDust project.
+      </p>
+     </div>
+     <ul>
+      <li>
+       <p>
+        <a href="http://matplotlib.org/">
+         matplotlib
+        </a>
+       </p>
+      </li>
+      <li>
+       <p>
+        <a href="https://seaborn.pydata.org/">
+         Seaborn
+        </a>
+       </p>
+      </li>
+      <li>
+       <p>
+        <a href="http://bokeh.pydata.org/en/latest/">
+         Bokeh
+        </a>
+       </p>
+      </li>
+      <li>
+       <p>
+        <a href="https://www.mapbox.com/">
+         Mapbox
+        </a>
+       </p>
+      </li>
+      <li>
+       <p>
+        <a href="https://developers.google.com/chart/interactive/docs/gallery/geochart">
+         Google Maps
+        </a>
+       </p>
+      </li>
+     </ul>
+    </div>
+    <div>
+     <h2>
+      Bar Chart
+     </h2>
+     <p>
+      Bar charts are handy for comparing items side-by-side. In the
+      <strong>
+       Options
+      </strong>
+      dialog, set:
+     </p>
+     <ul>
+      <li>
+       <p>
+        <strong>
+         Keys:
+        </strong>
+        Choose a numeric field to serve as your x-axis
+       </p>
+      </li>
+      <li>
+       <p>
+        <strong>
+         Values:
+        </strong>
+        Choose a numeric field to serve as your y-axis
+       </p>
+      </li>
+      <li>
+       <p>
+        <strong>
+         Aggregation
+        </strong>
+        Choose to sum, average or otherwise aggregate on value you chose in
+        <strong>
+         keys
+        </strong>
+       </p>
+      </li>
+     </ul>
+     <p>
+      This bar chart shows the sum of customers rising each year:
+     </p>
+     <img alt="_images/bar_chart.png" src="../../../docs/_images/bar_chart.png"/>
+     <p>
+      To see another dimension, click the
+      <strong>
+       Cluster by
+      </strong>
+      dropdown and choose a field. Here, clustering by zone, shows individual bars for each department/zone.
+     </p>
+     <img alt="_images/bar_chart_clustered.png" src="../../../docs/_images/bar_chart_clustered.png"/>
+     <p>
+      You can show that cluster in different ways. Click the
+      <strong>
+       Type
+      </strong>
+      dropdown and choose one of the following:
+     </p>
+     <ul>
+      <li>
+       <p>
+        <strong>
+         Grouped
+        </strong>
+        to see bars for each cluster grouped together, as you just saw in the previous image.
+       </p>
+      </li>
+      <li>
+       <p>
+        <strong>
+         Stacked
+        </strong>
+        to show clustered items in the same column split by color-coded segments or bands.
+       </p>
+       <blockquote>
+        <img alt="_images/bar_chart_stacked.png" src="../../../docs/_images/bar_chart_stacked.png"/>
+       </blockquote>
+      </li>
+      <li>
+       <p>
+        <strong>
+         subplots
+        </strong>
+        to see each cluster in its own chart.
+       </p>
+      </li>
+     </ul>
+     <p>
+      Once your bar plot apppears, you can switch between different renderers (matplotlib or bokeh).
+     </p>
+    </div>
+    <div>
+     <h2>
+      Line Chart
+     </h2>
+     <p>
+      In the
+      <strong>
+       Options
+      </strong>
+      dialog, set:
+     </p>
+     <ul>
+      <li>
+       <p>
+        <strong>
+         Keys:
+        </strong>
+        Choose a numeric field to serve as your x-axis
+       </p>
+      </li>
+      <li>
+       <p>
+        <strong>
+         Values:
+        </strong>
+        Choose a numeric field to serve as your y-axis
+       </p>
+      </li>
+      <li>
+       <p>
+        <strong>
+         Aggregation
+        </strong>
+        Choose to sum, average or otherwise aggregate values
+       </p>
+      </li>
+     </ul>
+     <p>
+      Like bar charts, line charts let you cluster results to see trends in an additional dimension. This chart shows customers rising steadily over time:
+     </p>
+     <img alt="_images/line_chart.png" src="../../../docs/_images/line_chart.png"/>
+     <p>
+      When you cluster the same chart by zone, you can see how each individual department/zone is doing:
+     </p>
+     <img alt="_images/line_chart_clustered.png" src="../../../docs/_images/line_chart_clustered.png"/>
+     <p>
+      To show each cluster in its own chart, click the
+      <strong>
+       Type
+      </strong>
+      dropdown and choose
+      <strong>
+       subplots
+      </strong>
+      .
+     </p>
+     <img alt="_images/subplots.png" src="../../../docs/_images/subplots.png"/>
+    </div>
+    <div>
+     <h2>
+      Scatter Plot
+     </h2>
+     <p>
+      A scatter plot charts individual data points upon a graph. In the
+      <strong>
+       Options
+      </strong>
+      dialog:
+     </p>
+     <ul>
+      <li>
+       <p>
+        <strong>
+         Keys:
+        </strong>
+        Choose a numeric field to serve as your x-axis
+       </p>
+      </li>
+      <li>
+       <p>
+        <strong>
+         Values:
+        </strong>
+        Choose a numeric field to serve as your y-axis
+       </p>
+      </li>
+     </ul>
+     <p>
+      Once your scatter plot apppears, you can choose your renderer (matplotlib, seaborn, or bokeh). Individual renderers include their own options, like this Bokeh chart:
+     </p>
+     <img alt="_images/bokeh_scatter_example.png" src="../../../docs/_images/bokeh_scatter_example.png"/>
+    </div>
+    <div>
+     <h2>
+      Pie Chart
+     </h2>
+     <p>
+      A pie chart is a circle graph which shows data as portions of a whole. In the
+      <strong>
+       Options
+      </strong>
+      dialog:
+     </p>
+     <ul>
+      <li>
+       <p>
+        <strong>
+         Keys:
+        </strong>
+        Choose the field that you want to be the labeled wedges of pie
+       </p>
+      </li>
+      <li>
+       <p>
+        <strong>
+         Values:
+        </strong>
+        Choose a numeric field that you want to aggregrate on. When you put more than one field in Value, you get a separate chart for each one.
+       </p>
+      </li>
+      <li>
+       <p>
+        <strong>
+         Renderers:
+        </strong>
+        matplotlib only
+       </p>
+      </li>
+     </ul>
+    </div>
+    <div>
+     <h2>
+      Map
+     </h2>
+     <p>
+      Configuring your map, depends upon which rendering engine you choose: Mapbox or Google Maps.
+     </p>
+     <div>
+      <h3>
+       Mapbox
+      </h3>
+      <p>
+       The Mapbox renderer lets you create a map of geographic point data. Your DataFrame needs at least the following 3 fields in order to work with this renderer:
+      </p>
+      <ul>
+       <li>
+        <p>
+         a latitude field named
+         <code>
+          latitude
+         </code>
+         ,
+         <code>
+          lat
+         </code>
+         , or
+         <code>
+          y
+         </code>
+        </p>
+       </li>
+       <li>
+        <p>
+         a longitude field named
+         <code>
+          longitude
+         </code>
+         ,
+         <code>
+          lon
+         </code>
+         ,
+         <code>
+          long
+         </code>
+         , or
+         <code>
+          x
+         </code>
+        </p>
+       </li>
+       <li>
+        <p>
+         a numeric field for visualization
+        </p>
+       </li>
+      </ul>
+      <p>
+       To use the Mapbox renderer, you need a free API key from Mapbox. You can get one on their web site here:
+       <a href="https://www.mapbox.com/signup/">
+        https://www.mapbox.com/signup/
+       </a>
+       . When you get your key, enter it in the
+       <strong>
+        Options
+       </strong>
+       dialog box.
+      </p>
+      <p>
+       In the
+       <strong>
+        Options
+       </strong>
+       dialog, drag both your latitude and longitude fields into
+       <strong>
+        Keys
+       </strong>
+       . Then choose any numeric fields for
+       <strong>
+        Values
+       </strong>
+       . Only the first one you choose is used to color the map thematically, but any other fields specified in
+       <strong>
+        Values
+       </strong>
+       appear in a pop-up information bubble when you hover your mouse over a data point on the map.
+      </p>
+      <img alt="_images/map.png" src="../../../docs/_images/map.png"/>
+     </div>
+     <div>
+      <h3>
+       Google Maps
+      </h3>
+      <p>
+       In addition to mapping
+       <em>
+        geographic points
+       </em>
+       with Mapbox, Pixiedust also lets you use
+       <a href="https://developers.google.com/chart/interactive/docs/gallery/geochart">
+        Google's API
+       </a>
+       to create
+       <em>
+        GeoCharts
+       </em>
+       , which are maps that show region blocks identified in various ways.
+      </p>
+      <p>
+       To create a GeoChart in Pixiedust, open
+       <strong>
+        Options
+       </strong>
+       and drag the field that has place names into
+       <strong>
+        Keys
+       </strong>
+       . Then for the
+       <strong>
+        Values
+       </strong>
+       field, choose any numeric field you want to visualize.
+      </p>
+      <p>
+       Within the
+       <strong>
+        Display Mode
+       </strong>
+       menu, choose
+      </p>
+      <ul>
+       <li>
+        <p>
+         <strong>
+          Region
+         </strong>
+         to color the entire area of your named places e.g. countries, provinces, or states.
+        </p>
+       </li>
+       <li>
+        <p>
+         <strong>
+          Markers
+         </strong>
+         to place a circle in the center of the region which is scaled according to the data selected for the
+         <strong>
+          Value
+         </strong>
+         field.
+        </p>
+       </li>
+       <li>
+        <p>
+         <strong>
+          Text
+         </strong>
+         to label regions with labels like
+         <em>
+          Russia
+         </em>
+         or
+         <em>
+          Asia
+         </em>
+        </p>
+       </li>
+      </ul>
+      <p>
+       Here's a geochart (by region) of population by country:
+      </p>
+      <img alt="_images/geochart_region.png" src="../../../docs/_images/geochart_region.png"/>
+     </div>
+    </div>
+    <div>
+     <h2>
+      Histogram
+     </h2>
+     <p>
+      Use a histogram if the values on your x-axis are numeric, like age or price, and you want to show them in ranges.
+      <a href="https://en.wikipedia.org/wiki/Histogram">
+       More on when to use a histogram
+      </a>
+      .
+     </p>
+     <p>
+      For example, here's PixieDust's Million Dollar Home Sales sample data set displayed in a histogram. Squarefeet ranges appear on the x-axis. The Bokeh renderer lets us show an additional dimension, Property Type, in color-coded bars.
+     </p>
+     <img alt="_images/histogram.png" src="../../../docs/_images/histogram.png"/>
+     <p>
+      In
+      <strong>
+       Options
+      </strong>
+      , choose
+     </p>
+     <ul>
+      <li>
+       <p>
+        <strong>
+         Values:
+        </strong>
+        Choose a numeric field that you want to segment along the x-axis
+       </p>
+      </li>
+      <li>
+       <p>
+        <strong>
+         Renderers:
+        </strong>
+        matplotlib, seaborn, or bokeh
+       </p>
+      </li>
+     </ul>
+    </div>
+   </div>
+   <div>
+    <h1>
+     Conclusion
+    </h1>
+    <p>
+     Pixiedust display has a built-in set of chart visualizations that can render a Spark or Pandas dataframe. The generated charts are easy to configure and also offer interactivity like panning, zooming, and tooltips. You can use the rendering engine of your choice to display and manipulate the visualization. All this is possbile without writing a line of code. PixieDust
+     <code>
+      display()
+     </code>
+     is extensible and provides an API to let developers write their own custom vizualizations.
+    </p>
+   </div>
+  </div>
+ </body>
+</html>

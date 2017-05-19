@@ -249,7 +249,7 @@ You should now see something resembling the screenshot below. The table menu is 
 
 .. raw:: html
 
-     <img src="http://developer.ibm.com/clouddataservices/wp-content/uploads/sites/85/2017/01/pixiedustnewtableoption.png" width="615">
+     <img src="_images/pixiedustnewtableoption.png" width="615">
 
 
 
