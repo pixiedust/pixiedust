@@ -176,7 +176,7 @@ try {
         num_connections = len(self.getConnections())
         select_conn_script = ' pd_script="self.selectedConnection ='
         if num_connections > 0:
-            select_conn_script += '$val(connection{{prefix}})"'
+            select_conn_script += "'$val(connection{{prefix}})'\""
         else:
             select_conn_script += '\'none\'"'
         output = """

@@ -63,7 +63,7 @@ class CFBrowser:
       <div class="col-sm-1">
         <button type="submit" class="btn btn-primary">Go
           <pd_script>
-self.org_id=$val(org{{prefix}})
+self.org_id="$val(org{{prefix}})"
 self.login="false"
 self.select_org="true"
           </pd_script>
@@ -91,7 +91,7 @@ self.select_org="true"
       <div class="col-sm-1">
         <button type="submit" class="btn btn-primary">Go
           <pd_script>
-self.space_id=$val(space{{prefix}})
+self.space_id="$val(space{{prefix}})"
 self.select_org="false"
 self.select_space="true"
           </pd_script>
@@ -285,7 +285,7 @@ self.select_credentials="true"</pd_script>
         <button type="submit" class="btn btn-primary">
           Go
           <pd_script>
-self.passcode=$val(passcode{{prefix}})
+self.passcode="$val(passcode{{prefix}})"
 self.login="true"
           </pd_script>
         </button>

@@ -1,7 +1,8 @@
 from .connectionWidget import ConnectionWidget
 from pixiedust.display.app import *
 from pixiedust.services.serviceManager import *
-from pyspark.sql import SparkSession
+from pyspark import *
+from pyspark.sql import *
 from xml.sax.saxutils import escape
 import base64
 import json
@@ -40,7 +41,11 @@ class CloudantBrowser(ConnectionWidget):
     def start(self):
         connection = getConnection('cloudant', self.selectedConnection)
         credentials = json.loads(connection['PAYLOAD'])['credentials']
+        self.spark_session = None
+        self.sql_context = None
         self.host = credentials['host']
+        self.protocol = credentials.get('protocol', 'https')
+        self.port = credentials.get('port', 443)
         self.username = credentials['username']
         self.password = credentials['password']
         self.selectedConnection = None
@@ -68,11 +73,6 @@ class CloudantBrowser(ConnectionWidget):
         self.view_name = None
         self.view_limit = 5
         self.view_skip = 0
-        SparkSession.builder \
-            .config("cloudant.host", self.host) \
-            .config("cloudant.username", self.username) \
-            .config("cloudant.password", self.password) \
-            .getOrCreate()
         dbs = self.get_all_dbs(self.host, self.username, self.password)
         for db in dbs:
             output += '<p>'
@@ -256,7 +256,7 @@ self.""" + type_var_name + """='""" + key + """'</pd_script>
     <div class="form-group">  
         <button type="submit" class="btn btn-primary">Go
             <target pd_target="target2{{prefix}}" pd_options="view=""" + view_db_query_results + """" />
-            <pd_script>self.query=$val(query{{prefix}})</pd_script>
+            <pd_script>self.query="$val(query{{prefix}})"</pd_script>
         </button>
     </div>
 </div>
@@ -327,7 +327,7 @@ self.""" + type_var_name + """='""" + key + """'</pd_script>
     <div class="form-group">
         <button type="submit" class="btn btn-primary">Go
             <target pd_target="target2{{prefix}}" pd_options="view=""" + view_db_search_results + """" />
-            <pd_script>self.search_query=$val(search{{prefix}})</pd_script>
+            <pd_script>self.search_query="$val(search{{prefix}})"</pd_script>
         </button>
     </div>
 </div>
@@ -451,9 +451,7 @@ self.search_skip=""" + str(self.search_skip + self.search_limit) + """</pd_scrip
 
     @route(view=view_generate_dataframe_all_docs)
     def _generate_dataframe_all_docs(self):
-        spark_session = SparkSession.builder.getOrCreate()
-        df_reader = spark_session.read.format("com.cloudant.spark")
-        self.df = df_reader.load(self.db)
+        self.df = self.get_dataframe_reader().load(self.db)
         output = 'DataFrame generated. Access by calling app.get_data_frame()'.format(self.db)
         return """
 <p><b>""" + output + """</b></p>
@@ -463,8 +461,7 @@ self.search_skip=""" + str(self.search_skip + self.search_limit) + """</pd_scrip
     def _generate_dataframe_query(self):
         response = self.run_query(self.host, self.username, self.password, self.db, self.query, -1, 0)
         if 'docs' in response.keys():
-            spark_session = SparkSession.builder.getOrCreate()
-            self.df = spark_session.createDataFrame(response['docs'])
+            self.df = self.get_dataframe_builder().createDataFrame(response['docs'])
             output = 'DataFrame generated. Access by calling app.get_data_frame()'.format(self.db)
         else:
             output = 'No documents found.'
@@ -491,8 +488,7 @@ self.search_skip=""" + str(self.search_skip + self.search_limit) + """</pd_scrip
             else:
                 break
         if len(docs) > 0:
-            spark_session = SparkSession.builder.getOrCreate()
-            self.df = spark_session.createDataFrame(docs)
+            self.df = self.get_dataframe_builder().createDataFrame(docs)
             output = 'DataFrame generated. Access by calling app.get_data_frame()'.format(self.db)
         else:
             output = 'No documents found.'
@@ -501,8 +497,7 @@ self.search_skip=""" + str(self.search_skip + self.search_limit) + """</pd_scrip
 
     @route(view=view_generate_dataframe_view)
     def _generate_dataframe_view(self):
-        spark_session = SparkSession.builder.getOrCreate()
-        self.df = spark_session.read.format("com.cloudant.spark") \
+        self.df = self.get_dataframe_reader() \
             .option("index", "_design/{}/_view/{}".format(self.view_doc, self.view_name)) \
             .load(self.db)
         output = 'DataFrame generated. Access by calling app.get_data_frame()' \
@@ -512,7 +507,7 @@ self.search_skip=""" + str(self.search_skip + self.search_limit) + """</pd_scrip
 """
 
     def get_all_dbs(self, host, username, password):
-        url = 'https://{}/_all_dbs'.format(host)
+        url = '{0}://{1}/_all_dbs'.format(self.protocol, host)
         r = requests.get(url, headers={
             'Authorization': 'Basic {}'.format(base64.b64encode('{}:{}'.format(username, password))),
             'Accept': 'application/json'
@@ -520,7 +515,7 @@ self.search_skip=""" + str(self.search_skip + self.search_limit) + """</pd_scrip
         return r.json()
 
     def get_all_docs(self, host, username, password, db, limit, skip):
-        url = 'https://{}/{}/_all_docs?include_docs=true'.format(host,db)
+        url = '{}://{}/{}/_all_docs?include_docs=true'.format(self.protocol, host,db)
         if limit > 0:
             url = '{}&limit={}'.format(url,limit)
         if skip > 0:
@@ -532,7 +527,7 @@ self.search_skip=""" + str(self.search_skip + self.search_limit) + """</pd_scrip
         return r.json()
 
     def get_design_docs(self, host, username, password, db, limit):
-        url = 'https://{}/{}/_all_docs?startkey="_design/"&endkey="_design0"&include_docs=true'.format(host,db)
+        url = '{}://{}/{}/_all_docs?startkey="_design/"&endkey="_design0"&include_docs=true'.format(self.protocol, host,db)
         if limit > 0:
             url = '{}&limit={}'.format(url,limit)
         r = requests.get(url, headers={
@@ -548,7 +543,7 @@ self.search_skip=""" + str(self.search_skip + self.search_limit) + """</pd_scrip
             if skip > 0:
                 query_json['skip'] = skip
             query = json.dumps(query_json)
-        url = 'https://{}/{}/_find'.format(host, db)
+        url = '{}://{}/{}/_find'.format(self.protocol, host, db)
         r = requests.post(url, data=query, headers={
             'Authorization': 'Basic {}'.format(base64.b64encode('{}:{}'.format(username, password))),
             'Content-Type': 'application/json',
@@ -557,7 +552,7 @@ self.search_skip=""" + str(self.search_skip + self.search_limit) + """</pd_scrip
         return r.json()
 
     def run_search(self, host, username, password, db, design_doc, index, query, limit, bookmark):
-        url = 'https://{}/{}/_design/{}/_search/{}?q={}&include_docs=true'.format(host, db, design_doc, index, query)
+        url = '{}://{}/{}/_design/{}/_search/{}?q={}&include_docs=true'.format(self.protocol, host, db, design_doc, index, query)
         if limit > 0:
             url = '{}&limit={}'.format(url,limit)
             if bookmark:
@@ -569,7 +564,7 @@ self.search_skip=""" + str(self.search_skip + self.search_limit) + """</pd_scrip
         return r.json()
 
     def get_view(self, host, username, password, db, design_doc, view, limit, skip):
-        url = 'https://{}/{}/_design/{}/_view/{}?include_docs=true'.format(host, db, design_doc, view)
+        url = '{}://{}/{}/_design/{}/_view/{}?include_docs=true'.format(self.protocol, host, db, design_doc, view)
         if limit > 0:
             url = '{}&limit={}'.format(url, limit)
         if skip > 0:
@@ -640,3 +635,31 @@ self.search_skip=""" + str(self.search_skip + self.search_limit) + """</pd_scrip
 
     def escape_html(self, text):
         return escape(text)
+
+    def get_dataframe_reader(self):
+        if self.sql_context is None and self.spark_session is None:
+            self.get_dataframe_builder()
+        if self.spark_session is not None:
+            return self.spark_session.read.format("com.cloudant.spark")
+        else:
+            return self.sql_context.read.format("com.cloudant.spark") \
+                .option("cloudant.host", self.host) \
+                .option("cloudant.username", self.username) \
+                .option("cloudant.password", self.password)
+
+    def get_dataframe_builder(self):
+        if self.sql_context is None and self.spark_session is None:
+            spark_context = SparkContext.getOrCreate()
+            spark_major_version = int(spark_context.version[0:spark_context.version.index('.')])
+            if spark_major_version >= 2:
+                self.spark_session = SparkSession.builder \
+                    .config("cloudant.host", self.host) \
+                    .config("cloudant.username", self.username) \
+                    .config("cloudant.password", self.password) \
+                    .getOrCreate()
+            else:
+                self.sql_context = SQLContext(spark_context)
+        if self.spark_session is not None:
+            return self.spark_session
+        else:
+            return self.sql_context
