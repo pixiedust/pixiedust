@@ -37,7 +37,7 @@ body { background-color:#333; margin:0px !important; overflow: hidden;font-famil
 <body>
 <div id="map{{prefix}}" style="width:calc({{prefwidth}}px - 4px);height:calc({{prefheight}}px - 4px)" />
 
-{%if this.options.get("showLegend") == "true" and this.options.get("kind") != "simple"%}
+{%if this.options.get("showLegend") == "true" and this.options.get("kind") and this.options.get("kind").find("simple") < 0 %}
 <div class="legend">
     <h4>{{this.options.get("mapValueField")}}</h4>
     {% for bin in bins %}
@@ -48,11 +48,12 @@ body { background-color:#333; margin:0px !important; overflow: hidden;font-famil
 
 <script>
     window.maploadtime = 1;
-    mapboxgl.accessToken="{{this.options.get("mapboxtoken")}}";
+    mapboxgl.accessToken="{{this.options.get('mapboxtoken')}}";
     var map = new mapboxgl.Map({
         container: "map{{prefix}}",
-        style: "mapbox://styles/mapbox/light-v9"
+        style: "mapbox://styles/mapbox/{{this.options.get('basemap', 'light-v9')}}"
     });
+
     var popup = new mapboxgl.Popup({closeButton: false,closeOnClick: true});
     
     map.on("mousemove", function (e) {
@@ -88,36 +89,42 @@ body { background-color:#333; margin:0px !important; overflow: hidden;font-famil
         
     map.on("load", function() {
         var mapdata={{this.options.get("mapData")}};
-        {% if this.options.get("kind") != "densitymap" %}
-        map.addSource("pxdatasource", {
-            "type":"geojson",
-            "data":mapdata,
-            "cluster": true, 
-            "clusterMaxZoom": 14, 
-            "clusterRadius": 20
-        });
-        map.addLayer({
-            "id":"pxlayer",
-            "type":"circle", 
-            "source": "pxdatasource", 
-            "paint": {{this.options.get("mapStyle")}}
-        });
-        map.addLayer({
-            "id": "cluster-count-labels", 
-            "type": "symbol", 
-            "source": "pxdatasource", 
-            "paint": {
-                "text-color": "#FFF"
-            },
-            "layout": {
-                "text-field": "{point_count}", 
-                "text-font": [
-                    "DIN Offc Pro Medium", 
-                    "Arial Unicode MS Bold"
-                ],
-                "text-size": 12
+        {%if this.options.get("kind") != "densitymap" %}
+            var clusterme = false;
+            {% if this.options.get("kind") and this.options.get("kind").find("cluster") >= 0 %}
+                clusterme = true;
+            {% endif %}
+            map.addSource("pxdatasource", {
+                "type":"geojson",
+                "data":mapdata,
+                "cluster": clusterme, 
+                "clusterMaxZoom": 14, 
+                "clusterRadius": 20
+            });
+            map.addLayer({
+                "id":"pxlayer",
+                "type":"circle", 
+                "source": "pxdatasource", 
+                "paint": {{this.options.get("mapStyle")}}
+            });
+            if (clusterme) {
+                map.addLayer({
+                    "id": "cluster-count-labels", 
+                    "type": "symbol", 
+                    "source": "pxdatasource", 
+                    "paint": {
+                        "text-color": "#FFF"
+                    },
+                    "layout": {
+                        "text-field": "{point_count}", 
+                        "text-font": [
+                            "DIN Offc Pro Medium", 
+                            "Arial Unicode MS Bold"
+                        ],
+                        "text-size": 12
+                    }
+                });
             }
-        });
         {% else %}
         map.addSource("pxdatasource", {
             "type":"geojson",
@@ -128,7 +135,7 @@ body { background-color:#333; margin:0px !important; overflow: hidden;font-famil
         });
         var layers = [];
         {% for bin in bins %}
-        layers.push([{{bin[0]}}, "{{bin[1]}}"]);
+            layers.push([{{bin[0]}}, "{{bin[1]}}"]);
         {% endfor %}
 
         layers.forEach(function(layer,i) {
@@ -161,6 +168,7 @@ body { background-color:#333; margin:0px !important; overflow: hidden;font-famil
 
         {% endif %}
         map.fitBounds({{this.options.get("mapBounds")}});
+        
     });
 </script>
 </body>
