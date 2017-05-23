@@ -14,7 +14,6 @@
 # limitations under the License.
 # -------------------------------------------------------------------------------
 from six import iteritems
-from pyspark.sql.types import *
 import pixiedust
 from pixiedust.utils.shellAccess import ShellAccess
 from pixiedust.utils.template import PixiedustTemplateEnvironment

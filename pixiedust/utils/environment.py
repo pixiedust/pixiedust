@@ -14,7 +14,6 @@
 # limitations under the License.
 # -------------------------------------------------------------------------------
 from six import with_metaclass
-from pixiedust.utils.javaBridge import JavaWrapper
 from . import *
 import os
 import re
@@ -49,6 +48,7 @@ class Environment(with_metaclass(
         @property
         @cache(fieldName="_javaClassPath")
         def javaClassPath(self):
+            from pixiedust.utils.javaBridge import JavaWrapper
             return JavaWrapper("java.lang.System").getProperty("java.class.path")
 
         @property
@@ -61,6 +61,15 @@ class Environment(with_metaclass(
         @cache(fieldName="_pixiedustHome")
         def pixiedustHome(self):
             return os.environ.get("PIXIEDUST_HOME", os.path.expanduser('~'))
+
+        @property
+        @cache(fieldName="_hasSpark")
+        def hasSpark(self):
+            try:
+                from pyspark import SparkContext
+                return True
+            except ImportError:
+                return False
 
     env = _Environment()
 
