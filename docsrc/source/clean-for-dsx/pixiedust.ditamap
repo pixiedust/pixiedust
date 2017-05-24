@@ -21,5 +21,6 @@
 	</topicref>
 	<topicref format="html" scope="peer" navtitle="Release Notes" href="releasenotes.html">
 		<topicref format="html" scope="peer" navtitle="1.0.4" href="1-0-4.html"></topicref>
+		<topicref format="html" scope="peer" navtitle="1.0.5" href="1-0-5.html"></topicref>
 	</topicref>
 </map>

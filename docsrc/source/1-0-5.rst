@@ -6,5 +6,5 @@ Here's what's new in Release 1.0.5 (19 May 2017):
 **Bug fixes**
 
 - Chart size is now customizable with a slider bar for scaling images (`#313 <https://github.com/ibm-cds-labs/pixiedust/issues/313>`_).
-- Bar- and line-charts in matplotlib are now constrained with a maxiumum width. This fixes a bug where charts with over 200 data points would not render because they were too wide. (`#276 <https://github.com/ibm-cds-labs/pixiedust/issues/276>`_).
+- Bar- and line-charts in matplotlib are now constrained with a maxiumum width. This fixes a bug where charts with over 200 data points would not render because they were too wide (`#276 <https://github.com/ibm-cds-labs/pixiedust/issues/276>`_).
 - PixieDust no longer shows redundant progress monitors when running in the IBM DSX environment, which already displays Spark job progress by defualt (`#318 <https://github.com/ibm-cds-labs/pixiedust/issues/318>`_).
