@@ -13,8 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # -------------------------------------------------------------------------------
-from pyspark.sql.types import DataType,StructType
 from pixiedust.utils import *
+from pixiedust.utils.environment import Environment
 from six import PY2
 
 """
@@ -29,13 +29,20 @@ return True is entity is a Pandas DataFrame
 def isPandasDataFrame(entity):
     return fqName(entity)=="pandas.core.frame.DataFrame"
 
+def checkIfDataType(type):
+    if Environment.hasSpark:
+        from pyspark.sql.types import DataType
+        return isinstance(type, DataType)
+    else:
+        return fqName(type).endswith("Type")
+
 """
 Return a list of field names for the given dataframe
 will expand nested structures if expandNested is set to True
 """
 def getFieldNames(df, expandNested=False):
     def getFieldName(field, expand):
-        if isinstance(field.dataType, StructType) and expand:
+        if fqName(field.dataType) == "pyspark.sql.types.StructType" and expand:
             retFields = []
             for f in field.dataType.fields:
                 retFields.extend([field.name + "." + name for name in getFieldName(f, expand)])
@@ -51,7 +58,7 @@ def getFieldNames(df, expandNested=False):
 Return True if spark type is numeric
 """
 def isNumericType(type):
-    if isinstance( type, DataType):
+    if checkIfDataType(type):
         return isNumericType( type.__class__.__name__)
     return (type =="LongType" or type == "IntegerType" or type == "DoubleType" or type == "DecimalType" or type == "FloatType")
 
@@ -59,7 +66,7 @@ def isNumericType(type):
 Return True if spark type is a string
 """
 def isStringType(type):
-    if isinstance( type, DataType):
+    if checkIfDataType(type):
         return isStringType( type.__class__.__name__)
     return (type =="StringType")
 
@@ -70,7 +77,7 @@ def isNumericField(entity, fieldName):
     def isNumericFieldRecurse(field, targetName):
         if field.name == targetName:
             return isNumericType(field.dataType)
-        elif isinstance(field.dataType, StructType) and targetName.startswith(field.name + "."):
+        elif fqName(field.dataType)  == "pyspark.sql.types.StructType" and targetName.startswith(field.name + "."):
             nestedFieldName = targetName[len(field.name)+1:]
             for f in field.dataType.fields:
                 if isNumericFieldRecurse(f, nestedFieldName):
@@ -88,7 +95,7 @@ def isStringField(entity, fieldName):
     def isStringFieldRecurse(field, targetName):
         if field.name == targetName:
             return isStringType(field.dataType)
-        elif isinstance(field.dataType, StructType) and targetName.startswith(field.name + "."):
+        elif checkIfDataType(field.dataType) and targetName.startswith(field.name + "."):
             nestedFieldName = targetName[len(field.name)+1:]
             for f in field.dataType.fields:
                 if isStringFieldRecurse(f, nestedFieldName):

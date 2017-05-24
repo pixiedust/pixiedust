@@ -16,6 +16,7 @@
 import os
 import sys
 import nbformat
+import re
 from nbconvert.preprocessors import ExecutePreprocessor
 from nbconvert.preprocessors.execute import CellExecutionError
 import logging
@@ -24,6 +25,7 @@ from jupyter_client.manager import KernelManager
 from jupyter_client.kernelspec import NoSuchKernel
 import shutil
 from difflib import SequenceMatcher
+from optparse import OptionParser
 
 __TEST_KERNEL_NAME__ = "PixiedustTravisTest"
 
@@ -38,31 +40,47 @@ if "compareratio" in os.environ:
 else:
     compareRatio = 0.98
 
-def createKernelSpecIfNeeded(kernelName):
+def createKernelSpecIfNeeded(kernelName, useSpark):
     try:
         km = KernelManager(kernel_name=kernelName)
         km.kernel_spec
         return None
     except NoSuchKernel:
-        sparkHome = os.environ["SPARK_HOME"]
-        overrides={
-            "argv": [
-                "python",
-                "-m",
-                "ipykernel",
-                "-f",
-                "{connection_file}"
-            ],
-            "env": {
-                "SCALA_HOME": "{0}".format(os.environ["SCALA_HOME"]),
-                "SPARK_HOME": "{0}".format(sparkHome),
-                "PYTHONPATH": "{0}/python/:{0}/python/lib/py4j-0.9-src.zip".format(sparkHome),
-                "PYTHONSTARTUP": "{0}/python/pyspark/shell.py".format(sparkHome),
-                "PYSPARK_SUBMIT_ARGS": "--driver-class-path {0}/data/libs/* --master local[10] pyspark-shell".format(os.environ.get("PIXIEDUST_HOME", os.path.expanduser('~'))),
-                "SPARK_DRIVER_MEMORY":"10G",
-                "SPARK_LOCAL_IP":"127.0.0.1"
+        print("Creating new Kernel {} target: {}".format(kernelName, useSpark) )
+        if useSpark:
+            sparkHome = os.environ["SPARK_HOME"]
+            overrides={
+                "argv": [
+                    "python",
+                    "-m",
+                    "ipykernel",
+                    "-f",
+                    "{connection_file}"
+                ],
+                "env": {
+                    "SCALA_HOME": "{0}".format(os.environ["SCALA_HOME"]),
+                    "SPARK_HOME": "{0}".format(sparkHome),
+                    "PYTHONPATH": "{0}/python/:{0}/python/lib/py4j-0.9-src.zip".format(sparkHome),
+                    "PYTHONSTARTUP": "{0}/python/pyspark/shell.py".format(sparkHome),
+                    "PYSPARK_SUBMIT_ARGS": "--driver-class-path {0}/data/libs/* --master local[10] pyspark-shell".format(os.environ.get("PIXIEDUST_HOME", os.path.expanduser('~'))),
+                    "SPARK_DRIVER_MEMORY":"10G",
+                    "SPARK_LOCAL_IP":"127.0.0.1"
+                }
             }
-        }
+        else:
+            overrides={
+                "argv": [
+                    "python",
+                    "-m",
+                    "ipykernel",
+                    "-f",
+                    "{connection_file}"
+                ],
+                "env": {
+                    "PIXIEDUST_HOME": os.environ.get("PIXIEDUST_HOME", os.path.expanduser('~'))
+                }
+            }
+        
         path = write_kernel_spec(overrides=overrides)
         dest = KernelSpecManager().install_kernel_spec(path, kernel_name=kernelName, user=True)
         # cleanup afterward
@@ -76,7 +94,15 @@ class CompareOutputException(Exception):
     pass
 
 class PixieDustTestExecutePreprocessor( ExecutePreprocessor ):
+    def skipCell(self, cell):
+        m = re.search("#TARGET=(.*)", cell.source, re.IGNORECASE)
+        if m is not None:
+            return (m.group(1).lower() == "spark") != self.useSpark
+        return False
+
     def preprocess_cell(self, cell, resources, cell_index):
+        if self.skipCell(cell):
+            return cell, resources
         beforeOutputs = cell.outputs
         skipCompareOutput = "#SKIP_COMPARE_OUTPUT" in cell.source
         pixiedustDisplay = "display(" in cell.source
@@ -146,13 +172,18 @@ class PixieDustTestExecutePreprocessor( ExecutePreprocessor ):
                             logging.debug("output_type ({0}) does not match \r\nExpected:\r\n {1} \r\n\r\nActual:\r\n {2}".format(key, before, after))
                             raise CompareOutputException("output_type ({0}) does not match for cell:\r\n{1}".format(key, cellsource))
 
-def runNotebook(path):
+def runNotebook(path, useSpark):
     ep = PixieDustTestExecutePreprocessor(timeout=3600, kernel_name= __TEST_KERNEL_NAME__)
+    ep.useSpark = useSpark
     nb=nbformat.read(path, as_version=4)
     #set the kernel name to test
     nb.metadata.kernelspec.name=__TEST_KERNEL_NAME__
     if "pixiedust_test" in nb.metadata:
         testMeta = nb.metadata["pixiedust_test"]
+        targetKernel = testMeta.get("target")
+        if targetKernel is not None and (targetKernel.lower() == "spark") != useSpark:
+            logging.warn("Skipping processing of notebook {0} based on pixiedust_test metadata".format(path))
+            return
         skipVersions = testMeta.get("skipPython",[])
         for skipVersion in skipVersions:
             skipVersion = int(float(skipVersion))
@@ -168,9 +199,15 @@ def runNotebook(path):
         nbformat.write(nb, dir + "/" + os.path.basename(path) + ".out")
 
 if __name__ == '__main__':
+    parser = OptionParser()
+    parser.add_option("-t", "--target", dest="target", default="spark", help="target kernel: spark or plain")
+
+    (options, args) = parser.parse_args()
+    useSpark = options.target == "spark"
+    print("Starting Test Suite with target: {}".format(options.target) )
     if "PIXIEDUST_HOME" in os.environ:
         print("Using PIXIEDUST_HOME: ", os.environ["PIXIEDUST_HOME"])
-    kernelPath = createKernelSpecIfNeeded(__TEST_KERNEL_NAME__)
+    kernelPath = createKernelSpecIfNeeded(__TEST_KERNEL_NAME__, useSpark)
     try:
         inputDir = os.environ.get("PIXIEDUST_TEST_INPUT", './tests')
         for path in os.listdir( inputDir ):
@@ -182,7 +219,7 @@ if __name__ == '__main__':
                     try:
                         processed = True
                         count += 1
-                        runNotebook(inputDir + "/" + path)
+                        runNotebook(inputDir + "/" + path, useSpark)
                     except RestartKernelException:
                         logging.warn("Restarting kernel...")
                         processed = False

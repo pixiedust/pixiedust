@@ -16,6 +16,7 @@
 
 import warnings
 from IPython.core.getipython import get_ipython
+from pixiedust.utils.environment import Environment as PD_Environment
 
 __all__ = ['addDisplayRunListener', 'display']
 
@@ -36,7 +37,8 @@ def addDisplayRunListener(listener):
 
 from .display import *
 from .chart import *
-from .graph import *
+if PD_Environment.hasSpark:
+    from .graph import *
 from .table import *
 from .download import *
 from .datahandler import getDataHandler

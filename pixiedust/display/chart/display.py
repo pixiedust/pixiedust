@@ -15,7 +15,6 @@
 # -------------------------------------------------------------------------------
 
 from ..display import Display
-from pyspark.sql import functions as F
 import pixiedust.utils.dataFrameMisc as dataFrameMisc
 from pixiedust.utils import cache
 from six import PY2
@@ -42,15 +41,18 @@ class ChartDisplay(Display):
     # numerical used as a boolean flag for truth table
     def sampleColumn(self, numerical):
         default=None
-        for field in self.entity.schema.fields:
-            # Ignore unique ids
-            if field.name.lower() != 'id' and ( not numerical or dataFrameMisc.isNumericType(field.dataType) ):
-                # Find a good column to display in pie ChartDisplay
-                default = default or field.name.decode("utf-8") if PY2 else field.name
-                count = self.entity.count()
-                sample = self.entity.sample(False, (float(200) / count)) if count > 200 else self.entity
-                orderedSample = sample.groupBy(field.name).agg(F.count(field.name).alias("agg")).orderBy(F.desc("agg")).select("agg")
-                if orderedSample.take(1)[0]["agg"] > 10:
-                    return [field.name.decode("utf-8") if PY2 else field.name]
+        if Environment.hasSpark:
+            from pyspark.sql import functions as F
+            for field in self.entity.schema.fields:
+                # Ignore unique ids
+                if field.name.lower() != 'id' and ( not numerical or dataFrameMisc.isNumericType(field.dataType) ):
+                    # Find a good column to display in pie ChartDisplay
+                    default = default or field.name.decode("utf-8") if PY2 else field.name
+                    count = self.entity.count()
+                    sample = self.entity.sample(False, (float(200) / count)) if count > 200 else self.entity
+                    orderedSample = sample.groupBy(field.name).agg(F.count(field.name).alias("agg")).orderBy(F.desc("agg")).select("agg")
+                    if orderedSample.take(1)[0]["agg"] > 10:
+                        return [field.name.decode("utf-8") if PY2 else field.name]
+        
         # Otherwise, return first non-id column
         return [default]
