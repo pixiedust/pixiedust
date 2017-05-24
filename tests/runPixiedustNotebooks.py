@@ -203,7 +203,7 @@ if __name__ == '__main__':
     parser.add_option("-t", "--target", dest="target", default="spark", help="target kernel: spark or plain")
 
     (options, args) = parser.parse_args()
-    useSpark = options.target is "spark"
+    useSpark = options.target == "spark"
     print("Starting Test Suite with target: {}".format(options.target) )
     if "PIXIEDUST_HOME" in os.environ:
         print("Using PIXIEDUST_HOME: ", os.environ["PIXIEDUST_HOME"])
