@@ -180,6 +180,10 @@ def runNotebook(path, useSpark):
     nb.metadata.kernelspec.name=__TEST_KERNEL_NAME__
     if "pixiedust_test" in nb.metadata:
         testMeta = nb.metadata["pixiedust_test"]
+        targetKernel = testMeta.get("target")
+        if targetKernel is not None and (targetKernel.lower() == "spark") != useSpark:
+            logging.warn("Skipping processing of notebook {0} based on pixiedust_test metadata".format(path))
+            return
         skipVersions = testMeta.get("skipPython",[])
         for skipVersion in skipVersions:
             skipVersion = int(float(skipVersion))
