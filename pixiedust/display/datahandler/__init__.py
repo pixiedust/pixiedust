@@ -13,8 +13,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # -------------------------------------------------------------------------------
-
-from .pysparkDataFrameHandler import PySparkDataFrameDataHandler
+from pixiedust.utils.environment import Environment
+if Environment.hasSpark:
+    from .pysparkDataFrameHandler import PySparkDataFrameDataHandler
 from .pandasDataFrameHandler import PandasDataFrameDataHandler
 import pixiedust.utils.dataFrameMisc as dataFrameMisc
 

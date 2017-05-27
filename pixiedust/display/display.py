@@ -242,7 +242,7 @@ class Display(with_metaclass(ABCMeta)):
             self.options["nostore_pixiedust"] = "true"
             ipythonDisplay(Javascript(self.renderTemplate( "addScriptCode.js", type="css", code = self.renderTemplate("pixiedust.css") )))
             js = self.renderTemplate( "addScriptCode.js", type="javascript", code = self.renderTemplate("pixiedust.js") )
-            self.debug("pixiedust code: {}".format(js))
+            #self.debug("pixiedust code: {}".format(js))
             ipythonDisplay(Javascript(js))
     
     def render(self):

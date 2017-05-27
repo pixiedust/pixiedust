@@ -15,7 +15,6 @@
 # -------------------------------------------------------------------------------
 
 from ..display import *
-from pyspark.sql import DataFrame
 from pixiedust.utils.dataFrameAdapter import *
 import pixiedust.utils.dataFrameMisc as dataFrameMisc
     

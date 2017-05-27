@@ -16,7 +16,21 @@
 import numpy as np
 import pandas as pd
 import re
-from pyspark.sql.types import *
+from pixiedust.utils.environment import Environment
+if Environment.hasSpark:
+    from pyspark.sql.types import *
+else:
+    #define data types
+    class AdapterType(object):
+        def __repr__(self):
+            return self.__class__.__name__
+    
+    class IntegerType(AdapterType):
+        pass
+
+    class StringType(AdapterType):
+        pass
+
 import pixiedust.utils.dataFrameMisc as dataFrameMisc
 
 def createDataframeAdapter(entity):

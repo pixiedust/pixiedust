@@ -17,7 +17,6 @@
 from pixiedust.display.chart.renderers import PixiedustRenderer
 from pixiedust.display.chart.colorManager import Colors
 from .matplotlibBaseDisplay import MatplotlibBaseDisplay
-from pyspark.sql import functions as F
 from pixiedust.utils import Logger
 import numpy as np
 
