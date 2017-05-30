@@ -1,53 +1,64 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-<script src="https://api.tiles.mapbox.com/mapbox-gl-js/v0.32.1/mapbox-gl.js"></script>
-<link href="https://api.tiles.mapbox.com/mapbox-gl-js/v0.32.1/mapbox-gl.css" rel="stylesheet" />
-<style>
-.mapboxgl-popup {
-    max-width: 200px;
-}
-#map canvas {
-    cursor: crosshair;
-}
-.legend {
-    background-color: rgba(255,255,255, 0.75);
-    border-radius: 3px;
-    position: absolute;
-    left: calc(100% - 172px);
-    top: 14px;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.10);
-    font-size: 12px;
-    line-height: 18px;
-    padding: 10px;
-    z-index: 1;
-}
-.legend h4 {
-    margin: 0 0 10px;
-}
-.legend div span {
-    border-radius: 50%;
-    display: inline-block;
-    height: 10px;
-    margin-right: 5px;
-    width: 10px;
-}
-body { background-color:#333; margin:0px !important; overflow: hidden;font-family: "Helvetica Neue", Arial, Helvetica, sans-serif;}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Pixiedust Mapbox map</title>
+    <script src="https://api.tiles.mapbox.com/mapbox-gl-js/v0.32.1/mapbox-gl.js"></script>
+    <link href="https://api.tiles.mapbox.com/mapbox-gl-js/v0.32.1/mapbox-gl.css" rel="stylesheet" />
+    <style>
+    .mapboxgl-popup {
+        max-width: 200px;
+    }
+    #map canvas {
+        cursor: crosshair;
+    }
+    .legend {
+        background-color: rgba(255,255,255, 0.75);
+        border-radius: 3px;
+        position: absolute;
+        left: calc(100% - 172px);
+        top: 14px;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.10);
+        font-size: 12px;
+        line-height: 18px;
+        padding: 10px;
+        z-index: 1;
+    }
+    .legend h4 {
+        margin: 0 0 10px;
+    }
+    .legend div span {
+        border-radius: 50%;
+        display: inline-block;
+        height: 10px;
+        margin-right: 5px;
+        width: 10px;
+    }
+    body { 
+        background-color:#333; 
+        margin:0px !important; 
+        overflow: hidden;
+        font-family: "Helvetica Neue", Arial, Helvetica, sans-serif;
+    }
+    </style>
 </head>
 <body>
 <div id="map{{prefix}}" style="width:calc({{prefwidth}}px - 4px);height:calc({{prefheight}}px - 4px)" />
 
-{%if this.options.get("showLegend") == "true" and this.options.get("kind") and this.options.get("kind").find("simple") < 0 %}
-<div class="legend">
-    <h4>{{this.options.get("mapValueField")}}</h4>
-    {% for bin in bins %}
-    <div><span style="background-color: {{bin[1]}}"></span>{{bin[0]}}</div>
-    {% endfor %}
+{%if this.options.get("legend") == "true" %}
+<div id="maplegend" class="legend">
+    {% if this.options.get("kind") and this.options.get("kind").find("simple") < 0 %}
+        <h4>{{this.options.get("mapValueField")}}</h4>
+        {% for bin in bins %}
+        <div><span style="background-color: {{bin[1]}}"></span>{{bin[0]}}</div>
+        {% endfor %}
+    {%endif%}
 </div>
 {%endif%}
 
 <script>
-    window.maploadtime = 1;
+    var comment = "";
     mapboxgl.accessToken="{{this.options.get('mapboxtoken')}}";
     var map = new mapboxgl.Map({
         container: "map{{prefix}}",
@@ -167,6 +178,47 @@ body { background-color:#333; margin:0px !important; overflow: hidden;font-famil
         }, "waterway-label");
 
         {% endif %}
+
+        comment = "Add user layers";
+        var layers = [];
+        {% for layer in userlayers %}
+            var layertype = "circle";
+            {% if layer["type"] %}
+            layertype = {{layer["type"]|jsonify}};
+            {%endif%}
+            
+            var layerpaint = {};
+            {% if layer["paint"] %}
+            layerpaint = {{layer["paint"]|jsonify}};
+            {%endif%}
+
+            var layerlayout = {};
+            {% if layer["layout"] %}
+            layerlayout = {{layer["layout"]|jsonify}};
+            {%endif%}
+
+            var newlayer = {
+                "id": {{layer["id"]|jsonify}},
+                "type": layertype, 
+                "source": {{layer["source"]|jsonify}},
+                "paint": layerpaint, 
+                "layout": layerlayout
+            };
+            layers.push([newlayer, {{layer["order"]|jsonify}}]);
+        {% endfor %}
+        layers.sort(function(a,b) {
+            return a[1] - b[1];
+        });
+        for (layersi=layers.length-1; layersi>=0; layersi--) {
+            map.addLayer(layers[layersi][0]);
+            comment = "User layer legend";
+            {%if this.options.get("legend") == "true" %}
+                var t = document.createElement("h4");
+                t.appendChild(document.createTextNode(layers[layersi][0].id));
+                document.getElementById("maplegend").appendChild(t);
+            {% endif %}
+        }
+
         map.fitBounds({{this.options.get("mapBounds")}});
         
     });

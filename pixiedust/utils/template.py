@@ -26,6 +26,7 @@ import sys
 import re
 import pixiedust
 from six import iteritems,PY2
+import json
 
 myLogger = pixiedust.getLogger(__name__)
 
@@ -82,6 +83,7 @@ class PixiedustTemplateEnvironment(object):
         self.env.filters['decodeUTF8']=lambda s: s.decode('utf-8') if PY2 else s
         self.env.filters['removeJSComments']=lambda s: self.removeJSComments(s)
         self.env.filters['htmlAttribute']=lambda s: self.attribute(s)
+        self.env.filters['jsonify'] = json.dumps
 
     def removeJSComments(self, s):
         s = re.sub(re.compile("/\*.*?\*/",re.DOTALL ) ,"" ,s)

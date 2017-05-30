@@ -18,8 +18,10 @@ from pixiedust.display.chart.renderers import PixiedustRenderer
 from .mapBoxBaseDisplay import MapBoxBaseDisplay
 from pixiedust.utils import cache
 from pixiedust.utils import Logger
+from pixiedust.utils.shellAccess import ShellAccess
 import json 
 import numpy
+import geojson
 
 def defaultJSONEncoding(o):
     if isinstance(o, numpy.integer): 
@@ -126,7 +128,23 @@ class MapViewDisplay(MapBoxBaseDisplay):
         self.options["mapStyle"] = json.dumps(paint,default=defaultJSONEncoding)
         w = self.getPreferredOutputWidth()
         h = self.getPreferredOutputHeight()
-        body = self.renderTemplate("mapView.html", bins=bins, prefwidth=w, prefheight=h)
+
+        # handle custom layers
+        userlayers = []
+        for key in ShellAccess:
+            v = ShellAccess[key]
+            if isinstance(v, dict) and "maptype" in v and v["maptype"].lower() == "mapbox" and "source" in v and "type" in v["source"] and v["source"]["type"] == "geojson" and "id" in v and "data" in v["source"]:
+                gj = geojson.loads(json.dumps(v["source"]["data"]))
+                isvalid = geojson.is_valid(gj)
+                if isvalid["valid"] == "yes":
+                    userlayers.append(v)
+                    # self.debug("GOT VALID GEOJSON!!!!")
+                else:
+                    self.debug("Invalid GeoJSON: {0}".format(str(v["source"]["data"])))
+        self.debug("userlayers length: "+str(len(userlayers)))
+        # end handle custom layers
+
+        body = self.renderTemplate("mapView.html", bins=bins, userlayers=userlayers, prefwidth=w, prefheight=h)
         return self.renderTemplate("iframesrcdoc.html", body=body, prefwidth=w, prefheight=h)
 
     def isLatLonChart(self):
