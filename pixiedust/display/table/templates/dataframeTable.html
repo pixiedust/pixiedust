@@ -27,6 +27,8 @@
     font-weight: 300;
     letter-spacing: 0.5px;
     line-height: normal;
+    height: inherit;
+    overflow: auto;
   }
   .df-table-search-count {
     display: inline-block;
@@ -160,7 +162,9 @@
           <div class="fixed-header">
             <div class="fixed-row">
               {% for field in entity.getFields() %}
+              {% if not table_hidecols or field.name not in table_hidecols %}
               <div class="fixed-cell">{{field.name | decodeUTF8 }}</div>
+              {% endif %}
               {% endfor %}
             </div>
           </div>
@@ -170,7 +174,9 @@
             <thead>
               <tr>
                 {% for field in entity.getFields() %}
+                {% if not table_hidecols or field.name not in table_hidecols %}
                 <th><div>{{field.name | decodeUTF8 }}</div></th>
+                {% endif %}
                 {% endfor %}
               </tr>
             </thead>
@@ -178,7 +184,9 @@
               {% for row in rows %}
               <tr>
                 {% for field in entity.getFields() %}
+                {% if not table_hidecols or field.name not in table_hidecols %}
                 <td>{{row[field.name]}}</td>
+                {% endif %}
                 {% endfor %}
               </tr>
               {% endfor %}

@@ -27,7 +27,12 @@ class TableDisplay(Display):
             else:
                 entity=entity.vertices
         if dataFrameMisc.isPySparkDataFrame(entity) or dataFrameMisc.isPandasDataFrame(entity):
-            self._addHTMLTemplate('dataframeTable.html', entity=PandasDataFrameAdapter(entity), table_noschema=self.options.get("table_noschema", "false"))
+            scmap = {}
+            if "hideColumns" in self.options:
+                hcarr = self.options.get("showColumns").split(",")
+                for s in scarr:
+                    hcmap[s] = 1
+            self._addHTMLTemplate('dataframeTable.html', entity=PandasDataFrameAdapter(entity), table_noschema=self.options.get("table_noschema", "false"), table_hidecols=hcmap)
             return
   
         self._addHTML("""
