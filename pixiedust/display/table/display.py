@@ -27,7 +27,7 @@ class TableDisplay(Display):
             else:
                 entity=entity.vertices
         if dataFrameMisc.isPySparkDataFrame(entity) or dataFrameMisc.isPandasDataFrame(entity):
-            scmap = {}
+            hcmap = {}
             if "hideColumns" in self.options:
                 hcarr = self.options.get("showColumns").split(",")
                 for s in hcarr:
