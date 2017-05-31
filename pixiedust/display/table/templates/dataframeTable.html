@@ -162,7 +162,7 @@
           <div class="fixed-header">
             <div class="fixed-row">
               {% for field in entity.getFields() %}
-              {% if not table_showcols or field.name in table_showcols %}
+              {% if not table_hidecols or field.name not in table_hidecols %}
               <div class="fixed-cell">{{field.name | decodeUTF8 }}</div>
               {% endif %}
               {% endfor %}
@@ -174,7 +174,7 @@
             <thead>
               <tr>
                 {% for field in entity.getFields() %}
-                {% if not table_showcols or field.name in table_showcols %}
+                {% if not table_hidecols or field.name not in table_hidecols %}
                 <th><div>{{field.name | decodeUTF8 }}</div></th>
                 {% endif %}
                 {% endfor %}
@@ -184,7 +184,7 @@
               {% for row in rows %}
               <tr>
                 {% for field in entity.getFields() %}
-                {% if not table_showcols or field.name in table_showcols %}
+                {% if not table_hidecols or field.name not in table_hidecols %}
                 <td>{{row[field.name]}}</td>
                 {% endif %}
                 {% endfor %}
