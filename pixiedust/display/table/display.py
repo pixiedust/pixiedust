@@ -30,7 +30,7 @@ class TableDisplay(Display):
             scmap = {}
             if "hideColumns" in self.options:
                 hcarr = self.options.get("showColumns").split(",")
-                for s in scarr:
+                for s in hcarr:
                     hcmap[s] = 1
             self._addHTMLTemplate('dataframeTable.html', entity=PandasDataFrameAdapter(entity), table_noschema=self.options.get("table_noschema", "false"), table_hidecols=hcmap)
             return
