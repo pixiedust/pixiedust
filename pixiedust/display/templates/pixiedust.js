@@ -14,11 +14,15 @@ var pixiedust = (function(){
             pd_controls = pd_controls || {};
             user_controls = user_controls || {"options":{}};
             var options = $.extend({}, pd_controls.options || {}, user_controls.options || {} );
-            function onDisplayDone(){
-                if (user_controls.onDisplayDone){
-                    user_controls.onDisplayDone();
+            function wrapDisplayDone(fn){
+                return function(targetNode){
+                    if (fn){
+                        fn.apply(this);
+                    }
+                    $(document).trigger('pd_event', {type:"pd_load", targetNode: targetNode});
                 }
             }
+            user_controls.onDisplayDone = wrapDisplayDone( user_controls.onDisplayDone);
             var pd_prefix = pd_controls.prefix;
             var $targetDivId = user_controls.targetDivId;
             {%include "pd_executeDisplay.js"%}
@@ -203,6 +207,41 @@ function addOptions(command, options, override=true){
 }
 
 function readExecInfo(pd_controls, element){
+    {#special case pd_refresh points to another element #}
+    var refreshTarget = element.getAttribute("pd_refresh");
+    if (refreshTarget){
+        var node = $("#" + refreshTarget);
+        if (node.length){
+            var retValue = readExecInfo(pd_controls, node.get(0));
+            if (retValue){
+                retValue.targetDivId = refreshTarget;
+                var script = element.getAttribute("pd_script");
+                if (!script){
+                    node.find("> pd_script").each(function(){
+                        var type = this.getAttribute("type");
+                        if (!type || type=="python"){
+                            script = $(this).text();
+                        }
+                    });
+                }
+
+                if (script){
+                    script = script.trim()
+                    var match = pd_controls.command.match(/display\((\w*),/)
+                    if (match){
+                        var entity = match[1]
+                        script = "from pixiedust.utils.shellAccess import ShellAccess\n"+
+                            "self=ShellAccess['" + entity + "']\n" +
+                            resolveScriptMacros( getParentScript(element) ) + '\n' +
+                            resolveScriptMacros(script);
+                    }
+
+                    retValue.script = script + "\n" + (retValue.script || "")
+                }
+            }
+            return retValue;
+        }
+    }
     var execInfo = {}
     execInfo.options = {}
     var hasOptions = false;
@@ -373,7 +412,7 @@ function runElement(element){
 }
 
 function filterNonTargetElements(element){
-    if (element && element.tagName == "I"){
+    if (element && (element.tagName == "I" || element.tagName == "DIV")){
         return filterNonTargetElements(element.parentElement);
     }
     return element;
@@ -429,7 +468,25 @@ $(document).on("pd_event", function(event, eventInfo){
                 }
             });
         });
-    }else{
+    }else if ( eventInfo.type == "pd_load" && eventInfo.targetNode){
+        var execQueue = []
+        eventInfo.targetNode.find("div").each(function(){
+            thisQueue = runElement(this);
+            var loadingDiv = this;
+            $.each( thisQueue, function(index, value){
+                if (value){
+                    value.targetDivId = $(loadingDiv).uniqueId().attr('id');
+                    execQueue.push( value );
+                }
+            })
+        });
+
+        {#execute#}
+        $.each( execQueue, function(index, value){
+            value.execute();
+        });
+    }
+    else{
         console.log("Warning: got a pd_event with no targetDivId", eventInfo);
     }
 });

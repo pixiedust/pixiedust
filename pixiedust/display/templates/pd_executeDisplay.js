@@ -16,7 +16,7 @@
                 if ( !callbacks.response ){
                     getTargetNode().html("")
                     if (user_controls.onDisplayDone){
-                        user_controls.onDisplayDone();
+                        user_controls.onDisplayDone(getTargetNode());
                     }
                 }
             },
@@ -136,7 +136,7 @@
                     callbacks.response = false;
                 }
                 if (user_controls.onDisplayDone){
-                    user_controls.onDisplayDone();
+                    user_controls.onDisplayDone(getTargetNode());
                 }
             }
         }
