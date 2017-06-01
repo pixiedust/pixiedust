@@ -206,7 +206,10 @@ function addOptions(command, options, override=true){
     return command;
 }
 
-function readExecInfo(pd_controls, element){
+function readExecInfo(pd_controls, element, searchParents){
+    if (searchParents === null || searchParents === undefined ){
+        searchParents = true;
+    }
     {#special case pd_refresh points to another element #}
     var refreshTarget = element.getAttribute("pd_refresh");
     if (refreshTarget){
@@ -317,6 +320,11 @@ function readExecInfo(pd_controls, element){
     execInfo.entity = element.hasAttribute("pd_entity") ? element.getAttribute("pd_entity") || "pixieapp_entity" : null;
 
     function applyEntity(c, e, doptions){
+        {#add pixieapp info #}
+        var match = c.match(/display\((\w*),/);
+        if (match){
+            doptions.nostore_pixieapp = match[1];
+        }
         if (!e){
             return addOptions(c, doptions);
         }
@@ -359,6 +367,9 @@ function readExecInfo(pd_controls, element){
     }
 
     if (!hasOptions && !execInfo.targetDivId && !execInfo.script){
+        if (!searchParents){
+            return null;
+        }
         return element.hasAttribute("pixiedust")?null:readExecInfo(pd_controls, element.parentElement);
     }
 
@@ -390,7 +401,7 @@ function readExecInfo(pd_controls, element){
     return execInfo;
 }
 
-function runElement(element){
+function runElement(element, searchParents){
     var pd_controls = element.getAttribute("pixiedust");
     if (!pd_controls){
         $(element).parents("[pixiedust]").each(function(){
@@ -401,11 +412,11 @@ function runElement(element){
     if (pd_controls){
         pd_controls = JSON.parse(pd_controls);
         {#read the current element#}
-        execQueue.push( readExecInfo(pd_controls, element) );
+        execQueue.push( readExecInfo(pd_controls, element, searchParents) );
 
         {#get other execution targets if any#}
         $(element).children("target[pd_target]").each(function(){
-            execQueue.push( readExecInfo(pd_controls, this))
+            execQueue.push( readExecInfo(pd_controls, this, searchParents))
         });
     }
     return execQueue;
@@ -471,7 +482,7 @@ $(document).on("pd_event", function(event, eventInfo){
     }else if ( eventInfo.type == "pd_load" && eventInfo.targetNode){
         var execQueue = []
         eventInfo.targetNode.find("div").each(function(){
-            thisQueue = runElement(this);
+            thisQueue = runElement(this, false);
             var loadingDiv = this;
             $.each( thisQueue, function(index, value){
                 if (value){
