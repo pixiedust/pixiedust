@@ -7,6 +7,10 @@
     <script src="https://api.tiles.mapbox.com/mapbox-gl-js/v0.32.1/mapbox-gl.js"></script>
     <link href="https://api.tiles.mapbox.com/mapbox-gl-js/v0.32.1/mapbox-gl.css" rel="stylesheet" />
     <style>
+    .mapboxgl-popup-content h3 { 
+        margin: 2px 0 2px 0;
+        font-style: italic;
+    }
     .mapboxgl-popup {
         max-width: 200px;
     }
@@ -70,12 +74,19 @@
     map.on("mousemove", function (e) {
         var fs = map.queryRenderedFeatures(e.point,{layers:["pxlayer"{%for l in userlayers%},"{{l['id']}}"{%endfor%}]});
         if (!fs || !fs.length) {popup.remove();return;};
-        var f = fs[0];
-        var keylength = Object.keys(f.properties).length;
         popuphtml = "";
-        for (var key in f.properties) {
-            popuphtml += "<b>"+key+": </b> "+f.properties[key]+"<br/>"
-        }
+        var hr = false;
+        fs.forEach(function(f){
+            if (hr){ 
+                popuphtml += "<hr>\n";
+            }
+            hr=true;
+            popuphtml += "<h3>"+f.layer.id.toUpperCase()+"</h3>\n";
+            var keylength = Object.keys(f.properties).length;
+            for (var key in f.properties) {
+                popuphtml += "<b>"+key+": </b> "+f.properties[key]+"<br/>\n";
+            }
+        });
         popup.setLngLat(e.lngLat).setHTML(popuphtml).addTo(map);
     });
     
