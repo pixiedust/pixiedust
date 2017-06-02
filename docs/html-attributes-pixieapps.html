@@ -1,0 +1,150 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Custom HTML Attributes &#8212; PixieDust Documentation</title>
+    
+    <link rel="stylesheet" href="_static/better.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="shortcut icon" href="_static/pd_icon.ico"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Release Notes" href="releasenotes.html" />
+    <link rel="prev" title="Reference" href="reference-pixieapps.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  </head>
+  <body role="document">
+    <header id="pageheader"><h1><a href="index.html ">
+        PixieDust Documentation
+    </a></h1></header>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="custom-html-attributes">
+<h1>Custom HTML Attributes<a class="headerlink" href="#custom-html-attributes" title="Permalink to this headline">¶</a></h1>
+<p>The PixieDust JS runtime listens to click events on any HTML element that has one or more of the custom attributes below, and then transforms the attribute values into a kernel request. The following section describes all the custom attributes available, and how they affect the kernel request executed when a click event is received.</p>
+<div class="section" id="pd-options">
+<h2>pd_options<a class="headerlink" href="#pd-options" title="Permalink to this headline">¶</a></h2>
+<p>List of key-value pairs that define transient states for the kernel request, according to the following format: <code class="docutils literal"><span class="pre">pd_options=&quot;key1=value1;key2=value2;...&quot;</span></code>. For example, you can use pd_options to dispatch the current screen to another view. When you use <code class="docutils literal"><span class="pre">pd_entity</span></code>, then the pd_options are interpreted as <code class="docutils literal"><span class="pre">display()</span></code> API options (more details below).</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">You can also use a shorter syntax to define options using the following attribute pattern: <code class="docutils literal"><span class="pre">option_key1=&quot;value1&quot;</span></code>.</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">To build the pd_options value for display(), use the display() API in a separate cell. When the correct chart is created, simply copy the options from the cell metadata. (You&#8217;ll need to use the <em>View/Cell Toolbar/Edit Metadata</em> menu to show the &#8220;edit metadata&#8221; button.) You will also need to transform the JSON to the pd_options attribute format, e.g., no quote in the value, semi-colon separator, and &#8220;key=value&#8221; format.</p>
+</div>
+</div>
+<div class="section" id="pd-entity">
+<h2>pd_entity<a class="headerlink" href="#pd-entity" title="Permalink to this headline">¶</a></h2>
+<p>Use the pd_entity attribute only if you want to invoke the display() API on specific data. In this case, pd_options must be display-options-specific to the visualization you want to show. The output will be returned by display(), but without the <a class="reference external" href="https://en.wikipedia.org/wiki/Graphical_user_interface#User_interface_and_interaction_design">UI chrome</a>. The value of pd_entity is interpreted as a field to the PixieApp class, e.g., <code class="docutils literal"><span class="pre">pd_entity=&quot;filteredDataFrame&quot;</span></code>, and requires that the PixieApp instance has a field named filteredDataFrame. If the field is not present, then an error will be raised.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">the entity passed by the caller in the run method is stored in a special field called <code class="docutils literal"><span class="pre">pixieapp_entity</span></code>. Therefore, using <code class="docutils literal"><span class="pre">pd_entity=&quot;pixieapp_entity&quot;</span></code> will direct PixieDust to use the entity passed by the caller. For convenience, the user can also simply use <code class="docutils literal"><span class="pre">pd_entity</span></code> (without any value) to do the same thing.</p>
+</div>
+</div>
+<div class="section" id="pd-target">
+<h2>pd_target<a class="headerlink" href="#pd-target" title="Permalink to this headline">¶</a></h2>
+<p>By default, the output of a kernel request takes over the entire UI&#8211;or output cell or dialog depending on the <code class="docutils literal"><span class="pre">runInDialog</span></code> option). However, you can use <code class="docutils literal"><span class="pre">pd_target=&quot;elementId&quot;</span></code> to specify a target element that will receive the output. (Of course the elementId must exist in the current view.) For example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">div</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;myTarget{{prefix}}&quot;</span><span class="o">/&gt;</span>
+<span class="o">&lt;</span><span class="nb">input</span> <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;button&quot;</span> <span class="n">pd_options</span><span class="o">=</span><span class="s2">&quot;handlerId=dataframe&quot;</span> <span class="n">pd_entity</span> <span class="n">pd_target</span><span class="o">=</span><span class="s2">&quot;myTarget{{prefix}}&quot;</span> <span class="n">value</span><span class="o">=</span><span class="s2">&quot;click me&quot;</span><span class="o">/&gt;</span>
+</pre></div>
+</div>
+<p>In the example above, we define a placeholder div with id <code class="docutils literal"><span class="pre">&quot;myTarget{{prefix}}&quot;</span></code> and use it as a target in the input button.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><code class="docutils literal"><span class="pre">{{prefix}}</span></code> is a Jinja2 notation that means &#8220;use the value of the prefix variable, which PixieDust automatically creates to provide a unique id.&#8221; We need this value to avoid a conflict in case a user calls the PixieApp multiple times within the same notebook.</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">You can define multiple targets for a particular kernel request. In this case, you&#8217;ll want to create one or more <code class="docutils literal"><span class="pre">&lt;target&gt;</span></code> elements as children (see the <strong>Custom PixieApp Elements</strong> section for more info).</p>
+</div>
+</div>
+<div class="section" id="pd-script">
+<h2>pd_script<a class="headerlink" href="#pd-script" title="Permalink to this headline">¶</a></h2>
+<p>PixieDust lets you run arbitrary Python code using the <code class="docutils literal"><span class="pre">pd_script</span></code> attribute. For example: <code class="docutils literal"><span class="pre">pd_script=&quot;self.filteredDataFrame=self.createFilteredDataFrame()&quot;</span></code>. pd_script can be used even if pd_entity is used. In this case, the Python script will be executed before the display() call. This behavior can be useful, for example, in creating a sub entity that will be used in the display() call. For example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">div</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;myTarget{{prefix}}&quot;</span><span class="o">/&gt;</span>
+<span class="o">&lt;</span><span class="nb">input</span> <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;button&quot;</span> <span class="n">pd_options</span><span class="o">=</span><span class="s2">&quot;handlerId=dataframe&quot;</span> <span class="n">pd_entity</span><span class="o">=</span><span class="s2">&quot;filteredDataFrame&quot;</span> <span class="n">pd_script</span><span class="o">=</span><span class="s2">&quot;self.filteredDataFrame=self.createFilteredDataFrame()&quot;</span> <span class="n">pd_target</span><span class="o">=</span><span class="s2">&quot;myTarget{{prefix}}&quot;</span> <span class="n">value</span><span class="o">=</span><span class="s2">&quot;click me&quot;</span><span class="o">/&gt;</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">You can use the <code class="docutils literal"><span class="pre">self</span></code> keyword, which points at the current PixieApp instance.</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">You can only use one-line Python code (similar to Python lambda). If you need to run more than one line of code, then you&#8217;ll need to use the pd_script element as a child (see the Custom PixieApp Elements section for more info).</p>
+</div>
+</div>
+<div class="section" id="pd-refresh">
+<h2>pd_refresh<a class="headerlink" href="#pd-refresh" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="pd-norefresh">
+<h2>pd_norefresh<a class="headerlink" href="#pd-norefresh" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="index.html">Table Of Contents</a></h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="use.html">Use PixieDust</a></li>
+<li class="toctree-l1"><a class="reference internal" href="develop.html">Develop for PixieDust</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="pixieapps.html">PixieApps</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="hello-world-pixieapp.html">Hello World PixieApp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference-pixieapps.html">Reference</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Custom HTML Attributes</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="releasenotes.html">Release Notes</a></li>
+</ul>
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+  <footer id="pagefooter">&copy; 2017, IBM.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a>
+      1.5.6.
+
+  </footer>
+
+  
+  </body>
+</html>

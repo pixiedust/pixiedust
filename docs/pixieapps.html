@@ -1,0 +1,109 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>PixieApps &#8212; PixieDust Documentation</title>
+    
+    <link rel="stylesheet" href="_static/better.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="shortcut icon" href="_static/pd_icon.ico"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Hello World PixieApp" href="hello-world-pixieapp.html" />
+    <link rel="prev" title="Test" href="test.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  </head>
+  <body role="document">
+    <header id="pageheader"><h1><a href="index.html ">
+        PixieDust Documentation
+    </a></h1></header>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="pixieapps">
+<h1>PixieApps<a class="headerlink" href="#pixieapps" title="Permalink to this headline">¶</a></h1>
+<p><strong>What are PixieApps?</strong></p>
+<p>PixieApps are Python classes used to write UI elements for your analytics, and they run directly in a Jupyter notebook.</p>
+<p>PixieApps are designed to be easy to build. Mostly, you&#8217;ll only need to write HTML and CSS with some custom attributes, along with some Python for the business logic. Except in rare cases, you won&#8217;t have to write JavaScript. The PixieDust JS runtime will automatically listen to key events and manage transactions to the Jupyter kernel appropriately.</p>
+<p>At its core, a PixieApp is composed of views (in the <a class="reference external" href="https://en.wikipedia.org/wiki/Model%E2%80%93view%E2%80%93controller">MVC</a> sense), which are HTML fragments. Each view has a route definition (a set of key/value pairs) that the PixieApp framework uses to decide when to dispatch the current transaction based on current app state. You&#8217;ll find more details in the sub-topics here.</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="hello-world-pixieapp.html">Hello World PixieApp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reference-pixieapps.html">Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="html-attributes-pixieapps.html">Custom HTML Attributes</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="html-attributes-pixieapps.html#pd-options">pd_options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="html-attributes-pixieapps.html#pd-entity">pd_entity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="html-attributes-pixieapps.html#pd-target">pd_target</a></li>
+<li class="toctree-l2"><a class="reference internal" href="html-attributes-pixieapps.html#pd-script">pd_script</a></li>
+<li class="toctree-l2"><a class="reference internal" href="html-attributes-pixieapps.html#pd-refresh">pd_refresh</a></li>
+<li class="toctree-l2"><a class="reference internal" href="html-attributes-pixieapps.html#pd-norefresh">pd_norefresh</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="index.html">Table Of Contents</a></h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="use.html">Use PixieDust</a></li>
+<li class="toctree-l1"><a class="reference internal" href="develop.html">Develop for PixieDust</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">PixieApps</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="hello-world-pixieapp.html">Hello World PixieApp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference-pixieapps.html">Reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="html-attributes-pixieapps.html">Custom HTML Attributes</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="releasenotes.html">Release Notes</a></li>
+</ul>
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+  <footer id="pagefooter">&copy; 2017, IBM.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a>
+      1.5.6.
+
+  </footer>
+
+  
+  </body>
+</html>
