@@ -68,16 +68,15 @@
     var popup = new mapboxgl.Popup({closeButton: false,closeOnClick: true});
     
     map.on("mousemove", function (e) {
-        var fs = map.queryRenderedFeatures(e.point,{layers:["pxlayer"]});
-        map.getCanvas().style.cursor=(fs.length)?"pointer":"";
-        if (!fs.length) {popup.remove();return;};
+        var fs = map.queryRenderedFeatures(e.point,{layers:["pxlayer"{%for l in userlayers%},"{{l['id']}}"{%endfor%}]});
+        if (!fs || !fs.length) {popup.remove();return;};
         var f = fs[0];
         var keylength = Object.keys(f.properties).length;
         popuphtml = "";
         for (var key in f.properties) {
             popuphtml += "<b>"+key+": </b> "+f.properties[key]+"<br/>"
         }
-        popup.setLngLat(f.geometry.coordinates).setHTML(popuphtml).addTo(map);
+        popup.setLngLat(e.lngLat).setHTML(popuphtml).addTo(map);
     });
     
     map.on("click", function (e) {
