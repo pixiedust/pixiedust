@@ -28,7 +28,15 @@ class MapBoxBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
 	pass
 
 	def getChartOptions(self):
-		return [
+		return [ 
+            {
+                'name': 'legend',
+                'description': 'Show legend',
+                'metadata': {
+                    'type': 'checkbox',
+                    'default': "true"
+                }
+            },
 			{
 					'name': 'chartsize',
 					'description': 'Map Size',

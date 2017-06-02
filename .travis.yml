@@ -28,7 +28,10 @@ install:
 - cd $TRAVIS_BUILD_DIR
 - python setup.py install
 script:
-- python $TRAVIS_BUILD_DIR/tests/runPixiedustNotebooks.py
+- echo Starting Test with pyspark kernel
+- python $TRAVIS_BUILD_DIR/tests/runPixiedustNotebooks.py -t spark
+- echo Starting Test with plain Python kernel
+- python $TRAVIS_BUILD_DIR/tests/runPixiedustNotebooks.py -t plain
 sudo: false
 notifications:
   slack:

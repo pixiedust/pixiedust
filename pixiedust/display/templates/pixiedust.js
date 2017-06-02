@@ -38,7 +38,7 @@ var pixiedust = (function(){
                     .replace(/>/g, '&gt;');
                 var dialogRoot = "dialog" + pd_controls.prefix + "root";
                 var options = {
-                    title: "Pixiedust: " + (displayOptions.title || "Dialog"),
+                    title: "PixieDust: " + (displayOptions.title || "Dialog"),
                     body: '<div id="' + dialogRoot + '" pixiedust="' + attr_pd_ctrl + '" class="pixiedust"></div>',
                     sanitize:false,
                     notebook: IPython.notebook,

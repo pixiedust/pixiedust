@@ -15,7 +15,6 @@
 # -------------------------------------------------------------------------------
 
 from ..display import *
-from pyspark.sql import DataFrame
 from pixiedust.utils.dataFrameAdapter import *
 import pixiedust.utils.dataFrameMisc as dataFrameMisc
     
@@ -28,7 +27,12 @@ class TableDisplay(Display):
             else:
                 entity=entity.vertices
         if dataFrameMisc.isPySparkDataFrame(entity) or dataFrameMisc.isPandasDataFrame(entity):
-            self._addHTMLTemplate('dataframeTable.html', entity=PandasDataFrameAdapter(entity), table_noschema=self.options.get("table_noschema", "false"))
+            hcmap = {}
+            if "hideColumns" in self.options:
+                hcarr = self.options.get("showColumns").split(",")
+                for s in hcarr:
+                    hcmap[s] = 1
+            self._addHTMLTemplate('dataframeTable.html', entity=PandasDataFrameAdapter(entity), table_noschema=self.options.get("table_noschema", "false"), table_hidecols=hcmap)
             return
   
         self._addHTML("""

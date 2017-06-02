@@ -32,31 +32,37 @@ with warnings.catch_warnings():
     logger = pdLogging.getPixiedustLogger()
     getLogger = pdLogging.getLogger
 
-    #shortcut to packageManager
-    import pixiedust.packageManager as packageManager
-    printAllPackages=packageManager.printAllPackages
-    installPackage=packageManager.installPackage
-    uninstallPackage=packageManager.uninstallPackage
+    from pixiedust.utils.environment import Environment
+    if Environment.hasSpark:
+        #shortcut to packageManager
+        import pixiedust.packageManager as packageManager
+        printAllPackages=packageManager.printAllPackages
+        installPackage=packageManager.installPackage
+        uninstallPackage=packageManager.uninstallPackage
+
+        try:
+            from py4j.protocol import Py4JJavaError
+            #javaBridge and scalaBridge only work in the driver, not an executor
+            from pixiedust.utils.javaBridge import *
+            from pixiedust.utils.scalaBridge import *
+
+            #shortcut to Spark job monitoring
+            from pixiedust.utils.sparkJobProgressMonitor import enableSparkJobProgressMonitor
+            enableJobMonitor = enableSparkJobProgressMonitor
+        except (NameError, Py4JJavaError):
+            #IPython not available we must be in a spark executor
+            pass
 
     #automated import into the user namespace
     try:
-        from py4j.protocol import Py4JJavaError
         from IPython.core.getipython import get_ipython
         import pixiedust.display
         import pixiedust.services
         get_ipython().user_ns["display"]=display.display
 
-        #javaBridge and scalaBridge only work in the driver, not an executor
-        from pixiedust.utils.javaBridge import *
-        from pixiedust.utils.scalaBridge import *
-
-        #shortcut to Spark job monitoring
-        from pixiedust.utils.sparkJobProgressMonitor import enableSparkJobProgressMonitor
         from pixiedust.utils.sampleData import sampleData
-        enableJobMonitor = enableSparkJobProgressMonitor
-
         from pixiedust.utils import checkVersion
         checkVersion()
-    except (NameError, Py4JJavaError):
+    except (NameError):
         #IPython not available we must be in a spark executor
         pass
