@@ -50,7 +50,8 @@ $('#keyFields{{prefix}}, #valueFields{{prefix}}').droppable({
 	accept: function(d) {
 		if ($(this).parent().hasClass('keys-fields')) {
 			return d.data("fieldType") === 'numeric' ||
-				d.data("fieldType") === 'string';
+				d.data("fieldType") === 'string' || 
+				d.data("fieldType") === 'date/time'; 
 		}
 		else if ($(this).parent().hasClass('values-fields')) {
 			return d.data("fieldType") === 'numeric';

@@ -26,12 +26,10 @@ class MapboxBase():
         if styleType == "Point":
             userStyleType = layerDef.get("type", "circle")
             if userStyleType == "symbol":
-                return ("symbol", self.mergeDef( layerDef.get("paint"), {
-                    "icon-color": "yellow"
-                }), self.mergeDef( layerDef.get("layout"), {
-                    "icon-image": "police-15",
-                    "icon-size": 1.5
-                }))
+                return ("symbol", 
+                    self.mergeDef( layerDef.get("paint"), {}), 
+                    self.mergeDef( layerDef.get("layout"), {})
+                )
             else:
                 return ("circle", self.mergeDef( layerDef.get("paint"), {
                     "circle-color": "rgba(255,0,0,0.5)", 
@@ -56,7 +54,8 @@ class MapboxBase():
             defaultDef.update(userDef)
         return defaultDef
         
-    def createMapboxGeoJSON(self, id, order, layerDef, geoJSON):
+    def createMapboxGeoJSON(self, order, layerDef, geoJSON):
+        id = layerDef["name"]
         style = self.getStyleTypeFromGeoJSON(layerDef, geoJSON)
         return {
             "id": id, 
@@ -76,7 +75,7 @@ class MapboxBase():
         if hasattr(self, fieldName) and getattr(self, fieldName) is not None:
             setattr(self, fieldName, None)
         else:
-            setattr(self, fieldName, self.createMapboxGeoJSON(fieldName, index+2, self.layers[index], self.loadGeoJSON( self.layers[index]["url"] ) ))        
+            setattr(self, fieldName, self.createMapboxGeoJSON(index+2, self.layers[index], self.loadGeoJSON( self.layers[index]["url"] ) ))        
         
     def loadGeoJSON(self, url):
         def filterFeature(f):
