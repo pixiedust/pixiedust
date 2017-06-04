@@ -31,6 +31,9 @@ else:
     class StringType(AdapterType):
         pass
 
+    class DateType(AdapterType):
+        pass
+
 import pixiedust.utils.dataFrameMisc as dataFrameMisc
 
 def createDataframeAdapter(entity):
@@ -93,10 +96,17 @@ class PandasDataFrameAdapter(object):
             return self.entity.schema.fields
         else:
             #must be a pandas dataframe
+            def getAdapterType(t):
+                if 'datetime64' in str(t):
+                    return DateType()
+                elif np.issubdtype(t, np.integer) or np.issubdtype(t, np.float):
+                    return IntegerType()
+                else:
+                    return StringType()
             def createObj(a,b):
                 return type("",(),{
                     "jsonValue":lambda self: {"type": b, "name": a}, "name":a,
-                    "dataType": IntegerType() if np.issubdtype(b, np.integer) or np.issubdtype(b, np.float) else StringType()
+                    "dataType": getAdapterType(b)
                 })()
             return [createObj(a,b) for a,b in zip(self.entity.columns, self.entity.dtypes)]
 

@@ -45,6 +45,12 @@ class PandasDataFrameDataHandler(object):
     def isStringType(self, field):
         return dataFrameMisc.isStringType(field.dataType)
 
+    def isDateField(self, fieldName):
+        return dataFrameMisc.isDateField(PandasDataFrameAdapter(self.entity), fieldName)
+
+    def isDateType(self, field):
+        return dataFrameMisc.isDateType(field.dataType)
+
     @property
     def schema(self):
         return PandasDataFrameAdapter(self.entity).schema

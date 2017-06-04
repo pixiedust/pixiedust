@@ -340,7 +340,9 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
             fieldType = "unknown/unsupported"
             if self.dataHandler.isNumericField(fieldName):
                 fieldType = "numeric"
-            if self.dataHandler.isStringField(fieldName):
+            elif self.dataHandler.isDateField(fieldName):
+                fieldType = "date/time"
+            elif self.dataHandler.isStringField(fieldName):
                 fieldType = "string"
             fieldNamesAndTypes.append((fieldName, fieldType))
         if sorted:
