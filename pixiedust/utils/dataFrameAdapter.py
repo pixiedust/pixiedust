@@ -99,7 +99,7 @@ class PandasDataFrameAdapter(object):
             def getAdapterType(t):
                 if 'datetime64' in str(t):
                     return DateType()
-                elif np.issubdtype(b, np.integer) or np.issubdtype(b, np.float):
+                elif np.issubdtype(t, np.integer) or np.issubdtype(t, np.float):
                     return IntegerType()
                 else:
                     return StringType()
