@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Hello World &#8212; PixieDust Documentation</title>
+    <title>Custom Elements &#8212; PixieDust Documentation</title>
     
     <link rel="stylesheet" href="_static/better.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -28,8 +28,8 @@
     <link rel="shortcut icon" href="_static/pd_icon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Reference" href="reference-pixieapp.html" />
-    <link rel="prev" title="PixieApps" href="pixieapps.html" />
+    <link rel="next" title="Dynamic Values" href="dynamic-values-pixieapp.html" />
+    <link rel="prev" title="Custom HTML Attributes" href="html-attributes-pixieapp.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   </head>
   <body role="document">
@@ -42,25 +42,31 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="hello-world">
-<h1>Hello World<a class="headerlink" href="#hello-world" title="Permalink to this headline">¶</a></h1>
-<p>The following sample PixieApp provides two simple views and their associated routes. The first view (default view) creates a button that, when clicked, will invoke the second view. The second view creates another button that redirects to the first view, and so on and so forth.</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pixiedust.display.app</span> <span class="k">import</span> <span class="o">*</span>
-<span class="nd">@PixieApp</span>
-<span class="k">class</span> <span class="nc">HelloWorldPixieApp</span><span class="p">:</span>
-    <span class="nd">@route</span><span class="p">()</span>
-    <span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span><span class="s2">&quot;&quot;&quot;</span>
-<span class="s2">            &lt;input pd_options=&quot;clicked=true&quot; type=&quot;button&quot; value=&quot;Click Me&quot;&gt;</span>
-<span class="s2">        &quot;&quot;&quot;</span>
-    <span class="nd">@route</span><span class="p">(</span><span class="n">clicked</span><span class="o">=</span><span class="s2">&quot;true&quot;</span><span class="p">)</span>
-    <span class="k">def</span> <span class="nf">_clicked</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="s2">&quot;&quot;&quot;</span>
-<span class="s2">            &lt;input pd_options=&quot;clicked=false&quot; type=&quot;button&quot; value=&quot;You Clicked, Now Go back&quot;&gt;</span>
-<span class="s2">        &quot;&quot;&quot;</span>
-<span class="c1">#run the app</span>
-<span class="n">HelloWorldPixieApp</span><span class="p">()</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">runInDialog</span><span class="o">=</span><span class="s1">&#39;false&#39;</span><span class="p">)</span>
+  <div class="section" id="custom-elements">
+<h1>Custom Elements<a class="headerlink" href="#custom-elements" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="target">
+<h2>&lt;target&gt;<a class="headerlink" href="#target" title="Permalink to this headline">¶</a></h2>
+<p>Child element to the clickable source element. <code class="docutils literal"><span class="pre">&lt;target&gt;</span></code> can have any of the <a class="reference external" href="html-attributes-pixieapps.html">custom PixieApp HTML attributes</a> defined above. For example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">button</span> <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;button&quot;</span><span class="o">&gt;</span><span class="n">Multiple</span> <span class="n">Targets</span>
+      <span class="o">&lt;</span><span class="n">target</span> <span class="n">pd_target</span><span class="o">=</span><span class="s2">&quot;target{{prefix}}&quot;</span>
+          <span class="n">pd_entity</span>
+          <span class="n">pd_options</span><span class="o">=</span><span class="s2">&quot;handlerId=dataFrame&quot;</span><span class="o">/&gt;</span>
+      <span class="o">&lt;</span><span class="n">target</span> <span class="n">pd_target</span><span class="o">=</span><span class="s2">&quot;target2{{prefix}}&quot;</span>
+          <span class="n">pd_entity</span>
+          <span class="n">pd_options</span><span class="o">=</span><span class="s2">&quot;keyFields=zone;aggregation=AVG;handlerId=barChart;valueFields=unique_customers;rowCount=100/&quot;</span><span class="o">&gt;</span>
+<span class="o">&lt;/</span><span class="n">button</span><span class="o">&gt;</span>
 </pre></div>
+</div>
+</div>
+<div class="section" id="pd-script">
+<h2>&lt;pd_script&gt;<a class="headerlink" href="#pd-script" title="Permalink to this headline">¶</a></h2>
+<p>Contains Python code as child text. It has the same meaning as the pd_script attribute, except that it can contain multiple lines of Python code. Because indentation is important in Python, be careful to not have empty space in your code&#8212;regardless of the indentation level of your HTML markup. For example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>  <span class="o">&lt;</span><span class="n">pd_script</span><span class="o">&gt;</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">myJson</span><span class="p">)</span>
+  <span class="o">&lt;/</span><span class="n">pd_script</span><span class="o">&gt;</span>
+</pre></div>
+</div>
 </div>
 </div>
 
@@ -75,10 +81,10 @@
 <li class="toctree-l1"><a class="reference internal" href="use.html">Use PixieDust</a></li>
 <li class="toctree-l1"><a class="reference internal" href="develop.html">Develop for PixieDust</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="pixieapps.html">PixieApps</a><ul class="current">
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Hello World</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hello-world-pixieapp.html">Hello World</a></li>
 <li class="toctree-l2"><a class="reference internal" href="reference-pixieapp.html">Reference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="html-attributes-pixieapp.html">Custom HTML Attributes</a></li>
-<li class="toctree-l2"><a class="reference internal" href="custom-elements-pixieapp.html">Custom Elements</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Custom Elements</a></li>
 <li class="toctree-l2"><a class="reference internal" href="dynamic-values-pixieapp.html">Dynamic Values</a></li>
 <li class="toctree-l2"><a class="reference internal" href="create-widget-pixieapp.html">Creating a Widget</a></li>
 <li class="toctree-l2"><a class="reference internal" href="hello-world-data-pixieapp.html">Hello World with Data</a></li>

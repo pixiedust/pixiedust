@@ -1,7 +1,7 @@
 Custom HTML Attributes
 ======================
 
-The PixieDust JS runtime listens to click events on any HTML element that has one or more of the custom attributes below, and then transforms the attribute values into a kernel request. The following section describes all the custom attributes available, and how they affect the kernel request executed when a click event is received.
+The PixieDust JS runtime listens to click events on any HTML element that has one or more of the custom attributes below, and then transforms the attribute values into a kernel request. The following section describes all the custom attributes available, and how they affect the kernel request executed when a click event is received. 
 
 pd_options
 **********
@@ -16,7 +16,7 @@ pd_entity
 *********
 Use the pd_entity attribute only if you want to invoke the display() API on specific data. In this case, pd_options must be display-options-specific to the visualization you want to show. The output will be returned by display(), but without the `UI chrome <https://en.wikipedia.org/wiki/Graphical_user_interface#User_interface_and_interaction_design>`_. The value of pd_entity is interpreted as a field to the PixieApp class, e.g., ``pd_entity="filteredDataFrame"``, and requires that the PixieApp instance has a field named filteredDataFrame. If the field is not present, then an error will be raised.
 
-.. Note:: the entity passed by the caller in the run method is stored in a special field called ``pixieapp_entity``. Therefore, using ``pd_entity="pixieapp_entity"`` will direct PixieDust to use the entity passed by the caller. For convenience, the user can also simply use ``pd_entity`` (without any value) to do the same thing.
+.. Note:: the entity passed by the caller in the run method is stored in a special field called ``pixieapp_entity``. Therefore, using ``pd_entity="pixieapp_entity"`` will direct PixieDust to use the entity passed by the caller. For convenience, the user can also simply use pd_entity (without any value) to do the same thing.
 
 pd_target
 *********
@@ -48,7 +48,8 @@ PixieDust lets you run arbitrary Python code using the ``pd_script`` attribute. 
 
 pd_refresh
 ***********
+When you only have the pd_script attribute without pd_target, PixieDust will not refresh the output but will simply execute the pd_script. Using ``pd_refresh`` will force the output to refresh with the current view.
 
 pd_norefresh
 ************
-
+Similar to pd_refresh, ``pd_norefresh`` forces PixieDust to not refresh the current output target.

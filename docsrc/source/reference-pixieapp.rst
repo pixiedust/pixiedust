@@ -1,9 +1,13 @@
 Reference
 =========
 
-**@PixieApp:** Python class annotation to denote that a class is a PixieApp. 
+@PixieApp
+*********
+Python class annotation to denote that a class is a PixieApp.   
 
-**@route:** Python method annotation to denote that a method is a view. The contract is that when a method is annotated as a route, it must provide an HTML fragment for the framework to display.
+@route
+******
+Python method annotation to denote that a method is a view. The contract is that when a method is annotated as a route, it must provide an HTML fragment for the framework to display.
 
 The default view must have a route with no arguments e.g. `@route()`. Any other route can have multiple key-value pairs, e.g., ``@route(clicked="true", state1="foo")``. When executing a kernel request, the PixieApp dispatcher will try to find the best view match based on its route arguments according to the following rules:
 

@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Hello World &#8212; PixieDust Documentation</title>
+    <title>Dynamic Values &#8212; PixieDust Documentation</title>
     
     <link rel="stylesheet" href="_static/better.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -28,8 +28,8 @@
     <link rel="shortcut icon" href="_static/pd_icon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Reference" href="reference-pixieapp.html" />
-    <link rel="prev" title="PixieApps" href="pixieapps.html" />
+    <link rel="next" title="Creating a Widget" href="create-widget-pixieapp.html" />
+    <link rel="prev" title="Custom Elements" href="custom-elements-pixieapp.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   </head>
   <body role="document">
@@ -42,25 +42,37 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="hello-world">
-<h1>Hello World<a class="headerlink" href="#hello-world" title="Permalink to this headline">¶</a></h1>
-<p>The following sample PixieApp provides two simple views and their associated routes. The first view (default view) creates a button that, when clicked, will invoke the second view. The second view creates another button that redirects to the first view, and so on and so forth.</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pixiedust.display.app</span> <span class="k">import</span> <span class="o">*</span>
-<span class="nd">@PixieApp</span>
-<span class="k">class</span> <span class="nc">HelloWorldPixieApp</span><span class="p">:</span>
-    <span class="nd">@route</span><span class="p">()</span>
-    <span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span><span class="s2">&quot;&quot;&quot;</span>
-<span class="s2">            &lt;input pd_options=&quot;clicked=true&quot; type=&quot;button&quot; value=&quot;Click Me&quot;&gt;</span>
-<span class="s2">        &quot;&quot;&quot;</span>
-    <span class="nd">@route</span><span class="p">(</span><span class="n">clicked</span><span class="o">=</span><span class="s2">&quot;true&quot;</span><span class="p">)</span>
-    <span class="k">def</span> <span class="nf">_clicked</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="s2">&quot;&quot;&quot;</span>
-<span class="s2">            &lt;input pd_options=&quot;clicked=false&quot; type=&quot;button&quot; value=&quot;You Clicked, Now Go back&quot;&gt;</span>
-<span class="s2">        &quot;&quot;&quot;</span>
-<span class="c1">#run the app</span>
-<span class="n">HelloWorldPixieApp</span><span class="p">()</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">runInDialog</span><span class="o">=</span><span class="s1">&#39;false&#39;</span><span class="p">)</span>
+  <div class="section" id="dynamic-values">
+<h1>Dynamic Values<a class="headerlink" href="#dynamic-values" title="Permalink to this headline">¶</a></h1>
+<p>In some cases, you might want to include values that depend on client-side user input (e.g., write a pd_script that executes a query provided as input by the user). To do that, you can use the <code class="docutils literal"><span class="pre">&quot;$val(&lt;id&gt;)&quot;</span></code> directive, which acts as a macro that will be resolved at the time the kernel request is executed.</p>
+<p>&#8220;$val(&lt;id&gt;)&#8221; takes one argument that can be one of the following:</p>
+<ul class="simple">
+<li><strong>html element id:</strong> The macro is replaced by the value of the HTML element specified by the id. For example:</li>
+</ul>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">pd_script</span><span class="o">&gt;</span>
+<span class="bp">self</span><span class="o">.</span><span class="n">executeQuery</span><span class="p">(</span><span class="s2">&quot;$val(inputId)&quot;</span><span class="p">)</span>
+<span class="o">&lt;/</span><span class="n">pd_script</span><span class="o">&gt;</span>
 </pre></div>
+</div>
+<ul class="simple">
+<li><strong>JavaScript function:</strong> The macro is replaced by the value returned by the specified JavaScript function. For example:</li>
+</ul>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">script</span><span class="o">&gt;</span>
+<span class="n">function</span> <span class="n">resValue</span><span class="p">(){</span>
+  <span class="k">return</span> <span class="s2">&quot;my_query&quot;</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="o">&lt;/</span><span class="n">script</span><span class="o">&gt;</span>
+
+<span class="o">...</span>
+
+<span class="o">&lt;</span><span class="n">pd_script</span><span class="o">&gt;</span>
+<span class="bp">self</span><span class="o">.</span><span class="n">executeQuery</span><span class="p">(</span><span class="s2">&quot;$val(resValue)&quot;</span><span class="p">)</span>
+<span class="o">&lt;/</span><span class="n">pd_script</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">dynamic values are currently supported in <a class="reference external" href="html-attributes-pixieapp.html#pd-options">pd_options</a> and <a class="reference external" href="html-attributes-pixieapp.html#pd-script">pd_script</a>.</p>
 </div>
 </div>
 
@@ -75,11 +87,11 @@
 <li class="toctree-l1"><a class="reference internal" href="use.html">Use PixieDust</a></li>
 <li class="toctree-l1"><a class="reference internal" href="develop.html">Develop for PixieDust</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="pixieapps.html">PixieApps</a><ul class="current">
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Hello World</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hello-world-pixieapp.html">Hello World</a></li>
 <li class="toctree-l2"><a class="reference internal" href="reference-pixieapp.html">Reference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="html-attributes-pixieapp.html">Custom HTML Attributes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="custom-elements-pixieapp.html">Custom Elements</a></li>
-<li class="toctree-l2"><a class="reference internal" href="dynamic-values-pixieapp.html">Dynamic Values</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Dynamic Values</a></li>
 <li class="toctree-l2"><a class="reference internal" href="create-widget-pixieapp.html">Creating a Widget</a></li>
 <li class="toctree-l2"><a class="reference internal" href="hello-world-data-pixieapp.html">Hello World with Data</a></li>
 </ul>

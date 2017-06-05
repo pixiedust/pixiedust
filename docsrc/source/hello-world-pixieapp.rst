@@ -1,7 +1,7 @@
-Hello World PixieApp
-====================
+Hello World
+===========
 
-The following sample PixieApp provides two simple views and their associated routes. The first view (default view) creates a button that, when clicked, will invoke the second view. The second view creates another button that redirects to the first view, and so on and so forth. 
+The following sample PixieApp provides two simple views and their associated routes. The first view (default view) creates a button that, when clicked, will invoke the second view. The second view creates another button that redirects to the first view, and so on and so forth.  
 
 ::
 

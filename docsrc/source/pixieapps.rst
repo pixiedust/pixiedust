@@ -13,5 +13,9 @@ At its core, a PixieApp is composed of views (in the `MVC <https://en.wikipedia.
    :maxdepth: 2
 
    hello-world-pixieapp.rst
-   reference-pixieapps.rst
-   html-attributes-pixieapps.rst
+   reference-pixieapp.rst
+   html-attributes-pixieapp.rst
+   custom-elements-pixieapp.rst
+   dynamic-values-pixieapp.rst
+   create-widget-pixieapp.rst
+   hello-world-data-pixieapp.rst

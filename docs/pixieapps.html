@@ -28,7 +28,7 @@
     <link rel="shortcut icon" href="_static/pd_icon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Hello World PixieApp" href="hello-world-pixieapp.html" />
+    <link rel="next" title="Hello World" href="hello-world-pixieapp.html" />
     <link rel="prev" title="Test" href="test.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   </head>
@@ -50,17 +50,29 @@
 <p>At its core, a PixieApp is composed of views (in the <a class="reference external" href="https://en.wikipedia.org/wiki/Model%E2%80%93view%E2%80%93controller">MVC</a> sense), which are HTML fragments. Each view has a route definition (a set of key/value pairs) that the PixieApp framework uses to decide when to dispatch the current transaction based on current app state. You&#8217;ll find more details in the sub-topics here.</p>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="hello-world-pixieapp.html">Hello World PixieApp</a></li>
-<li class="toctree-l1"><a class="reference internal" href="reference-pixieapps.html">Reference</a></li>
-<li class="toctree-l1"><a class="reference internal" href="html-attributes-pixieapps.html">Custom HTML Attributes</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="html-attributes-pixieapps.html#pd-options">pd_options</a></li>
-<li class="toctree-l2"><a class="reference internal" href="html-attributes-pixieapps.html#pd-entity">pd_entity</a></li>
-<li class="toctree-l2"><a class="reference internal" href="html-attributes-pixieapps.html#pd-target">pd_target</a></li>
-<li class="toctree-l2"><a class="reference internal" href="html-attributes-pixieapps.html#pd-script">pd_script</a></li>
-<li class="toctree-l2"><a class="reference internal" href="html-attributes-pixieapps.html#pd-refresh">pd_refresh</a></li>
-<li class="toctree-l2"><a class="reference internal" href="html-attributes-pixieapps.html#pd-norefresh">pd_norefresh</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hello-world-pixieapp.html">Hello World</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reference-pixieapp.html">Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="reference-pixieapp.html#pixieapp">&#64;PixieApp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference-pixieapp.html#route">&#64;route</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="html-attributes-pixieapp.html">Custom HTML Attributes</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="html-attributes-pixieapp.html#pd-options">pd_options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="html-attributes-pixieapp.html#pd-entity">pd_entity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="html-attributes-pixieapp.html#pd-target">pd_target</a></li>
+<li class="toctree-l2"><a class="reference internal" href="html-attributes-pixieapp.html#pd-script">pd_script</a></li>
+<li class="toctree-l2"><a class="reference internal" href="html-attributes-pixieapp.html#pd-refresh">pd_refresh</a></li>
+<li class="toctree-l2"><a class="reference internal" href="html-attributes-pixieapp.html#pd-norefresh">pd_norefresh</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="custom-elements-pixieapp.html">Custom Elements</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="custom-elements-pixieapp.html#target">&lt;target&gt;</a></li>
+<li class="toctree-l2"><a class="reference internal" href="custom-elements-pixieapp.html#pd-script">&lt;pd_script&gt;</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="dynamic-values-pixieapp.html">Dynamic Values</a></li>
+<li class="toctree-l1"><a class="reference internal" href="create-widget-pixieapp.html">Creating a Widget</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hello-world-data-pixieapp.html">Hello World with Data</a></li>
 </ul>
 </div>
 </div>
@@ -76,9 +88,13 @@
 <li class="toctree-l1"><a class="reference internal" href="use.html">Use PixieDust</a></li>
 <li class="toctree-l1"><a class="reference internal" href="develop.html">Develop for PixieDust</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">PixieApps</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="hello-world-pixieapp.html">Hello World PixieApp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="reference-pixieapps.html">Reference</a></li>
-<li class="toctree-l2"><a class="reference internal" href="html-attributes-pixieapps.html">Custom HTML Attributes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hello-world-pixieapp.html">Hello World</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference-pixieapp.html">Reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="html-attributes-pixieapp.html">Custom HTML Attributes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="custom-elements-pixieapp.html">Custom Elements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dynamic-values-pixieapp.html">Dynamic Values</a></li>
+<li class="toctree-l2"><a class="reference internal" href="create-widget-pixieapp.html">Creating a Widget</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hello-world-data-pixieapp.html">Hello World with Data</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="releasenotes.html">Release Notes</a></li>

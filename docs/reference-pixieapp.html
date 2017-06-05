@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Hello World &#8212; PixieDust Documentation</title>
+    <title>Reference &#8212; PixieDust Documentation</title>
     
     <link rel="stylesheet" href="_static/better.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -28,8 +28,8 @@
     <link rel="shortcut icon" href="_static/pd_icon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Reference" href="reference-pixieapp.html" />
-    <link rel="prev" title="PixieApps" href="pixieapps.html" />
+    <link rel="next" title="Custom HTML Attributes" href="html-attributes-pixieapp.html" />
+    <link rel="prev" title="Hello World" href="hello-world-pixieapp.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   </head>
   <body role="document">
@@ -42,25 +42,32 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="hello-world">
-<h1>Hello World<a class="headerlink" href="#hello-world" title="Permalink to this headline">¶</a></h1>
-<p>The following sample PixieApp provides two simple views and their associated routes. The first view (default view) creates a button that, when clicked, will invoke the second view. The second view creates another button that redirects to the first view, and so on and so forth.</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pixiedust.display.app</span> <span class="k">import</span> <span class="o">*</span>
-<span class="nd">@PixieApp</span>
-<span class="k">class</span> <span class="nc">HelloWorldPixieApp</span><span class="p">:</span>
-    <span class="nd">@route</span><span class="p">()</span>
-    <span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span><span class="s2">&quot;&quot;&quot;</span>
-<span class="s2">            &lt;input pd_options=&quot;clicked=true&quot; type=&quot;button&quot; value=&quot;Click Me&quot;&gt;</span>
-<span class="s2">        &quot;&quot;&quot;</span>
-    <span class="nd">@route</span><span class="p">(</span><span class="n">clicked</span><span class="o">=</span><span class="s2">&quot;true&quot;</span><span class="p">)</span>
-    <span class="k">def</span> <span class="nf">_clicked</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="s2">&quot;&quot;&quot;</span>
-<span class="s2">            &lt;input pd_options=&quot;clicked=false&quot; type=&quot;button&quot; value=&quot;You Clicked, Now Go back&quot;&gt;</span>
-<span class="s2">        &quot;&quot;&quot;</span>
-<span class="c1">#run the app</span>
-<span class="n">HelloWorldPixieApp</span><span class="p">()</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">runInDialog</span><span class="o">=</span><span class="s1">&#39;false&#39;</span><span class="p">)</span>
-</pre></div>
+  <div class="section" id="reference">
+<h1>Reference<a class="headerlink" href="#reference" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="pixieapp">
+<h2>&#64;PixieApp<a class="headerlink" href="#pixieapp" title="Permalink to this headline">¶</a></h2>
+<p>Python class annotation to denote that a class is a PixieApp.</p>
+</div>
+<div class="section" id="route">
+<h2>&#64;route<a class="headerlink" href="#route" title="Permalink to this headline">¶</a></h2>
+<p>Python method annotation to denote that a method is a view. The contract is that when a method is annotated as a route, it must provide an HTML fragment for the framework to display.</p>
+<p>The default view must have a route with no arguments e.g. <cite>&#64;route()</cite>. Any other route can have multiple key-value pairs, e.g., <code class="docutils literal"><span class="pre">&#64;route(clicked=&quot;true&quot;,</span> <span class="pre">state1=&quot;foo&quot;)</span></code>. When executing a kernel request, the PixieApp dispatcher will try to find the best view match based on its route arguments according to the following rules:</p>
+<ul class="simple">
+<li>The routes with the most arguments are always evaluated first.</li>
+<li>All arguments must match for a route to be selected.</li>
+<li>If the route is not found, then the default route is selected.</li>
+<li>Each key of the route arguments can be either a transient state (options passed for the duration of the request) or persisted (field of the PixieApp class that remains present until explicitly changed).</li>
+</ul>
+<p><strong>Contract for the method defined as a view:</strong> The method must provide an HTML fragment that can contain Jinja2 templating constructs (see <a class="reference external" href="http://jinja.pocoo.org/docs/dev/templates/">http://jinja.pocoo.org/docs/dev/templates/</a> for more details on Jinja2 templating).</p>
+<p>There are two ways of supplying these fragments:</p>
+<ol class="arabic simple">
+<li>Simply return a static string with the HTML fragment.</li>
+<li>Use either <code class="docutils literal"><span class="pre">self._addHTMLTemplate</span></code> or <code class="docutils literal"><span class="pre">self._addHTMLTemplateString</span></code>. Use one of these methods when you want to pass custom arguments to the Jinja2 template interpreter.</li>
+</ol>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">passing custom arguments to Jinja2 is an advanced feature that is rarely needed.</p>
+</div>
 </div>
 </div>
 
@@ -75,8 +82,8 @@
 <li class="toctree-l1"><a class="reference internal" href="use.html">Use PixieDust</a></li>
 <li class="toctree-l1"><a class="reference internal" href="develop.html">Develop for PixieDust</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="pixieapps.html">PixieApps</a><ul class="current">
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Hello World</a></li>
-<li class="toctree-l2"><a class="reference internal" href="reference-pixieapp.html">Reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hello-world-pixieapp.html">Hello World</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Reference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="html-attributes-pixieapp.html">Custom HTML Attributes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="custom-elements-pixieapp.html">Custom Elements</a></li>
 <li class="toctree-l2"><a class="reference internal" href="dynamic-values-pixieapp.html">Dynamic Values</a></li>
