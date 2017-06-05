@@ -80,7 +80,7 @@ class MapboxBase():
     def loadGeoJSON(self, url):
         def filterFeature(f):
             for key,value in iteritems(f):
-                if "'" in value:
+                if value is None or "'" in value:
                     return True
             return False
         payload = requests.get(url).json()
