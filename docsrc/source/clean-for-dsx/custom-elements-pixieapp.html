@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+ <head>
+  <meta/>
+  <meta/>
+  <title>
+   Custom Elements
+  </title>
+ </head>
+ <body>
+  <div>
+   <h1>
+    Custom Elements
+   </h1>
+   <div>
+    <h1>
+     &lt;target&gt;
+    </h1>
+    <p>
+     Child element to the clickable source element.
+     <code>
+      &lt;target&gt;
+     </code>
+     can have any of the
+     <a href="html-attributes-pixieapps.html">
+      custom PixieApp HTML attributes
+     </a>
+     defined above. For example:
+    </p>
+    <pre>&lt;button type="button"&gt;Multiple Targets      &lt;target pd_target="target{{prefix}}"          pd_entity          pd_options="handlerId=dataFrame"/&gt;      &lt;target pd_target="target2{{prefix}}"          pd_entity          pd_options="keyFields=zone;aggregation=AVG;handlerId=barChart;valueFields=unique_customers;rowCount=100/"&gt;&lt;/button&gt;</pre>
+   </div>
+   <div>
+    <h1>
+     &lt;pd_script&gt;
+    </h1>
+    <p>
+     Contains Python code as child text. It has the same meaning as the pd_script attribute, except that it can contain multiple lines of Python code. Because indentation is important in Python, be careful to not have empty space in your code---regardless of the indentation level of your HTML markup. For example:
+    </p>
+    <pre>  &lt;pd_script&gt;import jsonprint(json.dumps(self.myJson)  &lt;/pd_script&gt;</pre>
+   </div>
+  </div>
+ </body>
+</html>

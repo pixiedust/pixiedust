@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+ <head>
+  <meta/>
+  <meta/>
+  <title>
+   Hello World with Data
+  </title>
+ </head>
+ <body>
+  <div>
+   <h1>
+    Hello World with Data
+   </h1>
+   <p>
+    The following sample PixieApp simplifies the mechanics of loading and visualizing data. When run successfully, you'll see a preview button appear in the same area as your Jupyter input cell. Clicking the button will display the data as a table.
+   </p>
+   <pre>from pixiedust.display.app import *@PixieAppclass HelloWorldPixieAppWithData:    @route()    def main(self):        return"""        &lt;div class="row"&gt;           &lt;div class="col-sm-2"&gt;              &lt;input pd_options="handlerId=dataframe"                     pd_entity                     pd_target="target{{prefix}}"                     type="button" value="Preview Data"&gt;           &lt;/div&gt;           &lt;div class="col-sm-10" id="target{{prefix}}"/&gt;        &lt;/div&gt;        """#Create dataframedf = SQLContext(sc).createDataFrame([(2010, 'Camping Equipment', 3, 200),(2010, 'Camping Equipment', 10, 200),(2010, 'Golf Equipment', 1, 240), (2010, 'Mountaineering Equipment', 1, 348),(2010, 'Outdoor Protection',2,200),(2010, 'Personal Accessories', 2, 200), (2011, 'Camping Equipment', 4, 489),(2011, 'Golf Equipment', 5, 234),(2011, 'Mountaineering Equipment',2, 123), (2011, 'Outdoor Protection', 4, 654),(2011, 'Personal Accessories', 2, 234),(2012, 'Camping Equipment', 5, 876), (2012, 'Golf Equipment', 5, 200),(2012, 'Mountaineering Equipment', 3, 156),(2012, 'Outdoor Protection', 5, 200), (2012, 'Personal Accessories', 3, 345),(2013, 'Camping Equipment', 8, 987),(2013, 'Golf Equipment', 5, 434), (2013, 'Mountaineering Equipment', 3, 278),(2013, 'Outdoor Protection', 8, 134),(2013,'Personal Accessories',4, 200)], ["year","zone","unique_customers", "revenue"])#run the appHelloWorldPixieAppWithData().run(df, runInDialog='false')</pre>
+  </div>
+ </body>
+</html>

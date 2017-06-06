@@ -1,0 +1,119 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Reference &#8212; PixieDust Documentation</title>
+    
+    <link rel="stylesheet" href="_static/better.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="shortcut icon" href="_static/pd_icon.ico"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Custom HTML Attributes" href="html-attributes-pixieapp.html" />
+    <link rel="prev" title="Hello World" href="hello-world-pixieapp.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  </head>
+  <body role="document">
+    <header id="pageheader"><h1><a href="index.html ">
+        PixieDust Documentation
+    </a></h1></header>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="reference">
+<h1>Reference<a class="headerlink" href="#reference" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="pixieapp">
+<h2>&#64;PixieApp<a class="headerlink" href="#pixieapp" title="Permalink to this headline">¶</a></h2>
+<p>Python class annotation to denote that a class is a PixieApp.</p>
+</div>
+<div class="section" id="route">
+<h2>&#64;route<a class="headerlink" href="#route" title="Permalink to this headline">¶</a></h2>
+<p>Python method annotation to denote that a method is a view. The contract is that when a method is annotated as a route, it must provide an HTML fragment for the framework to display.</p>
+<p>The default view must have a route with no arguments e.g. <cite>&#64;route()</cite>. Any other route can have multiple key-value pairs, e.g., <code class="docutils literal"><span class="pre">&#64;route(clicked=&quot;true&quot;,</span> <span class="pre">state1=&quot;foo&quot;)</span></code>. When executing a kernel request, the PixieApp dispatcher will try to find the best view match based on its route arguments according to the following rules:</p>
+<ul class="simple">
+<li>The routes with the most arguments are always evaluated first.</li>
+<li>All arguments must match for a route to be selected.</li>
+<li>If the route is not found, then the default route is selected.</li>
+<li>Each key of the route arguments can be either a transient state (options passed for the duration of the request) or persisted (field of the PixieApp class that remains present until explicitly changed).</li>
+</ul>
+<p><strong>Contract for the method defined as a view:</strong> The method must provide an HTML fragment that can contain Jinja2 templating constructs (see <a class="reference external" href="http://jinja.pocoo.org/docs/dev/templates/">http://jinja.pocoo.org/docs/dev/templates/</a> for more details on Jinja2 templating).</p>
+<p>There are two ways of supplying these fragments:</p>
+<ol class="arabic simple">
+<li>Simply return a static string with the HTML fragment.</li>
+<li>Use either <code class="docutils literal"><span class="pre">self._addHTMLTemplate</span></code> or <code class="docutils literal"><span class="pre">self._addHTMLTemplateString</span></code>. Use one of these methods when you want to pass custom arguments to the Jinja2 template interpreter.</li>
+</ol>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">passing custom arguments to Jinja2 is an advanced feature that is rarely needed.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="index.html">Table Of Contents</a></h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="use.html">Use PixieDust</a></li>
+<li class="toctree-l1"><a class="reference internal" href="develop.html">Develop for PixieDust</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="pixieapps.html">PixieApps</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="hello-world-pixieapp.html">Hello World</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="html-attributes-pixieapp.html">Custom HTML Attributes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="custom-elements-pixieapp.html">Custom Elements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dynamic-values-pixieapp.html">Dynamic Values</a></li>
+<li class="toctree-l2"><a class="reference internal" href="create-widget-pixieapp.html">Creating a Widget</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hello-world-data-pixieapp.html">Hello World with Data</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="releasenotes.html">Release Notes</a></li>
+</ul>
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+  <footer id="pagefooter">&copy; 2017, IBM.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a>
+      1.5.6.
+
+  </footer>
+
+  
+  </body>
+</html>

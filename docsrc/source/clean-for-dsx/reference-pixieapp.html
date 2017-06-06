@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+ <head>
+  <meta/>
+  <meta/>
+  <title>
+   Reference
+  </title>
+ </head>
+ <body>
+  <div>
+   <h1>
+    Reference
+   </h1>
+   <div>
+    <h1>
+     @PixieApp
+    </h1>
+    <p>
+     Python class annotation to denote that a class is a PixieApp.
+    </p>
+   </div>
+   <div>
+    <h1>
+     @route
+    </h1>
+    <p>
+     Python method annotation to denote that a method is a view. The contract is that when a method is annotated as a route, it must provide an HTML fragment for the framework to display.
+    </p>
+    <p>
+     The default view must have a route with no arguments e.g.
+     <cite>
+      @route()
+     </cite>
+     . Any other route can have multiple key-value pairs, e.g.,
+     <code>
+      <span>
+       @route(clicked="true",
+      </span>
+      <span>
+       state1="foo")
+      </span>
+     </code>
+     . When executing a kernel request, the PixieApp dispatcher will try to find the best view match based on its route arguments according to the following rules:
+    </p>
+    <ul>
+     <li>
+      <p>
+       The routes with the most arguments are always evaluated first.
+      </p>
+     </li>
+     <li>
+      <p>
+       All arguments must match for a route to be selected.
+      </p>
+     </li>
+     <li>
+      <p>
+       If the route is not found, then the default route is selected.
+      </p>
+     </li>
+     <li>
+      <p>
+       Each key of the route arguments can be either a transient state (options passed for the duration of the request) or persisted (field of the PixieApp class that remains present until explicitly changed).
+      </p>
+     </li>
+    </ul>
+    <p>
+     <strong>
+      Contract for the method defined as a view:
+     </strong>
+     The method must provide an HTML fragment that can contain Jinja2 templating constructs (see
+     <a href="http://jinja.pocoo.org/docs/dev/templates/">
+      http://jinja.pocoo.org/docs/dev/templates/
+     </a>
+     for more details on Jinja2 templating).
+    </p>
+    <p>
+     There are two ways of supplying these fragments:
+    </p>
+    <ol>
+     <li>
+      <p>
+       Simply return a static string with the HTML fragment.
+      </p>
+     </li>
+     <li>
+      <p>
+       Use either
+       <code>
+        self._addHTMLTemplate
+       </code>
+       or
+       <code>
+        self._addHTMLTemplateString
+       </code>
+       . Use one of these methods when you want to pass custom arguments to the Jinja2 template interpreter.
+      </p>
+     </li>
+    </ol>
+    <div>
+     <p>
+      Note
+     </p>
+     <p>
+      passing custom arguments to Jinja2 is an advanced feature that is rarely needed.
+     </p>
+    </div>
+   </div>
+  </div>
+ </body>
+</html>

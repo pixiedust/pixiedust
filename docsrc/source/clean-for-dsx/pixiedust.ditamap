@@ -19,7 +19,18 @@
 		<topicref format="html" scope="peer" navtitle="Build a Renderer" href="renderer.html"></topicref>
 		<topicref format="html" scope="peer" navtitle="Test" href="test.html"></topicref>
 	</topicref>
+	<topicref format="html" scope="peer" navtitle="PixieApps" href="pixieapps.html">
+		<topicref format="html" scope="peer" navtitle="Hello World" href="hello-world-pixieapp.html"></topicref>
+		<topicref format="html" scope="peer" navtitle="Reference" href="reference-pixieapp.html"></topicref>
+		<topicref format="html" scope="peer" navtitle="Custom HTML Attributes" href="html-attributes-pixieapp.html"></topicref>
+		<topicref format="html" scope="peer" navtitle="Custom Elements" href="custom-elements-pixieapp.html"></topicref>
+		<topicref format="html" scope="peer" navtitle="Dynamic Values" href="dynamic-values-pixieapp.html"></topicref>
+		<topicref format="html" scope="peer" navtitle="Creating a Widget" href="create-widget-pixieapp.html"></topicref>
+		<topicref format="html" scope="peer" navtitle="Hello World with Data" href="hello-world-data-pixieapp.html"></topicref>
+	</topicref>
 	<topicref format="html" scope="peer" navtitle="Release Notes" href="releasenotes.html">
 		<topicref format="html" scope="peer" navtitle="1.0.4" href="1-0-4.html"></topicref>
+		<topicref format="html" scope="peer" navtitle="1.0.5" href="1-0-5.html"></topicref>
+		<topicref format="html" scope="peer" navtitle="1.0.6" href="1-0-5.html"></topicref>
 	</topicref>
 </map>
