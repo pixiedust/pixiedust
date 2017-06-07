@@ -34,7 +34,9 @@
      </p>
     </li>
    </ul>
-   <pre>&lt;pd_script&gt;self.executeQuery("$val(inputId)")&lt;/pd_script&gt;</pre>
+   <pre>&lt;pd_script&gt;
+self.executeQuery("$val(inputId)")
+&lt;/pd_script&gt;</pre>
    <ul>
     <li>
      <p>
@@ -45,7 +47,17 @@
      </p>
     </li>
    </ul>
-   <pre>&lt;script&gt;function resValue(){  return "my_query";}&lt;/script&gt;...&lt;pd_script&gt;self.executeQuery("$val(resValue)")&lt;/pd_script&gt;</pre>
+   <pre>&lt;script&gt;
+function resValue(){
+  return "my_query";
+}
+&lt;/script&gt;
+
+...
+
+&lt;pd_script&gt;
+self.executeQuery("$val(resValue)")
+&lt;/pd_script&gt;</pre>
    <div>
     <p>
      Note

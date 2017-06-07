@@ -19,6 +19,12 @@ for fn in os.listdir('.') :
 
             for line in fh :
                 words = line.split()
+                #if '::' in words :
+                    #nextline = next(fh)
+                    #print(nextline)
+                    #while (nextline and nextline.startswith('  ')) :
+                        #print (nextline, end='', file=writeOut,)
+                        #nextline = next(fh)
                 if ("container::" or "raw::") in words :
                     continue
                 if source == "index.rst" and (("Get" in words and "Started" in words) or "-----------" in words) :
@@ -27,6 +33,7 @@ for fn in os.listdir('.') :
                     break
                 else :
                     print (line, end='', file=writeOut,)
+                    #print (line, end='',)
 
             fh.close()
             writeOut.close()
@@ -42,7 +49,8 @@ for fn in os.listdir('clean-for-dsx') :
 
         if tmp[1] == ".html" :
             fh = open(filePath)
-            data=fh.read().replace('\n', '')
+            #data=fh.read().replace('\n', '')
+            data=fh.read()
             fh.close()
 
             soup = BeautifulSoup(data, "lxml")

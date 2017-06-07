@@ -27,7 +27,14 @@
      </a>
      defined above. For example:
     </p>
-    <pre>&lt;button type="button"&gt;Multiple Targets      &lt;target pd_target="target{{prefix}}"          pd_entity          pd_options="handlerId=dataFrame"/&gt;      &lt;target pd_target="target2{{prefix}}"          pd_entity          pd_options="keyFields=zone;aggregation=AVG;handlerId=barChart;valueFields=unique_customers;rowCount=100/"&gt;&lt;/button&gt;</pre>
+    <pre>&lt;button type="button"&gt;Multiple Targets
+      &lt;target pd_target="target{{prefix}}"
+          pd_entity
+          pd_options="handlerId=dataFrame"/&gt;
+      &lt;target pd_target="target2{{prefix}}"
+          pd_entity
+          pd_options="keyFields=zone;aggregation=AVG;handlerId=barChart;valueFields=unique_customers;rowCount=100/"&gt;
+&lt;/button&gt;</pre>
    </div>
    <div>
     <h1>
@@ -36,7 +43,10 @@
     <p>
      Contains Python code as child text. It has the same meaning as the pd_script attribute, except that it can contain multiple lines of Python code. Because indentation is important in Python, be careful to not have empty space in your code---regardless of the indentation level of your HTML markup. For example:
     </p>
-    <pre>  &lt;pd_script&gt;import jsonprint(json.dumps(self.myJson)  &lt;/pd_script&gt;</pre>
+    <pre>  &lt;pd_script&gt;
+import json
+print(json.dumps(self.myJson)
+  &lt;/pd_script&gt;</pre>
    </div>
   </div>
  </body>

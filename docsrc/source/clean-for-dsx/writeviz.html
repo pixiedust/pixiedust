@@ -157,7 +157,23 @@
        :
       </p>
       <blockquote>
-       <pre>@PixiedustDisplay(isDefault=True)class TableDisplayMeta(DisplayHandlerMeta):  @addId  def getMenuInfo(self,entity, dataHandler):      if dataFrameMisc.isPySparkDataFrame(entity) or dataFrameMisc.isPandasDataFrame(entity):          return [              {"categoryId": "Table", "title": "DataFrame Table", "icon": "fa-table", "id": "dataframe"}          ]      elif dataFrameMisc.fqName(entity) == "graphframes.graphframe.GraphFrame":          return [              {"categoryId": "Table", "title": "Graph Vertices", "icon": "fa-location-arrow", "id":"vertices"},              {"categoryId": "Table", "title": "Graph Edges", "icon": "fa-link", "id":"edges"}         ]      else:          return []  def newDisplayHandler(self,options,entity):      return TableDisplay(options,entity)</pre>
+       <pre>@PixiedustDisplay(isDefault=True)
+class TableDisplayMeta(DisplayHandlerMeta):
+  @addId
+  def getMenuInfo(self,entity, dataHandler):
+      if dataFrameMisc.isPySparkDataFrame(entity) or dataFrameMisc.isPandasDataFrame(entity):
+          return [
+              {"categoryId": "Table", "title": "DataFrame Table", "icon": "fa-table", "id": "dataframe"}
+          ]
+      elif dataFrameMisc.fqName(entity) == "graphframes.graphframe.GraphFrame":
+          return [
+              {"categoryId": "Table", "title": "Graph Vertices", "icon": "fa-location-arrow", "id":"vertices"},
+              {"categoryId": "Table", "title": "Graph Edges", "icon": "fa-link", "id":"edges"}
+         ]
+      else:
+          return []
+  def newDisplayHandler(self,options,entity):
+      return TableDisplay(options,entity)</pre>
       </blockquote>
       <p>
        Here you see that class
@@ -281,7 +297,22 @@
        .
       </p>
       <blockquote>
-       <pre>class TableDisplay(Display):    def doRender(self, handlerId):        entity=self.entity        if dataFrameMisc.fqName(entity) == "graphframes.graphframe.GraphFrame":            if handlerId == "edges":                entity=entity.edges            else:                entity=entity.vertices        if dataFrameMisc.isPySparkDataFrame(entity) or dataFrameMisc.isPandasDataFrame(entity):            self._addHTMLTemplate('dataframeTable.html', entity=PandasDataFrameAdapter(entity))            return        self._addHTML("""            &lt;b&gt;Unable to display object&lt;/b&gt;        """        )</pre>
+       <pre>class TableDisplay(Display):
+    def doRender(self, handlerId):
+        entity=self.entity
+        if dataFrameMisc.fqName(entity) == "graphframes.graphframe.GraphFrame":
+            if handlerId == "edges":
+                entity=entity.edges
+            else:
+                entity=entity.vertices
+        if dataFrameMisc.isPySparkDataFrame(entity) or dataFrameMisc.isPandasDataFrame(entity):
+            self._addHTMLTemplate('dataframeTable.html', entity=PandasDataFrameAdapter(entity))
+            return
+
+        self._addHTML("""
+            &lt;b&gt;Unable to display object&lt;/b&gt;
+        """
+        )</pre>
       </blockquote>
      </blockquote>
      <p>
@@ -386,7 +417,8 @@
      Now that you've seen how PixieDust works, let's build a very simple second table display tool. You'll need to do 3 things:
     </p>
     <p>
-     1. Add a menu item and hook it to your code3. Transform the DataFrame into something a web browser can display (HTML in our case, but it could be SVG, a PDF or something more exotic) using Jinja2 HTML templating
+     1. Add a menu item and hook it to your code
+3. Transform the DataFrame into something a web browser can display (HTML in our case, but it could be SVG, a PDF or something more exotic) using Jinja2 HTML templating
     </p>
     <div>
      <h2>
@@ -412,7 +444,22 @@
       Then create the file SimpleDisplayMeta.py and enter this code:
      </p>
      <blockquote>
-      <pre>from .SimpleDisplay import SimpleDisplayfrom ..display import *import pixiedust.utils.dataFrameMisc as dataFrameMisc@PixiedustDisplay()class SimpleDisplayMeta(DisplayHandlerMeta):   @addId   def getMenuInfo(self,entity,dataHandler):        if dataFrameMisc.isPySparkDataFrame(entity) or dataFrameMisc.isPandasDataFrame(entity):           return [               {"categoryId": "Table", "title": "Simple Table", "icon": "fa-table", "id": "simpleTest"}           ]        else:      return []   def newDisplayHandler(self,options,entity):       return SimpleDisplay(options,entity)</pre>
+      <pre>from .SimpleDisplay import SimpleDisplay
+from ..display import *
+import pixiedust.utils.dataFrameMisc as dataFrameMisc
+
+@PixiedustDisplay()
+class SimpleDisplayMeta(DisplayHandlerMeta):
+   @addId
+   def getMenuInfo(self,entity,dataHandler):
+        if dataFrameMisc.isPySparkDataFrame(entity) or dataFrameMisc.isPandasDataFrame(entity):
+           return [
+               {"categoryId": "Table", "title": "Simple Table", "icon": "fa-table", "id": "simpleTest"}
+           ]
+        else:
+      return []
+   def newDisplayHandler(self,options,entity):
+       return SimpleDisplay(options,entity)</pre>
      </blockquote>
      <p>
       As described earlier, the method
@@ -453,7 +500,22 @@
       , and enter this code:
      </p>
      <blockquote>
-      <pre>from ..display import *from pyspark.sql import DataFramefrom pixiedust.utils.dataFrameAdapter import *import pixiedust.utils.dataFrameMisc as dataFrameMiscclass SimpleDisplay(Display):    def doRender(self, handlerId):        entity=self.entity        if dataFrameMisc.isPySparkDataFrame(entity) or dataFrameMisc.isPandasDataFrame(entity):            self._addHTMLTemplate('simpleTable.html', entity=PandasDataFrameAdapter(entity))            return        self._addHTML("""            &lt;b&gt;Unable to display object&lt;/b&gt;        """        )</pre>
+      <pre>from ..display import *
+from pyspark.sql import DataFrame
+from pixiedust.utils.dataFrameAdapter import *
+import pixiedust.utils.dataFrameMisc as dataFrameMisc
+
+class SimpleDisplay(Display):
+    def doRender(self, handlerId):
+        entity=self.entity
+        if dataFrameMisc.isPySparkDataFrame(entity) or dataFrameMisc.isPandasDataFrame(entity):
+            self._addHTMLTemplate('simpleTable.html', entity=PandasDataFrameAdapter(entity))
+            return
+
+        self._addHTML("""
+            &lt;b&gt;Unable to display object&lt;/b&gt;
+        """
+        )</pre>
      </blockquote>
      <p>
       All you're really doing here is defining a mechanism to call the right Jinja template --
@@ -467,7 +529,22 @@
       directory -- for processing the data. Once you're working on the template, the sky's the limit for what you can do. But just to finish out this example, here's some extremely simple code you can add there:
      </p>
      <blockquote>
-      <pre>&lt;table class="table table-striped"&gt;   &lt;thead&gt;       {%for field in entity.schema.fields%}       &lt;th&gt;{{field.name}}&lt;/th&gt;       {%endfor%}   &lt;/thead&gt;   &lt;tbody&gt;       {%for row in entity.take(100)%}       &lt;tr&gt;           {%for field in entity.schema.fields%}           &lt;td&gt;{{row[field.name]}}&lt;/td&gt;           {%endfor%}       &lt;/tr&gt;       {%endfor%}   &lt;/tbody&gt;&lt;/table&gt;</pre>
+      <pre>&lt;table class="table table-striped"&gt;
+   &lt;thead&gt;
+       {%for field in entity.schema.fields%}
+       &lt;th&gt;{{field.name}}&lt;/th&gt;
+       {%endfor%}
+   &lt;/thead&gt;
+   &lt;tbody&gt;
+       {%for row in entity.take(100)%}
+       &lt;tr&gt;
+           {%for field in entity.schema.fields%}
+           &lt;td&gt;{{row[field.name]}}&lt;/td&gt;
+           {%endfor%}
+       &lt;/tr&gt;
+       {%endfor%}
+   &lt;/tbody&gt;
+&lt;/table&gt;</pre>
      </blockquote>
      <div>
       <h3>
