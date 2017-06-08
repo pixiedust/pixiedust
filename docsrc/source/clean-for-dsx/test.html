@@ -88,7 +88,24 @@
        </p>
       </li>
      </ol>
-     <pre>{  "name": "pixiedust test",  "type": "python",  "request": "launch",  "stopOnEntry": false,  "pythonPath": "${config.python.pythonPath}",  "program": "${workspaceRoot}/tests/runPixiedustNotebooks.py",  "console": "integratedTerminal",  "debugOptions": [    "WaitOnAbnormalExit",    "WaitOnNormalExit"  ],  "env": {    "SPARK_HOME": "/Users/path/to/spark",    "SCALA_HOME": "/Users/path/to/scala",    "PIXIEDUST_TEST_INPUT": "${workspaceRoot}/tests"  }}</pre>
+     <pre>{
+  "name": "pixiedust test",
+  "type": "python",
+  "request": "launch",
+  "stopOnEntry": false,
+  "pythonPath": "${config.python.pythonPath}",
+  "program": "${workspaceRoot}/tests/runPixiedustNotebooks.py",
+  "console": "integratedTerminal",
+  "debugOptions": [
+    "WaitOnAbnormalExit",
+    "WaitOnNormalExit"
+  ],
+  "env": {
+    "SPARK_HOME": "/Users/path/to/spark",
+    "SCALA_HOME": "/Users/path/to/scala",
+    "PIXIEDUST_TEST_INPUT": "${workspaceRoot}/tests"
+  }
+}</pre>
      <p>
       Update the
       <code>
@@ -147,7 +164,9 @@
        </p>
       </li>
      </ol>
-     <pre>SPARK_HOME=/Users/path/to/sparkSCALA_HOME=/Users/path/to/scalaPIXIEDUST_TEST_INPUT=/Users/path/to/test/notebooks</pre>
+     <pre>SPARK_HOME=/Users/path/to/spark
+SCALA_HOME=/Users/path/to/scala
+PIXIEDUST_TEST_INPUT=/Users/path/to/test/notebooks</pre>
      <ol>
       <li>
        <p>

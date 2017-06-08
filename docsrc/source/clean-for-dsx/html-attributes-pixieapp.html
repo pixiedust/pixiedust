@@ -116,7 +116,8 @@
      </code>
      to specify a target element that will receive the output. (Of course the elementId must exist in the current view.) For example:
     </p>
-    <pre>&lt;div id="myTarget{{prefix}}"/&gt;&lt;input type="button" pd_options="handlerId=dataframe" pd_entity pd_target="myTarget{{prefix}}" value="click me"/&gt;</pre>
+    <pre>&lt;div id="myTarget{{prefix}}"/&gt;
+&lt;input type="button" pd_options="handlerId=dataframe" pd_entity pd_target="myTarget{{prefix}}" value="click me"/&gt;</pre>
     <p>
      In the example above, we define a placeholder div with id
      <code>
@@ -171,7 +172,8 @@
      </code>
      . pd_script can be used even if pd_entity is used. In this case, the Python script will be executed before the display() call. This behavior can be useful, for example, in creating a sub entity that will be used in the display() call. For example:
     </p>
-    <pre>&lt;div id="myTarget{{prefix}}"/&gt;&lt;input type="button" pd_options="handlerId=dataframe" pd_entity="filteredDataFrame" pd_script="self.filteredDataFrame=self.createFilteredDataFrame()" pd_target="myTarget{{prefix}}" value="click me"/&gt;</pre>
+    <pre>&lt;div id="myTarget{{prefix}}"/&gt;
+&lt;input type="button" pd_options="handlerId=dataframe" pd_entity="filteredDataFrame" pd_script="self.filteredDataFrame=self.createFilteredDataFrame()" pd_target="myTarget{{prefix}}" value="click me"/&gt;</pre>
     <div>
      <p>
       Note
