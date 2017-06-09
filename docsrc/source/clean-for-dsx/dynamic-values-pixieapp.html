@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+ <head>
+  <meta/>
+  <meta/>
+  <title>
+   Dynamic Values
+  </title>
+ </head>
+ <body>
+  <div>
+   <h1>
+    Dynamic Values
+   </h1>
+   <p>
+    In some cases, you might want to include values that depend on client-side user input (e.g., write a pd_script that executes a query provided as input by the user). To do that, you can use the
+    <code>
+     <span>
+      "$val(&lt;id&gt;)"
+     </span>
+    </code>
+    directive, which acts as a macro that will be resolved at the time the kernel request is executed.
+   </p>
+   <p>
+    "$val(&lt;id&gt;)" takes one argument that can be one of the following:
+   </p>
+   <ul>
+    <li>
+     <p>
+      <strong>
+       html element id:
+      </strong>
+      The macro is replaced by the value of the HTML element specified by the id. For example:
+     </p>
+    </li>
+   </ul>
+   <pre>&lt;pd_script&gt;
+self.executeQuery("$val(inputId)")
+&lt;/pd_script&gt;</pre>
+   <ul>
+    <li>
+     <p>
+      <strong>
+       JavaScript function:
+      </strong>
+      The macro is replaced by the value returned by the specified JavaScript function. For example:
+     </p>
+    </li>
+   </ul>
+   <pre>&lt;script&gt;
+function resValue(){
+  return "my_query";
+}
+&lt;/script&gt;
+
+...
+
+&lt;pd_script&gt;
+self.executeQuery("$val(resValue)")
+&lt;/pd_script&gt;</pre>
+   <div>
+    <p>
+     Note
+    </p>
+    <p>
+     dynamic values are currently supported in
+     <a href="html-attributes-pixieapp.html#pd-options">
+      pd_options
+     </a>
+     and
+     <a href="html-attributes-pixieapp.html#pd-script">
+      pd_script
+     </a>
+     .
+    </p>
+   </div>
+  </div>
+ </body>
+</html>

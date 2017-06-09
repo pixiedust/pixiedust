@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html>
+ <head>
+  <meta/>
+  <meta/>
+  <title>
+   Custom HTML Attributes
+  </title>
+ </head>
+ <body>
+  <div>
+   <h1>
+    Custom HTML Attributes
+   </h1>
+   <p>
+    The PixieDust JS runtime listens to click events on any HTML element that has one or more of the custom attributes below, and then transforms the attribute values into a kernel request. The following section describes all the custom attributes available, and how they affect the kernel request executed when a click event is received.
+   </p>
+   <div>
+    <h1>
+     pd_options
+    </h1>
+    <p>
+     List of key-value pairs that define transient states for the kernel request, according to the following format:
+     <code>
+      <span>
+       pd_options="key1=value1;key2=value2;..."
+      </span>
+     </code>
+     . For example, you can use pd_options to dispatch the current screen to another view. When you use
+     <code>
+      pd_entity
+     </code>
+     , then the pd_options are interpreted as
+     <code>
+      display()
+     </code>
+     API options (more details below).
+    </p>
+    <div>
+     <p>
+      Note
+     </p>
+     <p>
+      You can also use a shorter syntax to define options using the following attribute pattern:
+      <code>
+       <span>
+        option_key1="value1"
+       </span>
+      </code>
+      .
+     </p>
+    </div>
+    <div>
+     <p>
+      Note
+     </p>
+     <p>
+      To build the pd_options value for display(), use the display() API in a separate cell. When the correct chart is created, simply copy the options from the cell metadata. (You'll need to use the
+      <em>
+       View/Cell Toolbar/Edit Metadata
+      </em>
+      menu to show the "edit metadata" button.) You will also need to transform the JSON to the pd_options attribute format, e.g., no quote in the value, semi-colon separator, and "key=value" format.
+     </p>
+    </div>
+   </div>
+   <div>
+    <h1>
+     pd_entity
+    </h1>
+    <p>
+     Use the pd_entity attribute only if you want to invoke the display() API on specific data. In this case, pd_options must be display-options-specific to the visualization you want to show. The output will be returned by display(), but without the
+     <a href="https://en.wikipedia.org/wiki/Graphical_user_interface#User_interface_and_interaction_design">
+      UI chrome
+     </a>
+     . The value of pd_entity is interpreted as a field to the PixieApp class, e.g.,
+     <code>
+      <span>
+       pd_entity="filteredDataFrame"
+      </span>
+     </code>
+     , and requires that the PixieApp instance has a field named filteredDataFrame. If the field is not present, then an error will be raised.
+    </p>
+    <div>
+     <p>
+      Note
+     </p>
+     <p>
+      the entity passed by the caller in the run method is stored in a special field called
+      <code>
+       pixieapp_entity
+      </code>
+      . Therefore, using
+      <code>
+       <span>
+        pd_entity="pixieapp_entity"
+       </span>
+      </code>
+      will direct PixieDust to use the entity passed by the caller. For convenience, the user can also simply use pd_entity (without any value) to do the same thing.
+     </p>
+    </div>
+   </div>
+   <div>
+    <h1>
+     pd_target
+    </h1>
+    <p>
+     By default, the output of a kernel request takes over the entire UI--or output cell or dialog depending on the
+     <code>
+      runInDialog
+     </code>
+     option). However, you can use
+     <code>
+      <span>
+       pd_target="elementId"
+      </span>
+     </code>
+     to specify a target element that will receive the output. (Of course the elementId must exist in the current view.) For example:
+    </p>
+    <pre>&lt;div id="myTarget{{prefix}}"/&gt;
+&lt;input type="button" pd_options="handlerId=dataframe" pd_entity pd_target="myTarget{{prefix}}" value="click me"/&gt;</pre>
+    <p>
+     In the example above, we define a placeholder div with id
+     <code>
+      <span>
+       "myTarget{{prefix}}"
+      </span>
+     </code>
+     and use it as a target in the input button.
+    </p>
+    <div>
+     <p>
+      Note
+     </p>
+     <p>
+      <code>
+       {{prefix}}
+      </code>
+      is a Jinja2 notation that means "use the value of the prefix variable, which PixieDust automatically creates to provide a unique id." We need this value to avoid a conflict in case a user calls the PixieApp multiple times within the same notebook.
+     </p>
+    </div>
+    <div>
+     <p>
+      Note
+     </p>
+     <p>
+      You can define multiple targets for a particular kernel request. In this case, you'll want to create one or more
+      <code>
+       &lt;target&gt;
+      </code>
+      elements as children (see the
+      <strong>
+       Custom PixieApp Elements
+      </strong>
+      section for more info).
+     </p>
+    </div>
+   </div>
+   <div>
+    <h1>
+     pd_script
+    </h1>
+    <p>
+     PixieDust lets you run arbitrary Python code using the
+     <code>
+      pd_script
+     </code>
+     attribute. For example:
+     <code>
+      <span>
+       pd_script="self.filteredDataFrame=self.createFilteredDataFrame()"
+      </span>
+     </code>
+     . pd_script can be used even if pd_entity is used. In this case, the Python script will be executed before the display() call. This behavior can be useful, for example, in creating a sub entity that will be used in the display() call. For example:
+    </p>
+    <pre>&lt;div id="myTarget{{prefix}}"/&gt;
+&lt;input type="button" pd_options="handlerId=dataframe" pd_entity="filteredDataFrame" pd_script="self.filteredDataFrame=self.createFilteredDataFrame()" pd_target="myTarget{{prefix}}" value="click me"/&gt;</pre>
+    <div>
+     <p>
+      Note
+     </p>
+     <p>
+      You can use the
+      <code>
+       self
+      </code>
+      keyword, which points at the current PixieApp instance.
+     </p>
+    </div>
+    <div>
+     <p>
+      Note
+     </p>
+     <p>
+      You can only use one-line Python code (similar to Python lambda). If you need to run more than one line of code, then you'll need to use the pd_script element as a child (see the Custom PixieApp Elements section for more info).
+     </p>
+    </div>
+   </div>
+   <div>
+    <h1>
+     pd_refresh
+    </h1>
+    <p>
+     When you only have the pd_script attribute without pd_target, PixieDust will not refresh the output but will simply execute the pd_script. Using
+     <code>
+      pd_refresh
+     </code>
+     will force the output to refresh with the current view.
+    </p>
+   </div>
+   <div>
+    <h1>
+     pd_norefresh
+    </h1>
+    <p>
+     Similar to pd_refresh,
+     <code>
+      pd_norefresh
+     </code>
+     forces PixieDust to not refresh the current output target.
+    </p>
+   </div>
+  </div>
+ </body>
+</html>
