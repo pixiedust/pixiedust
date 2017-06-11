@@ -192,11 +192,11 @@ try {
         </select>
       </div>
       <div class="col-sm-2 btn-toolbar" role="toolbar">
-        <div class="btn-group" role="group\"""" + select_conn_script + """>
+        <div class="btn-group" role="group">
 """
         if num_connections > 0:
             output += """
-            <button type="button" class="btn btn-default">Go</button>'
+            <button type="button" class="btn btn-default\"""" + select_conn_script + """>Go</button>'
             <button type="button" class="btn btn-default" pixiedust pd_options="dialog=true;editConnection=true">
                 <i class="fa fa-pencil-square-o"/>
             </button>"""
