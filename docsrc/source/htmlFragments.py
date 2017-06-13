@@ -58,7 +58,7 @@ for fn in os.listdir('clean-for-dsx') :
                         continue
                 if tag is not None and (tag.get("src") or tag.get("href")) :
                     if tag.name == "img" :
-                        prePath = "../../../docs/"
+                        prePath = "https://raw.githubusercontent.com/ibm-cds-labs/pixiedust/master/docs/"
                         fixedURL = prePath + tag.get("src")
                         tag["src"] = fixedURL
                     if tag.get("class") :
