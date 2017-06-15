@@ -100,9 +100,13 @@ class GraphDisplay(Display):
         else:
             # force-directed graph
             maxEdges = self.options.get("maxEdges", 100)
+            cols = [g.edges.columns[i] for i in range(len(g.edges.columns)) if g.edges.columns[i] not in ['src', 'dst']]
             edges = g.edges.toPandas()[:maxEdges].to_json(orient='records')
             graph = json.dumps(edges)
             isupdate = self.options.get("isupdate")
+
+            cols.sort()
+            colorBy = self.options.get("colorBy", cols[0] if len(cols) > 0 else "")
 
             myLogger.debug("graphDirected - edges: {0}".format(edges))
 
@@ -112,5 +116,5 @@ class GraphDisplay(Display):
                 print(graph)
             else:
                 self._addScriptElement("https://d3js.org/d3.v3.js", checkJSVar="d3",
-                    callback=self.renderTemplate("graphDirected.js", graph=graph, preferredWidth=width, preferredHeight=height))
-                self._addHTMLTemplate("graph.html", maxEdges=maxEdges, handlerId=handlerId)
+                    callback=self.renderTemplate("graphDirected.js", graph=graph, preferredWidth=width, preferredHeight=height, colorBy=colorBy))
+                self._addHTMLTemplate("graph.html", maxEdges=maxEdges, handlerId=handlerId, cols=cols, colorBy=colorBy)
