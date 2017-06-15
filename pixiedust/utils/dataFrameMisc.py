@@ -71,6 +71,14 @@ def isStringType(type):
     return (type =="StringType")
 
 """
+Return True if spark type is a date
+"""
+def isDateType(type):
+    if checkIfDataType(type):
+        return isDateType( type.__class__.__name__)
+    return (type =="DateType")
+
+"""
 Return True is field represented by fieldName is Numeric
 """
 def isNumericField(entity, fieldName):
@@ -103,5 +111,23 @@ def isStringField(entity, fieldName):
         return False
     for field in entity.schema.fields:
         if isStringFieldRecurse(field, fieldName):
+            return True
+    return False
+
+"""
+Return True is field represented by fieldName is a Date
+"""
+def isDateField(entity, fieldName):
+    def isDateFieldRecurse(field, targetName):
+        if field.name == targetName:
+            return isDateType(field.dataType)
+        elif checkIfDataType(field.dataType) and targetName.startswith(field.name + "."):
+            nestedFieldName = targetName[len(field.name)+1:]
+            for f in field.dataType.fields:
+                if isDateFieldRecurse(f, nestedFieldName):
+                    return True         
+        return False
+    for field in entity.schema.fields:
+        if isDateFieldRecurse(field, fieldName):
             return True
     return False

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+ <head>
+  <title>
+   Creating a Widget
+  </title>
+  <meta content="&#xA9;Copyright IBM Corporation 2017" name="copyright"/>
+  <meta content="&#xA9;Copyright IBM Corporation 2017" name="DC.Rights.Owner"/>
+  <meta content="&#xA9; Copyright IBM Corporation 2016, 2017" name="dcterms.rights"/>
+  <meta content="2017-06-05" name="DC.date"/>
+ </head>
+ <body>
+  <div>
+   <h1>
+    Creating a Widget
+   </h1>
+   <p>
+    Sometimes, you'll want to reuse complex UI constructs. In this case, you can package the HTML into a widget that can be easily called anywhere.
+   </p>
+   <ul>
+    <li>
+     <p>
+      <strong>
+       To define a widget:
+      </strong>
+      Use a route with a special
+      <code>
+       widget
+      </code>
+      attribute. To establish a proper binding, the value of
+      <code>
+       pd_widget
+      </code>
+      must match the route's widget value.
+     </p>
+    </li>
+    <li>
+     <p>
+      <strong>
+       To invoke a widget:
+      </strong>
+      Apply the pd_widget custom attribute to a &lt;div&gt; element and set its value to the same widget value defined in the route. For example:
+     </p>
+    </li>
+   </ul>
+   <pre>from pixiedust.display.app import *
+@PixieApp
+class TestPixieAppWidget():
+    @route(widget='myWidget')
+    def myWidget(self):
+        return """&lt;div&gt;&lt;b&gt;Hello World Widget&lt;/b&gt;&lt;/div&gt;"""
+    @route()
+    def main(self):
+        return """&lt;div pd_widget="myWidget"/&gt;"""
+
+TestPixieAppWidget().run(runInDialog='false')</pre>
+  </div>
+ </body>
+</html>

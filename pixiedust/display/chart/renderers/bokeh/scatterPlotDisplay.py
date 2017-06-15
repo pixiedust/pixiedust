@@ -18,7 +18,11 @@ from pixiedust.display.chart.renderers import PixiedustRenderer
 from pixiedust.display.chart.renderers.baseChartDisplay import commonChartOptions
 from .bokehBaseDisplay import BokehBaseDisplay
 from pixiedust.utils import Logger
-from bokeh.charts import Scatter
+
+try:
+    from bkcharts import Scatter
+except ImportError:
+    from bokeh.charts import Scatter
 
 @PixiedustRenderer(id="scatterPlot")
 @Logger()

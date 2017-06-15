@@ -7,9 +7,11 @@
 Welcome to PixieDust
 ================================
 
-`PixieDust <https://github.com/ibm-cds-labs/pixiedust>`_ is an open source Python helper library that works as an add-on to Jupyter notebooks to improve the user experience of working with data. It also fills a gap for users who have no access to configuration files when a notebook is hosted on the cloud. For more details on all that PixieDust offers to users and developers, see PixieDust's `README on GitHub <https://github.com/ibm-cds-labs/pixiedust/blob/master/README.md>`_.
+`PixieDust <https://github.com/ibm-cds-labs/pixiedust>`_ is an open source Python helper library that works as an add-on to Jupyter notebooks to improve the user experience of working with data. It also fills a gap for users who have no access to configuration files when a notebook is hosted on the cloud.
 
-There are 2 ways to dive into PixieDust:
+For more details on all that PixieDust offers to users and developers, see PixieDust's `README on GitHub <https://github.com/ibm-cds-labs/pixiedust/blob/master/README.md>`_. For news, events, and other general resources, see http://ibm.biz/wdp-pixiedust.
+
+There are two ways to dive into PixieDust:
 
 
 .. raw:: html
@@ -44,6 +46,7 @@ Get Started
 
    use
    develop
+   pixieapps
    releasenotes
 
 

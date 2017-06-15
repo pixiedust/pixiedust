@@ -18,11 +18,15 @@ from pixiedust.display.chart.renderers import PixiedustRenderer
 from pixiedust.display.chart.colorManager import Colors
 from .bokehBaseDisplay import BokehBaseDisplay
 from pixiedust.utils import Logger
-from bokeh.charts import Line
 from bokeh.plotting import figure
 import pandas as pd
 import numpy as np
 import sys
+
+try:
+    from bkcharts import Line
+except ImportError:
+    from bokeh.charts import Line
 
 @PixiedustRenderer(id="lineChart")
 @Logger()

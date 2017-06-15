@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html>
  <head>
-  <meta/>
-  <meta/>
   <title>
    Package Manager
   </title>
+  <meta content="&#xA9;Copyright IBM Corporation 2017" name="copyright"/>
+  <meta content="&#xA9;Copyright IBM Corporation 2017" name="DC.Rights.Owner"/>
+  <meta content="&#xA9; Copyright IBM Corporation 2016, 2017" name="dcterms.rights"/>
+  <meta content="2017-06-05" name="DC.date"/>
  </head>
  <body>
   <div>
@@ -17,7 +19,10 @@
      Introduction
     </h1>
     <p>
-     You can use the PackageManager component of PixieDust to install anduninstall maven packages into your notebook kernel without editingconfiguration files. This component is essential when you runnotebooks from a hosted cloud environment and do not have access to the configuration files.
+     You can use the PackageManager component of PixieDust to install and
+uninstall maven packages into your notebook kernel without editing
+configuration files. This component is essential when you run
+notebooks from a hosted cloud environment and do not have access to the configuration files.
     </p>
     <p>
      You can use this component in the following ways:
@@ -62,7 +67,10 @@
      </li>
      <li>
       <p>
-       Copy the maven ID of the package. A maven ID includes a group ID,artifact ID, and version number, each separated by a colon (:). Inthe previous example, the maven ID appears after the packages, suchas
+       Copy the maven ID of the package. A maven ID includes a group ID,
+artifact ID, and version number, each separated by a colon (:). In
+the previous example, the maven ID appears after the packages, such
+as
        <strong>
         graphframes:graphframes:0.1.0-spark1.6
        </strong>
@@ -73,23 +81,36 @@
       <p>
        From a Python notebook, enter the following command:
       </p>
-      <pre>import pixiedustpixiedust.installPackage("graphframes:graphframes:0.1.0-spark1.6")</pre>
+      <pre>import pixiedust
+pixiedust.installPackage("graphframes:graphframes:0.1.0-spark1.6")</pre>
       <p>
-       To fetch the latest release, specify 0 as the version. The PixieDustpackageManager fetches the latest release in the following example.
+       To fetch the latest release, specify 0 as the version. The PixieDust
+packageManager fetches the latest release in the following example.
       </p>
-      <pre>import pixiedustpixiedust.installPackage("graphframes:graphframes:0")</pre>
+      <pre>import pixiedust
+pixiedust.installPackage("graphframes:graphframes:0")</pre>
      </li>
     </ol>
     <p>
-     After you successfully issue the import command, the following resultsdisplay:
+     After you successfully issue the import command, the following results
+display:
     </p>
-    <pre>Downloading artifact graphframes:graphframes:0.1.0-spark1.6Downloaded 326112 of 326112 bytes (100.00%)Downloaded artifact graphframes:graphframes:0.1.0-spark1.6 to /Users/dtaieb/data/libs/graphframes-0.1.0-spark1.6.jarArtifact downloaded successfully graphframes:graphframes:0.1.0-spark1.6&gt;&gt;&gt;Please restart Kernel to complete installation of the new packageSuccessfully added artifact graphframes:graphframes:0.1.0-spark1.6</pre>
+    <pre>Downloading artifact graphframes:graphframes:0.1.0-spark1.6
+Downloaded 326112 of 326112 bytes (100.00%)
+Downloaded artifact graphframes:graphframes:0.1.0-spark1.6 to /Users/dtaieb/data/libs/graphframes-0.1.0-spark1.6.jar
+Artifact downloaded successfully graphframes:graphframes:0.1.0-spark1.6
+&gt;&gt;&gt;Please restart Kernel to complete installation of the new package
+Successfully added artifact graphframes:graphframes:0.1.0-spark1.6</pre>
     <p>
-     Notice the line that instructs you to restart the kernel to completeinstallation of the new package. This is required only the first time.Restart the kernel by using the
+     Notice the line that instructs you to restart the kernel to complete
+installation of the new package. This is required only the first time.
+Restart the kernel by using the
      <strong>
       Kernel/Restart
      </strong>
-     menu. After thekernel is restarted, the library is added to the classpath and can beused from your Python notebook.
+     menu. After the
+kernel is restarted, the library is added to the classpath and can be
+used from your Python notebook.
     </p>
     <div>
      <p>
@@ -138,7 +159,8 @@
      </a>
      . If you use a custom maven repository, you can specify it by using the following base keyword argument:
     </p>
-    <pre>import pixiedustpixiedust.installPackage("groupId:artifactId:0", base="&lt;&lt;url to my custom maven repo&gt;&gt;"</pre>
+    <pre>import pixiedust
+pixiedust.installPackage("groupId:artifactId:0", base="&lt;&lt;url to my custom maven repo&gt;&gt;"</pre>
    </div>
    <div>
     <h1>
@@ -147,7 +169,8 @@
     <p>
      To install a jar file that is not packaged in a maven repository, provide the URL to the jar file. PixieDust will then bypass the maven look up and directly download the jar file from the specified location:
     </p>
-    <pre>import pixiedustpixiedust.installPackage("https://github.com/ibm-cds-labs/spark.samples/raw/master/dist/streaming-twitter-assembly-1.6.jar")</pre>
+    <pre>import pixiedust
+pixiedust.installPackage("https://github.com/ibm-cds-labs/spark.samples/raw/master/dist/streaming-twitter-assembly-1.6.jar")</pre>
    </div>
    <div>
     <h1>
@@ -156,11 +179,13 @@
     <p>
      You can uninstall a package by using the following command:
     </p>
-    <pre>import pixiedustpixiedust.uninstallPackage("&lt;&lt;mypackage&gt;&gt;")</pre>
+    <pre>import pixiedust
+pixiedust.uninstallPackage("&lt;&lt;mypackage&gt;&gt;")</pre>
     <p>
      You can also list all the packages installed on your system:
     </p>
-    <pre>import pixiedustpixiedust.printAllPackages()</pre>
+    <pre>import pixiedust
+pixiedust.printAllPackages()</pre>
    </div>
   </div>
  </body>

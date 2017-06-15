@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html>
  <head>
-  <meta/>
-  <meta/>
   <title>
    Install PixieDust
   </title>
+  <meta content="&#xA9;Copyright IBM Corporation 2017" name="copyright"/>
+  <meta content="&#xA9;Copyright IBM Corporation 2017" name="DC.Rights.Owner"/>
+  <meta content="&#xA9; Copyright IBM Corporation 2016, 2017" name="dcterms.rights"/>
+  <meta content="2017-06-05" name="DC.date"/>
  </head>
  <body>
   <div>
@@ -13,7 +15,9 @@
     Install PixieDust
    </h1>
    <p>
-    PixieDust is a Python library for use in Jupyter notebooks. To use PixieDust in your local environment, you must install it.PixieDust is bundled as a Python package and can be installed using pip.To install and configure PixieDust complete the following steps:
+    PixieDust is a Python library for use in Jupyter notebooks. To use PixieDust in your local environment, you must install it.
+PixieDust is bundled as a Python package and can be installed using pip.
+To install and configure PixieDust complete the following steps:
    </p>
    <div>
     <h1>
@@ -48,7 +52,10 @@
      Install Anaconda
     </h1>
     <p>
-     In order to use PixieDust inside your Jupyter notebooks you will, of course, need Jupyter.The easiest way to install Jupyter is by installing Anaconda.Anaconda is a Data Science platform which consists of a Python distribution and collection of open source packages well-suited for scientific computing.Anaconda includes Python, pip, pandas, numpy, matpoltlib, and other libraries required to run PixieDust effectively.
+     In order to use PixieDust inside your Jupyter notebooks you will, of course, need Jupyter.
+The easiest way to install Jupyter is by installing Anaconda.
+Anaconda is a Data Science platform which consists of a Python distribution and collection of open source packages well-suited for scientific computing.
+Anaconda includes Python, pip, pandas, numpy, matpoltlib, and other libraries required to run PixieDust effectively.
     </p>
     <p>
      To install Anaconda go to
@@ -73,9 +80,11 @@
     <p>
      Once you've installed Anaconda run the following commands in your Terminal or command-line interface to ensure your environment is configured properly:
     </p>
-    <pre>pip  --versionjupyter --version</pre>
+    <pre>pip  --version
+jupyter --version</pre>
     <p>
-     You can install the PixieDust library from source or from PyPI.If you plan on contributing to PixieDust we recommended that you install from source.
+     You can install the PixieDust library from source or from PyPI.
+If you plan on contributing to PixieDust we recommended that you install from source.
     </p>
     <ul>
      <li>
@@ -137,7 +146,11 @@
      Jupyter Kernels
     </h1>
     <p>
-     In order to use PixieDust inside Jupyter you must install a new Jupyter kernel.Kernels are processes that run interactive code from your Jupyter notebook.PixieDust uses pyspark; a Python binding for Apache Spark.PixieDust includes a command-line utility for installing new kernels that use pyspark.The command-line utility walks you through the steps of configuring your kernel as well as installing Apache Spark and Scala (required if you want to run Scala code from within your Python notebook).
+     In order to use PixieDust inside Jupyter you must install a new Jupyter kernel.
+Kernels are processes that run interactive code from your Jupyter notebook.
+PixieDust uses pyspark; a Python binding for Apache Spark.
+PixieDust includes a command-line utility for installing new kernels that use pyspark.
+The command-line utility walks you through the steps of configuring your kernel as well as installing Apache Spark and Scala (required if you want to run Scala code from within your Python notebook).
     </p>
     <div>
      <h2>
@@ -152,33 +165,50 @@
       <cite>
        PIXIEDUST_HOME
       </cite>
-      .This is a directory that PixieDust will use to keep track of your PixieDust install, including any libraries you install from PixieDust.You may choose to keep the default path, or select a new one:
+      .
+This is a directory that PixieDust will use to keep track of your PixieDust install, including any libraries you install from PixieDust.
+You may choose to keep the default path, or select a new one:
      </p>
-     <pre>Step 1: PIXIEDUST_HOME: /Users/USERNAME/pixiedust    Keep y/n [y]? y</pre>
+     <pre>Step 1: PIXIEDUST_HOME: /Users/USERNAME/pixiedust
+    Keep y/n [y]? y</pre>
      <p>
-      After you have configured PIXIEDUST_HOME you are prompted to specify the location of your Apache Spark install.If you do not have Apache Spark installed, the installer downloads it for you:
+      After you have configured PIXIEDUST_HOME you are prompted to specify the location of your Apache Spark install.
+If you do not have Apache Spark installed, the installer downloads it for you:
      </p>
-     <pre>Step 2: Please enter a SPARK_HOME location: /Users/USERNAME/sparkDirectory /Users/USERNAME/spark does not contain a valid SPARK install    Download Spark y/n [y]? y</pre>
+     <pre>Step 2: Please enter a SPARK_HOME location: /Users/USERNAME/spark
+Directory /Users/USERNAME/spark does not contain a valid SPARK install
+    Download Spark y/n [y]? y</pre>
      <p>
       If you choose to download Apache Spark, the installer prompts you for the version. Download it, and configure your SPARK_HOME accordingly:
      </p>
-     <pre>What version would you like to download? 1.6.3, 2.0.2, 2.1.0 [2.1.0]: 2.1.0SPARK_HOME will be set to /Users/USERNAME/spark/spark-2.1.0-bin-hadoop2.7Downloading Spark 2.1.0Extracting Spark 2.1.0 to /Users/USERNAME/spark</pre>
+     <pre>What version would you like to download? 1.6.3, 2.0.2, 2.1.0 [2.1.0]: 2.1.0
+SPARK_HOME will be set to /Users/USERNAME/spark/spark-2.1.0-bin-hadoop2.7
+Downloading Spark 2.1.0
+Extracting Spark 2.1.0 to /Users/USERNAME/spark</pre>
      <p>
       <em>
        Tip: If you're using Spark 1.6, and you want to work with PixieDust's sample data (recommended!), manually add the following package when you run your notebook. (You need run these commands only once.):
       </em>
      </p>
      <blockquote>
-      <pre>pixiedust.installPackage("com.databricks:spark-csv_2.10:1.5.0")pixiedust.installPackage("org.apache.commons:commons-csv:0")</pre>
+      <pre>pixiedust.installPackage("com.databricks:spark-csv_2.10:1.5.0")
+pixiedust.installPackage("org.apache.commons:commons-csv:0")</pre>
      </blockquote>
      <p>
-      Next, the installer prompts you for the location of Scala.If you do not have Scala installed, or you do not have the version of Scala supported by your Apache Spark install, the installer downloads the appropriate version of Scala for you.
+      Next, the installer prompts you for the location of Scala.
+If you do not have Scala installed, or you do not have the version of Scala supported by your Apache Spark install, the installer downloads the appropriate version of Scala for you.
      </p>
-     <pre>Step 3: Please enter a SCALA_HOME location: /Users/USERNAME/scalaDirectory /Users/USERNAME/scala does not contain a valid SCALA install    Download Scala y/n [y]? ySCALA_HOME will be set to /Users/USERNAME/scala/scala-2.11.8Downloading Scala 2.11Extracting Scala 2.11 to /Users/USERNAME/scala</pre>
+     <pre>Step 3: Please enter a SCALA_HOME location: /Users/USERNAME/scala
+Directory /Users/USERNAME/scala does not contain a valid SCALA install
+    Download Scala y/n [y]? y
+SCALA_HOME will be set to /Users/USERNAME/scala/scala-2.11.8
+Downloading Scala 2.11
+Extracting Scala 2.11 to /Users/USERNAME/scala</pre>
      <p>
       Finally, the installer asks you for a name for the kernel.
      </p>
-     <pre>Step 4: Kernel Name: Python with Pixiedust (Spark 2.1)    Keep y/n [y]? y</pre>
+     <pre>Step 4: Kernel Name: Python with Pixiedust (Spark 2.1)
+    Keep y/n [y]? y</pre>
      <p>
       That's it! You can now run a Jupyter notebook using Apache Spark and PixieDust.
      </p>
@@ -197,7 +227,9 @@
      <p>
       The output looks similar to this:
      </p>
-     <pre>Available kernels:    pythonwithpixiedustspark20    /Users/USERNAME/Library/Jupyter/kernels/pythonwithpixiedustspark20    pythonwithpixiedustspark21    /Users/USERNAME/Library/Jupyter/kernels/pythonwithpixiedustspark21</pre>
+     <pre>Available kernels:
+    pythonwithpixiedustspark20    /Users/USERNAME/Library/Jupyter/kernels/pythonwithpixiedustspark20
+    pythonwithpixiedustspark21    /Users/USERNAME/Library/Jupyter/kernels/pythonwithpixiedustspark21</pre>
     </div>
    </div>
    <div>
@@ -226,15 +258,16 @@
     <p>
      This should automatically open a web browser that looks shows you this:
     </p>
-    <img src="../../../docs/_images/install-notebook1.png" width="615"/>
+    <img src="https://raw.githubusercontent.com/ibm-cds-labs/pixiedust/master/docs/_images/install-notebook1.png" width="615"/>
     <p>
-     When starting a notebook for the first time, you may be prompted to select a kernel. Select the kernel you created using the installer.Alternatively, click
+     When starting a notebook for the first time, you may be prompted to select a kernel. Select the kernel you created using the installer.
+Alternatively, click
      <strong>
       Kernel &gt; Change Kernel
      </strong>
      from the menu to select the appropriate kernel:
     </p>
-    <img src="../../../docs/_images/install-notebook2.png" width="615"/>
+    <img src="https://raw.githubusercontent.com/ibm-cds-labs/pixiedust/master/docs/_images/install-notebook2.png" width="615"/>
     <p>
      This notebook shows you how to import the PixieDust library and run a handful of PixieDust features.
     </p>

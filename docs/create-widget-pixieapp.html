@@ -1,0 +1,112 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Creating a Widget &#8212; PixieDust Documentation</title>
+    
+    <link rel="stylesheet" href="_static/better.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="shortcut icon" href="_static/pd_icon.ico"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Hello World with Data" href="hello-world-data-pixieapp.html" />
+    <link rel="prev" title="Dynamic Values" href="dynamic-values-pixieapp.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  </head>
+  <body role="document">
+    <header id="pageheader"><h1><a href="index.html ">
+        PixieDust Documentation
+    </a></h1></header>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="creating-a-widget">
+<h1>Creating a Widget<a class="headerlink" href="#creating-a-widget" title="Permalink to this headline">¶</a></h1>
+<p>Sometimes, you&#8217;ll want to reuse complex UI constructs. In this case, you can package the HTML into a widget that can be easily called anywhere.</p>
+<ul class="simple">
+<li><strong>To define a widget:</strong> Use a route with a special <code class="docutils literal"><span class="pre">widget</span></code> attribute. To establish a proper binding, the value of <code class="docutils literal"><span class="pre">pd_widget</span></code> must match the route&#8217;s widget value.</li>
+<li><strong>To invoke a widget:</strong> Apply the pd_widget custom attribute to a &lt;div&gt; element and set its value to the same widget value defined in the route. For example:</li>
+</ul>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pixiedust.display.app</span> <span class="k">import</span> <span class="o">*</span>
+<span class="nd">@PixieApp</span>
+<span class="k">class</span> <span class="nc">TestPixieAppWidget</span><span class="p">():</span>
+    <span class="nd">@route</span><span class="p">(</span><span class="n">widget</span><span class="o">=</span><span class="s1">&#39;myWidget&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">myWidget</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;&quot;&quot;&lt;div&gt;&lt;b&gt;Hello World Widget&lt;/b&gt;&lt;/div&gt;&quot;&quot;&quot;</span>
+    <span class="nd">@route</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;&quot;&quot;&lt;div pd_widget=&quot;myWidget&quot;/&gt;&quot;&quot;&quot;</span>
+
+<span class="n">TestPixieAppWidget</span><span class="p">()</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">runInDialog</span><span class="o">=</span><span class="s1">&#39;false&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="index.html">Table Of Contents</a></h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="use.html">Use PixieDust</a></li>
+<li class="toctree-l1"><a class="reference internal" href="develop.html">Develop for PixieDust</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="pixieapps.html">PixieApps</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="hello-world-pixieapp.html">Hello World</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference-pixieapp.html">Reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="html-attributes-pixieapp.html">Custom HTML Attributes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="custom-elements-pixieapp.html">Custom Elements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dynamic-values-pixieapp.html">Dynamic Values</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Creating a Widget</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hello-world-data-pixieapp.html">Hello World with Data</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="releasenotes.html">Release Notes</a></li>
+</ul>
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+  <footer id="pagefooter">&copy; 2017, IBM.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a>
+      1.5.6.
+
+  </footer>
+
+  
+  </body>
+</html>

@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html>
  <head>
-  <meta/>
-  <meta/>
   <title>
    Display Data
   </title>
+  <meta content="&#xA9;Copyright IBM Corporation 2017" name="copyright"/>
+  <meta content="&#xA9;Copyright IBM Corporation 2017" name="DC.Rights.Owner"/>
+  <meta content="&#xA9; Copyright IBM Corporation 2016, 2017" name="dcterms.rights"/>
+  <meta content="2017-06-05" name="DC.date"/>
  </head>
  <body>
   <div>
@@ -72,7 +74,33 @@
      Once you've imported the PixieDust module, start with the data. Here's some sample code that creates a data frame:
     </p>
     <blockquote>
-     <pre>#import pixiedust display modulefrom pixiedust.display import *#Create a dataframe with Quarterly sales resultssqlContext = SQLContext(sc)dd = sqlContext.createDataFrame(     [(2010, 'Camping Equipment', 3),     (2010, 'Golf Equipment', 1),     (2010, 'Mountaineering Equipment', 1),     (2010, 'Outdoor Protection', 2),     (2010, 'Personal Accessories', 2),     (2011, 'Camping Equipment', 4),     (2011, 'Golf Equipment', 5),     (2011, 'Mountaineering Equipment',2),     (2011, 'Outdoor Protection', 4),     (2011, 'Personal Accessories', 2),     (2012, 'Camping Equipment', 5),     (2012, 'Golf Equipment', 5),     (2012, 'Mountaineering Equipment', 3),     (2012, 'Outdoor Protection', 5),     (2012, 'Personal Accessories', 3),     (2013, 'Camping Equipment', 8),     (2013, 'Golf Equipment', 5),     (2013, 'Mountaineering Equipment', 3),     (2013, 'Outdoor Protection', 8),     (2013, 'Personal Accessories', 4)],     ["year", "zone", "unique_customers"])</pre>
+     <pre>#import pixiedust display module
+from pixiedust.display import *
+
+#Create a dataframe with Quarterly sales results
+sqlContext = SQLContext(sc)
+dd = sqlContext.createDataFrame(
+     [(2010, 'Camping Equipment', 3),
+     (2010, 'Golf Equipment', 1),
+     (2010, 'Mountaineering Equipment', 1),
+     (2010, 'Outdoor Protection', 2),
+     (2010, 'Personal Accessories', 2),
+     (2011, 'Camping Equipment', 4),
+     (2011, 'Golf Equipment', 5),
+     (2011, 'Mountaineering Equipment',2),
+     (2011, 'Outdoor Protection', 4),
+     (2011, 'Personal Accessories', 2),
+     (2012, 'Camping Equipment', 5),
+     (2012, 'Golf Equipment', 5),
+     (2012, 'Mountaineering Equipment', 3),
+     (2012, 'Outdoor Protection', 5),
+     (2012, 'Personal Accessories', 3),
+     (2013, 'Camping Equipment', 8),
+     (2013, 'Golf Equipment', 5),
+     (2013, 'Mountaineering Equipment', 3),
+     (2013, 'Outdoor Protection', 8),
+     (2013, 'Personal Accessories', 4)],
+     ["year", "zone", "unique_customers"])</pre>
     </blockquote>
     <p>
      Then, in a single command, you  display that dataframe:
@@ -82,7 +110,8 @@
      .
     </p>
     <blockquote>
-     <pre>#call a simple display api to visualize the datadisplay(dd)</pre>
+     <pre>#call a simple display api to visualize the data
+display(dd)</pre>
     </blockquote>
     <p>
      <code>
@@ -90,7 +119,7 @@
      </code>
      looks up into its internal registry to build a list of visualizations that can handle a Spark DataFrame and generates the a menu toobar for each of them. The cell output looks like this:
     </p>
-    <img alt="_images/pd_chrome.png" src="../../../docs/_images/pd_chrome.png"/>
+    <img alt="_images/pd_chrome.png" src="https://raw.githubusercontent.com/ibm-cds-labs/pixiedust/master/docs/_images/pd_chrome.png"/>
     <p>
      PixieDust spins up a robust user interface that contains all the features you need to create sophisticated visualizations in just a few clicks. It contains  dropdown lists and dialogs you can use to change chart type, data content, grouping, and more. Without writing a line of code, you can:
     </p>
@@ -154,7 +183,7 @@
       A great place to start is to view your data in a simple table format. To do so, click the table button:
      </p>
      <blockquote>
-      <img alt="_images/display_table.png" src="../../../docs/_images/display_table.png"/>
+      <img alt="_images/display_table.png" src="https://raw.githubusercontent.com/ibm-cds-labs/pixiedust/master/docs/_images/display_table.png"/>
      </blockquote>
      <p>
       You see extended information about your Spark DataFrame in 2 view options:
@@ -187,7 +216,7 @@
        <p>
         Click the Chart dropdown menu and choose a chart type:
        </p>
-       <img alt="_images/chartmenu.png" src="../../../docs/_images/chartmenu.png"/>
+       <img alt="_images/chartmenu.png" src="https://raw.githubusercontent.com/ibm-cds-labs/pixiedust/master/docs/_images/chartmenu.png"/>
       </li>
       <li>
        <p>
@@ -197,12 +226,12 @@
         </strong>
         button.
        </p>
-       <img alt="_images/optionsbutton.png" src="../../../docs/_images/optionsbutton.png"/>
+       <img alt="_images/optionsbutton.png" src="https://raw.githubusercontent.com/ibm-cds-labs/pixiedust/master/docs/_images/optionsbutton.png"/>
        <p>
         The options dialog that opens contains a set of common configuration choices for every chart, plus a set of options specific to the chart type you selected.  For example, Bar Chart shows the following options dialog:
        </p>
        <blockquote>
-        <img alt="_images/options.png" src="../../../docs/_images/options.png"/>
+        <img alt="_images/options.png" src="https://raw.githubusercontent.com/ibm-cds-labs/pixiedust/master/docs/_images/options.png"/>
        </blockquote>
       </li>
      </ol>
@@ -347,7 +376,7 @@
      <p>
       PixieDust offers several different rendering engines you can use out-of-the-box to display your data.
      </p>
-     <img alt="_images/renderer_menu.png" src="../../../docs/_images/renderer_menu.png"/>
+     <img alt="_images/renderer_menu.png" src="https://raw.githubusercontent.com/ibm-cds-labs/pixiedust/master/docs/_images/renderer_menu.png"/>
      <p>
       The list of available renderers changes depending upon what chart type you're viewing.
      </p>
@@ -451,7 +480,7 @@
      <p>
       This bar chart shows the sum of customers rising each year:
      </p>
-     <img alt="_images/bar_chart.png" src="../../../docs/_images/bar_chart.png"/>
+     <img alt="_images/bar_chart.png" src="https://raw.githubusercontent.com/ibm-cds-labs/pixiedust/master/docs/_images/bar_chart.png"/>
      <p>
       To see another dimension, click the
       <strong>
@@ -459,7 +488,7 @@
       </strong>
       dropdown and choose a field. Here, clustering by zone, shows individual bars for each department/zone.
      </p>
-     <img alt="_images/bar_chart_clustered.png" src="../../../docs/_images/bar_chart_clustered.png"/>
+     <img alt="_images/bar_chart_clustered.png" src="https://raw.githubusercontent.com/ibm-cds-labs/pixiedust/master/docs/_images/bar_chart_clustered.png"/>
      <p>
       You can show that cluster in different ways. Click the
       <strong>
@@ -484,7 +513,7 @@
         to show clustered items in the same column split by color-coded segments or bands.
        </p>
        <blockquote>
-        <img alt="_images/bar_chart_stacked.png" src="../../../docs/_images/bar_chart_stacked.png"/>
+        <img alt="_images/bar_chart_stacked.png" src="https://raw.githubusercontent.com/ibm-cds-labs/pixiedust/master/docs/_images/bar_chart_stacked.png"/>
        </blockquote>
       </li>
       <li>
@@ -540,11 +569,11 @@
      <p>
       Like bar charts, line charts let you cluster results to see trends in an additional dimension. This chart shows customers rising steadily over time:
      </p>
-     <img alt="_images/line_chart.png" src="../../../docs/_images/line_chart.png"/>
+     <img alt="_images/line_chart.png" src="https://raw.githubusercontent.com/ibm-cds-labs/pixiedust/master/docs/_images/line_chart.png"/>
      <p>
       When you cluster the same chart by zone, you can see how each individual department/zone is doing:
      </p>
-     <img alt="_images/line_chart_clustered.png" src="../../../docs/_images/line_chart_clustered.png"/>
+     <img alt="_images/line_chart_clustered.png" src="https://raw.githubusercontent.com/ibm-cds-labs/pixiedust/master/docs/_images/line_chart_clustered.png"/>
      <p>
       To show each cluster in its own chart, click the
       <strong>
@@ -556,7 +585,7 @@
       </strong>
       .
      </p>
-     <img alt="_images/subplots.png" src="../../../docs/_images/subplots.png"/>
+     <img alt="_images/subplots.png" src="https://raw.githubusercontent.com/ibm-cds-labs/pixiedust/master/docs/_images/subplots.png"/>
     </div>
     <div>
      <h2>
@@ -590,7 +619,7 @@
      <p>
       Once your scatter plot apppears, you can choose your renderer (matplotlib, seaborn, or bokeh). Individual renderers include their own options, like this Bokeh chart:
      </p>
-     <img alt="_images/bokeh_scatter_example.png" src="../../../docs/_images/bokeh_scatter_example.png"/>
+     <img alt="_images/bokeh_scatter_example.png" src="https://raw.githubusercontent.com/ibm-cds-labs/pixiedust/master/docs/_images/bokeh_scatter_example.png"/>
     </div>
     <div>
      <h2>
@@ -717,7 +746,7 @@
        </strong>
        appear in a pop-up information bubble when you hover your mouse over a data point on the map.
       </p>
-      <img alt="_images/map.png" src="../../../docs/_images/map.png"/>
+      <img alt="_images/map.png" src="https://raw.githubusercontent.com/ibm-cds-labs/pixiedust/master/docs/_images/map.png"/>
      </div>
      <div>
       <h3>
@@ -800,7 +829,7 @@
       <p>
        Here's a geochart (by region) of population by country:
       </p>
-      <img alt="_images/geochart_region.png" src="../../../docs/_images/geochart_region.png"/>
+      <img alt="_images/geochart_region.png" src="https://raw.githubusercontent.com/ibm-cds-labs/pixiedust/master/docs/_images/geochart_region.png"/>
      </div>
     </div>
     <div>
@@ -817,7 +846,7 @@
      <p>
       For example, here's PixieDust's Million Dollar Home Sales sample data set displayed in a histogram. Squarefeet ranges appear on the x-axis. The Bokeh renderer lets us show an additional dimension, Property Type, in color-coded bars.
      </p>
-     <img alt="_images/histogram.png" src="../../../docs/_images/histogram.png"/>
+     <img alt="_images/histogram.png" src="https://raw.githubusercontent.com/ibm-cds-labs/pixiedust/master/docs/_images/histogram.png"/>
      <p>
       In
       <strong>

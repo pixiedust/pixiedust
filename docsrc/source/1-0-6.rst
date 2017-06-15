@@ -1,0 +1,20 @@
+1.0.6
+=====
+
+Here's what's new in Release 1.0.6 (5 June 2017):
+
+**Bug fixes**
+
+- Data tables now respect the dimensions of their parent element, fixing an issue where large tables could overflow the dimensions of the div containing them (`#337 <https://github.com/ibm-cds-labs/pixiedust/issues/337>`_).
+
+- PixieDust now properly supports the Spark SQL DateType class. Previously, even though PixieDust's schema view would recognize date types, rendering a visualization containing them would produce a UI error (`#349 <https://github.com/ibm-cds-labs/pixiedust/issues/349>`_).
+
+**Enhancements**
+
+- Data tables now support an optional parameter (``showColumns``) that allows developers to select columns to display in a table, automatically hiding any columns not listed (`#344 <https://github.com/ibm-cds-labs/pixiedust/issues/344>`_).
+
+- Developers can now define their own GeoJSON layers in Mapbox charts. Custom layers will now generate corresponding checkboxes in the option space of the Mapbox chart, allowing data to be toggled on the map (`#339 <https://github.com/ibm-cds-labs/pixiedust/issues/339>`_).
+
+- PixieDust now runs in a plain Jupyter Notebook without Spark. Since PixieDust supports both Pandas DataFrames and PySpark DataFrames, developers can now use its package manager and ``display()`` API features---no Spark required. Any Spark-specific features will be disabled when using Pandas only (`#340 <https://github.com/ibm-cds-labs/pixiedust/issues/340>`_).
+
+- The 1.0.6 release of PixieDust marks the introduction of **PixieApps**: Python classes for creating UI elements directly in Jupyter notebooks. The goal is to go from data to dashboard in minutes, using notebooks to easily share and reproduce work. More in the `PixieApps documentation <https://ibm-cds-labs.github.io/pixiedust/pixieapps.html>`_.

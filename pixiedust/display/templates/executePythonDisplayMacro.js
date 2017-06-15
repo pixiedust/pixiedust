@@ -126,6 +126,7 @@ function() {
                 if (typeof onDisplayDone{{prefix}} != "undefined"){
                     onDisplayDone{{prefix}}();
                 }
+                $(document).trigger('pd_event', {type:"pd_load", targetNode: getTargetNode()});
             }
         }
     }

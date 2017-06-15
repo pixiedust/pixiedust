@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html>
  <head>
-  <meta/>
-  <meta/>
   <title>
    Use Scala in a Python Notebook
   </title>
+  <meta content="&#xA9;Copyright IBM Corporation 2017" name="copyright"/>
+  <meta content="&#xA9;Copyright IBM Corporation 2017" name="DC.Rights.Owner"/>
+  <meta content="&#xA9; Copyright IBM Corporation 2016, 2017" name="dcterms.rights"/>
+  <meta content="2017-06-05" name="DC.date"/>
  </head>
  <body>
   <div>
@@ -32,7 +34,8 @@
      Using Scala cell magic
     </h1>
     <p>
-     After importing the PixieDust module, users can simply use the %%scala magic to write Scala code and run the cell as any other normal cell. Any compilation error will be reported in the cell output.The following example shows how to run the
+     After importing the PixieDust module, users can simply use the %%scala magic to write Scala code and run the cell as any other normal cell. Any compilation error will be reported in the cell output.
+The following example shows how to run the
      <a href="https://developer.ibm.com/clouddataservices/sentiment-analysis-of-twitter-hashtags/">
       Watson sentiment sample app
      </a>
@@ -42,13 +45,25 @@
      First install the jar into the Python kernel:
     </p>
     <blockquote>
-     <pre>import pixiedustpixiedust.installPackage("https://github.com/ibm-cds-labs/spark.samples/raw/master/dist/streaming-twitter-assembly-1.6.jar")</pre>
+     <pre>import pixiedust
+pixiedust.installPackage("https://github.com/ibm-cds-labs/spark.samples/raw/master/dist/streaming-twitter-assembly-1.6.jar")</pre>
     </blockquote>
     <p>
      You can now run the Scala code that uses Spark Streaming to fetch tweets:
     </p>
     <blockquote>
-     <pre>%%scalaval demo = com.ibm.cds.spark.samples.StreamingTwitterdemo.setConfig("twitter4j.oauth.consumerKey","XXXX")demo.setConfig("twitter4j.oauth.consumerSecret","XXXX")demo.setConfig("twitter4j.oauth.accessToken","XXXX")demo.setConfig("twitter4j.oauth.accessTokenSecret","XXXX")demo.setConfig("watson.tone.url","https://gateway.watsonplatform.net/tone-analyzer/api")demo.setConfig("watson.tone.password","XXXX")demo.setConfig("watson.tone.username","XXXX")import org.apache.spark.streaming._demo.startTwitterStreaming(sc, Seconds(30))</pre>
+     <pre>%%scala
+val demo = com.ibm.cds.spark.samples.StreamingTwitter
+demo.setConfig("twitter4j.oauth.consumerKey","XXXX")
+demo.setConfig("twitter4j.oauth.consumerSecret","XXXX")
+demo.setConfig("twitter4j.oauth.accessToken","XXXX")
+demo.setConfig("twitter4j.oauth.accessTokenSecret","XXXX")
+demo.setConfig("watson.tone.url","https://gateway.watsonplatform.net/tone-analyzer/api")
+demo.setConfig("watson.tone.password","XXXX")
+demo.setConfig("watson.tone.username","XXXX")
+
+import org.apache.spark.streaming._
+demo.startTwitterStreaming(sc, Seconds(30))</pre>
     </blockquote>
    </div>
    <div>
@@ -56,22 +71,28 @@
      Variable transfer
     </h1>
     <p>
-     Every variable defined within Python are accessible in Scala.For example:
+     Every variable defined within Python are accessible in Scala.
+For example:
     </p>
     <blockquote>
-     <pre>#define variables in pythonvar1="Hello"var2=200</pre>
+     <pre>#define variables in python
+var1="Hello"
+var2=200</pre>
     </blockquote>
     <p>
      You can then access these variables in Scala
     </p>
     <blockquote>
-     <pre>println(var1)println(var2 + 10)</pre>
+     <pre>println(var1)
+println(var2 + 10)</pre>
     </blockquote>
     <p>
      Likewise, you can transfer variables defined in Scala by prefixing them with __ (2 underscores). The following example shows how to access the tweets into a dataframe and transfer them into the python shell namespace:
     </p>
     <blockquote>
-     <pre>%%scalaval demo = com.ibm.cds.spark.samples.StreamingTwitterval (__sqlContext, __df) = demo.createTwitterDataFrames(sc)</pre>
+     <pre>%%scala
+val demo = com.ibm.cds.spark.samples.StreamingTwitter
+val (__sqlContext, __df) = demo.createTwitterDataFrames(sc)</pre>
     </blockquote>
     <p>
      Then use the __df variable in Python

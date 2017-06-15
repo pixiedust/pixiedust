@@ -46,6 +46,12 @@ class PySparkDataFrameDataHandler(object):
     def isStringType(self, field):
         return dataFrameMisc.isStringType(field.dataType)
 
+    def isDateField(self, fieldName):
+        return dataFrameMisc.isDateField(self.entity, fieldName)
+
+    def isDateType(self, field):
+        return dataFrameMisc.isDateType(field.dataType)
+
     def getFieldValues(self, fieldNames):
         if len(fieldNames) == 0:
             return []
