@@ -59,15 +59,18 @@ var renderGraph{{prefix}} = function(graph) {
     colorkey = additionalkeys[0]
   }
 
-  var width = 960
-  var height = 500
+  var margin = {top: 20, right: 20, bottom: 20, left: 20};
+  var width = {{preferredWidth}};
+  var height = {{preferredHeight}};
 
   var force = d3.layout.force()
     .nodes(d3.values(nodes))
     .links(links)
-    .size([width, height])
-    .linkDistance(150)
-    // .charge(-300)
+    .size([(width - margin.left - margin.right), (height - margin.top - margin.bottom)])
+    .linkDistance(Math.min(width, height) / 5)
+    .linkStrength(0.2)
+    .friction(0.7)
+    .charge(-500)
     .on('tick', tick)
     .start()
 

@@ -44,7 +44,7 @@ class GraphDisplay(Display):
             myLogger.debug("graphMap - links: {0}".format(graphLinksJson))
 
             self._addScriptElement("https://d3js.org/d3.v3.js", checkJSVar="d3",
-                callback=self.renderTemplate("graphMap.js", graphNodesJson=graphNodesJson, graphLinksJson=graphLinksJson))
+                callback=self.renderTemplate("graphMap.js", graphNodesJson=graphNodesJson, graphLinksJson=graphLinksJson, preferredWidth=width, preferredHeight=height))
 
             self._addHTMLTemplate("graphMap.html")
 
@@ -92,7 +92,7 @@ class GraphDisplay(Display):
                     self.addProfilingTime = False
                     print(tree)
                 else:
-                    nodes = g.vertices.select('id').rdd.map(lambda r: r[0]).collect()
+                    nodes = g.vertices.select('id').orderBy('id').rdd.map(lambda r: r[0]).collect()
                     self._addScriptElement("https://d3js.org/d3.v3.js", checkJSVar="d3", 
                         callback=self.renderTemplate("graphTree.js", root=str(rootNode[0]), tree=tree, preferredWidth=width, preferredHeight=height))
                     self._addHTMLTemplate("graph.html", root=str(rootNode[0]), nodes=nodes, maxDepth=maxDepth, maxChildren=maxChildren, handlerId=handlerId)
@@ -111,5 +111,6 @@ class GraphDisplay(Display):
                 self.addProfilingTime = False
                 print(graph)
             else:
-                self._addScriptElement("https://d3js.org/d3.v3.js", checkJSVar="d3", callback=self.renderTemplate("graphDirected.js", graph=graph))
+                self._addScriptElement("https://d3js.org/d3.v3.js", checkJSVar="d3",
+                    callback=self.renderTemplate("graphDirected.js", graph=graph, preferredWidth=width, preferredHeight=height))
                 self._addHTMLTemplate("graph.html", maxEdges=maxEdges, handlerId=handlerId)
