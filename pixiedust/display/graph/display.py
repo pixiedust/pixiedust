@@ -32,7 +32,7 @@ class GraphDisplay(Display):
         if handlerId == "graphMap":
             graphNodesJson="{"
 
-            for r in g.vertices.map(lambda row: """"{0}":{{"id":"{0}","name":"{1}","latitude":{2},"longitude":{3}}}"""
+            for r in g.vertices.rdd.map(lambda row: """"{0}":{{"id":"{0}","name":"{1}","latitude":{2},"longitude":{3}}}"""
                 .format(row.id, row.name.encode("ascii","ignore").decode("ascii"),0.0 if row.latitude is None else row.latitude,0.0 if row.longitude is None else row.longitude)).collect():
                 graphNodesJson+=("," if len(graphNodesJson)>1 else "") + str(r)
 
@@ -62,7 +62,7 @@ class GraphDisplay(Display):
                         item["children"]=expand(dic.get(item["name"]), nextVisited, level+1)
                 return results
             
-            ar = g.edges.select("src","dst").map(lambda row: (row[0],[row[1]]))\
+            ar = g.edges.select("src","dst").rdd.map(lambda row: (row[0],[row[1]]))\
                 .reduceByKey(lambda d1,d2: d1+d2).map(lambda row: (row[0], list(set(row[1]))))\
                 .collect()
 
