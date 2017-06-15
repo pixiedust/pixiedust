@@ -17,6 +17,7 @@ var executeGraphUpdate{{prefix}} = function() {
   if (validateFields{{prefix}}()) {
     var extraCommandOptions = { 'isupdate': 'true' }
     extraCommandOptions.maxEdges = parseInt($('#maxEdges{{prefix}}').val())
+    extraCommandOptions.colorBy = $('#colorBy{{prefix}}').val()
 
     {% call(results) commons.ipython_execute(this._genDisplayScript(),prefix,extraCommandOptions="extraCommandOptions") %}
       d3.select("#svg{{prefix}}").selectAll("*").remove()
@@ -30,10 +31,16 @@ var executeGraphUpdate{{prefix}} = function() {
 }
 
 // updated version of: http://bl.ocks.org/d3noob/5141278
+var _graph = null
 var renderGraph{{prefix}} = function(graph) {
+  if (!graph) {
+    graph = _graph
+    d3.select("#svg{{prefix}}").selectAll("*").remove()
+  }
   if (typeof graph === 'string') {
     graph = JSON.parse(graph)
   }
+  _graph = graph
 
   var requiredkeys = ['source', 'src', 'target', 'dst']
   var nodes = {}
@@ -48,16 +55,9 @@ var renderGraph{{prefix}} = function(graph) {
       (nodes[link.dst] = {name: link.dst})
   })
 
-  var color = d3.scale.category10()
-  var colorkey = null
-
-  var additionalkeys = Object.keys(links[0]).filter(function(k) {
-    return requiredkeys.indexOf(k) === -1
-  })
-
-  if (additionalkeys && additionalkeys.length > 0) {
-    colorkey = additionalkeys[0]
-  }
+  var colorkey = $('#colorBy{{prefix}}').val()
+  var cols = d3.map(links, function(d) { return d[colorkey] }).keys()
+  var color = cols.length <= 10 ? d3.scale.category10() : d3.scale.category20()
 
   var margin = {top: 20, right: 20, bottom: 20, left: 20};
   var width = {{preferredWidth}};
@@ -137,10 +137,60 @@ var renderGraph{{prefix}} = function(graph) {
       return 'translate(' + d.x + ',' + d.y + ')'
     })
   }
+
+  // legend key
+  var legendkey = svg.selectAll('rect.legend').data(cols)
+  var padding = 5
+  var lsize = 15
+
+  // add new keys
+  legendkey.enter().append('rect')
+    .attr('class', 'legend')
+    // .attr('opacity', 0)
+    .attr('x', padding)
+    .attr('y', function (d, i) { return (i * lsize) + padding })
+    .attr('width', lsize - 2)
+    .attr('height', lsize - 2)
+
+  // update keys
+  legendkey.style('fill', function (d) { return color(d) })
+
+  // remove old keys
+  legendkey.exit().transition()
+    .attr('opacity', 0)
+    .remove()
+
+  // legend label
+  // var total = d3.sum(data, function (d) { return d.value })
+  var legendlabel = svg.selectAll('text.legend').data(cols)
+
+  // add new labels
+  legendlabel.enter().append('text')
+    .attr('class', 'legend')
+    .attr('x', lsize + 4 + padding)
+    .attr('y', function (d, i) { return (i * lsize + 8) + padding })
+    .attr('dy', '.25em')
+
+  // update labels
+  legendlabel.text(function (d) {
+    // var current = data.filter(function (_d) { return _d.key === d })
+    // var v = current.length > 0 ? current[0].value : 0
+    // return d + ': ' + percent(v / total)
+    return d
+  })
+
+  // remove old labels
+  legendlabel.exit().transition()
+    .attr('opacity', 0)
+    .remove()
 }
 
 $('#updateGraph{{prefix}}').click(function() {
   executeGraphUpdate{{prefix}}()
+})
+
+$('#colorBy{{prefix}}').on('change', function() {
+  renderGraph{{prefix}}()
 })
 
 renderGraph{{prefix}}({{graph}})
