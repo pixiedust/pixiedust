@@ -55,6 +55,14 @@
         </div>
       {% else %}
         <div class="form-group col-sm-2">
+            <label for="colorBy{{prefix}}">Color By:</label>
+            <select class="form-control" id="colorBy{{prefix}}" name="colorBy{{prefix}}">
+                {% for col in cols %}
+                <option value="{{col}}" {% if col == colorBy %}selected{% endif %}>{{ col }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group col-sm-2">
             <label for="maxEdges{{prefix}}">Max Edges:</label>
             <input type="number" class="form-control" id="maxEdges{{prefix}}" name="maxEdges{{prefix}}" value="{{maxEdges}}">
         </div>
