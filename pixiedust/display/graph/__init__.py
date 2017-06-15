@@ -23,12 +23,16 @@ class GraphDisplayMeta(DisplayHandlerMeta):
     def getMenuInfo(self,entity, dataHandler):
         clazz = entity.__class__.__name__
         if clazz == "GraphFrame":
+            ret = [
+                {"categoryId": "Graph", "title": "Radial Tree", "icon":"fa-bullseye", "id":"graphTree"},
+                {"categoryId": "Graph", "title": "Directed Graph", "icon":"fa-exchange", "id":"graphDirected"}
+            ]
+            
             #Check that we have a longitude and latitude in the vertices dataframe
             fnames=[sf.name for sf in entity.vertices.schema.fields]
-            ret = []
             if "longitude" in fnames and "latitude" in fnames:
                 ret.append({"categoryId": "Graph", "title": "Graph Map", "icon":"fa-map-marker", "id":"graphMap"})
-            ret.append({"categoryId": "Graph", "title": "Node-Link Graph", "icon":"fa-map-marker", "id":"nodeLinkGraph"})
+
             return ret
         
         return []

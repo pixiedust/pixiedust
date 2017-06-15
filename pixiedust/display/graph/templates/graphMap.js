@@ -2,8 +2,10 @@ var True=true;
 var False=false;
 var graph = {"nodes": {{graphNodesJson}},"links":{{graphLinksJson}}};
 var prefix = '{{prefix}}';
-var w = 1000;
-var h = 600;
+
+var margin = {top: 20, right: 20, bottom: 20, left: 20};
+var w = ({{preferredWidth}} - margin.left - margin.right);
+var h = ({{preferredHeight}} - margin.top - margin.bottom);
 
 var linksByOrigin = {};
 var countByAirport = {};
@@ -94,7 +96,7 @@ d3.geo.azimuthal = function() {
 var projection = d3.geo.azimuthal()
     .mode("equidistant")
     .origin([-98, 38])
-    .scale(1400)
+    .scale(w)
     .translate([w/2, h/2]);
 
 var path = d3.geo.path().projection(projection);
