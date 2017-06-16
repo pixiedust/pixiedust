@@ -103,6 +103,16 @@ def barChart(displayObject):
         }
     })
 
+    options.append({
+        'name': 'sortby',
+        'description': 'Sort By',
+        'metadata': {
+            'type': 'dropdown',
+            'values': ['Keys ASC', 'Keys DESC', 'Values ASC', 'Values DESC'],
+            'default': 'Keys ASC'
+        }
+    })
+
     return options
 
 def lineChart(displayObject):
