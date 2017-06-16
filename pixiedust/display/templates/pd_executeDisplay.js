@@ -14,7 +14,9 @@
         shell : {
             reply : function(){
                 if ( !callbacks.response ){
-                    getTargetNode().html("")
+                    if (!user_controls.partialUpdate){
+                        getTargetNode().html("");
+                    }
                     if (user_controls.onDisplayDone){
                         user_controls.onDisplayDone(getTargetNode());
                     }

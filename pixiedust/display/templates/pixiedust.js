@@ -473,12 +473,29 @@ $(document).on("pd_event", function(event, eventInfo){
         }
         eventInfo.targetNode.find("div").each(function(){
             if (accept(this)){
+                var thisId = $(this).uniqueId().attr('id');
+                this.setAttribute( "id", thisId );
+                $(this).addClass("no_loading_msg");
+                if (!this.hasAttribute("pd_target") ){
+                    this.setAttribute("pd_target", this.getAttribute("id") );
+                }
                 thisQueue = runElement(this, false);
                 var loadingDiv = this;
                 $.each( thisQueue, function(index, value){
                     if (value){
-                        value.targetDivId = $(loadingDiv).uniqueId().attr('id');
+                        value.partialUpdate = true;
                         execQueue.push( value );
+                        refreshRate = loadingDiv.getAttribute("pd_refresh_rate");
+                        if (refreshRate){
+                            var ival = setInterval(function(){
+                                if ($('#' + thisId).length == 0){
+                                    console.log("Clearing refresh timer", ival);
+                                    clearInterval(ival);
+                                    return;
+                                }
+                                value.execute();
+                            }, parseInt( refreshRate) );
+                        }
                     }
                 })
             }
@@ -490,6 +507,8 @@ $(document).on("pd_event", function(event, eventInfo){
         });
     }
     else{
-        console.log("Warning: got a pd_event with no targetDivId", eventInfo);
+        if ( eventInfo.type != "pd_load"){
+            console.log("Warning: got a pd_event with no targetDivId", eventInfo);
+        }
     }
 });
