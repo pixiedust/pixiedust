@@ -171,6 +171,17 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
             workingDF = self.dataHandler.getWorkingPandasDataFrame(xFields, yFields, extraFields = extraFields, aggregation=aggregation, maxRows = maxRows )
             WorkingDataCache.putInCache(self.options, workingDF, constraints)
         
+        if self.options.get("sortby", None):
+            sortby = self.options.get("sortby", None)
+            if sortby == 'Keys ASC':
+                workingDF = workingDF.sort_values(xFields, ascending=True)
+            elif sortby == 'Keys DESC':
+                workingDF = workingDF.sort_values(xFields, ascending=False)
+            elif sortby == 'Values ASC':
+                workingDF = workingDF.sort_values(yFields, ascending=True)
+            elif sortby == 'Values DESC':
+                workingDF = workingDF.sort_values(yFields, ascending=False)
+
         if self.options.get("debug", None):
             self.debug("getWorkingPandasDataFrame returns: {0}".format(workingDF) )
             ShellAccess["workingPDF"] = workingDF    
