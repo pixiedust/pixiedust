@@ -76,6 +76,13 @@ class MapViewDisplay(GoogleBaseDisplay):
         else:
             self.options["mapResolution"] = "countries"
 
+        if self.options.get("mapColorAxis") is None:
+            self.options["mapColorAxis"] = '["#FF007F", "#007FFF", "#7FFF00"]'
+        else:
+            s = self.options.get("mapColorAxis")
+            temp = s.split(",")
+            self.options["mapColorAxis"]=  '["' + '","'.join(temp) + '"]'
+
         df = self.getWorkingPandasDataFrame()
         colData = str(df.columns.values.tolist())
         valData = str(df.values.tolist()).encode('utf-8')
