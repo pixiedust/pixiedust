@@ -235,4 +235,7 @@
       $('.df-table-search-count', tableWrapper).html('Showing ' + index + ' of ' + total);
     });
   });
+
+  $(".df-table-wrapper td:contains('http://')").each(function(){var tc = this.textContent; $(this).wrapInner("<a target='_blank' href='" + tc + "'/>");});
+  $(".df-table-wrapper td:contains('https://')").each(function(){var tc = this.textContent; $(this).wrapInner("<a target='_blank' href='" + tc + "'/>");});
 </script>
