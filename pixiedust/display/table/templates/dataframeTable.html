@@ -218,6 +218,22 @@
       fixedHeader.css({ left: table.position().left });
     });
 
+    rows.on("click", function(e){
+        var txt = e.delegateTarget.innerText;
+        var splits = txt.split("\t");
+        var len = splits.length;
+        var hdrs = $(fixedHeader).find(".fixed-cell");
+        // Add all cells in the selected row as a map to be consumed by the target as needed
+        var payload = {type:"select", targetDivId: "{{this.options.get("targetDivId","") }}" };
+        for (var i = 0; i < len; i++) {
+          payload[hdrs[i].innerHTML] = splits[i];
+        }
+
+        //simple selection highlighting, client adds "selected" class
+        $(this).addClass("selected").siblings().removeClass("selected");
+        $(document).trigger('pd_event', payload);
+    });
+
     $('.df-table-search', tableWrapper).keyup(function() {
       var val = '^(?=.*\\b' + $.trim($(this).val()).split(/\s+/).join('\\b)(?=.*\\b') + ').*$';
       var reg = RegExp(val, 'i');
