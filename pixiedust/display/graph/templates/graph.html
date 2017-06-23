@@ -1,0 +1,77 @@
+<style class="pd_save">
+    .node circle {
+        fill: #fff;
+        stroke: steelblue;
+        stroke-width: 1.5px;
+    }
+    .node {
+        font: 10px sans-serif;
+    }
+
+    .link {
+        fill: none;
+        stroke: #ccc;
+        stroke-width: 1.5px;
+    }
+
+    .graph-tree-form.form-inline .form-group {
+        margin-right: 10px;
+    }
+    .graph-tree-form.form-inline .form-group:last-child {
+        margin-left: 40px;
+    }
+    .graph-tree-form.form-inline input,
+    .graph-tree-form.form-inline select,
+    .graph-tree-form.form-inline button {
+        border-radius: 0;
+        margin: 0;
+        width: 100%;
+    }
+    .graph-error {
+        color: red;
+        font-weight: 500;
+        padding-top: 10px;
+    }
+</style>
+<div class="pd_save">
+    <form class="form-inline graph-tree-form" role="form">
+      {% if handlerId == 'graphTree' %}
+        <div class="form-group col-sm-2">
+            <label for="root{{prefix}}">Root Node:</label>
+            <!--<input type="text" class="form-control" id="root{{prefix}}" name="root{{prefix}}" value="{{root}}">-->
+            <select class="form-control" id="root{{prefix}}" name="root{{prefix}}">
+                {% for node in nodes %}
+                <option value="{{node}}" {% if node == root %}selected{% endif %}>{{ node }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group col-sm-2">
+            <label for="maxDepth{{prefix}}">Max Depth:</label>
+            <input type="number" class="form-control" id="maxDepth{{prefix}}" name="maxDepth{{prefix}}" value="{{maxDepth}}">
+        </div>
+        <div class="form-group col-sm-2">
+            <label for="maxChildren{{prefix}}">Max Children:</label>
+            <input type="number" class="form-control" id="maxChildren{{prefix}}" name="maxChildren{{prefix}}" value="{{maxChildren}}">
+        </div>
+      {% else %}
+        <div class="form-group col-sm-2">
+            <label for="colorBy{{prefix}}">Color By:</label>
+            <select class="form-control" id="colorBy{{prefix}}" name="colorBy{{prefix}}">
+                {% for col in cols %}
+                <option value="{{col}}" {% if col == colorBy %}selected{% endif %}>{{ col }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group col-sm-2">
+            <label for="maxEdges{{prefix}}">Max Edges:</label>
+            <input type="number" class="form-control" id="maxEdges{{prefix}}" name="maxEdges{{prefix}}" value="{{maxEdges}}">
+        </div>
+      {% endif %}
+        <div class="form-group">
+            <label aria-hidden="true" style="visibility:hidden">label</label>
+            <button type="button" class="btn btn-small btn-primary" id="updateGraph{{prefix}}">Update</button>
+        </div>
+    </form>
+</div>
+<div id="error{{prefix}}" class="pd_save graph-error"></div>     
+<svg id="svg{{prefix}}" class="pd_save graph-svg"></svg>

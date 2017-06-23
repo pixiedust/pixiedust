@@ -18,13 +18,19 @@ from pixiedust.display.chart.renderers import PixiedustRenderer
 from pixiedust.display.chart.colorManager import Colors
 from .bokehBaseDisplay import BokehBaseDisplay
 from pixiedust.utils import Logger
-from bokeh.charts import Bar
-from bokeh.charts.operations import blend
-from bokeh.charts.attributes import  CatAttr
 import pandas as pd
 import numpy
 import bokeh.plotting as gridplot
 import sys
+
+try:
+    from bkcharts import Bar
+    from bkcharts.operations import blend
+    from bkcharts.attributes import  CatAttr
+except ImportError:
+    from bokeh.charts import Bar
+    from bokeh.charts.operations import blend
+    from bokeh.charts.attributes import  CatAttr
 
 @PixiedustRenderer(id="barChart")
 @Logger()

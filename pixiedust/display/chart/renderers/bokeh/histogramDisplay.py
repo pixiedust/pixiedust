@@ -19,9 +19,13 @@ from pixiedust.display.chart.renderers.baseChartDisplay import commonChartOption
 from pixiedust.display.chart.colorManager import Colors
 from .bokehBaseDisplay import BokehBaseDisplay
 from pixiedust.utils import Logger
-from bokeh.charts import Histogram, show
 from bokeh.layouts import row
 import math
+
+try:
+    from bkcharts import Histogram, show
+except ImportError:
+    from bokeh.charts import Histogram, show
 
 @PixiedustRenderer(id="histogram")
 @Logger()

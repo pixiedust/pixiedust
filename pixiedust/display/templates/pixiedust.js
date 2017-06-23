@@ -441,19 +441,6 @@ $(document).on( "click", "[pixiedust]", function(event){
     });
 });
 
-$(document).on( "DOMNodeInserted", "[pd_widget]", function(event){
-    event.stopImmediatePropagation();
-    execQueue = runElement(filterNonTargetElements(event.target));
-    {#execute#}
-    $.each( execQueue, function(index, value){
-        if (value){
-            value.targetDivId = $(event.target).uniqueId().attr('id');
-            $(event.target).removeAttr("pd_widget");
-            value.execute();
-        }
-    });
-});
-
 {#handler for customer pd_event#}
 $(document).on("pd_event", function(event, eventInfo){
     targetDivId = eventInfo.targetDivId;
@@ -481,15 +468,20 @@ $(document).on("pd_event", function(event, eventInfo){
         });
     }else if ( eventInfo.type == "pd_load" && eventInfo.targetNode){
         var execQueue = []
+        function accept(element){
+            return element.hasAttribute("pd_widget") || element.hasAttribute("pd_render_onload");
+        }
         eventInfo.targetNode.find("div").each(function(){
-            thisQueue = runElement(this, false);
-            var loadingDiv = this;
-            $.each( thisQueue, function(index, value){
-                if (value){
-                    value.targetDivId = $(loadingDiv).uniqueId().attr('id');
-                    execQueue.push( value );
-                }
-            })
+            if (accept(this)){
+                thisQueue = runElement(this, false);
+                var loadingDiv = this;
+                $.each( thisQueue, function(index, value){
+                    if (value){
+                        value.targetDivId = $(loadingDiv).uniqueId().attr('id');
+                        execQueue.push( value );
+                    }
+                })
+            }
         });
 
         {#execute#}

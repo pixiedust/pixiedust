@@ -3,7 +3,7 @@
  "ibm-map.dtd">
 <map xml:lang="en-us">
     <title>PixieDust</title>
-    <topicref format="html" scope="peer" navtitle="PixieDust visualizations" href="index.html">
+    <topicref format="html" scope="peer" navtitle="PixieDust helper library" href="index.html">
         <topicref format="html" scope="peer" navtitle="Use PixieDust" href="use.html">
             <topicref format="html" scope="peer" navtitle="Install PixieDust" href="install.html"></topicref>
             <topicref format="html" scope="peer" navtitle="Load data" href="loaddata.html"></topicref>
