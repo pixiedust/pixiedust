@@ -1,0 +1,18 @@
+1.0.7
+=====
+
+Here's what's new in Release 1.0.7 (23 June 2017):
+
+**Bug fixes**
+
+- Updated support for GraphFrames to account for new dependencies in recent GraphFrames versions (`#294 <https://github.com/ibm-cds-labs/pixiedust/issues/294>`_).
+
+**Enhancements**
+
+- The ``display()`` API can now automatically visualize properly formatted GraphFrame data as a star graph (`#354 <https://github.com/ibm-cds-labs/pixiedust/issues/354>`_).
+
+- Region maps now take custom color ranges using the ``mapColorAxis`` parameter (`#371 <https://github.com/ibm-cds-labs/pixiedust/issues/371>`_).
+
+- Bar charts now support custom ordering (ascending/descending), which users can optionally select via the display options menu (`#272 <https://github.com/ibm-cds-labs/pixiedust/issues/272>`_).
+
+- Data table visualizations now format cells with URLs automatically as clickable links (`#376 <https://github.com/ibm-cds-labs/pixiedust/issues/376>`_).
