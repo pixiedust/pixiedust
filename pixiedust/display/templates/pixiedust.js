@@ -469,10 +469,11 @@ $(document).on("pd_event", function(event, eventInfo){
     }else if ( eventInfo.type == "pd_load" && eventInfo.targetNode){
         var execQueue = []
         function accept(element){
-            return element.hasAttribute("pd_widget") || element.hasAttribute("pd_render_onload");
+            return element.hasAttribute("pd_widget") || element.hasAttribute("pd_render_onload") || element.hasAttribute("pd_refresh_rate");
         }
         eventInfo.targetNode.find("div").each(function(){
             if (accept(this)){
+                debugger;
                 var thisId = $(this).uniqueId().attr('id');
                 this.setAttribute( "id", thisId );
                 $(this).addClass("no_loading_msg");
