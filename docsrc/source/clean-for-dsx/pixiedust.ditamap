@@ -32,7 +32,8 @@
         <topicref format="html" scope="peer" navtitle="Release notes" href="releasenotes.html">
             <topicref format="html" scope="peer" navtitle="1.0.4" href="1-0-4.html"></topicref>
             <topicref format="html" scope="peer" navtitle="1.0.5" href="1-0-5.html"></topicref>
-            <topicref format="html" scope="peer" navtitle="1.0.6" href="1-0-5.html"></topicref>
+            <topicref format="html" scope="peer" navtitle="1.0.6" href="1-0-6.html"></topicref>
+            <topicref format="html" scope="peer" navtitle="1.0.7" href="1-0-7.html"></topicref>
         </topicref>
   </topicref>
 </map>
