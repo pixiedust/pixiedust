@@ -1,20 +1,55 @@
+'''
+-------------------------------------------------------------------------------
+
+Copyright IBM Corp. 2017
+
+Licensed under the Apache License, Version 2.0 (the 'License');
+
+you may not use this file except in compliance with the License.
+
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+
+distributed under the License is distributed on an 'AS IS' BASIS,
+
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+See the License for the specific language governing permissions and
+
+limitations under the License.
+
+-------------------------------------------------------------------------------
+'''
+
 # MongoDB Browser for PixieDust
 # Author: Nick Kasten
 # Summer 2017
 
 import ssl
 import re
-import pymongo
 import pandas as pd
 from pixiedust.display.app import *
-from bson.json_util import dumps
+try:
+    import pymongo
+    from bson.json_util import dumps
+    display_dependency_instructions = False
+except NameError:
+    display_dependency_instructions = True
 
 @PixieApp
 class mongo_db_browser:
     #-------------------------- UTILITY METHODS --------------------------#
-    def create_client(self):
-        return pymongo.MongoClient(self.mongo_uri)
-
+    def create_client(self, flag=None):
+        try:
+            client = pymongo.MongoClient(self.mongo_uri + "&ssl_cert_reqs=CERT_NONE")
+        except pymongo.errors.PyMongoError:
+            client = None
+            self.exception("Error connecting to Mongo DB.")
+        return client
+        
     def get_docs(self, start=0, end=None):
         return list(self.client[self.db][self.collection].find()[start:end])
 
@@ -272,16 +307,9 @@ class mongo_db_browser:
     def default_route(self):
         self.mongo_uri = ""
         self.page_size = 5
-        # check for dependencies
-        try:
-            pymongo_version = pkg_resources.get_distribution("pymongo").parsed_version
-            bson_version = pkg_resources.get_distribution("bson").parsed_version
-        except:
-            pymongo_version = None
-            bson_version = None
-            self.exception("Unable to get pymongo and/or bson version")
-        if pymongo_version == None or bson_version == None:
-            output = """<div class="row text-center" style="font-size: 12pt;">Please install <b>pymongo</b> and <b>bson</b> by running the following commands: <code>!pip install pymongo</code> and <code>!pip install bson</code></div>"""
+
+        if display_dependency_instructions == True:
+            output = """<div class="row text-center" style="font-size: 12pt;">Please install <b>pymongo</b> by running the following command: <code>!pip install pymongo</code></div>"""
         else:
             output = """
         <div class="row">
@@ -308,7 +336,7 @@ class mongo_db_browser:
 
     @route(view="db_list")
     def db_list(self):
-        self.client = self.create_client()
+        self.client = self.create_client('no_ssl_cert')
         return self.create_list_head("db") + self.create_button_list("db", self.client.database_names()) + """</div>"""
 
     @route(view="collection_list")
