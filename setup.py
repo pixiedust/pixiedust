@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 setup(name='pixiedust',
 	  version='1.0.7',
 	  description='Productivity library for Spark Python Notebook',
-	  url='https://github.com/ibm-cds-labs/pixiedust',
+	  url='https://github.com/ibm-watson-data-lab/pixiedust',
 	  install_requires=['mpld3','lxml','geojson'],
 	  author='David Taieb',
 	  author_email='david_taieb@us.ibm.com',
