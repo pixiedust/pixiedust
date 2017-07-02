@@ -138,6 +138,8 @@ def PixieApp(cls):
         return "{}_{}_{}".format(cls.__module__, cls.__name__, suffix)
 
     def run(self, entity=None, **kwargs):
+        for key,value in iteritems(kwargs):
+            setattr(self, key, value)
         if entity is not None:
             self.pixieapp_entity = entity
         var = None
