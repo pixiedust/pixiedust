@@ -30,7 +30,7 @@ except ImportError:
 dataDefs = OrderedDict([
     ("1", {
         "displayName": "Car performance data", 
-        "url": "https://github.com/ibm-cds-labs/open-data/raw/master/cars/cars.csv",
+        "url": "https://github.com/ibm-watson-data-lab/open-data/raw/master/cars/cars.csv",
         "topic": "transportation",
         "publisher": "IBM",
         "schema2": [('mpg','int'),('cylinders','int'),('engine','double'),('horsepower','int'),('weight','int'),
@@ -38,7 +38,7 @@ dataDefs = OrderedDict([
     }),
     ("2", {
         "displayName": "Sample retail sales transactions, January 2009", 
-        "url": "https://raw.githubusercontent.com/ibm-cds-labs/open-data/master/salesjan2009/salesjan2009.csv",
+        "url": "https://raw.githubusercontent.com/ibm-watson-data-lab/open-data/master/salesjan2009/salesjan2009.csv",
         "topic": "Economy & Business",
         "publisher": "IBM Cloud Data Services"
     }),
@@ -68,7 +68,7 @@ dataDefs = OrderedDict([
     }),
     ("7", {
         "displayName": "Boston Crime data, 2-week sample", 
-        "url": "https://raw.githubusercontent.com/ibm-cds-labs/open-data/master/crime/boston_crime_sample.csv",
+        "url": "https://raw.githubusercontent.com/ibm-watson-data-lab/open-data/master/crime/boston_crime_sample.csv",
         "topic": "Society",
         "publisher": "City of Boston"
     })
