@@ -13,9 +13,15 @@ var pixiedust = (function(){
         executeDisplay:function(pd_controls, user_controls){
             pd_controls = pd_controls || {};
             user_controls = user_controls || {"options":{}};
+            if (user_controls.inFlight){
+                console.log("Ignoring request to execute Display that is already being executed");
+                return;
+            }
+            user_controls.inFlight = true;
             var options = $.extend({}, pd_controls.options || {}, user_controls.options || {} );
             function wrapDisplayDone(fn){
                 return function(targetNode){
+                    user_controls.inFlight = false;
                     if (fn){
                         fn.apply(this);
                     }
@@ -481,7 +487,6 @@ $(document).on("pd_event", function(event, eventInfo){
         }
         eventInfo.targetNode.find("div").each(function(){
             if (accept(this)){
-                debugger;
                 var thisId = $(this).uniqueId().attr('id');
                 this.setAttribute( "id", thisId );
                 $(this).addClass("no_loading_msg");
