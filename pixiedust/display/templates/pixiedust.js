@@ -136,7 +136,7 @@ var pixiedust = (function(){
 
 function resolveScriptMacros(script){
     script = script && script.replace(/\$val\(\"?(\w*)\"?\)/g, function(a,b){
-        var v = $("#" + b ).val();
+        var v = $("#" + b ).val() || $("#" + b ).text();
         if (!v && window[b] && typeof window[b] === "function"){
             v = window[b]();
         }
@@ -206,6 +206,41 @@ function addOptions(command, options, override=true){
     return command;
 }
 
+function computeGeometry(element, execInfo){
+    // unhide parents temporarily to properly calculate width/height
+    var parentStyles = [];
+    var hiddenBlockStyle = 'visibility: hidden !important; display: block !important;';
+    var tDiv = $("#" + execInfo.targetDivId);
+    var tDivParents = tDiv.parents().addBack().filter(':hidden');
+    tDivParents.each(function() {
+        var currentStyle = $(this).attr('style');
+        parentStyles.push(currentStyle);
+        $(this).attr('style', currentStyle ? currentStyle + ';' + hiddenBlockStyle : hiddenBlockStyle);
+    });
+
+    // calculate width/height
+    w = tDiv.width()
+    if (w) {
+        execInfo.options.nostore_cw= w;
+    }
+    if ($(element).parents(".modal-dialog").length > 0 ) {
+        h = tDiv.height()
+        if (h) {
+            execInfo.options.nostore_ch = h-10;
+        }
+    }
+
+    // re-hide parents
+    tDivParents.each(function(i) {
+        if (parentStyles[i] === undefined) {
+            $(this).removeAttr('style');
+        } else {
+            $(this).attr('style', parentStyles[i]);
+        }
+    });
+}
+
+
 function readExecInfo(pd_controls, element, searchParents){
     if (searchParents === null || searchParents === undefined ){
         searchParents = true;
@@ -273,37 +308,7 @@ function readExecInfo(pd_controls, element, searchParents){
 
     execInfo.options.widget = element.getAttribute("pd_widget");
 
-    // unhide parents temporarily to properly calculate width/height
-    var parentStyles = [];
-    var hiddenBlockStyle = 'visibility: hidden !important; display: block !important;';
-    var tDiv = $("#" + execInfo.targetDivId);
-    var tDivParents = tDiv.parents().addBack().filter(':hidden');
-    tDivParents.each(function() {
-        var currentStyle = $(this).attr('style');
-        parentStyles.push(currentStyle);
-        $(this).attr('style', currentStyle ? currentStyle + ';' + hiddenBlockStyle : hiddenBlockStyle);
-    });
-
-    // calculate width/height
-    w = tDiv.width()
-    if (w) {
-        execInfo.options.nostore_cw= w;
-    }
-    if ($(element).parents(".modal-dialog").length > 0 ) {
-        h = tDiv.height()
-        if (h) {
-            execInfo.options.nostore_ch = h-10;
-        }
-    }
-
-    // re-hide parents
-    tDivParents.each(function(i) {
-        if (parentStyles[i] === undefined) {
-            $(this).removeAttr('style');
-        } else {
-            $(this).attr('style', parentStyles[i]);
-        }
-    });
+    computeGeometry(element, execInfo);
 
     execInfo.script = element.getAttribute("pd_script");
     if (!execInfo.script){
@@ -354,7 +359,8 @@ function readExecInfo(pd_controls, element, searchParents){
                 resolveScriptMacros( getParentScript(element) ) + '\n' +
                 resolveScriptMacros(execInfo.script);
             
-            if ( ( (!dialog && !execInfo.targetDivId) || execInfo.refresh || execInfo.entity) && !execInfo.norefresh && $(element).children("target[pd_target]").length == 0){
+            if ( ( (!dialog && !execInfo.targetDivId) || execInfo.refresh || execInfo.entity || execInfo.options.widget) && 
+                    !execInfo.norefresh && $(element).children("target[pd_target]").length == 0){
                 {#include a refresh of the whole screen#}
                 execInfo.script += "\n" + applyEntity(pd_controls.command, execInfo.entity, execInfo.options)
             }else{
@@ -423,8 +429,10 @@ function runElement(element, searchParents){
 }
 
 function filterNonTargetElements(element){
-    if (element && (element.tagName == "I" || element.tagName == "DIV")){
-        return filterNonTargetElements(element.parentElement);
+    if (element && ["I", "DIV", "SELECT"].includes(element.tagName)){
+        if (!element.hasAttribute("pd_options") || element.hasAttribute("pd_render_onload")){
+            return filterNonTargetElements(element.parentElement);
+        }
     }
     return element;
 }
@@ -469,16 +477,34 @@ $(document).on("pd_event", function(event, eventInfo){
     }else if ( eventInfo.type == "pd_load" && eventInfo.targetNode){
         var execQueue = []
         function accept(element){
-            return element.hasAttribute("pd_widget") || element.hasAttribute("pd_render_onload");
+            return element.hasAttribute("pd_widget") || element.hasAttribute("pd_render_onload") || element.hasAttribute("pd_refresh_rate");
         }
         eventInfo.targetNode.find("div").each(function(){
             if (accept(this)){
+                debugger;
+                var thisId = $(this).uniqueId().attr('id');
+                this.setAttribute( "id", thisId );
+                $(this).addClass("no_loading_msg");
+                if (!this.hasAttribute("pd_target") ){
+                    this.setAttribute("pd_target", this.getAttribute("id") );
+                }
                 thisQueue = runElement(this, false);
                 var loadingDiv = this;
                 $.each( thisQueue, function(index, value){
                     if (value){
-                        value.targetDivId = $(loadingDiv).uniqueId().attr('id');
+                        value.partialUpdate = true;
                         execQueue.push( value );
+                        refreshRate = loadingDiv.getAttribute("pd_refresh_rate");
+                        if (refreshRate){
+                            var ival = setInterval(function(){
+                                if ($('#' + thisId).length == 0){
+                                    console.log("Clearing refresh timer", ival);
+                                    clearInterval(ival);
+                                    return;
+                                }
+                                value.execute();
+                            }, parseInt( refreshRate) );
+                        }
                     }
                 })
             }
@@ -490,6 +516,8 @@ $(document).on("pd_event", function(event, eventInfo){
         });
     }
     else{
-        console.log("Warning: got a pd_event with no targetDivId", eventInfo);
+        if ( eventInfo.type != "pd_load"){
+            console.log("Warning: got a pd_event with no targetDivId", eventInfo);
+        }
     }
 });
