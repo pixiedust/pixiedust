@@ -14,7 +14,6 @@
 # limitations under the License.
 # -------------------------------------------------------------------------------
 
-from pixiedust.display.display import *
-
-class StreamingDisplay(Display):
-    pass
+from .baseStreamingDisplay import *
+from .lineChartStreamingDisplay import *
+from .scatterPlotStreamingDisplay import *

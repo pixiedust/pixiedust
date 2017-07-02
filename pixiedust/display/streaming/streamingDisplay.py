@@ -14,11 +14,9 @@
 # limitations under the License.
 # -------------------------------------------------------------------------------
 
-class LineChartStreamingDisplay(BokehStreamingDisplay):
-    def createGlyphRenderer(self, figure, x, y):
-        self.i = 0
-        return figure.line(x,y,line_color=None, hover_line_color=None)
-    
-    def updateGlyphRenderer(self, figure, glyphRenderer):
-        self.i +=1
-        figure.title.text = str(self.i)
+from pixiedust.display.display import *
+
+class StreamingDisplay(Display):
+    def __init__(self, options, entity, dataHandler=None):
+        super(StreamingDisplay,self).__init__(options,entity,dataHandler)
+        self.windowSize = 100

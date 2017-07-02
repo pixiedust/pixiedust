@@ -13,7 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # -------------------------------------------------------------------------------
+from ..bokeh import BokehStreamingDisplay
+import numpy as np
 
+N=100
 class ScatterPlotStreamingDisplay(BokehStreamingDisplay):
     def createGlyphRenderer(self, figure, x, y):
         self.radii = np.random.random(size=N) * 2

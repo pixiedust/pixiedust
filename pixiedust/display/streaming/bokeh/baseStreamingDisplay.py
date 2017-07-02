@@ -13,7 +13,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # -------------------------------------------------------------------------------
+
 from pixiedust.display.streaming.streamingDisplay import StreamingDisplay
+from pixiedust.display.display import CellHandshake
 import pandas
 import numpy as np
 from bokeh.io import push_notebook, show, output_notebook
@@ -24,9 +26,10 @@ from bokeh.util.serialization import make_id
 from bokeh.util.notebook import get_comms
 
 class BokehStreamingDisplay(StreamingDisplay):
+    CellHandshake.addCallbackSniffer( lambda: "{'nostore_bokeh':!!window.Bokeh}")
+
     def __init__(self, options, entity, dataHandler=None):
         super(BokehStreamingDisplay,self).__init__(options,entity,dataHandler)
-        self.windowSize = 100
         self.handleId = None
         self.TOOLS="crosshair,pan,wheel_zoom,box_zoom,reset,tap,box_select,lasso_select"
         self.figure = figure(tools=self.TOOLS)
@@ -73,6 +76,9 @@ class BokehStreamingDisplay(StreamingDisplay):
         raise Exception("Can't cast to np array: unsupported type")
     
     def doRender(self, handlerId):
+        clientHasBokeh = self.options.get("nostore_bokeh", "false") == "true"
+        if not clientHasBokeh:          
+            output_notebook(hide_banner=True)
         data = self.entity.getNextData()
         if data is None:
             return
@@ -83,7 +89,9 @@ class BokehStreamingDisplay(StreamingDisplay):
         if isinstance(data, (list,np.ndarray)):
             x = list(range(self.windowSize)) if self.glyphRenderer is None else self.glyphRenderer.data_source.data['x']
             y = data if self.glyphRenderer is None else self._concatArrays(self.glyphRenderer.data_source.data['y'],data)
-            if len(y) > self.windowSize:
+            if len(y) < self.windowSize:
+                y = [0]*(self.windowSize-len(y)) + y
+            elif len(y) > self.windowSize:
                 y = self._delWindowElements(y)
         elif isinstance(data, pandas.core.frame.DataFrame):
             pd = pd.drop(pd.index[[0]])

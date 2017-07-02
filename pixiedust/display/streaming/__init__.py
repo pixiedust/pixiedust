@@ -14,6 +14,7 @@
 # limitations under the License.
 # -------------------------------------------------------------------------------
 from abc import abstractmethod, ABCMeta
+from six import with_metaclass
 
 class StreamingDataAdapter(with_metaclass(ABCMeta)):
     @abstractmethod

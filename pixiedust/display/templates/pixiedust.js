@@ -136,7 +136,7 @@ var pixiedust = (function(){
 
 function resolveScriptMacros(script){
     script = script && script.replace(/\$val\(\"?(\w*)\"?\)/g, function(a,b){
-        var v = $("#" + b ).val();
+        var v = $("#" + b ).val() || $("#" + b ).text();
         if (!v && window[b] && typeof window[b] === "function"){
             v = window[b]();
         }
@@ -424,7 +424,9 @@ function runElement(element, searchParents){
 
 function filterNonTargetElements(element){
     if (element && (element.tagName == "I" || element.tagName == "DIV")){
-        return filterNonTargetElements(element.parentElement);
+        if (!element.hasAttribute("pd_options") || element.hasAttribute("pd_render_onload")){
+            return filterNonTargetElements(element.parentElement);
+        }
     }
     return element;
 }
@@ -473,7 +475,6 @@ $(document).on("pd_event", function(event, eventInfo){
         }
         eventInfo.targetNode.find("div").each(function(){
             if (accept(this)){
-                debugger;
                 var thisId = $(this).uniqueId().attr('id');
                 this.setAttribute( "id", thisId );
                 $(this).addClass("no_loading_msg");

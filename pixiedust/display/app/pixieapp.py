@@ -33,19 +33,29 @@ class PixieDustApp(Display):
 
     routesByClass = {}
     
+    def getOptionValue(self, optionName):
+        #first check if the key is an field of the class
+        option = getattr(self.entity, optionName) if self.entity is not None and hasattr(self.entity, optionName) else None
+        #make sure we don't have a conflict with an existing function
+        if callable(option):
+            option = None
+        if option is None:
+            option = self.options.get(optionName,None)
+        return option
+
     def matchRoute(self, route):
         for key,value in iteritems(route):
-            #first check if the key is an field of the class
-            option = getattr(self.entity, key) if self.entity is not None and hasattr(self.entity, key) else None
-            #make sure we don't have a conflict with an existing function
-            if callable(option):
-                option = None
-            if option is None:
-                option = self.options.get(key,None)
+            option = self.getOptionValue(key)
             if  (option is None and value=="*") or (value != "*" and option != value):
                 return False
         return True
-        
+
+    def injectArgs(self, method, route):
+        argspec = inspect.getargspec(method)
+        args = argspec.args
+        args = args[1:] if hasattr(method, "__self__") else args
+        return [ None if arg not in route else self.getOptionValue(arg) for arg in args]
+
     def doRender(self, handlerId):
         if self.__class__.__name__ in PixieDustApp.routesByClass:
             defRoute = None
@@ -57,7 +67,8 @@ class PixieDustApp(Display):
                         defRoute = t[1]
                     elif self.matchRoute(t[0]):
                         self.debug("match found: {}".format(t[0]))
-                        retValue = getattr(self, t[1])()
+                        meth = getattr(self, t[1])
+                        retValue = meth(*self.injectArgs(meth, t[0]))
                         return
                 if defRoute:
                     retValue = getattr(self, defRoute)()
