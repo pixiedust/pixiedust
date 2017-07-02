@@ -55,10 +55,20 @@ def registerDisplayHandler(handlerMetadata, isDefault=False, system=False):
     global defaultHandler
     if isDefault and defaultHandler is None:
         defaultHandler=handlerMetadata
-    if system:
-        systemHandlers.append(handlerMetadata)
-    else:
-        handlers.append(handlerMetadata)
+    listHandlers = systemHandlers if system else handlers
+    found = False
+    def myeq(a,b):
+        return a.__class__.__module__ == b.__class__.__module__ and a.__class__.__name__ == b.__class__.__name__
+    for i,h in enumerate(listHandlers):
+        if (not found and myeq(h, handlerMetadata)):
+            #duplicate found, happens mostly when user is iterating on the notebook
+            for x in [ x for x in globalMenuInfos if myeq(globalMenuInfos[x]['handler'], handlerMetadata)]:
+                del(globalMenuInfos[x])
+            listHandlers[i] = handlerMetadata
+            found = True
+
+    if not found:
+        listHandlers.append(handlerMetadata)
 
     #Add the categories
     cat = None
