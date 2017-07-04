@@ -44,7 +44,6 @@ class MessagehubStreamingAdapter(StreamingDataAdapter):
         self.consumer = Consumer(conf)
         self.consumer.subscribe([topic])
         self.schema = {}
-        self.schemaX = None
         self.sampleDocCount = 0
         
     def close(self):
@@ -69,23 +68,14 @@ class MessagehubStreamingAdapter(StreamingDataAdapter):
             if not key in self.schema:
                 self.schema[key] = self.inferType(value)
         self.sampleDocCount = self.sampleDocCount + 1 
-        
-    def setSchemaX(self, xCol):
-        self.schemaX = xCol
-        self.avg = 0
     
-    def getNextData(self):
+    def doGetNextData(self):
         msgs = []
         msg = self.consumer.poll(1)
         if msg is not None and msg.error() is None:
             jsonValue = json.loads(msg.value())
             self.inferSchema(json.loads(msg.value()))
-            if self.schemaX is None:
-                msgs.append(jsonValue)
-            elif self.schemaX in jsonValue:
-                thisValue = float(jsonValue[self.schemaX])
-                self.avg = thisValue if self.avg == 0 else (self.avg + thisValue)/2
-                msgs.append(self.avg)
+            msgs.append(jsonValue)
         return msgs
     
     def close(self):
