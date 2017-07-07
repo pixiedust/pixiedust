@@ -7,7 +7,7 @@ function draw() {
 		sizeAxis: {minSize: 6, maxSize: 15}
 	};
 
-	var chart = new google.visualization.GeoChart(document.getElementById('map{{prefix}}'));
+	var chart = new google.visualization.GeoChart(document.getElementById('map-{{prefix}}-{{randomid}}'));
 	var data = google.visualization.arrayToDataTable({{this.options.get("mapData")}});
 
 	google.visualization.events.addListener(chart, 'select', function(){
