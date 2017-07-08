@@ -138,7 +138,8 @@ self.select_space="true"
 """
         for svc in svcs:
             svc_label = self.get_service_label(self.access_token, svc['entity']['service_plan_guid'])
-            if svc_label == 'cloudantNoSQLDB':
+            svc_name = svc['entity']['name']
+            if svc_label == 'cloudantNoSQLDB' or "cloudant" in svc_name.lower():
                 svc_keys = self.get_service_keys(self.access_token, svc['metadata']['guid'])
                 for svc_key in svc_keys:
                     svc_key_entity = svc_key['entity']
