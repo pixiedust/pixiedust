@@ -17,6 +17,7 @@
 from pixiedust.display.streaming import *
 from six import string_types, iteritems
 import json
+import os
 try:
     from confluent_kafka import Consumer
 except:
@@ -24,12 +25,15 @@ except:
 
 class MessagehubStreamingAdapter(StreamingDataAdapter):
     def __init__(self, topic, username, password):
+        caLocation = '/etc/ssl/cert.pem'
+        if not os.path.exists(caLocation):
+            caLocation = '/etc/pki/tls/cert.pem'
         conf = {
             'client.id': 'pixieapp.client.id',
             'group.id': 'pixieapp.group',
             'security.protocol': 'SASL_SSL',
             'sasl.mechanisms': 'PLAIN',
-            'ssl.ca.location': '/etc/ssl/cert.pem',
+            'ssl.ca.location': caLocation,
             "bootstrap.servers": ','.join([
                 "kafka01-prod01.messagehub.services.us-south.bluemix.net:9093",
                 "kafka02-prod01.messagehub.services.us-south.bluemix.net:9093",
