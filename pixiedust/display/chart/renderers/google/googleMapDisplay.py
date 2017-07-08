@@ -19,6 +19,7 @@ from .googleBaseDisplay import GoogleBaseDisplay
 
 import numpy as np
 import pixiedust
+import uuid
 
 myLogger = pixiedust.getLogger(__name__)
 
@@ -92,8 +93,9 @@ class MapViewDisplay(GoogleBaseDisplay):
         self._addScriptElement("https://www.gstatic.com/charts/loader.js")
         if apikey is not None and len(apikey)>5:
             self._addScriptElement("https://maps.googleapis.com/maps/api/js?key={0}".format(apikey))
-        self._addScriptElement("https://www.google.com/jsapi", callback=self.renderTemplate("mapView.js"))
-        return self.renderTemplate("mapView.html")
+        uniqueid = str(uuid.uuid4())[:8]
+        self._addScriptElement("https://www.google.com/jsapi", callback=self.renderTemplate("mapView.js", randomid=uniqueid))
+        return self.renderTemplate("mapView.html", randomid=uniqueid)
 
     def _getDefaultKeyFields(self):
         for field in self.entity.schema.fields:
