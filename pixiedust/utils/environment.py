@@ -15,6 +15,7 @@
 # -------------------------------------------------------------------------------
 from six import with_metaclass
 from . import *
+from .shellAccess import ShellAccess
 import os
 import re
 import subprocess
@@ -70,6 +71,18 @@ class Environment(with_metaclass(
                 return True
             except ImportError:
                 return False
+
+        @property
+        @cache(fieldName="_sparkVersion")
+        def sparkVersion(self):
+            if not self.hasSpark:
+                return None
+            version = ShellAccess["sc"].version
+            if version.startswith('1.'):
+                return 1
+            elif version.startswith('2.'):
+                return 2
+            return None
 
     env = _Environment()
 
