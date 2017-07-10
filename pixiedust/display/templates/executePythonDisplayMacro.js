@@ -97,8 +97,10 @@ function() {
                                     data["text/html"] = markup;
                                     return data;
                                 }
-                                curCell.output_area.outputs.push({"data": savedData(data),"metadata":content.metadata,"output_type":msg_type});
-                            },2000);
+                                curCell.output_area.outputs = [{
+                                    "data": savedData(data),"metadata":content.metadata,"output_type":msg_type
+                                }];
+                            },100);
                         }
                     }
                 }else if (msg_type === "error") {
