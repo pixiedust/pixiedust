@@ -137,20 +137,21 @@ class Downloader(object):
     
     def download(self, dataLoader):
         displayName = self.dataDef["displayName"]
+        bytesDownloaded = 0
         if "path" in self.dataDef:
             path = self.dataDef["path"]
         else:
             url = self.dataDef["url"]
             req = Request(url, None, self.headers)
             print("Downloading '{0}' from {1}".format(displayName, url))
-            bytesDownloaded = 0
             with tempfile.NamedTemporaryFile(delete=False) as f:
                 bytesDownloaded = self.write(urlopen(req), f)
                 path = f.name
                 self.dataDef["path"] = path = f.name
         if path:
             try:
-                print("Downloaded {} bytes".format(bytesDownloaded))
+                if bytesDownloaded > 0:
+                    print("Downloaded {} bytes".format(bytesDownloaded))
                 print("Creating pySpark DataFrame for '{0}'. Please wait...".format(displayName))
                 return dataLoader(path, self.dataDef.get("schema", None))
             finally:

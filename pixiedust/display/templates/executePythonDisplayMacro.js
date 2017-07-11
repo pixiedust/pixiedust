@@ -58,14 +58,6 @@ function() {
                     }
                     
                     if (html){
-                        try{
-                            getTargetNode().html(html);
-                        }catch(e){
-                            console.log("Invalid html output", e, html);
-                            getTargetNode().html( "Invalid html output: " + e.message + "<pre>" 
-                                + html.replace(/>/g,'&gt;').replace(/</g,'&lt;').replace(/"/g,'&quot;') + "<pre>");
-                        }
-
                         if(curCell&&curCell.output_area&&curCell.output_area.outputs){
                             debugger;
                             var data = JSON.parse(JSON.stringify(content.data));
@@ -97,10 +89,17 @@ function() {
                                 data["text/html"] = markup;
                                 return data;
                             }
-                            /*curCell.output_area.outputs = [{
+                            curCell.output_area.outputs = [{
                                 "data": savedData(data),"metadata":content.metadata,"output_type":msg_type
-                            }];*/
-                            curCell.output_area.outputs.push({"data": savedData(data),"metadata":content.metadata,"output_type":msg_type});
+                            }];
+                        }
+
+                        try{
+                            getTargetNode().html(html);
+                        }catch(e){
+                            console.log("Invalid html output", e, html);
+                            getTargetNode().html( "Invalid html output: " + e.message + "<pre>" 
+                                + html.replace(/>/g,'&gt;').replace(/</g,'&lt;').replace(/"/g,'&quot;') + "<pre>");
                         }
                     }
                 }else if (msg_type === "error") {
