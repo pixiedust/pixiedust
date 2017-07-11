@@ -67,6 +67,7 @@ function() {
                         }
 
                         if(curCell&&curCell.output_area&&curCell.output_area.outputs){
+                            debugger;
                             var data = JSON.parse(JSON.stringify(content.data));
                             if(!!data["text/html"])data["text/html"]=html;
                             function savedData(data){
@@ -96,9 +97,10 @@ function() {
                                 data["text/html"] = markup;
                                 return data;
                             }
-                            curCell.output_area.outputs = [{
+                            /*curCell.output_area.outputs = [{
                                 "data": savedData(data),"metadata":content.metadata,"output_type":msg_type
-                            }];
+                            }];*/
+                            curCell.output_area.outputs.push({"data": savedData(data),"metadata":content.metadata,"output_type":msg_type});
                         }
                     }
                 }else if (msg_type === "error") {
