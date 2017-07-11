@@ -127,7 +127,8 @@ class SampleData(object):
         }
         return Downloader(dataDef).download(self.dataLoader)
 
-
+#Use of progress Monitor doesn't render correctly when previewed a saved notebook, turning it off until solution is found
+useProgressMonitor = False
 class Downloader(object):
     def __init__(self, dataDef):
         self.dataDef = dataDef
@@ -142,35 +143,38 @@ class Downloader(object):
             url = self.dataDef["url"]
             req = Request(url, None, self.headers)
             print("Downloading '{0}' from {1}".format(displayName, url))
+            bytesDownloaded = 0
             with tempfile.NamedTemporaryFile(delete=False) as f:
-                self.write(urlopen(req), f)
+                bytesDownloaded = self.write(urlopen(req), f)
                 path = f.name
                 self.dataDef["path"] = path = f.name
         if path:
             try:
+                print("Downloaded {} bytes".format(bytesDownloaded))
                 print("Creating pySpark DataFrame for '{0}'. Please wait...".format(displayName))
                 return dataLoader(path, self.dataDef.get("schema", None))
             finally:
                 print("Successfully created pySpark DataFrame for '{0}'".format(displayName))
             
     def report(self, bytes_so_far, chunk_size, total_size):
-        if bytes_so_far == 0:
-            display( HTML( """
-                <div>
-                    <span id="pm_label{0}">Starting download...</span>
-                    <progress id="pm_progress{0}" max="100" value="0" style="width:200px"></progress>
-                </div>""".format(self.prefix)
+        if useProgressMonitor:
+            if bytes_so_far == 0:
+                display( HTML( """
+                    <div>
+                        <span id="pm_label{0}">Starting download...</span>
+                        <progress id="pm_progress{0}" max="100" value="0" style="width:200px"></progress>
+                    </div>""".format(self.prefix)
+                    )
                 )
-            )
-        else:
-            percent = float(bytes_so_far) / total_size
-            percent = round(percent*100, 2)
-            display(
-                Javascript("""
-                    $("#pm_label{prefix}").text("{label}");
-                    $("#pm_progress{prefix}").attr("value", {percent});
-                """.format(prefix=self.prefix, label="Downloaded {0} of {1} bytes".format(bytes_so_far, total_size), percent=percent))
-            )
+            else:
+                percent = float(bytes_so_far) / total_size
+                percent = round(percent*100, 2)
+                display(
+                    Javascript("""
+                        $("#pm_label{prefix}").text("{label}");
+                        $("#pm_progress{prefix}").attr("value", {percent});
+                    """.format(prefix=self.prefix, label="Downloaded {0} of {1} bytes".format(bytes_so_far, total_size), percent=percent))
+                )
 
     def write(self, response, file, chunk_size=8192):
         total_size = response.headers['Content-Length'].strip() if 'Content-Length' in response.headers else 100
