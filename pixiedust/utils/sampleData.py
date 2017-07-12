@@ -23,6 +23,8 @@ import uuid
 import tempfile
 from collections import OrderedDict
 from IPython.display import display, HTML, Javascript
+import json
+import requests
 try:
     from urllib.request import Request, urlopen, URLError, HTTPError
 except ImportError:
@@ -85,13 +87,15 @@ class SampleData(object):
     def __init__(self, dataDefs):
         self.dataDefs = dataDefs
 
-    def sampleData(self, dataId = None):
+    def sampleData(self, dataId = None, type = None):
         if dataId is None:
             self.printSampleDataList()
         elif str(dataId) in dataDefs:
             return self.loadSparkDataFrameFromSampleData(dataDefs[str(dataId)])
         elif "https://" in str(dataId) or "http://" in str(dataId) or "file://" in str(dataId):
-            return self.loadSparkDataFrameFromUrl(str(dataId))
+            return self.loadSparkDataFrameFromUrl(str(dataId), type=None)
+        elif ("https://" in str(dataId) or "http://" in str(dataId) or "file://" in str(dataId)) and type = "json":
+            return self.loadSparkDataFrameFromUrl(str(dataId), type="json")
         else:
             print("Unknown sample data identifier. Please choose an id from the list below")
             self.printSampleDataList()
@@ -129,17 +133,41 @@ class SampleData(object):
             print("Loading file using 'pandas'")
             return pd.read_csv(path)
 
+    # JSON data loader
+    def jsonDataLoader(self, path, schema=None):
+        if schema is not None and Environment.hasSpark:
+            from pyspark.sql.types import StructType,StructField,IntegerType,DoubleType,StringType
+            def getType(t):
+                if t == 'int':
+                    return IntegerType()
+                elif t == 'double':
+                    return DoubleType()
+                else:
+                    return StringType()
+
+        if Environment.sparkVersion == 1:
+            print("Loading file using...")
+            r = requests.get(path)
+            df = sqlContext.createDataFrame([json.loads(line) for line in r.iter_lines()])
+        elif Environment.sparkVersion == 2:
+            # handle this
+        else:
+            # handle this
+
     def loadSparkDataFrameFromSampleData(self, dataDef):
         return Downloader(dataDef).download(self.dataLoader)
 
-    def loadSparkDataFrameFromUrl(self, dataUrl):
+    def loadSparkDataFrameFromUrl(self, dataUrl, type = None):
         i = dataUrl.rfind('/')
         dataName = dataUrl[(i+1):]
         dataDef = {
             "displayName": dataUrl,
             "url": dataUrl
         }
-        return Downloader(dataDef).download(self.dataLoader)
+        if type = "json":
+            return Downloader(dataDef).download(self.jsonDataLoader)
+        else:
+            return Downloader(dataDef).download(self.dataLoader)
 
 #Use of progress Monitor doesn't render correctly when previewed a saved notebook, turning it off until solution is found
 useProgressMonitor = False
@@ -151,21 +179,20 @@ class Downloader(object):
     
     def download(self, dataLoader):
         displayName = self.dataDef["displayName"]
-        bytesDownloaded = 0
         if "path" in self.dataDef:
             path = self.dataDef["path"]
         else:
             url = self.dataDef["url"]
             req = Request(url, None, self.headers)
             print("Downloading '{0}' from {1}".format(displayName, url))
+            bytesDownloaded = 0
             with tempfile.NamedTemporaryFile(delete=False) as f:
                 bytesDownloaded = self.write(urlopen(req), f)
                 path = f.name
                 self.dataDef["path"] = path = f.name
         if path:
             try:
-                if bytesDownloaded > 0:
-                    print("Downloaded {} bytes".format(bytesDownloaded))
+                print("Downloaded {} bytes".format(bytesDownloaded))
                 print("Creating {1} DataFrame for '{0}'. Please wait...".format(displayName, 'pySpark' if Environment.hasSpark else 'pandas'))
                 return dataLoader(path, self.dataDef.get("schema", None))
             finally:
