@@ -87,15 +87,13 @@ class SampleData(object):
     def __init__(self, dataDefs):
         self.dataDefs = dataDefs
 
-    def sampleData(self, dataId = None, type = None):
+    def sampleData(self, dataId = None):
         if dataId is None:
             self.printSampleDataList()
         elif str(dataId) in dataDefs:
             return self.loadSparkDataFrameFromSampleData(dataDefs[str(dataId)])
         elif "https://" in str(dataId) or "http://" in str(dataId) or "file://" in str(dataId):
-            return self.loadSparkDataFrameFromUrl(str(dataId), type=None)
-        elif ("https://" in str(dataId) or "http://" in str(dataId) or "file://" in str(dataId)) and type = "json":
-            return self.loadSparkDataFrameFromUrl(str(dataId), type="json")
+            return self.loadSparkDataFrameFromUrl(str(dataId))
         else:
             print("Unknown sample data identifier. Please choose an id from the list below")
             self.printSampleDataList()
@@ -106,6 +104,10 @@ class SampleData(object):
         #    print("{0}: {1}".format(key, val["displayName"]))
 
     def dataLoader(self, path, schema=None):
+        fileExtPeriod = path.rfind('.')
+        pathLength = len(path)
+        fileExt = path[fileExtPeriod+1 : pathLength]
+
         if schema is not None and Environment.hasSpark:
             from pyspark.sql.types import StructType,StructField,IntegerType,DoubleType,StringType
             def getType(t):
@@ -116,58 +118,46 @@ class SampleData(object):
                 else:
                     return StringType()
 
-        if Environment.sparkVersion == 1:
-            print("Loading file using 'com.databricks.spark.csv'")
-            load = ShellAccess.sqlContext.read.format('com.databricks.spark.csv')
-            if schema is not None:
-                return load.options(header='true', mode="DROPMALFORMED").load(path, schema=StructType([StructField(item[0], getType(item[1]), True) for item in schema]))
+        if fileExt == "json":
+            if Environment.sparkVersion == 1:
+                print("Loading file using...")
+                r = requests.get(path)
+                df = sqlContext.createDataFrame([json.loads(line) for line in r.iter_lines()])
+            elif Environment.sparkVersion == 2:
+                # handle this
             else:
-                return load.options(header='true', mode="DROPMALFORMED", inferschema='true').load(path)
-        elif Environment.sparkVersion == 2:
-            print("Loading file using 'SparkSession'")
-            if schema is not None:
-                return ShellAccess.SparkSession.builder.getOrCreate().read.csv(path, header=True, mode="DROPMALFORMED", schema=StructType([StructField(item[0], getType(item[1]), True) for item in schema]))
-            else:
-                return ShellAccess.SparkSession.builder.getOrCreate().read.csv(path, header=True, mode="DROPMALFORMED", inferSchema='true')
+                # handle this
         else:
-            print("Loading file using 'pandas'")
-            return pd.read_csv(path)
-
-    # JSON data loader
-    def jsonDataLoader(self, path, schema=None):
-        if schema is not None and Environment.hasSpark:
-            from pyspark.sql.types import StructType,StructField,IntegerType,DoubleType,StringType
-            def getType(t):
-                if t == 'int':
-                    return IntegerType()
-                elif t == 'double':
-                    return DoubleType()
+            if Environment.sparkVersion == 1:
+                print("Loading file using 'com.databricks.spark.csv'")
+                load = ShellAccess.sqlContext.read.format('com.databricks.spark.csv')
+                if schema is not None:
+                    return load.options(header='true', mode="DROPMALFORMED").load(path, schema=StructType([StructField(item[0], getType(item[1]), True) for item in schema]))
                 else:
-                    return StringType()
+                    return load.options(header='true', mode="DROPMALFORMED", inferschema='true').load(path)
+            elif Environment.sparkVersion == 2:
+                print("Loading file using 'SparkSession'")
+                if schema is not None:
+                    return ShellAccess.SparkSession.builder.getOrCreate().read.csv(path, header=True, mode="DROPMALFORMED", schema=StructType([StructField(item[0], getType(item[1]), True) for item in schema]))
+                else:
+                    return ShellAccess.SparkSession.builder.getOrCreate().read.csv(path, header=True, mode="DROPMALFORMED", inferSchema='true')
+            else:
+                print("Loading file using 'pandas'")
+                return pd.read_csv(path)
 
-        if Environment.sparkVersion == 1:
-            print("Loading file using...")
-            r = requests.get(path)
-            df = sqlContext.createDataFrame([json.loads(line) for line in r.iter_lines()])
-        elif Environment.sparkVersion == 2:
-            # handle this
-        else:
-            # handle this
 
     def loadSparkDataFrameFromSampleData(self, dataDef):
         return Downloader(dataDef).download(self.dataLoader)
 
-    def loadSparkDataFrameFromUrl(self, dataUrl, type = None):
+    def loadSparkDataFrameFromUrl(self, dataUrl):
         i = dataUrl.rfind('/')
         dataName = dataUrl[(i+1):]
         dataDef = {
             "displayName": dataUrl,
             "url": dataUrl
         }
-        if type = "json":
-            return Downloader(dataDef).download(self.jsonDataLoader)
-        else:
-            return Downloader(dataDef).download(self.dataLoader)
+        
+        return Downloader(dataDef).download(self.dataLoader)
 
 #Use of progress Monitor doesn't render correctly when previewed a saved notebook, turning it off until solution is found
 useProgressMonitor = False
