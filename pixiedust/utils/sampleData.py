@@ -18,6 +18,7 @@ import pixiedust
 from pixiedust.utils.shellAccess import ShellAccess
 from pixiedust.utils.template import PixiedustTemplateEnvironment
 from pixiedust.utils.environment import Environment,scalaGateway
+import pandas as pd
 import uuid
 import tempfile
 from collections import OrderedDict
@@ -101,9 +102,8 @@ class SampleData(object):
         #    print("{0}: {1}".format(key, val["displayName"]))
 
     def dataLoader(self, path, schema=None):
-        #TODO: if in Spark 2.0 or higher, use new API to load CSV
-        load = ShellAccess["sqlContext"].read.format('com.databricks.spark.csv')
-        if schema is not None:
+        if schema is not None and Environment.hasSpark:
+            from pyspark.sql.types import StructType,StructField,IntegerType,DoubleType,StringType
             def getType(t):
                 if t == 'int':
                     return IntegerType()
@@ -111,9 +111,23 @@ class SampleData(object):
                     return DoubleType()
                 else:
                     return StringType()
-            return load.options(header='true', mode="DROPMALFORMED").load(path, schema=StructType([StructField(item[0], getType(item[1]), True) for item in schema]))
+
+        if Environment.sparkVersion == 1:
+            print("Loading file using 'com.databricks.spark.csv'")
+            load = ShellAccess.sqlContext.read.format('com.databricks.spark.csv')
+            if schema is not None:
+                return load.options(header='true', mode="DROPMALFORMED").load(path, schema=StructType([StructField(item[0], getType(item[1]), True) for item in schema]))
+            else:
+                return load.options(header='true', mode="DROPMALFORMED", inferschema='true').load(path)
+        elif Environment.sparkVersion == 2:
+            print("Loading file using 'SparkSession'")
+            if schema is not None:
+                return ShellAccess.SparkSession.builder.getOrCreate().read.csv(path, header=True, mode="DROPMALFORMED", schema=StructType([StructField(item[0], getType(item[1]), True) for item in schema]))
+            else:
+                return ShellAccess.SparkSession.builder.getOrCreate().read.csv(path, header=True, mode="DROPMALFORMED", inferSchema='true')
         else:
-            return load.options(header='true', mode="DROPMALFORMED", inferschema='true').load(path)
+            print("Loading file using 'pandas'")
+            return pd.read_csv(path)
 
     def loadSparkDataFrameFromSampleData(self, dataDef):
         return Downloader(dataDef).download(self.dataLoader)
@@ -150,12 +164,17 @@ class Downloader(object):
                 self.dataDef["path"] = path = f.name
         if path:
             try:
+<<<<<<< HEAD
                 if bytesDownloaded > 0:
                     print("Downloaded {} bytes".format(bytesDownloaded))
                 print("Creating pySpark DataFrame for '{0}'. Please wait...".format(displayName))
+=======
+                print("Downloaded {} bytes".format(bytesDownloaded))
+                print("Creating {1} DataFrame for '{0}'. Please wait...".format(displayName, 'pySpark' if Environment.hasSpark else 'pandas'))
+>>>>>>> origin/master
                 return dataLoader(path, self.dataDef.get("schema", None))
             finally:
-                print("Successfully created pySpark DataFrame for '{0}'".format(displayName))
+                print("Successfully created {1} DataFrame for '{0}'".format(displayName, 'pySpark' if Environment.hasSpark else 'pandas'))
             
     def report(self, bytes_so_far, chunk_size, total_size):
         if useProgressMonitor:
