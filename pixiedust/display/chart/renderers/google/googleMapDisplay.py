@@ -26,6 +26,10 @@ myLogger = pixiedust.getLogger(__name__)
 @PixiedustRenderer(id="mapView")
 class MapViewDisplay(GoogleBaseDisplay):
 
+    def __init__(self, options, entity, dataHandler=None):
+        super(MapViewDisplay,self).__init__(options,entity,dataHandler)
+        self.delaySaving = True
+
     def supportsKeyFieldLabels(self, handlerId):
         return False
     

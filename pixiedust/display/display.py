@@ -189,6 +189,7 @@ class Display(with_metaclass(ABCMeta)):
         self.addProfilingTime = False
         self.executionTime=None
         self.extraTemplateArgs={}
+        self.delaySaving = False    #tell the front-end runtime to delay the output saving to give the renderer time to process
 
     def getBooleanOption(self, key, defValue):
         value = self.options.get(key, None)
@@ -248,6 +249,8 @@ class Display(with_metaclass(ABCMeta)):
         check if pixiedust object is already installed on the client
     """
     def _checkPixieDustJS(self):
+        if self.delaySaving:
+            self.options["nostore_delaysave"] = "true"
         if self.options.get("nostore_pixiedust", "false") != "true":
             self.options["nostore_pixiedust"] = "true"
             ipythonDisplay(Javascript(self.renderTemplate( "addScriptCode.js", type="css", code = self.renderTemplate("pixiedust.css") )))
@@ -387,8 +390,9 @@ class Display(with_metaclass(ABCMeta)):
 
         command = updateCommand(command, "showchrome", None)
 
-        if "nostore_pixiedust" in self.options:
-            command = updateCommand(command, "nostore_pixiedust", self.options["nostore_pixiedust"])
+        for opt in ["nostore_pixiedust", "nostore_delaysave"]:
+            if opt in self.options:
+                command = updateCommand(command, opt, self.options[opt])
         #remove showchrome if there
         return command.replace("\"","\\\"")
 
