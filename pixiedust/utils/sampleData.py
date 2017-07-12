@@ -164,14 +164,9 @@ class Downloader(object):
                 self.dataDef["path"] = path = f.name
         if path:
             try:
-<<<<<<< HEAD
                 if bytesDownloaded > 0:
                     print("Downloaded {} bytes".format(bytesDownloaded))
-                print("Creating pySpark DataFrame for '{0}'. Please wait...".format(displayName))
-=======
-                print("Downloaded {} bytes".format(bytesDownloaded))
                 print("Creating {1} DataFrame for '{0}'. Please wait...".format(displayName, 'pySpark' if Environment.hasSpark else 'pandas'))
->>>>>>> origin/master
                 return dataLoader(path, self.dataDef.get("schema", None))
             finally:
                 print("Successfully created {1} DataFrame for '{0}'".format(displayName, 'pySpark' if Environment.hasSpark else 'pandas'))
