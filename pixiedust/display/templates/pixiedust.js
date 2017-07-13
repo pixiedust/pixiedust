@@ -136,6 +136,42 @@ var pixiedust = (function(){
                     pixiedust.dialogRoot = null;
                 });
             })
+        },
+        saveOutputInCell: function(curCell, content, html, msg_type){
+            if(curCell && curCell.output_area && curCell.output_area.outputs){
+                var data = JSON.parse(JSON.stringify(content.data));
+                if(!!data["text/html"])data["text/html"]=html;
+                function savedData(data){
+                    {#hide the output when displayed with nbviewer on github, use the is-viewer-good class which is only available on github#}
+                    var markup='<style type="text/css">.pd_warning{display:none;}</style>';
+                    markup+='<div class="pd_warning"><em>Hey, there\'s something awesome here! To see it, open this notebook outside GitHub, in a viewer like Jupyter</em></div>';
+                    nodes = $.parseHTML(data["text/html"], null, true);
+                    var s = $(nodes).wrap("<div>").parent().find(".pd_save").not(".pd_save .pd_save");
+                    s.each(function(){
+                        var found = false;
+                        if ( $(this).attr("id") ){
+                            var n = $("#" + $(this).attr("id"));
+                            if (n.length>0){
+                                found=true;
+                                n.each(function(){
+                                    $(this).addClass("is-viewer-good");
+                                });
+                                markup+=n.wrap("<div>").parent().html();
+                            }
+                        }else{
+                            $(this).addClass("is-viewer-good");
+                        }
+                        if (!found){
+                            markup+=$(this).parent().html();
+                        }
+                    });
+                    data["text/html"] = markup;
+                    return data;
+                }
+                curCell.output_area.outputs = [{
+                    "data": savedData(data),"metadata":content.metadata,"output_type":msg_type
+                }];
+            }
         }
     }
 })();
@@ -246,7 +282,6 @@ function computeGeometry(element, execInfo){
     });
 }
 
-
 function readExecInfo(pd_controls, element, searchParents){
     if (searchParents === null || searchParents === undefined ){
         searchParents = true;
@@ -256,34 +291,8 @@ function readExecInfo(pd_controls, element, searchParents){
     if (refreshTarget){
         var node = $("#" + refreshTarget);
         if (node.length){
-            var retValue = readExecInfo(pd_controls, node.get(0));
-            if (retValue){
-                retValue.targetDivId = refreshTarget;
-                var script = element.getAttribute("pd_script");
-                if (!script){
-                    node.find("> pd_script").each(function(){
-                        var type = this.getAttribute("type");
-                        if (!type || type=="python"){
-                            script = $(this).text();
-                        }
-                    });
-                }
-
-                if (script){
-                    script = script.trim()
-                    var match = pd_controls.command.match(/display\((\w*),/)
-                    if (match){
-                        var entity = match[1]
-                        script = "from pixiedust.utils.shellAccess import ShellAccess\n"+
-                            "self=ShellAccess['" + entity + "']\n" +
-                            resolveScriptMacros( getParentScript(element) ) + '\n' +
-                            resolveScriptMacros(script);
-                    }
-
-                    retValue.script = script + "\n" + (retValue.script || "")
-                }
-            }
-            return retValue;
+            pd_controls.refreshTarget = refreshTarget;
+            return readExecInfo(pd_controls, node.get(0));
         }
     }
     var execInfo = {}
@@ -307,7 +316,7 @@ function readExecInfo(pd_controls, element, searchParents){
         });
     }
     execInfo.options.nostore_figureOnly = true;
-    execInfo.options.targetDivId = execInfo.targetDivId = element.getAttribute("pd_target");
+    execInfo.options.targetDivId = execInfo.targetDivId = pd_controls.refreshTarget || element.getAttribute("pd_target");
     if (execInfo.options.targetDivId){
         execInfo.options.no_margin=true;
     }
