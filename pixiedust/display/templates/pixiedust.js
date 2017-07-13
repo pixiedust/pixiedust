@@ -282,7 +282,6 @@ function computeGeometry(element, execInfo){
     });
 }
 
-
 function readExecInfo(pd_controls, element, searchParents){
     if (searchParents === null || searchParents === undefined ){
         searchParents = true;
@@ -292,34 +291,8 @@ function readExecInfo(pd_controls, element, searchParents){
     if (refreshTarget){
         var node = $("#" + refreshTarget);
         if (node.length){
-            var retValue = readExecInfo(pd_controls, node.get(0));
-            if (retValue){
-                retValue.targetDivId = refreshTarget;
-                var script = element.getAttribute("pd_script");
-                if (!script){
-                    node.find("> pd_script").each(function(){
-                        var type = this.getAttribute("type");
-                        if (!type || type=="python"){
-                            script = $(this).text();
-                        }
-                    });
-                }
-
-                if (script){
-                    script = script.trim()
-                    var match = pd_controls.command.match(/display\((\w*),/)
-                    if (match){
-                        var entity = match[1]
-                        script = "from pixiedust.utils.shellAccess import ShellAccess\n"+
-                            "self=ShellAccess['" + entity + "']\n" +
-                            resolveScriptMacros( getParentScript(element) ) + '\n' +
-                            resolveScriptMacros(script);
-                    }
-
-                    retValue.script = script + "\n" + (retValue.script || "")
-                }
-            }
-            return retValue;
+            pd_controls.refreshTarget = refreshTarget;
+            return readExecInfo(pd_controls, node.get(0));
         }
     }
     var execInfo = {}
@@ -343,7 +316,7 @@ function readExecInfo(pd_controls, element, searchParents){
         });
     }
     execInfo.options.nostore_figureOnly = true;
-    execInfo.options.targetDivId = execInfo.targetDivId = element.getAttribute("pd_target");
+    execInfo.options.targetDivId = execInfo.targetDivId = pd_controls.refreshTarget || element.getAttribute("pd_target");
     if (execInfo.options.targetDivId){
         execInfo.options.no_margin=true;
     }
