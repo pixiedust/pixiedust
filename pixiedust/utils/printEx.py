@@ -40,8 +40,8 @@ def printWithLogo(message):
     display(HTML(
         """
         <div style="margin:10px">
-            <a href="https://github.com/ibm-cds-labs/pixiedust" target="_new">
-                <img src="https://github.com/ibm-cds-labs/pixiedust/raw/master/docs/_static/pd_icon32.png" style="float:left;margin-right:10px"/>
+            <a href="https://github.com/ibm-watson-data-lab/pixiedust" target="_new">
+                <img src="https://github.com/ibm-watson-data-lab/pixiedust/raw/master/docs/_static/pd_icon32.png" style="float:left;margin-right:10px"/>
             </a>
             <span>{0}</span>
         </div>

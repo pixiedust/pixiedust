@@ -39,8 +39,8 @@ class StashCloudantHandler(Display):
         cond1 = any("spark.jars" in s for s in config) and any( c in s for s in sparkJars for c in checks)
         cond2 = any(c in s for s in Environment.javaClassPath.split(":") for c in checks)
         if not cond1 and not cond2:
-            self._addHTML("<p>Please setup one time manual steps to configure stashing to Cloudant database at <a href=\"https://ibm-cds-labs.github.io/pixiedust/install.html#stash-to-cloudant\"  target=\"_blank\">https://ibm-cds-labs.github.io/pixiedust/install.html#stash-to-cloudant</a></p>")
-            self.debug("Please setup one time manual steps to configure stashing to Cloudant database at https://ibm-cds-labs.github.io/pixiedust/install.html#stash-to-cloudant")
+            self._addHTML("<p>Please setup one time manual steps to configure stashing to Cloudant database at <a href=\"https://ibm-watson-data-lab.github.io/pixiedust/install.html#stash-to-cloudant\"  target=\"_blank\">https://ibm-watson-data-lab.github.io/pixiedust/install.html#stash-to-cloudant</a></p>")
+            self.debug("Please setup one time manual steps to configure stashing to Cloudant database at https://ibm-watson-data-lab.github.io/pixiedust/install.html#stash-to-cloudant")
             self.debug("SparkContext conf:")
             self.debug(config)
             return

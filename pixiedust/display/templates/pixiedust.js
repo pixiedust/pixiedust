@@ -13,9 +13,15 @@ var pixiedust = (function(){
         executeDisplay:function(pd_controls, user_controls){
             pd_controls = pd_controls || {};
             user_controls = user_controls || {"options":{}};
+            if (user_controls.inFlight){
+                console.log("Ignoring request to execute Display that is already being executed");
+                return;
+            }
+            user_controls.inFlight = true;
             var options = $.extend({}, pd_controls.options || {}, user_controls.options || {} );
             function wrapDisplayDone(fn){
                 return function(targetNode){
+                    user_controls.inFlight = false;
                     if (fn){
                         fn.apply(this);
                     }
@@ -130,13 +136,49 @@ var pixiedust = (function(){
                     pixiedust.dialogRoot = null;
                 });
             })
+        },
+        saveOutputInCell: function(curCell, content, html, msg_type){
+            if(curCell && curCell.output_area && curCell.output_area.outputs){
+                var data = JSON.parse(JSON.stringify(content.data));
+                if(!!data["text/html"])data["text/html"]=html;
+                function savedData(data){
+                    {#hide the output when displayed with nbviewer on github, use the is-viewer-good class which is only available on github#}
+                    var markup='<style type="text/css">.pd_warning{display:none;}</style>';
+                    markup+='<div class="pd_warning"><em>Hey, there\'s something awesome here! To see it, open this notebook outside GitHub, in a viewer like Jupyter</em></div>';
+                    nodes = $.parseHTML(data["text/html"], null, true);
+                    var s = $(nodes).wrap("<div>").parent().find(".pd_save").not(".pd_save .pd_save");
+                    s.each(function(){
+                        var found = false;
+                        if ( $(this).attr("id") ){
+                            var n = $("#" + $(this).attr("id"));
+                            if (n.length>0){
+                                found=true;
+                                n.each(function(){
+                                    $(this).addClass("is-viewer-good");
+                                });
+                                markup+=n.wrap("<div>").parent().html();
+                            }
+                        }else{
+                            $(this).addClass("is-viewer-good");
+                        }
+                        if (!found){
+                            markup+=$(this).parent().html();
+                        }
+                    });
+                    data["text/html"] = markup;
+                    return data;
+                }
+                curCell.output_area.outputs = [{
+                    "data": savedData(data),"metadata":content.metadata,"output_type":msg_type
+                }];
+            }
         }
     }
 })();
 
 function resolveScriptMacros(script){
     script = script && script.replace(/\$val\(\"?(\w*)\"?\)/g, function(a,b){
-        var v = $("#" + b ).val();
+        var v = $("#" + b ).val() || $("#" + b ).text();
         if (!v && window[b] && typeof window[b] === "function"){
             v = window[b]();
         }
@@ -206,73 +248,7 @@ function addOptions(command, options, override=true){
     return command;
 }
 
-function readExecInfo(pd_controls, element, searchParents){
-    if (searchParents === null || searchParents === undefined ){
-        searchParents = true;
-    }
-    {#special case pd_refresh points to another element #}
-    var refreshTarget = element.getAttribute("pd_refresh");
-    if (refreshTarget){
-        var node = $("#" + refreshTarget);
-        if (node.length){
-            var retValue = readExecInfo(pd_controls, node.get(0));
-            if (retValue){
-                retValue.targetDivId = refreshTarget;
-                var script = element.getAttribute("pd_script");
-                if (!script){
-                    node.find("> pd_script").each(function(){
-                        var type = this.getAttribute("type");
-                        if (!type || type=="python"){
-                            script = $(this).text();
-                        }
-                    });
-                }
-
-                if (script){
-                    script = script.trim()
-                    var match = pd_controls.command.match(/display\((\w*),/)
-                    if (match){
-                        var entity = match[1]
-                        script = "from pixiedust.utils.shellAccess import ShellAccess\n"+
-                            "self=ShellAccess['" + entity + "']\n" +
-                            resolveScriptMacros( getParentScript(element) ) + '\n' +
-                            resolveScriptMacros(script);
-                    }
-
-                    retValue.script = script + "\n" + (retValue.script || "")
-                }
-            }
-            return retValue;
-        }
-    }
-    var execInfo = {}
-    execInfo.options = {}
-    var hasOptions = false;
-    $.each( element.attributes, function(){
-        if (this.name.startsWith("option_")){
-            hasOptions = true;
-            execInfo.options[this.name.replace("option_", "")] = this.value || null;
-        }
-    });
-    var pd_options = resolveScriptMacros(element.getAttribute("pd_options"));
-    if (pd_options){
-        var parts = pd_options.split(";");
-        $.each( parts, function(){
-            var index = this.indexOf("=");
-            if ( index > 1){
-                hasOptions = true;
-                execInfo.options[this.substring(0, index)] = this.substring(index+1);
-            }
-        });
-    }
-    execInfo.options.nostore_figureOnly = true;
-    execInfo.options.targetDivId = execInfo.targetDivId = element.getAttribute("pd_target");
-    if (execInfo.options.targetDivId){
-        execInfo.options.no_margin=true;
-    }
-
-    execInfo.options.widget = element.getAttribute("pd_widget");
-
+function computeGeometry(element, execInfo){
     // unhide parents temporarily to properly calculate width/height
     var parentStyles = [];
     var hiddenBlockStyle = 'visibility: hidden !important; display: block !important;';
@@ -304,6 +280,50 @@ function readExecInfo(pd_controls, element, searchParents){
             $(this).attr('style', parentStyles[i]);
         }
     });
+}
+
+function readExecInfo(pd_controls, element, searchParents){
+    if (searchParents === null || searchParents === undefined ){
+        searchParents = true;
+    }
+    {#special case pd_refresh points to another element #}
+    var refreshTarget = element.getAttribute("pd_refresh");
+    if (refreshTarget){
+        var node = $("#" + refreshTarget);
+        if (node.length){
+            pd_controls.refreshTarget = refreshTarget;
+            return readExecInfo(pd_controls, node.get(0));
+        }
+    }
+    var execInfo = {}
+    execInfo.options = {}
+    var hasOptions = false;
+    $.each( element.attributes, function(){
+        if (this.name.startsWith("option_")){
+            hasOptions = true;
+            execInfo.options[this.name.replace("option_", "")] = this.value || null;
+        }
+    });
+    var pd_options = resolveScriptMacros(element.getAttribute("pd_options"));
+    if (pd_options){
+        var parts = pd_options.split(";");
+        $.each( parts, function(){
+            var index = this.indexOf("=");
+            if ( index > 1){
+                hasOptions = true;
+                execInfo.options[this.substring(0, index)] = this.substring(index+1);
+            }
+        });
+    }
+    execInfo.options.nostore_figureOnly = true;
+    execInfo.options.targetDivId = execInfo.targetDivId = pd_controls.refreshTarget || element.getAttribute("pd_target");
+    if (execInfo.options.targetDivId){
+        execInfo.options.no_margin=true;
+    }
+
+    execInfo.options.widget = element.getAttribute("pd_widget");
+
+    computeGeometry(element, execInfo);
 
     execInfo.script = element.getAttribute("pd_script");
     if (!execInfo.script){
@@ -354,7 +374,8 @@ function readExecInfo(pd_controls, element, searchParents){
                 resolveScriptMacros( getParentScript(element) ) + '\n' +
                 resolveScriptMacros(execInfo.script);
             
-            if ( ( (!dialog && !execInfo.targetDivId) || execInfo.refresh || execInfo.entity) && !execInfo.norefresh && $(element).children("target[pd_target]").length == 0){
+            if ( ( (!dialog && !execInfo.targetDivId) || execInfo.refresh || execInfo.entity || execInfo.options.widget) && 
+                    !execInfo.norefresh && $(element).children("target[pd_target]").length == 0){
                 {#include a refresh of the whole screen#}
                 execInfo.script += "\n" + applyEntity(pd_controls.command, execInfo.entity, execInfo.options)
             }else{
@@ -423,8 +444,10 @@ function runElement(element, searchParents){
 }
 
 function filterNonTargetElements(element){
-    if (element && (element.tagName == "I" || element.tagName == "DIV")){
-        return filterNonTargetElements(element.parentElement);
+    if (element && ["I", "DIV", "SELECT"].includes(element.tagName)){
+        if (!element.hasAttribute("pd_options") || element.hasAttribute("pd_render_onload")){
+            return filterNonTargetElements(element.parentElement);
+        }
     }
     return element;
 }
@@ -469,16 +492,33 @@ $(document).on("pd_event", function(event, eventInfo){
     }else if ( eventInfo.type == "pd_load" && eventInfo.targetNode){
         var execQueue = []
         function accept(element){
-            return element.hasAttribute("pd_widget") || element.hasAttribute("pd_render_onload");
+            return element.hasAttribute("pd_widget") || element.hasAttribute("pd_render_onload") || element.hasAttribute("pd_refresh_rate");
         }
         eventInfo.targetNode.find("div").each(function(){
             if (accept(this)){
+                var thisId = $(this).uniqueId().attr('id');
+                this.setAttribute( "id", thisId );
+                $(this).addClass("no_loading_msg");
+                if (!this.hasAttribute("pd_target") ){
+                    this.setAttribute("pd_target", this.getAttribute("id") );
+                }
                 thisQueue = runElement(this, false);
                 var loadingDiv = this;
                 $.each( thisQueue, function(index, value){
                     if (value){
-                        value.targetDivId = $(loadingDiv).uniqueId().attr('id');
+                        value.partialUpdate = true;
                         execQueue.push( value );
+                        refreshRate = loadingDiv.getAttribute("pd_refresh_rate");
+                        if (refreshRate){
+                            var ival = setInterval(function(){
+                                if ($('#' + thisId).length == 0){
+                                    console.log("Clearing refresh timer", ival);
+                                    clearInterval(ival);
+                                    return;
+                                }
+                                value.execute();
+                            }, parseInt( refreshRate) );
+                        }
                     }
                 })
             }
@@ -490,6 +530,8 @@ $(document).on("pd_event", function(event, eventInfo){
         });
     }
     else{
-        console.log("Warning: got a pd_event with no targetDivId", eventInfo);
+        if ( eventInfo.type != "pd_load"){
+            console.log("Warning: got a pd_event with no targetDivId", eventInfo);
+        }
     }
 });

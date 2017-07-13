@@ -16,11 +16,12 @@
 
 from pixiedust.display.display import CellHandshake
 from pixiedust.display.chart.renderers import PixiedustRenderer
-from pixiedust.utils import Logger
+from pixiedust.utils import Logger,cache
 from ..baseChartDisplay import BaseChartDisplay
 from six import with_metaclass
 from abc import abstractmethod, ABCMeta
 from bokeh.plotting import figure, output_notebook
+from bokeh.util.notebook import _load_notebook_html
 from bokeh.models.tools import *
 from bokeh.io import notebook_div
 import pkg_resources
@@ -51,14 +52,25 @@ class BokehBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
     def getPreferredOutputWidth(self):
         return super(BokehBaseDisplay,self).getPreferredOutputWidth() * 0.92
 
-    def doRenderChart(self):
+    @cache(fieldName="_loadJS")
+    def getLoadJS(self):
+        html, loadJS = _load_notebook_html(hide_banner=True)
+        return loadJS
+
+    def doRenderChart(self):        
         def genMarkup(chartFigure):
             return self.env.from_string("""
-                    {0}
+                    <script class="pd_save">
+                    if ( !window.Bokeh && !window.autoload){{
+                        window.autoload=true;
+                        {loadJS}  
+                    }}
+                    </script>
+                    {chartFigure}
                     {{%for message in messages%}}
                         <div>{{{{message}}}}</div>
                     {{%endfor%}}
-                """.format(chartFigure)
+                """.format(chartFigure=chartFigure, loadJS=self.getLoadJS())
             ).render(messages=self.messages)
 
         if BokehBaseDisplay.bokeh_version < (0,12):

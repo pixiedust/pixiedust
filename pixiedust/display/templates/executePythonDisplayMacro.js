@@ -58,47 +58,22 @@ function() {
                     }
                     
                     if (html){
+                        if (pixiedust){
+                            if (callbacks.options && callbacks.options.nostore_delaysave){
+                                setTimeout(function(){
+                                    pixiedust.saveOutputInCell(curCell, content, html, msg_type);
+                                }, 1000);
+                            }else{
+                                pixiedust.saveOutputInCell(curCell, content, html, msg_type);
+                            }                         
+                        }
+
                         try{
                             getTargetNode().html(html);
                         }catch(e){
                             console.log("Invalid html output", e, html);
                             getTargetNode().html( "Invalid html output: " + e.message + "<pre>" 
                                 + html.replace(/>/g,'&gt;').replace(/</g,'&lt;').replace(/"/g,'&quot;') + "<pre>");
-                        }
-
-                        if(curCell&&curCell.output_area&&curCell.output_area.outputs){
-                            setTimeout(function(){
-                                var data = JSON.parse(JSON.stringify(content.data));
-                                if(!!data["text/html"])data["text/html"]=html;
-                                function savedData(data){
-                                    {#hide the output when displayed with nbviewer on github, use the is-viewer-good class which is only available on github#}
-                                    var markup='<style type="text/css">.pd_warning{display:none;}</style>';
-                                    markup+='<div class="pd_warning"><em>Hey, there\'s something awesome here! To see it, open this notebook outside GitHub, in a viewer like Jupyter</em></div>';
-                                    nodes = $.parseHTML(data["text/html"], null, true);
-                                    var s = $(nodes).wrap("<div>").parent().find(".pd_save").not(".pd_save .pd_save")
-                                    s.each(function(){
-                                        var found = false;
-                                        if ( $(this).attr("id") ){
-                                            var n = $("#" + $(this).attr("id"));
-                                            if (n.length>0){
-                                                found=true;
-                                                n.each(function(){
-                                                    $(this).addClass("is-viewer-good");
-                                                });
-                                                markup+=n.wrap("<div>").parent().html();
-                                            }
-                                        }else{
-                                            $(this).addClass("is-viewer-good");
-                                        }
-                                        if (!found){
-                                            markup+=$(this).parent().html();
-                                        }
-                                    });
-                                    data["text/html"] = markup;
-                                    return data;
-                                }
-                                curCell.output_area.outputs.push({"data": savedData(data),"metadata":content.metadata,"output_type":msg_type});
-                            },2000);
                         }
                     }
                 }else if (msg_type === "error") {
@@ -168,8 +143,10 @@ function() {
         var n = command.match(rpattern);
         {#find the org_params if any#}
         var org_params = {}
+        callbacks.options = callbacks.options || {};
         for (var i=0; i<n.length;i++){
             var parts = n[i].split("=")
+            callbacks.options[parts[0].trim()] = parts[1].trim();
             if (parts[0].trim() == "org_params"){
                 var value = parts[1].trim()
                 var values = value.substring(1,value.length-1).split(",");

@@ -18,7 +18,6 @@ from pixiedust.display.display import *
 from pixiedust.utils.shellAccess import ShellAccess
 from pixiedust.utils import Logger
 from six import iteritems
-from abc import ABCMeta
 import inspect
 import sys
 from six import string_types
@@ -34,19 +33,29 @@ class PixieDustApp(Display):
 
     routesByClass = {}
     
+    def getOptionValue(self, optionName):
+        #first check if the key is an field of the class
+        option = getattr(self.entity, optionName) if self.entity is not None and hasattr(self.entity, optionName) else None
+        #make sure we don't have a conflict with an existing function
+        if callable(option):
+            option = None
+        if option is None:
+            option = self.options.get(optionName,None)
+        return option
+
     def matchRoute(self, route):
         for key,value in iteritems(route):
-            #first check if the key is an field of the class
-            option = getattr(self.entity, key) if self.entity is not None and hasattr(self.entity, key) else None
-            #make sure we don't have a conflict with an existing function
-            if callable(option):
-                option = None
-            if option is None:
-                option = self.options.get(key,None)
+            option = self.getOptionValue(key)
             if  (option is None and value=="*") or (value != "*" and option != value):
                 return False
         return True
-        
+
+    def injectArgs(self, method, route):
+        argspec = inspect.getargspec(method)
+        args = argspec.args
+        args = args[1:] if hasattr(method, "__self__") else args
+        return [ None if arg not in route else self.getOptionValue(arg) for arg in args]
+
     def doRender(self, handlerId):
         if self.__class__.__name__ in PixieDustApp.routesByClass:
             defRoute = None
@@ -58,7 +67,8 @@ class PixieDustApp(Display):
                         defRoute = t[1]
                     elif self.matchRoute(t[0]):
                         self.debug("match found: {}".format(t[0]))
-                        retValue = getattr(self, t[1])()
+                        meth = getattr(self, t[1])
+                        retValue = meth(*self.injectArgs(meth, t[0]))
                         return
                 if defRoute:
                     retValue = getattr(self, defRoute)()
@@ -111,17 +121,25 @@ def PixieApp(cls):
 
     def __init__(self, options=None, entity=None, dataHandler=None):
         PixieDustApp.__init__(self, options or {}, entity, dataHandler)
-        if hasattr(cls, "setup"):
-            cls.setup(self)
-        self.nostore_params = True
+        if not hasattr(self, "pd_initialized"):
+            if hasattr(self, "setup"):
+                self.setup()
+            self.nostore_params = True
+            self.pd_initialized = True
 
     def getPixieAppEntity(self):
         return self.pixieapp_entity if hasattr(self, "pixieapp_entity") else None
+
+    def formatOptions(self,options):
+        """Helper method that convert pd options from Json format to pixieApp html attribute compliant format"""
+        return ';'.join(["{}={}".format(key,value) for (key, value) in iteritems(options)])
 
     def decoName(cls, suffix):
         return "{}_{}_{}".format(cls.__module__, cls.__name__, suffix)
 
     def run(self, entity=None, **kwargs):
+        for key,value in iteritems(kwargs):
+            setattr(self, key, value)
         if entity is not None:
             self.pixieapp_entity = entity
         var = None
@@ -149,7 +167,15 @@ def PixieApp(cls):
         finally:
             del sys.modules['pixiedust.display'].pixiedust_display_callerText
         
-    displayClass = type( decoName(cls, "Display"), (cls,PixieDustApp, ),{"__init__": __init__, "run": run, "getPixieAppEntity":getPixieAppEntity})
+    displayClass = type( decoName(cls, "Display"), (cls,PixieDustApp, ),{
+        "__init__": __init__, 
+        "run": run, 
+        "getPixieAppEntity":getPixieAppEntity
+    })
+    ShellAccess["newDisplayClass"] = displayClass
+
+    def prettyFormat(o):
+        return "{} at {}".format(o, id(o))
     
     @addId
     def getMenuInfo(self, entity, dataHandler=None):
@@ -158,8 +184,23 @@ def PixieApp(cls):
         return []
 
     def newDisplayHandler(self, options, entity):
-        entity.__init__(options, entity)
-        return entity
+        if entity is displayClass or entity.__class__ is displayClass:
+            entity.__init__(options, entity)
+            return entity
+        elif options.get("nostore_pixieapp") is not None:
+            from pixiedust.utils.shellAccess import ShellAccess
+            papp = ShellAccess[options.get("nostore_pixieapp")]
+            if papp is not None and hasattr(papp, "newDisplayHandler"):
+                fn = papp.newDisplayHandler
+                if callable(fn):
+                    return fn(options, entity)
+
+        print("Crap: {} - {} - {} - {}".format(self, entity, prettyFormat(entity.__class__), prettyFormat(displayClass)))
+        from pixiedust.utils.shellAccess import ShellAccess
+        ShellAccess["aa"] = entity
+        ShellAccess["ba"] = entity.__class__
+        ShellAccess["ca"] = displayClass
+        return None
     
     displayHandlerMetaClass = type( decoName(cls, "Meta"), (DisplayHandlerMeta,), {
             "getMenuInfo": getMenuInfo,
@@ -167,5 +208,6 @@ def PixieApp(cls):
         })
     
     displayHandlerMeta = displayHandlerMetaClass()
+    ShellAccess["displayHandlerMeta"] = displayHandlerMeta
     registerDisplayHandler( displayHandlerMeta )
     return displayClass

@@ -48,7 +48,7 @@
     </style>
 </head>
 <body>
-<div id="map{{prefix}}" style="width:calc({{prefwidth}}px - 4px);height:calc({{prefheight}}px - 4px)" />
+<div id="map-{{prefix}}-{{randomid}}" style="width:calc({{prefwidth}}px - 4px);height:calc({{prefheight}}px - 4px)" />
 
 {%if this.options.get("legend") == "true" %}
 <div id="maplegend" class="legend">
@@ -65,7 +65,7 @@
     var comment = "";
     mapboxgl.accessToken="{{this.options.get('mapboxtoken')}}";
     var map = new mapboxgl.Map({
-        container: "map{{prefix}}",
+        container: "map-{{prefix}}-{{randomid}}",
         style: "mapbox://styles/mapbox/{{this.options.get('basemap', 'light-v9')}}"
     });
 

@@ -18,6 +18,7 @@ import pixiedust
 from pixiedust.utils.shellAccess import ShellAccess
 from pixiedust.utils.template import PixiedustTemplateEnvironment
 from pixiedust.utils.environment import Environment,scalaGateway
+import pandas as pd
 import uuid
 import tempfile
 from collections import OrderedDict
@@ -30,7 +31,7 @@ except ImportError:
 dataDefs = OrderedDict([
     ("1", {
         "displayName": "Car performance data", 
-        "url": "https://github.com/ibm-cds-labs/open-data/raw/master/cars/cars.csv",
+        "url": "https://github.com/ibm-watson-data-lab/open-data/raw/master/cars/cars.csv",
         "topic": "transportation",
         "publisher": "IBM",
         "schema2": [('mpg','int'),('cylinders','int'),('engine','double'),('horsepower','int'),('weight','int'),
@@ -38,7 +39,7 @@ dataDefs = OrderedDict([
     }),
     ("2", {
         "displayName": "Sample retail sales transactions, January 2009", 
-        "url": "https://raw.githubusercontent.com/ibm-cds-labs/open-data/master/salesjan2009/salesjan2009.csv",
+        "url": "https://raw.githubusercontent.com/ibm-watson-data-lab/open-data/master/salesjan2009/salesjan2009.csv",
         "topic": "Economy & Business",
         "publisher": "IBM Cloud Data Services"
     }),
@@ -68,7 +69,7 @@ dataDefs = OrderedDict([
     }),
     ("7", {
         "displayName": "Boston Crime data, 2-week sample", 
-        "url": "https://raw.githubusercontent.com/ibm-cds-labs/open-data/master/crime/boston_crime_sample.csv",
+        "url": "https://raw.githubusercontent.com/ibm-watson-data-lab/open-data/master/crime/boston_crime_sample.csv",
         "topic": "Society",
         "publisher": "City of Boston"
     })
@@ -101,9 +102,8 @@ class SampleData(object):
         #    print("{0}: {1}".format(key, val["displayName"]))
 
     def dataLoader(self, path, schema=None):
-        #TODO: if in Spark 2.0 or higher, use new API to load CSV
-        load = ShellAccess["sqlContext"].read.format('com.databricks.spark.csv')
-        if schema is not None:
+        if schema is not None and Environment.hasSpark:
+            from pyspark.sql.types import StructType,StructField,IntegerType,DoubleType,StringType
             def getType(t):
                 if t == 'int':
                     return IntegerType()
@@ -111,9 +111,23 @@ class SampleData(object):
                     return DoubleType()
                 else:
                     return StringType()
-            return load.options(header='true', mode="DROPMALFORMED").load(path, schema=StructType([StructField(item[0], getType(item[1]), True) for item in schema]))
+
+        if Environment.sparkVersion == 1:
+            print("Loading file using 'com.databricks.spark.csv'")
+            load = ShellAccess.sqlContext.read.format('com.databricks.spark.csv')
+            if schema is not None:
+                return load.options(header='true', mode="DROPMALFORMED").load(path, schema=StructType([StructField(item[0], getType(item[1]), True) for item in schema]))
+            else:
+                return load.options(header='true', mode="DROPMALFORMED", inferschema='true').load(path)
+        elif Environment.sparkVersion == 2:
+            print("Loading file using 'SparkSession'")
+            if schema is not None:
+                return ShellAccess.SparkSession.builder.getOrCreate().read.csv(path, header=True, mode="DROPMALFORMED", schema=StructType([StructField(item[0], getType(item[1]), True) for item in schema]))
+            else:
+                return ShellAccess.SparkSession.builder.getOrCreate().read.csv(path, header=True, mode="DROPMALFORMED", inferSchema='true')
         else:
-            return load.options(header='true', mode="DROPMALFORMED", inferschema='true').load(path)
+            print("Loading file using 'pandas'")
+            return pd.read_csv(path)
 
     def loadSparkDataFrameFromSampleData(self, dataDef):
         return Downloader(dataDef).download(self.dataLoader)
@@ -127,7 +141,8 @@ class SampleData(object):
         }
         return Downloader(dataDef).download(self.dataLoader)
 
-
+#Use of progress Monitor doesn't render correctly when previewed a saved notebook, turning it off until solution is found
+useProgressMonitor = False
 class Downloader(object):
     def __init__(self, dataDef):
         self.dataDef = dataDef
@@ -136,6 +151,7 @@ class Downloader(object):
     
     def download(self, dataLoader):
         displayName = self.dataDef["displayName"]
+        bytesDownloaded = 0
         if "path" in self.dataDef:
             path = self.dataDef["path"]
         else:
@@ -143,34 +159,37 @@ class Downloader(object):
             req = Request(url, None, self.headers)
             print("Downloading '{0}' from {1}".format(displayName, url))
             with tempfile.NamedTemporaryFile(delete=False) as f:
-                self.write(urlopen(req), f)
+                bytesDownloaded = self.write(urlopen(req), f)
                 path = f.name
                 self.dataDef["path"] = path = f.name
         if path:
             try:
-                print("Creating pySpark DataFrame for '{0}'. Please wait...".format(displayName))
+                if bytesDownloaded > 0:
+                    print("Downloaded {} bytes".format(bytesDownloaded))
+                print("Creating {1} DataFrame for '{0}'. Please wait...".format(displayName, 'pySpark' if Environment.hasSpark else 'pandas'))
                 return dataLoader(path, self.dataDef.get("schema", None))
             finally:
-                print("Successfully created pySpark DataFrame for '{0}'".format(displayName))
+                print("Successfully created {1} DataFrame for '{0}'".format(displayName, 'pySpark' if Environment.hasSpark else 'pandas'))
             
     def report(self, bytes_so_far, chunk_size, total_size):
-        if bytes_so_far == 0:
-            display( HTML( """
-                <div>
-                    <span id="pm_label{0}">Starting download...</span>
-                    <progress id="pm_progress{0}" max="100" value="0" style="width:200px"></progress>
-                </div>""".format(self.prefix)
+        if useProgressMonitor:
+            if bytes_so_far == 0:
+                display( HTML( """
+                    <div>
+                        <span id="pm_label{0}">Starting download...</span>
+                        <progress id="pm_progress{0}" max="100" value="0" style="width:200px"></progress>
+                    </div>""".format(self.prefix)
+                    )
                 )
-            )
-        else:
-            percent = float(bytes_so_far) / total_size
-            percent = round(percent*100, 2)
-            display(
-                Javascript("""
-                    $("#pm_label{prefix}").text("{label}");
-                    $("#pm_progress{prefix}").attr("value", {percent});
-                """.format(prefix=self.prefix, label="Downloaded {0} of {1} bytes".format(bytes_so_far, total_size), percent=percent))
-            )
+            else:
+                percent = float(bytes_so_far) / total_size
+                percent = round(percent*100, 2)
+                display(
+                    Javascript("""
+                        $("#pm_label{prefix}").text("{label}");
+                        $("#pm_progress{prefix}").attr("value", {percent});
+                    """.format(prefix=self.prefix, label="Downloaded {0} of {1} bytes".format(bytes_so_far, total_size), percent=percent))
+                )
 
     def write(self, response, file, chunk_size=8192):
         total_size = response.headers['Content-Length'].strip() if 'Content-Length' in response.headers else 100
