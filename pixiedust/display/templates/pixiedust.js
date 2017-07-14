@@ -240,7 +240,7 @@ function addOptions(command, options, override=true){
             if (override){
                 command = command.replace(rpattern, replaceValue);
             }
-        }else if (hasValue){
+        }else if (hasValue && command.search(/display\s*\(/) >= 0 ){
             var n = command.lastIndexOf(")");
             command = [command.slice(0, n), (command[n-1]=="("? "":",") + replaceValue, command.slice(n)].join('')
         }        
@@ -345,6 +345,11 @@ function readExecInfo(pd_controls, element, searchParents){
         if (match){
             doptions.nostore_pixieapp = match[1];
         }
+
+        pd_controls.sniffers = pd_controls.sniffers || [];
+        pd_controls.sniffers.forEach(function(sniffer){
+            c = addOptions(c, eval('(' + sniffer + ')'))       
+        });
         if (!e){
             return addOptions(c, doptions);
         }
@@ -411,6 +416,16 @@ function readExecInfo(pd_controls, element, searchParents){
         if (!preRun(element)){
             return;
         }
+
+        pd_controls.sniffers = pd_controls.sniffers || [];
+        pd_controls.sniffers.forEach(function(sniffer){
+            if (this.script){
+                this.script = addOptions(this.script, eval('(' + sniffer + ')'));
+            }else{
+                pd_controls.command = addOptions(pd_controls.command, eval('(' + sniffer + ')'));
+            }    
+        }.bind(this));
+
         if ( this.options.dialog == 'true' ){
             pixiedust.executeInDialog(pd_controls, this);
         }else{

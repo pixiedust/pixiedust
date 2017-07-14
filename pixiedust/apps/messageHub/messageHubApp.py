@@ -32,6 +32,8 @@ class MessageHubStreamingApp():
     def newDisplayHandler(self, options, entity):
         if self.streamingDisplay is None:
             self.streamingDisplay = LineChartStreamingDisplay(options, entity)
+        else:
+            self.streamingDisplay.options = options
         return self.streamingDisplay
     
     def getTopics(self):
@@ -78,11 +80,6 @@ class MessageHubStreamingApp():
             for event in self.contents:
                 html += "{}<br/>".format(json.dumps(event))
             print(html)
-            
-    def newDisplayHandler(self, options, entity):
-        if self.streamingDisplay is None:
-            self.streamingDisplay = LineChartStreamingDisplay(options, entity)
-        return self.streamingDisplay
             
     @route(topic="*",streampreview="*",schemaX="*")
     def showChart(self, schemaX):

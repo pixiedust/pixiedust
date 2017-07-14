@@ -233,7 +233,8 @@ class Display(with_metaclass(ABCMeta)):
             "pd_controls": json.dumps({
                 "prefix": self.getPrefix(),
                 "command": self._genDisplayScript(menuInfo=kwargs.get("menuInfo", None) ),
-                "options": self.options
+                "options": self.options,
+                "sniffers": [cb() for cb in CellHandshake.snifferCallbacks]
             })
         }
 
