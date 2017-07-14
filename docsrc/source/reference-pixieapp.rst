@@ -17,7 +17,16 @@ The default view must have a route with no arguments e.g. `@route()`. Any other 
 - Each key of the route arguments can be either a transient state (options passed for the duration of the request) or persisted (field of the PixieApp class that remains present until explicitly changed).
 
 
-**Contract for the method defined as a view:** The method must provide an HTML fragment that can contain Jinja2 templating constructs (see http://jinja.pocoo.org/docs/dev/templates/ for more details on Jinja2 templating).
+**Contract for the method defined as a view:**
+
+1. The method must provide an HTML fragment that can contain Jinja2 templating constructs (see http://jinja.pocoo.org/docs/dev/templates/ for more details on Jinja2 templating).
+2. Optional: the method can have arguments that match the name of the route argument. This is useful when the route has wildcards for a particular state, and you want to use the value of this state in your code. For example:
+
+::
+
+    @route(state1="*", state2="*")
+    def myView(self, state1, state2):
+        return "<div>state1 is {}</div><div>state2 is {}</div>".format(state1, state2)
 
 There are two ways of supplying these fragments:
 
