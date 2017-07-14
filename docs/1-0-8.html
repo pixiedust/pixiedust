@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Release Notes &#8212; PixieDust Documentation</title>
+    <title>1.0.8 &#8212; PixieDust Documentation</title>
     
     <link rel="stylesheet" href="_static/better.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -28,8 +28,7 @@
     <link rel="shortcut icon" href="_static/pd_icon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="1.0.4" href="1-0-4.html" />
-    <link rel="prev" title="Hello World with Data" href="hello-world-data-pixieapp.html" />
+    <link rel="prev" title="1.0.7" href="1-0-7.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   </head>
   <body role="document">
@@ -42,18 +41,21 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="release-notes">
-<h1>Release Notes<a class="headerlink" href="#release-notes" title="Permalink to this headline">¶</a></h1>
-<p>Here are the latest releases, with notes on improvements and bug fixes.</p>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="1-0-4.html">1.0.4</a></li>
-<li class="toctree-l1"><a class="reference internal" href="1-0-5.html">1.0.5</a></li>
-<li class="toctree-l1"><a class="reference internal" href="1-0-6.html">1.0.6</a></li>
-<li class="toctree-l1"><a class="reference internal" href="1-0-7.html">1.0.7</a></li>
-<li class="toctree-l1"><a class="reference internal" href="1-0-8.html">1.0.8</a></li>
+  <div class="section" id="id1">
+<h1>1.0.8<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h1>
+<p>Here&#8217;s what&#8217;s new in Release 1.0.8 (14 July 2017):</p>
+<p><strong>Bug fixes</strong></p>
+<ul class="simple">
+<li>Charts now save to notebooks properly, making it easier to share visualizations without having to re-run cells to view rendered output (<a class="reference external" href="https://github.com/ibm-watson-data-lab/pixiedust/issues/402">#402</a>).</li>
+<li>Data now loads correctly when running PixieDust in a plain Python notebook. The fix allows users to load data into a pandas DataFrame in a notebook when Spark is not present (<a class="reference external" href="https://github.com/ibm-watson-data-lab/pixiedust/issues/359">#359</a>).</li>
+<li>Visualizations for Google region maps are now updated to display two different maps in separate div elements. This update fixes an issue where multiple PixieDust renders for Google maps would target the same div and overwrite each other (<a class="reference external" href="https://github.com/ibm-watson-data-lab/pixiedust/issues/396">#396</a>).</li>
+<li>The GitHub org containing PixieDust changed its name. A redirect is in place, and all github.io links have now been updated to reflect the new org name (<a class="reference external" href="https://github.com/ibm-watson-data-lab/pixiedust/issues/393">#393</a>).</li>
 </ul>
-</div>
+<p><strong>Enhancements</strong></p>
+<ul class="simple">
+<li>An alpha release of <strong>PixieApps</strong> is now live and <a class="reference external" href="pixieapps.html">documented</a>. PixieApps are inspired by the Angular.js framework, and provide the high-level building blocks for making data science experiments more repeatable and easier to run. Developers can use PixieApps to run interactive UI elements, directly from notebook cells (<a class="reference external" href="https://github.com/ibm-watson-data-lab/pixiedust/issues/287">#287</a>).</li>
+<li>The project has added a <strong>data browser for MongoDB</strong>. It comes as an out-of-the-box PixieApp. Because schemas in MongoDB are flexible, the PixieApp browser makes exploring Mongo collections more straightforward from within notebooks (<a class="reference external" href="https://github.com/ibm-watson-data-lab/pixiedust/issues/400">#400</a>).</li>
+</ul>
 </div>
 
 
@@ -67,12 +69,12 @@
 <li class="toctree-l1"><a class="reference internal" href="use.html">Use PixieDust</a></li>
 <li class="toctree-l1"><a class="reference internal" href="develop.html">Develop for PixieDust</a></li>
 <li class="toctree-l1"><a class="reference internal" href="pixieapps.html">PixieApps</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Release Notes</a><ul>
+<li class="toctree-l1 current"><a class="reference internal" href="releasenotes.html">Release Notes</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="1-0-4.html">1.0.4</a></li>
 <li class="toctree-l2"><a class="reference internal" href="1-0-5.html">1.0.5</a></li>
 <li class="toctree-l2"><a class="reference internal" href="1-0-6.html">1.0.6</a></li>
 <li class="toctree-l2"><a class="reference internal" href="1-0-7.html">1.0.7</a></li>
-<li class="toctree-l2"><a class="reference internal" href="1-0-8.html">1.0.8</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">1.0.8</a></li>
 </ul>
 </li>
 </ul>
