@@ -199,15 +199,68 @@
    </div>
    <div>
     <h1>
+     pd_render_onload
+    </h1>
+    <p>
+     This attribute should be used when you want to trigger a kernel request upon loading, as opposed to when a user clicks on an element like in the example above. You should combine
+     <code>
+      pd_render_onload
+     </code>
+     with any other attribute that defines the request, like pd_options or pd_script. It is important to note that you can only use a div element with this attribute and that the output of the kernel request will be placed as a child element of the div. For example:
+    </p>
+    <pre>from pixiedust.display.app import *
+@PixieApp
+class RenderOnLoad():
+    @route()
+    def mainScreen(self):
+        return """&lt;div pd_render_onload pd_script="print('hello world rendered on load')"&gt;&lt;/div&gt;"""
+
+RenderOnLoad().run()</pre>
+   </div>
+   <div>
+    <h1>
      pd_refresh
     </h1>
     <p>
-     When you only have the pd_script attribute without pd_target, PixieDust will not refresh the output but will simply execute the pd_script. Using
+     There are two ways of using the
      <code>
       pd_refresh
      </code>
-     will force the output to refresh with the current view.
+     attribute:
     </p>
+    <ol>
+     <li>
+      <p>
+       <strong>
+        No value specified:
+       </strong>
+       When you only have the pd_script attribute without pd_target, PixieDust will not refresh the output but will simply execute the pd_script. Using pd_refresh will force the output to refresh with the current view.
+      </p>
+     </li>
+     <li>
+      <p>
+       <strong>
+        Specify a value:
+       </strong>
+       The value must be a valid HTML id element that defines a kernel request (pd_options, pd_script, etc.). In this case, when the element is activated on click, the target element is refreshed according to its pd attributes. For example:
+      </p>
+     </li>
+    </ol>
+    <pre>from pixiedust.display.app import *
+@PixieApp
+class Refresh():
+    def setup(self):
+        self.counter=0
+    def incrCounter(self):
+        self.counter+=1
+        print(self.counter)
+    @route()
+    def mainScreen(self):
+        return """
+        &lt;input type="button" pd_refresh="counter{{prefix}}" value="Refresh Counter"&gt;
+        &lt;div id="counter{{prefix}}" pd_script="self.incrCounter()"/&gt;
+        """
+Refresh().run()</pre>
    </div>
    <div>
     <h1>
