@@ -13,37 +13,39 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # -------------------------------------------------------------------------------
+
 from pixiedust.display.streaming import *
 from six import string_types, iteritems
 import json
 import os
-import ssl
-from kafka import KafkaConsumer
-from kafka.errors import KafkaError
+try:
+    from confluent_kafka import Consumer
+except:
+    from confluent_kafka_prebuilt import Consumer
 
-class MessagehubStreamingAdapter(StreamingDataAdapter):
+class MessagehubStreamingAdapterConfluent(StreamingDataAdapter):
     def __init__(self, topic, username, password):
-        # Create a new context using system defaults, disable all but TLS1.2
-        context = ssl.create_default_context()
-        context.options &= ssl.OP_NO_TLSv1
-        context.options &= ssl.OP_NO_TLSv1_1
+        caLocation = '/etc/ssl/cert.pem'
+        if not os.path.exists(caLocation):
+            caLocation = '/etc/pki/tls/cert.pem'
         conf = {
-            'client_id': 'pixieapp.client.id',
-            'group_id': 'pixieapp.group',
-            'sasl_mechanism': 'PLAIN',
-            'security_protocol': 'SASL_SSL',
-            'ssl_context': context,
-            "bootstrap_servers": [
+            'client.id': 'pixieapp.client.id',
+            'group.id': 'pixieapp.group',
+            'security.protocol': 'SASL_SSL',
+            'sasl.mechanisms': 'PLAIN',
+            'ssl.ca.location': caLocation,
+            "bootstrap.servers": ','.join([
                 "kafka01-prod01.messagehub.services.us-south.bluemix.net:9093",
                 "kafka02-prod01.messagehub.services.us-south.bluemix.net:9093",
                 "kafka03-prod01.messagehub.services.us-south.bluemix.net:9093",
                 "kafka04-prod01.messagehub.services.us-south.bluemix.net:9093",
                 "kafka05-prod01.messagehub.services.us-south.bluemix.net:9093"
-            ],
-            "sasl_plain_username": username,
-            "sasl_plain_password": password
+            ]),
+            "sasl.username": username,
+            "sasl.password": password,
+            'api.version.request': True
         }
-        self.consumer = KafkaConsumer(**conf)
+        self.consumer = Consumer(conf)
         self.consumer.subscribe([topic])
         self.schema = {}
         self.sampleDocCount = 0
@@ -73,14 +75,11 @@ class MessagehubStreamingAdapter(StreamingDataAdapter):
     
     def doGetNextData(self):
         msgs = []
-        msg = self.consumer.poll(1, max_records=10)
-        if msg is not None:
-            for topicPartition,records in iteritems(msg):
-                for record in records:
-                    if record.value is not None:                    
-                        jsonValue = json.loads(record.value)
-                        self.inferSchema(jsonValue)
-                        msgs.append(jsonValue)
+        msg = self.consumer.poll(1)
+        if msg is not None and msg.error() is None:
+            jsonValue = json.loads(msg.value())
+            self.inferSchema(json.loads(msg.value()))
+            msgs.append(jsonValue)
         return msgs
     
     def close(self):

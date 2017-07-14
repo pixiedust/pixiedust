@@ -345,6 +345,11 @@ function readExecInfo(pd_controls, element, searchParents){
         if (match){
             doptions.nostore_pixieapp = match[1];
         }
+
+        pd_controls.sniffers = pd_controls.sniffers || [];
+        pd_controls.sniffers.forEach(function(sniffer){
+            c = addOptions(c, eval('(' + sniffer + ')'))       
+        });
         if (!e){
             return addOptions(c, doptions);
         }
@@ -411,6 +416,12 @@ function readExecInfo(pd_controls, element, searchParents){
         if (!preRun(element)){
             return;
         }
+
+        pd_controls.sniffers = pd_controls.sniffers || [];
+        pd_controls.sniffers.forEach(function(sniffer){
+            pd_controls.command = addOptions(pd_controls.command, eval('(' + sniffer + ')'))       
+        });
+
         if ( this.options.dialog == 'true' ){
             pixiedust.executeInDialog(pd_controls, this);
         }else{
