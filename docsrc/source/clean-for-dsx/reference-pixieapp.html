@@ -71,12 +71,26 @@
      <strong>
       Contract for the method defined as a view:
      </strong>
-     The method must provide an HTML fragment that can contain Jinja2 templating constructs (see
-     <a href="http://jinja.pocoo.org/docs/dev/templates/">
-      http://jinja.pocoo.org/docs/dev/templates/
-     </a>
-     for more details on Jinja2 templating).
     </p>
+    <ol>
+     <li>
+      <p>
+       The method must provide an HTML fragment that can contain Jinja2 templating constructs (see
+       <a href="http://jinja.pocoo.org/docs/dev/templates/">
+        http://jinja.pocoo.org/docs/dev/templates/
+       </a>
+       for more details on Jinja2 templating).
+      </p>
+     </li>
+     <li>
+      <p>
+       Optional: the method can have arguments that match the name of the route argument. This is useful when the route has wildcards for a particular state, and you want to use the value of this state in your code. For example:
+      </p>
+     </li>
+    </ol>
+    <pre>@route(state1="*", state2="*")
+def myView(self, state1, state2):
+    return "&lt;div&gt;state1 is {}&lt;/div&gt;&lt;div&gt;state2 is {}&lt;/div&gt;".format(state1, state2)</pre>
     <p>
      There are two ways of supplying these fragments:
     </p>

@@ -1,0 +1,21 @@
+1.0.8
+=====
+
+Here's what's new in Release 1.0.8 (14 July 2017):
+
+**Bug fixes**
+
+- Charts now save to notebooks properly, making it easier to share visualizations without having to re-run cells to view rendered output (`#402 <https://github.com/ibm-watson-data-lab/pixiedust/issues/402>`_).
+
+- Data now loads correctly when running PixieDust in a plain Python notebook. The fix allows users to load data into a pandas DataFrame in a notebook when Spark is not present (`#359 <https://github.com/ibm-watson-data-lab/pixiedust/issues/359>`_).
+
+- Visualizations for Google region maps are now updated to display two different maps in separate div elements. This update fixes an issue where multiple PixieDust renders for Google maps would target the same div and overwrite each other (`#396 <https://github.com/ibm-watson-data-lab/pixiedust/issues/396>`_).
+
+- The GitHub org containing PixieDust changed its name. A redirect is in place, and all github.io links have now been updated to reflect the new org name (`#393 <https://github.com/ibm-watson-data-lab/pixiedust/issues/393>`_).
+
+**Enhancements**
+
+- An alpha release of **PixieApps** is now live and `documented <pixieapps.html>`_. PixieApps are inspired by the Angular.js framework, and provide the high-level building blocks for making data science experiments more repeatable and easier to run. Developers can use PixieApps to run interactive UI elements, directly from notebook cells (`#287 <https://github.com/ibm-watson-data-lab/pixiedust/issues/287>`_).
+
+- The project has added a **data browser for MongoDB**. It comes as an out-of-the-box PixieApp. Because schemas in MongoDB are flexible, the PixieApp browser makes exploring Mongo collections more straightforward from within notebooks (`#400 <https://github.com/ibm-watson-data-lab/pixiedust/issues/400>`_).
+
