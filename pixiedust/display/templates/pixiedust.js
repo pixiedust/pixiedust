@@ -240,7 +240,7 @@ function addOptions(command, options, override=true){
             if (override){
                 command = command.replace(rpattern, replaceValue);
             }
-        }else if (hasValue){
+        }else if (hasValue && command.search(/display\s*\(/) >= 0 ){
             var n = command.lastIndexOf(")");
             command = [command.slice(0, n), (command[n-1]=="("? "":",") + replaceValue, command.slice(n)].join('')
         }        
@@ -419,8 +419,12 @@ function readExecInfo(pd_controls, element, searchParents){
 
         pd_controls.sniffers = pd_controls.sniffers || [];
         pd_controls.sniffers.forEach(function(sniffer){
-            pd_controls.command = addOptions(pd_controls.command, eval('(' + sniffer + ')'))       
-        });
+            if (this.script){
+                this.script = addOptions(this.script, eval('(' + sniffer + ')'));
+            }else{
+                pd_controls.command = addOptions(pd_controls.command, eval('(' + sniffer + ')'));
+            }    
+        }.bind(this));
 
         if ( this.options.dialog == 'true' ){
             pixiedust.executeInDialog(pd_controls, this);
