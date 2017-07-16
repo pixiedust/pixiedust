@@ -58,7 +58,16 @@
 <li>If the route is not found, then the default route is selected.</li>
 <li>Each key of the route arguments can be either a transient state (options passed for the duration of the request) or persisted (field of the PixieApp class that remains present until explicitly changed).</li>
 </ul>
-<p><strong>Contract for the method defined as a view:</strong> The method must provide an HTML fragment that can contain Jinja2 templating constructs (see <a class="reference external" href="http://jinja.pocoo.org/docs/dev/templates/">http://jinja.pocoo.org/docs/dev/templates/</a> for more details on Jinja2 templating).</p>
+<p><strong>Contract for the method defined as a view:</strong></p>
+<ol class="arabic simple">
+<li>The method must provide an HTML fragment that can contain Jinja2 templating constructs (see <a class="reference external" href="http://jinja.pocoo.org/docs/dev/templates/">http://jinja.pocoo.org/docs/dev/templates/</a> for more details on Jinja2 templating).</li>
+<li>Optional: the method can have arguments that match the name of the route argument. This is useful when the route has wildcards for a particular state, and you want to use the value of this state in your code. For example:</li>
+</ol>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="nd">@route</span><span class="p">(</span><span class="n">state1</span><span class="o">=</span><span class="s2">&quot;*&quot;</span><span class="p">,</span> <span class="n">state2</span><span class="o">=</span><span class="s2">&quot;*&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">myView</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state1</span><span class="p">,</span> <span class="n">state2</span><span class="p">):</span>
+    <span class="k">return</span> <span class="s2">&quot;&lt;div&gt;state1 is </span><span class="si">{}</span><span class="s2">&lt;/div&gt;&lt;div&gt;state2 is </span><span class="si">{}</span><span class="s2">&lt;/div&gt;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">state1</span><span class="p">,</span> <span class="n">state2</span><span class="p">)</span>
+</pre></div>
+</div>
 <p>There are two ways of supplying these fragments:</p>
 <ol class="arabic simple">
 <li>Simply return a static string with the HTML fragment.</li>
