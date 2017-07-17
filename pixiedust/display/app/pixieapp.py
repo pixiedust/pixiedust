@@ -194,12 +194,6 @@ def PixieApp(cls):
                 fn = papp.newDisplayHandler
                 if callable(fn):
                     return fn(options, entity)
-
-        print("Crap: {} - {} - {} - {}".format(self, entity, prettyFormat(entity.__class__), prettyFormat(displayClass)))
-        from pixiedust.utils.shellAccess import ShellAccess
-        ShellAccess["aa"] = entity
-        ShellAccess["ba"] = entity.__class__
-        ShellAccess["ca"] = displayClass
         return None
     
     displayHandlerMetaClass = type( decoName(cls, "Meta"), (DisplayHandlerMeta,), {
