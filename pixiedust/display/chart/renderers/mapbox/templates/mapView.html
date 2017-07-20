@@ -10,6 +10,10 @@
     .mapboxgl-popup {
         max-width: 200px;
     }
+    .mapboxgl-popup-content h3 { 
+        margin: 2px 0 2px 0;
+        font-style: italic;
+    }
     #map canvas {
         cursor: crosshair;
     }
@@ -71,33 +75,18 @@
         var fs = map.queryRenderedFeatures(e.point,{layers:["pxlayer"]});
         map.getCanvas().style.cursor=(fs.length)?"pointer":"";
         if (!fs.length) {popup.remove();return;};
-        var f = fs[0];
-        var keylength = Object.keys(f.properties).length;
         popuphtml = "";
-        for (var key in f.properties) {
-            popuphtml += "<b>"+key+": </b> "+f.properties[key]+"<br/>"
-        }
-        popup.setLngLat(f.geometry.coordinates).setHTML(popuphtml).addTo(map);
-    });
-    
-    map.on("click", function (e) {
-        var fs = map.queryRenderedFeatures(e.point, { layers: ["pxlayer"] });
-        if (fs.length) {
-            var f = fs[0];
-            console.log("clicked", f);
+        fs.forEach(function(f){
             var keylength = Object.keys(f.properties).length;
-            var payload = {type:"select", targetDivId: "{{this.options.get("targetDivId","") }}" };
-
             for (var key in f.properties) {
-                payload[key] = f.properties[key];
+                popuphtml += "<hr>\n";
+                popuphtml += "<h3>"+f.layer.id.toUpperCase()+"</h3>\n";
+                popuphtml += "<b>"+key+": </b> "+f.properties[key]+"<br/>\n";
             }
-
-            if (window.triggerPDEvent) {
-                window.triggerPDEvent(payload);
-            }
-        }
+        });
+        popup.setLngLat(e.lngLat).setHTML(popuphtml).addTo(map);
     });
-        
+            
     map.on("load", function() {
         var mapdata={{this.options.get("mapData")}};
         {%if this.options.get("kind") != "densitymap" %}
