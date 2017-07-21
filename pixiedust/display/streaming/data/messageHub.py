@@ -22,7 +22,7 @@ from kafka import KafkaConsumer
 from kafka.errors import KafkaError
 
 class MessagehubStreamingAdapter(StreamingDataAdapter):
-    def __init__(self, topic, username, password):
+    def __init__(self, topic, username, password, prod=True):
         # Create a new context using system defaults, disable all but TLS1.2
         context = ssl.create_default_context()
         context.options &= ssl.OP_NO_TLSv1
@@ -33,13 +33,7 @@ class MessagehubStreamingAdapter(StreamingDataAdapter):
             'sasl_mechanism': 'PLAIN',
             'security_protocol': 'SASL_SSL',
             'ssl_context': context,
-            "bootstrap_servers": [
-                "kafka01-prod01.messagehub.services.us-south.bluemix.net:9093",
-                "kafka02-prod01.messagehub.services.us-south.bluemix.net:9093",
-                "kafka03-prod01.messagehub.services.us-south.bluemix.net:9093",
-                "kafka04-prod01.messagehub.services.us-south.bluemix.net:9093",
-                "kafka05-prod01.messagehub.services.us-south.bluemix.net:9093"
-            ],
+            "bootstrap_servers": [ "kafka0{}-{}.messagehub.services.us-south.bluemix.net:9093".format(i, "prod01" if prod else "stage1") for i in range(1,6)],
             "sasl_plain_username": username,
             "sasl_plain_password": password
         }

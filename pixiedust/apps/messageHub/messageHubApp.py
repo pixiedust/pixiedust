@@ -17,9 +17,13 @@
 from pixiedust.display.app import *
 from pixiedust.display.streaming.data import *
 from pixiedust.display.streaming.bokeh import *
+from pixiedust.utils import Logger
 import requests
 
+useConfluent = False
+
 @PixieApp
+@Logger()
 class MessageHubStreamingApp():
     def setup(self):
         self.streamingDisplay = None
@@ -150,7 +154,12 @@ justify-content:center;
         self.topic = topic
         if self.streamingData is not None:
             self.streamingData.close()
-        self.streamingData = MessagehubStreamingAdapter( self.topic, self.credentials["username"], self.credentials["password"] )
+        Adapter = MessagehubStreamingAdapter
+        if useConfluent:
+            from pixiedust.display.streaming.data.messageHubConfluent import *
+            Adapter = MessagehubStreamingAdapterConfluent
+            self.debug("Using Confluent Kafka")
+        self.streamingData = Adapter( self.topic, self.credentials["username"], self.credentials["password"], self.credentials.get("prod", True) )
         self.streamingData.getStreamingChannel(self.captureDataInNotebook)
         return """
 <div class="well" style="text-align:center">
