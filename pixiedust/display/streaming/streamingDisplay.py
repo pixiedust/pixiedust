@@ -13,8 +13,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # -------------------------------------------------------------------------------
-
 from pixiedust.display.display import *
+from pixiedust.display import addDisplayRunListener
+
+#add a display Run Listener 
+addDisplayRunListener( lambda entity, options: onNewDisplayRun(entity, options) )
+
+activesStreamingEntities = {}
+def onNewDisplayRun(entity, options):
+    if "cell_id" in options and "showchrome" in options:
+        if options["cell_id"] in activesStreamingEntities:
+            del activesStreamingEntities[options["cell_id"]]
 
 class StreamingDisplay(Display):
     def __init__(self, options, entity, dataHandler=None):

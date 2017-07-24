@@ -13,19 +13,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # -------------------------------------------------------------------------------
-from pixiedust.utils.environment import Environment
-if Environment.hasSpark:
-    from .pysparkDataFrameHandler import PySparkDataFrameDataHandler
-from .pandasDataFrameHandler import PandasDataFrameDataHandler
-import pixiedust.utils.dataFrameMisc as dataFrameMisc
-from pixiedust.display.streaming import *
 
-def getDataHandler(options, entity):
-    if dataFrameMisc.isPySparkDataFrame(entity):
-        return PySparkDataFrameDataHandler(options, entity)
-    elif dataFrameMisc.isPandasDataFrame(entity):
-        return PandasDataFrameDataHandler(options, entity)
-    elif isinstance(entity, StreamingDataAdapter):
-        return entity.getDisplayDataHandler(options, entity)
-
-    return None
+class BaseDataHandler(object):
+    def __init__(self, options, entity):
+        self.options = options
+        self.entity = entity
+        self.isStreaming = False

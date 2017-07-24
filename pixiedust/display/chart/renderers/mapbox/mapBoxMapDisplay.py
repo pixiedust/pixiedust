@@ -19,6 +19,7 @@ from .mapBoxBaseDisplay import MapBoxBaseDisplay
 from pixiedust.utils import cache
 from pixiedust.utils import Logger
 from pixiedust.utils.shellAccess import ShellAccess
+from pixiedust.display.streaming.streamingDisplay import *
 import json 
 import numpy
 import geojson
@@ -52,7 +53,7 @@ class MapViewDisplay(MapBoxBaseDisplay):
 
     def canRenderChart(self):
         keyFields = self.getKeyFields()
-        if ((keyFields is not None and len(keyFields) > 0) or len(self._getDefaultKeyFields()) > 0):
+        if len(self.getFieldNames()) == 0 or (keyFields is not None and len(keyFields) > 0) or len(self._getDefaultKeyFields()) > 0:
             return (True, None)
         else:
             return (False, "No location field found ('latitude'/'longitude', 'lat/lon', 'y/x').<br>Use the Chart Options dialog to specify location fields.")
@@ -66,14 +67,27 @@ class MapViewDisplay(MapBoxBaseDisplay):
         if not mbtoken or len(mbtoken)<5:
             return self.renderTemplate("noaccesstoken.html")
 
+        body = self.renderMapView(mbtoken)
+        if self.isStreaming:
+            self.commId = str(uuid.uuid4())
+            activesStreamingEntities[self.options.get("cell_id")] = self.entity
+
+        return self.renderTemplate("iframesrcdoc.html", body=body, prefwidth=self.getPreferredOutputWidth(), prefheight=self.getPreferredOutputHeight())
+
+    def renderMapView(self, mbtoken):
         df = self.getWorkingPandasDataFrame()
 
         keyFields = self.getKeyFields()
-        lonFieldIdx = 0
-        latFieldIdx = 1
-        if keyFields[0] == self.getLatField(): 
-            lonFieldIdx = 1
-            latFieldIdx = 0
+        if len(keyFields)>0:
+            lonFieldIdx = 0
+            latFieldIdx = 1
+            if keyFields[0] == self.getLatField(): 
+                lonFieldIdx = 1
+                latFieldIdx = 0
+            min = [df[keyFields[lonFieldIdx]].min(), df[keyFields[latFieldIdx]].min()]
+            max = [df[keyFields[lonFieldIdx]].max(), df[keyFields[latFieldIdx]].max()]
+            self.options["mapBounds"] = json.dumps([min,max], default=defaultJSONEncoding)
+
         valueFields = self.getValueFields()
 
         #check if we have a preserveCols
@@ -84,15 +98,9 @@ class MapViewDisplay(MapBoxBaseDisplay):
         allProps = valueFields + preserveCols
         for j, valueField in enumerate( allProps ):
             valueFieldIdxs.append(df.columns.get_loc(valueField))
-        
-
-        min = [df[keyFields[lonFieldIdx]].min(), df[keyFields[latFieldIdx]].min()]
-        max = [df[keyFields[lonFieldIdx]].max(), df[keyFields[latFieldIdx]].max()]
-        self.options["mapBounds"] = json.dumps([min,max], default=defaultJSONEncoding)
 
         # Transform the data into GeoJSON for use in the Mapbox client API
-        pygeojson = {'type':'FeatureCollection', 'features':[]}
-
+        features = []
         for row in df.itertuples():
             feature = {'type':'Feature',
                         'properties':{},
@@ -101,9 +109,11 @@ class MapViewDisplay(MapBoxBaseDisplay):
             feature['geometry']['coordinates'] = [row[lonFieldIdx+1], row[latFieldIdx+1]]
             for idx, valueFieldIdx in enumerate(valueFieldIdxs):
                 feature['properties'][allProps[idx]] = row[valueFieldIdx+1]
-            pygeojson['features'].append(feature)
+            features.append(feature)
 
-        self.options["mapData"] = json.dumps(pygeojson,default=defaultJSONEncoding)
+        if len(features)>0:
+            pygeojson = {'type':'FeatureCollection', 'features':features}
+            self.options["mapData"] = json.dumps(pygeojson,default=defaultJSONEncoding)
 
         paint = {'circle-radius':12,'circle-color':'#ff0000'}
         paint['circle-opacity'] = 1.0 if (self.options.get("kind") and self.options.get("kind").find("cluster") >= 0) else 0.25
@@ -150,8 +160,7 @@ class MapViewDisplay(MapBoxBaseDisplay):
         # end handle custom layers
 
         uniqueid = str(uuid.uuid4())[:8]
-        body = self.renderTemplate("mapView.html", bins=bins, userlayers=userlayers, prefwidth=w, prefheight=h, randomid=uniqueid)
-        return self.renderTemplate("iframesrcdoc.html", body=body, prefwidth=w, prefheight=h)
+        return self.renderTemplate("mapView.html", bins=bins, userlayers=userlayers, prefwidth=w, prefheight=h, randomid=uniqueid)
 
     def isLatLonChart(self):
         llnames = ['lat','latitude','y','lon','long','longitude','x']
@@ -184,16 +193,15 @@ class MapViewDisplay(MapBoxBaseDisplay):
     def _getDefaultKeyFields(self):
         # check for lat/long
         latLongFields = []
-        for field in self.entity.schema.fields:
+        for field in self.getFieldNames():
             if field.name.lower() == 'lat' or field.name.lower() == 'latitude' or field.name.lower() == 'y':
                 latLongFields.append(field.name)
-        for field in self.entity.schema.fields:
-            if field.name.lower() == 'lon' or field.name.lower() == 'long' or field.name.lower() == 'longitude' or field.name.lower() == 'x':
+            elif field.name.lower() == 'lon' or field.name.lower() == 'long' or field.name.lower() == 'longitude' or field.name.lower() == 'x':
                 latLongFields.append(field.name)
         if (len(latLongFields) == 2):
             return latLongFields
         # if we get here, look for an address field
-        for field in self.entity.schema.fields:
+        for field in self.getFieldNames():
             if field.name.lower() == 'address':
                 return latLongFields.append(field.name)
         return []

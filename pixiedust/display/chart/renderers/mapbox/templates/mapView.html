@@ -69,6 +69,24 @@
         style: "mapbox://styles/mapbox/{{this.options.get('basemap', 'light-v9')}}"
     });
 
+    setTimeout(function(){
+        if (window.addPDMessageListener){
+            window.addPDMessageListener(function(event){
+                streamingLayer = map.getSource("streamingLayer");
+                if (streamingLayer){
+                    streamingLayer.setData(event.data.url);
+                }else{
+                    map.addLayer({
+                        "id": "streamingLayer",
+                        "type": "symbol",
+                        "source": { type: "geojson", data: event.data.url },
+                        "layout": event.data.layout || {}
+                    });
+                }
+            });
+        };
+    },100);
+
     var popup = new mapboxgl.Popup({closeButton: false,closeOnClick: true});
     
     map.on("mousemove", function (e) {
@@ -92,7 +110,7 @@
     
     map.on("click", function (e) {
         var fs = map.queryRenderedFeatures(e.point, { layers: ["pxlayer"] });
-        if (fs.length) {
+        if (fs && fs.length) {
             var f = fs[0];
             console.log("clicked", f);
             var keylength = Object.keys(f.properties).length;
@@ -109,6 +127,7 @@
     });
         
     map.on("load", function() {
+        {% if this.options.get("mapData") %}
         var mapdata={{this.options.get("mapData")}};
         {%if this.options.get("kind") != "densitymap" %}
             var clusterme = false;
@@ -188,6 +207,7 @@
         }, "waterway-label");
 
         {% endif %}
+        {% endif %}
 
         comment = "Add user layers";
         var layers = [];
@@ -228,8 +248,9 @@
                 document.getElementById("maplegend").appendChild(t);
             {% endif %}
         }
-
+        {%if this.options.get("mapBounds") %}
         map.fitBounds({{this.options.get("mapBounds")}});
+        {%endif%}
         
     });
 </script>
