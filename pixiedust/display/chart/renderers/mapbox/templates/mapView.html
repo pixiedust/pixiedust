@@ -74,14 +74,40 @@
             window.addPDMessageListener(function(event){
                 streamingLayer = map.getSource("streamingLayer");
                 if (streamingLayer){
-                    streamingLayer.setData(event.data.url);
+                    streamingLayer.setData(event.data.data);
                 }else{
                     map.addLayer({
                         "id": "streamingLayer",
-                        "type": "symbol",
-                        "source": { type: "geojson", data: event.data.url },
-                        "layout": event.data.layout || {}
+                        "maptype": "mapbox",
+                        "type": event.data.type,
+                        "source": { type: "geojson", data: event.data.data },
+                        "layout": event.data.layout || {},
+                        "paint": event.data.paint || {}
                     });
+                    if (event.data.fitbounds && event.data.data.features){
+                        function updateBounds(res, ar){
+                            if (ar[0].length >=2 && ar[1].length >= 2 ){
+                                if (!res){
+                                    return ar;
+                                }
+                                return [ 
+                                    [Math.min( ar[0][0]-0.1, res[0][0]), Math.min( ar[0][1]-0.1, res[0][1])],
+                                    [Math.max( ar[1][0]+0.1, res[1][0]), Math.max( ar[1][1]+0.1, res[1][1])]
+                                ]
+                            }
+                            return null;
+                        }
+                        var bbox = event.data.data.features.reduce(function(res, value){
+                            var coord = value.geometry.coordinates;
+                            if (coord.length >= 2 ){
+                                res = updateBounds( res, [coord[0], coord[1]]);
+                            }
+                            return res;
+                        }, null);
+                        if (bbox){
+                            map.fitBounds(bbox);
+                        }
+                    }
                 }
             });
         };

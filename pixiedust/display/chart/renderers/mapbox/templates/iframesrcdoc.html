@@ -10,6 +10,7 @@
           listener(event);
         });
       }, false);
+      iframe.contentWindow.ready = true;
       iframe.contentWindow["triggerPDEvent"] = function(eventInfo) {
         $(document).trigger('pd_event', eventInfo);
       }
@@ -32,8 +33,16 @@
                 console.log("Unable to find contentWindow");
               }
             }
-            if (contentWindow){
+            if (contentWindow && contentWindow.ready){
               contentWindow.postMessage(msg.content.data, "*");
+            }else{
+              var deferredData = msg.content.data;
+              var ival = setInterval(function(){
+                if (contentWindow && contentWindow.ready){
+                  contentWindow.postMessage(msg.content.data, "*");
+                  clearInterval(ival);
+                }
+              }, 1000 );
             }
         });
     });
@@ -42,7 +51,7 @@
 </script>
 <iframe id="mapframe{{prefix}}" style='width:{{prefwidth}}px;height:{{prefheight}}px' srcdoc='{{body|oneline|replace("'","\\'")}}' onload="iframeLoaded(this)"></iframe>
 {%if this.isStreaming%}
-<div pd_refresh_rate="1000">
+<div pd_refresh_rate="{{this.options.get('refresh', 1000)}}">
     <pd_script>
 from ipykernel.comm import Comm
 from pixiedust.display.streaming.streamingDisplay import *
@@ -51,9 +60,13 @@ entity = activesStreamingEntities[cellId] if cellId in activesStreamingEntities 
 if entity is not None:
   comms = Comm(target_name="{{this.commId}}", data={}) if not hasattr(entity, "comms") else entity.comms
   entity.comms = comms
+  metadata = entity.getMetadata();
   comms.send({
-    "url": entity.getNextData(),
-    "layout": entity.getMetadata("layout") or {}
+    "data": entity.getNextData(),
+    "type": metadata.get("type", "circle"),
+    "layout": metadata.get("layout", {}),
+    "paint": metadata.get("paint", {}),
+    "fitbounds": metadata.get("fitbounds", True)
   })
     <pd_script>
 </div>

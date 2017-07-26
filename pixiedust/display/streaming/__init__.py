@@ -31,8 +31,8 @@ class StreamingDataAdapter(with_metaclass(ABCMeta)):
                 channel.processNextData(nextData)
         return nextData
 
-    def getMetadata(self, name):
-        return None
+    def getMetadata(self):
+        return {}
 
     def accept(self, handlerId):
         return False
