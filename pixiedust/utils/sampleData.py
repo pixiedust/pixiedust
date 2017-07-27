@@ -104,10 +104,6 @@ class SampleData(object):
         #    print("{0}: {1}".format(key, val["displayName"]))
 
     def dataLoader(self, path, schema=None):
-        fileExtPeriod = path.rfind('.')
-        pathLength = len(path)
-        fileExt = path[fileExtPeriod+1 : pathLength]
-
         if schema is not None and Environment.hasSpark:
             from pyspark.sql.types import StructType,StructField,IntegerType,DoubleType,StringType
             def getType(t):
@@ -118,7 +114,7 @@ class SampleData(object):
                 else:
                     return StringType()
 
-        if fileExt == "json":
+        if "json" in path:
             if Environment.sparkVersion == 1:
                 print("Loading file using...")
                 r = requests.get(path)
@@ -127,7 +123,7 @@ class SampleData(object):
                 # handle this
             else:
                 # handle this
-        else:
+        else: # default to csv format
             if Environment.sparkVersion == 1:
                 print("Loading file using 'com.databricks.spark.csv'")
                 load = ShellAccess.sqlContext.read.format('com.databricks.spark.csv')
@@ -144,7 +140,6 @@ class SampleData(object):
             else:
                 print("Loading file using 'pandas'")
                 return pd.read_csv(path)
-
 
     def loadSparkDataFrameFromSampleData(self, dataDef):
         return Downloader(dataDef).download(self.dataLoader)
@@ -225,3 +220,4 @@ class Downloader(object):
             self.report(bytes_so_far, chunk_size, total_size)
 
         return bytes_so_far
+        
