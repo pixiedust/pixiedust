@@ -176,7 +176,11 @@ class PixiedustScalaMagics(Magics):
 
         runnerObject = JavaWrapper(cls.getField("MODULE$").get(None), True, 
             self.getLineOption(line, "channel"), self.getLineOption(line, "receiver"))
-        runnerObject.callMethod("init", pd_getJavaSparkContext(), None if self.hasLineOption(line, "noSqlContext") else self.interactiveVariables.getVar("sqlContext")._ssql_ctx )
+        safeAccess = lambda obj, fieldName: None if obj is None or not hasattr(obj, fieldName) else getattr(obj, fieldName)
+        runnerObject.callMethod("init", 
+            pd_getJavaSparkContext(), 
+            None if self.hasLineOption(line, "noSqlContext") else safeAccess(self.interactiveVariables.getVar("sqlContext"), "_ssql_ctx" )
+        )
         
         #Init the variables
         for key, val in iteritems(self.interactiveVariables.getVarsDict()):
