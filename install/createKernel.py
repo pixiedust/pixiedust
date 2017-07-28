@@ -38,11 +38,12 @@ class PixiedustInstall(InstallKernelSpec):
         super(PixiedustInstall, self).__init__(**kwargs)
         self.pixiedust_home = None
         self.spark_home = None
-        self.spark_download_versions = ['1.6.3', '2.0.2', '2.1.0']
+        self.spark_download_versions = ['1.6.3', '2.0.2', '2.1.0', '2.2.0']
         self.spark_download_urls = {
             '1.6.3': 'http://d3kbcqa49mib13.cloudfront.net/spark-1.6.3-bin-hadoop2.6.tgz',
             '2.0.2': 'http://d3kbcqa49mib13.cloudfront.net/spark-2.0.2-bin-hadoop2.7.tgz',
-            '2.1.0': 'http://d3kbcqa49mib13.cloudfront.net/spark-2.1.0-bin-hadoop2.7.tgz'
+            '2.1.0': 'http://d3kbcqa49mib13.cloudfront.net/spark-2.1.0-bin-hadoop2.7.tgz',
+            '2.2.0': 'https://d3kbcqa49mib13.cloudfront.net/spark-2.2.0-bin-hadoop2.7.tgz'
         }
         self.scala_home = None
         self.scala_download_urls = {
@@ -95,7 +96,7 @@ class PixiedustInstall(InstallKernelSpec):
         else:
             first_prompt = True
             while True:
-                self.spark_home = os.environ.get("SPARK_HOME", self.getFirstDir(os.path.join(self.pixiedust_bin, "spark" )))
+                self.spark_home = os.environ.get("SPARK_HOME", self.ensureDir(os.path.join(self.pixiedust_bin, "spark" )))
                 if self.spark_home:
                     answer = self.confirm(
                         "Step 2: SPARK_HOME: {0}".format(self.spark_home)
@@ -120,9 +121,28 @@ class PixiedustInstall(InstallKernelSpec):
                         download_spark = True
                         break
                 elif not os.path.exists('{}{}bin{}pyspark'.format(self.spark_home, os.sep, os.sep)):
-                    download = self.confirm("Directory {0} does not contain a valid SPARK install".format(self.spark_home), "Download Spark")
-                    if download == 'y':
-                        download_spark = True
+                    existingInstalls = [d for d in os.listdir(self.spark_home) if os.path.exists(os.path.join(self.spark_home,d,'bin','pyspark'))]
+                    if len(existingInstalls) == 0:
+                        download = self.confirm("Directory {0} does not contain a valid SPARK install".format(self.spark_home), "Download Spark")
+                        if download == 'y':
+                            download_spark = True
+                            break
+                    else:
+                        existingInstalls.append("Create a new spark Install")
+                        print("Select an existing spark install or create a new one")
+                        message = "\n".join(["{}. {}".format(k+1,v) for k,v in enumerate(existingInstalls)])
+                        while True:
+                            try:
+                                answer = int(input(self.hilite(message) + "\n\tEnter your selection: ")) - 1
+                                if answer < 0 or answer >= len(existingInstalls):
+                                    raise Exception("Please pick a number within the specified values")
+                                break;
+                            except Exception as e:
+                                print("Invalid selection: {}".format(e))
+
+                        download_spark = (answer == len(existingInstalls) - 1)
+                        if not download_spark:
+                            self.spark_home = os.path.join(self.spark_home, existingInstalls[answer])
                         break
                 else:
                     break
@@ -173,7 +193,7 @@ class PixiedustInstall(InstallKernelSpec):
         else:
             first_prompt = True
             while True:
-                self.scala_home = os.environ.get("SCALA_HOME", self.getFirstDir(os.path.join(self.pixiedust_bin, "scala" )))
+                self.scala_home = os.environ.get("SCALA_HOME", self.ensureDir(os.path.join(self.pixiedust_bin, "scala" )))
                 if self.scala_home:
                     answer = self.confirm(
                         "Step 3: SCALA_HOME: {0}".format(self.scala_home)
@@ -198,12 +218,31 @@ class PixiedustInstall(InstallKernelSpec):
                         download_scala = True
                         break
                 elif not os.path.exists('{}{}bin{}scala'.format(self.scala_home, os.sep, os.sep)):
-                    download = self.confirm(
-                        "Directory {0} does not contain a valid SCALA install".format(self.scala_home),
-                        "Download Scala"
-                    )
-                    if download == 'y':
-                        download_scala = True
+                    def acceptScalaVersion(dir):
+                        version = self.get_scala_version_from_dir(os.path.join(self.scala_home,dir))
+                        return version is not None and str(version[0]) + '.' + str(version[1]) == scala_version
+                    existingInstalls = [d for d in os.listdir(self.scala_home) if acceptScalaVersion(d)]
+                    if len(existingInstalls) == 0:
+                        download = self.confirm("Directory {0} does not contain a valid scala install".format(self.scala_home), "Download Scala")
+                        if download == 'y':
+                            download_scala = True
+                            break
+                    else:
+                        existingInstalls.append("Create a new scala Install")
+                        print("Select an existing scala install or create a new one")
+                        message = "\n".join(["{}. {}".format(k+1,v) for k,v in enumerate(existingInstalls)])
+                        while True:
+                            try:
+                                answer = int(input(self.hilite(message) + "\n\tEnter your selection: ")) - 1
+                                if answer < 0 or answer >= len(existingInstalls):
+                                    raise Exception("Please pick a number within the specified values")
+                                break;
+                            except Exception as e:
+                                print("Invalid selection: {}".format(e))
+
+                        download_scala = (answer == len(existingInstalls) - 1)
+                        if not download_scala:
+                            self.scala_home = os.path.join(self.scala_home, existingInstalls[answer])
                         break
                 else:
                     installed_scala_version = self.get_scala_version()
@@ -253,11 +292,10 @@ class PixiedustInstall(InstallKernelSpec):
         ))
         print("{}".format("#"*100))
 
-    def getFirstDir(self, parentLoc):
+    def ensureDir(self, parentLoc):
         if not os.path.isdir(parentLoc):
-            return parentLoc
-        dirs = os.listdir(parentLoc)
-        return parentLoc if len(dirs) == 0 else os.path.join(parentLoc, dirs[0])
+            os.makedirs(parentLoc)
+        return parentLoc
 
     def downloadFileToDir( self, url, targetDir ):
         index = url.rfind('/')
@@ -375,8 +413,8 @@ class PixiedustInstall(InstallKernelSpec):
             os.environ["SPARK_HOME"] = self.spark_home
             break
 
-    def get_scala_version(self):
-        scala = "{}{}bin{}scala".format(self.scala_home, os.sep, os.sep)
+    def get_scala_version_from_dir(self, dir):
+        scala = os.path.join(dir, "bin", "scala")
         try:
             scala_out = subprocess.check_output([scala, "-version"], stderr=subprocess.STDOUT).decode("utf-8")
         except subprocess.CalledProcessError as cpe:
@@ -386,6 +424,9 @@ class PixiedustInstall(InstallKernelSpec):
             return int(match.group(1)), int(match.group(2))
         else:
             return None
+
+    def get_scala_version(self):
+        return get_scala_version_from_dir(self.scala_home)
 
     def download_scala(self, scala_version):
         while True:
