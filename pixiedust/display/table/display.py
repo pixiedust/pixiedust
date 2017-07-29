@@ -27,15 +27,19 @@ class TableDisplay(Display):
             else:
                 entity=entity.vertices
         if dataFrameMisc.isPySparkDataFrame(entity) or dataFrameMisc.isPandasDataFrame(entity):
-            hcmap = {}
-            if "hideColumns" in self.options:
-                hcarr = self.options.get("showColumns").split(",")
-                for s in hcarr:
-                    hcmap[s] = 1
-            self._addHTMLTemplate('dataframeTable.html', entity=PandasDataFrameAdapter(entity), table_noschema=self.options.get("table_noschema", "false"), table_hidecols=hcmap)
+            self.hideColumns = self.options.get("hideColumns") and [a.strip() for a in self.options.get("hideColumns").split(",")]
+            self.showColumns = self.options.get("showColumns") and [a.strip() for a in self.options.get("showColumns").split(",")]
+            self._addHTMLTemplate('dataframeTable.html', entity=PandasDataFrameAdapter(entity), table_noschema=self.options.get("table_noschema", "false"))
             return
   
         self._addHTML("""
             <b>Unable to display object {}</b>
         """.format(entity)
         )
+
+    def showField(self, fieldName):
+        if self.hideColumns is not None and fieldName in self.hideColumns:
+            return False
+        if self.showColumns is not None and fieldName not in self.showColumns:
+            return False
+        return True
