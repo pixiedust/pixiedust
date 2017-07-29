@@ -54,12 +54,13 @@ class PixieDustApp(Display):
         argspec = inspect.getargspec(method)
         args = argspec.args
         args = args[1:] if hasattr(method, "__self__") else args
-        return [ None if arg not in route else self.getOptionValue(arg) for arg in args]
+        return dict(zip([a for a in args],[ None if arg not in route else self.getOptionValue(arg) for arg in args] ) )
 
     def doRender(self, handlerId):
         if self.__class__.__name__ in PixieDustApp.routesByClass:
             defRoute = None
             retValue = None
+            injectedArgs = {}
             try:
                 dispatchKey = "widgets" if "widget" in self.options else "routes"
                 for t in PixieDustApp.routesByClass[self.__class__.__name__][dispatchKey]:
@@ -68,14 +69,15 @@ class PixieDustApp(Display):
                     elif self.matchRoute(t[0]):
                         self.debug("match found: {}".format(t[0]))
                         meth = getattr(self, t[1])
-                        retValue = meth(*self.injectArgs(meth, t[0]))
+                        injectedArgs = self.injectArgs(meth, t[0])
+                        retValue = meth(*list(injectedArgs.values()))
                         return
                 if defRoute:
                     retValue = getattr(self, defRoute)()
                     return
             finally:
                 if isinstance(retValue, string_types):
-                    self._addHTMLTemplateString(retValue)
+                    self._addHTMLTemplateString(retValue, **injectedArgs )
                 elif isinstance(retValue, dict):
                     body = self.renderTemplateString(retValue.get("body", ""))
                     jsOnLoad = self.renderTemplateString(retValue.get("jsOnLoad", ""))
