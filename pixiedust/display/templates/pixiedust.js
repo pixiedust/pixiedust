@@ -315,6 +315,18 @@ function readExecInfo(pd_controls, element, searchParents){
             }
         });
     }
+    {#read pd_options children using json format#}
+    $(element).find("> pd_options").each(function(){
+        debugger;
+        try{
+            var options = JSON.parse($(this).text());
+            for (var key in options) { 
+                execInfo.options[key] = options[key]; 
+            }
+        }catch(e){
+            console.log("Error parsing pd_options, invalid json", e);
+        }
+    })
     execInfo.options.nostore_figureOnly = true;
     execInfo.options.targetDivId = execInfo.targetDivId = pd_controls.refreshTarget || element.getAttribute("pd_target");
     if (execInfo.options.targetDivId){
@@ -460,7 +472,7 @@ function runElement(element, searchParents){
 
 function filterNonTargetElements(element){
     if (element && ["I", "DIV", "SELECT"].includes(element.tagName)){
-        if (!element.hasAttribute("pd_options") || element.hasAttribute("pd_render_onload")){
+        if (!element.hasAttribute("pd_options") || $(element).find("> pd_options").length == 0 || element.hasAttribute("pd_render_onload")){
             return filterNonTargetElements(element.parentElement);
         }
     }
