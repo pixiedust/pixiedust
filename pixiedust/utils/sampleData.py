@@ -80,12 +80,14 @@ dataDefs = OrderedDict([
 @scalaGateway
 def sampleData(dataId=None):
     global dataDefs
+    global url
     return SampleData(dataDefs).sampleData(dataId)
 
 class SampleData(object):
     env = PixiedustTemplateEnvironment()
     def __init__(self, dataDefs):
         self.dataDefs = dataDefs
+        self.url = ""
 
     def sampleData(self, dataId = None):
         # print(str(dataId))
@@ -93,10 +95,11 @@ class SampleData(object):
             self.printSampleDataList()
         elif str(dataId) in dataDefs:
             return self.loadSparkDataFrameFromSampleData(dataDefs[str(dataId)])
+        elif ("https://" in str(dataId) or "http://" in str(dataId) or "file://" in str(dataId)) and "json" in str(dataId):
+            self.url = str(dataId)
+            return self.JSONloadSparkDataFrameFromUrl(str(dataId))
         elif "https://" in str(dataId) or "http://" in str(dataId) or "file://" in str(dataId):
             return self.loadSparkDataFrameFromUrl(str(dataId))
-        elif ("https://" in str(dataId) or "http://" in str(dataId) or "file://" in str(dataId)) and "json" in str(dataId):
-            return self.JSONloadSparkDataFrameFromUrl(str(dataId))
         else:
             print("Unknown sample data identifier. Please choose an id from the list below")
             self.printSampleDataList()
@@ -149,11 +152,15 @@ class SampleData(object):
 
         if Environment.sparkVersion == 1:
             print("SPARK VERSION 1")
-            # req = Request(path)
+            print("url=",self.url)
+            # print("url=",url)
+            # req = Request(url)
+            # print(req)
             # res = urlopen(req)
-            # idk = res.read()
-            # print(idk)
-            # data = json.loads(idk)
+            # print(res)
+            # readIn = res.read()
+            # print(readIn)
+            # data = json.loads(readIn)
             # json_normalize(data['results'])
         elif Environment.sparkVersion == 2:
             print("SPARK VERSION 2")
@@ -184,7 +191,8 @@ class SampleData(object):
             "displayName": dataUrl,
             "url": dataUrl
         }
-
+        
+        print("{} in JSONload".format(url))
         return Downloader(dataDef).download(self.JSONdataLoader)
 
 #Use of progress Monitor doesn't render correctly when previewed a saved notebook, turning it off until solution is found
@@ -209,13 +217,16 @@ class Downloader(object):
                 path = f.name
                 self.dataDef["path"] = path = f.name
         if path:
-            try:
-                print("Downloaded {} bytes".format(bytesDownloaded))
-                print("Creating {1} DataFrame for '{0}'. Please wait...".format(displayName, 'pySpark' if Environment.hasSpark else 'pandas'))
-                return dataLoader(path, self.dataDef.get("schema", None))
-            finally:
-                print("Successfully created {1} DataFrame for '{0}'".format(displayName, 'pySpark' if Environment.hasSpark else 'pandas'))
-            
+            if "json" in url:
+                return JSONdataLoader(path, self.dataDef.get("schema", None))
+            else:
+                try:
+                    print("Downloaded {} bytes".format(bytesDownloaded))
+                    print("Creating {1} DataFrame for '{0}'. Please wait...".format(displayName, 'pySpark' if Environment.hasSpark else 'pandas'))
+                    return dataLoader(path, self.dataDef.get("schema", None))
+                finally:
+                    print("Successfully created {1} DataFrame for '{0}'".format(displayName, 'pySpark' if Environment.hasSpark else 'pandas'))
+        
     def report(self, bytes_so_far, chunk_size, total_size):
         if useProgressMonitor:
             if bytes_so_far == 0:
