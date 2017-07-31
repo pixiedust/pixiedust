@@ -25,6 +25,7 @@ from collections import OrderedDict
 from IPython.display import display, HTML, Javascript
 import json
 import requests
+from pandas.io.json import json_normalize
 try:
     from urllib.request import Request, urlopen, URLError, HTTPError
 except ImportError:
@@ -152,16 +153,14 @@ class SampleData(object):
 
         if Environment.sparkVersion == 1:
             print("SPARK VERSION 1")
-            print("url=",self.url)
-            # print("url=",url)
-            # req = Request(url)
-            # print(req)
-            # res = urlopen(req)
-            # print(res)
-            # readIn = res.read()
-            # print(readIn)
-            # data = json.loads(readIn)
-            # json_normalize(data['results'])
+            req = Request(self.url)
+            res = urlopen(req)
+            readIn = res.read()
+            data = json.loads(readIn)
+            # print(data)
+            json_normalize(data)
+            # d = json_normalize(data)
+            # df = pd.DataFrame.from_records(d)
         elif Environment.sparkVersion == 2:
             print("SPARK VERSION 2")
             # handle this
@@ -192,7 +191,7 @@ class SampleData(object):
             "url": dataUrl
         }
         
-        print("{} in JSONload".format(url))
+        print("{} in JSONload".format(self.url))
         return Downloader(dataDef).download(self.JSONdataLoader)
 
 #Use of progress Monitor doesn't render correctly when previewed a saved notebook, turning it off until solution is found
@@ -203,7 +202,7 @@ class Downloader(object):
         self.headers = {"User-Agent": "PixieDust Sample Data Downloader/1.0"}
         self.prefix = str(uuid.uuid4())[:8]
     
-    def download(self, dataLoader):
+    def download(self, JSONdataLoader):
         displayName = self.dataDef["displayName"]
         if "path" in self.dataDef:
             path = self.dataDef["path"]
@@ -218,6 +217,7 @@ class Downloader(object):
                 self.dataDef["path"] = path = f.name
         if path:
             if "json" in url:
+                print("in downloader")
                 return JSONdataLoader(path, self.dataDef.get("schema", None))
             else:
                 try:
