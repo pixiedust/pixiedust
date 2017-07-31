@@ -107,8 +107,6 @@ class SampleData(object):
 
     def printSampleDataList(self):
         display( HTML( self.env.getTemplate("sampleData.html").render( dataDefs = iteritems(self.dataDefs) ) ))
-        #for key, val in iteritems(self.dataDefs):
-        #    print("{0}: {1}".format(key, val["displayName"]))
 
     def dataLoader(self, path, schema=None):
         if schema is not None and Environment.hasSpark:
@@ -151,28 +149,18 @@ class SampleData(object):
                 else:
                     return StringType()
 
-        if Environment.sparkVersion == 1:
-            print("SPARK VERSION 1")
-            req = Request(self.url)
-            res = urlopen(req)
-            readIn = res.read()
-            data = json.loads(readIn)
-            # print(data)
-            json_normalize(data)
-            # d = json_normalize(data)
-            # df = pd.DataFrame.from_records(d)
-        elif Environment.sparkVersion == 2:
-            print("SPARK VERSION 2")
-            # handle this
-        else:
-            print("ELSE")
-            # handle this
+        req = Request(self.url)
+        res = urlopen(req)
+        readIn = res.read()
+        data = json.loads(readIn)
+        d = json_normalize(data)
+        df = pd.DataFrame.from_records(d)
+        return df
 
     def loadSparkDataFrameFromSampleData(self, dataDef):
         return Downloader(dataDef).download(self.dataLoader)
 
     def loadSparkDataFrameFromUrl(self, dataUrl):
-        print("accessing loadSparkDataFrameFromUrl")
         i = dataUrl.rfind('/')
         dataName = dataUrl[(i+1):]
         dataDef = {
@@ -183,7 +171,6 @@ class SampleData(object):
         return Downloader(dataDef).download(self.dataLoader)
 
     def JSONloadSparkDataFrameFromUrl(self, dataUrl):
-        print("accessing JSONloadSparkDataFrameFromUrl")
         i = dataUrl.rfind('/')
         dataName = dataUrl[(i+1):]
         dataDef = {
@@ -191,7 +178,6 @@ class SampleData(object):
             "url": dataUrl
         }
         
-        print("{} in JSONload".format(self.url))
         return Downloader(dataDef).download(self.JSONdataLoader)
 
 #Use of progress Monitor doesn't render correctly when previewed a saved notebook, turning it off until solution is found
