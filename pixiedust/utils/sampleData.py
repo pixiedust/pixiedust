@@ -91,7 +91,6 @@ class SampleData(object):
         self.url = ""
 
     def sampleData(self, dataId = None):
-        # print(str(dataId))
         if dataId is None:
             self.printSampleDataList()
         elif str(dataId) in dataDefs:
@@ -108,6 +107,8 @@ class SampleData(object):
     def printSampleDataList(self):
         display( HTML( self.env.getTemplate("sampleData.html").render( dataDefs = iteritems(self.dataDefs) ) ))
 
+
+    # default to csv format
     def dataLoader(self, path, schema=None):
         if schema is not None and Environment.hasSpark:
             from pyspark.sql.types import StructType,StructField,IntegerType,DoubleType,StringType
@@ -119,7 +120,6 @@ class SampleData(object):
                 else:
                     return StringType()
         
-        # default to csv format
         if Environment.sparkVersion == 1:
             print("Loading file using 'com.databricks.spark.csv'")
             load = ShellAccess.sqlContext.read.format('com.databricks.spark.csv')
@@ -149,12 +149,11 @@ class SampleData(object):
                 else:
                     return StringType()
 
+        print("Loading json file")
         req = Request(self.url)
-        res = urlopen(req)
-        readIn = res.read()
-        data = json.loads(readIn)
-        d = json_normalize(data)
-        df = pd.DataFrame.from_records(d)
+        res = urlopen(req).read()
+        data = json.loads(res)
+        df = json_normalize(data)
         return df
 
     def loadSparkDataFrameFromSampleData(self, dataDef):
@@ -187,7 +186,7 @@ class Downloader(object):
         self.dataDef = dataDef
         self.headers = {"User-Agent": "PixieDust Sample Data Downloader/1.0"}
         self.prefix = str(uuid.uuid4())[:8]
-    
+
     def download(self, JSONdataLoader):
         displayName = self.dataDef["displayName"]
         if "path" in self.dataDef:
@@ -203,8 +202,10 @@ class Downloader(object):
                 self.dataDef["path"] = path = f.name
         if path:
             if "json" in url:
-                print("in downloader")
-                return JSONdataLoader(path, self.dataDef.get("schema", None))
+                try:
+                    return JSONdataLoader(path, self.dataDef.get("schema", None))
+                finally:
+                    print("Successfully created json dataframe")
             else:
                 try:
                     print("Downloaded {} bytes".format(bytesDownloaded))
