@@ -114,9 +114,14 @@ class PixiedustScalaMagics(Magics):
 
     def fromJava(self, stuff):
         if stuff.__class__.__name__ == "JavaObject":
-            if stuff.getClass().getName() == "org.apache.spark.sql.DataFrame":
+            clazz = stuff.getClass().getName()
+            if clazz == "org.apache.spark.sql.Dataset":
+                stuff = stuff.toDF()
+                clazz = "org.apache.spark.sql.DataFrame"
+
+            if clazz == "org.apache.spark.sql.DataFrame":
                 return DataFrame(stuff, SQLContext(SparkContext.getOrCreate(), stuff.sqlContext()))
-            elif stuff.getClass().getName() == "org.apache.spark.sql.SQLContext":
+            elif clazz == "org.apache.spark.sql.SQLContext":
                 return SQLContext(SparkContext.getOrCreate(),stuff)
         return stuff
 
