@@ -25,7 +25,12 @@ from collections import OrderedDict
 from IPython.display import display, HTML, Javascript
 import json
 import requests
+
 from pandas.io.json import json_normalize
+from pyspark.sql import SQLContext
+from pyspark import SparkContext
+
+
 try:
     from urllib.request import Request, urlopen, URLError, HTTPError
 except ImportError:
@@ -79,10 +84,10 @@ dataDefs = OrderedDict([
 ])
 
 @scalaGateway
-def sampleData(dataId=None):
+def sampleData(dataId=None, type='csv'):
     global dataDefs
     global url
-    return SampleData(dataDefs).sampleData(dataId)
+    return SampleData(dataDefs).sampleData(dataId, type)
 
 class SampleData(object):
     env = PixiedustTemplateEnvironment()
@@ -90,12 +95,14 @@ class SampleData(object):
         self.dataDefs = dataDefs
         self.url = ""
 
-    def sampleData(self, dataId = None):
+    def sampleData(self, dataId = None, type='csv'):
+        print("type={}".format(type))
         if dataId is None:
             self.printSampleDataList()
         elif str(dataId) in dataDefs:
             return self.loadSparkDataFrameFromSampleData(dataDefs[str(dataId)])
-        elif ("https://" in str(dataId) or "http://" in str(dataId) or "file://" in str(dataId)) and "json" in str(dataId):
+        elif ("https://" in str(dataId) or "http://" in str(dataId) or "file://" in str(dataId)) and type is 'json':
+            print("true within sampleData()")
             self.url = str(dataId)
             return self.JSONloadSparkDataFrameFromUrl(str(dataId))
         elif "https://" in str(dataId) or "http://" in str(dataId) or "file://" in str(dataId):
@@ -107,8 +114,6 @@ class SampleData(object):
     def printSampleDataList(self):
         display( HTML( self.env.getTemplate("sampleData.html").render( dataDefs = iteritems(self.dataDefs) ) ))
 
-
-    # default to csv format
     def dataLoader(self, path, schema=None):
         if schema is not None and Environment.hasSpark:
             from pyspark.sql.types import StructType,StructField,IntegerType,DoubleType,StringType
@@ -129,10 +134,15 @@ class SampleData(object):
                 return load.options(header='true', mode="DROPMALFORMED", inferschema='true').load(path)
         elif Environment.sparkVersion == 2:
             print("Loading file using 'SparkSession'")
+            csvload = ShellAccess.SparkSession.builder.getOrCreate() \
+                .read \
+                .format("org.apache.spark.sql.execution.datasources.csv.CSVFileFormat") \
+                .option("header", "true") \
+                .option("mode", "DROPMALFORMED")
             if schema is not None:
-                return ShellAccess.SparkSession.builder.getOrCreate().read.csv(path, header=True, mode="DROPMALFORMED", schema=StructType([StructField(item[0], getType(item[1]), True) for item in schema]))
+                return csvload.schema(StructType([StructField(item[0], getType(item[1]), True) for item in schema])).load(path)
             else:
-                return ShellAccess.SparkSession.builder.getOrCreate().read.csv(path, header=True, mode="DROPMALFORMED", inferSchema='true')
+                return csvload.option("inferSchema", "true").load(path)
         else:
             print("Loading file using 'pandas'")
             return pd.read_csv(path)
@@ -149,12 +159,20 @@ class SampleData(object):
                 else:
                     return StringType()
 
-        print("Loading json file")
-        req = Request(self.url)
-        res = urlopen(req).read()
-        data = json.loads(res)
-        df = json_normalize(data)
-        return df
+        if Environment.sparkVersion == 1: # load into pyspark df
+            print("spark version 1")
+            req = Request(url)
+            res = urlopen(req).read()
+            data = json.loads(res)
+            df = sqlContext.read.json(d)
+        elif Environment.sparkVersion == 2:
+            print("spark version 2")
+        else: # load into pandas df
+            req = Request(self.url)
+            res = urlopen(req).read()
+            data = json.loads(res)
+            df = json_normalize(data)
+            return df
 
     def loadSparkDataFrameFromSampleData(self, dataDef):
         return Downloader(dataDef).download(self.dataLoader)
@@ -179,7 +197,7 @@ class SampleData(object):
         
         return Downloader(dataDef).download(self.JSONdataLoader)
 
-#Use of progress Monitor doesn't render correctly when previewed a saved notebook, turning it off until solution is found
+# Use of progress Monitor doesn't render correctly when previewed a saved notebook, turning it off until solution is found
 useProgressMonitor = False
 class Downloader(object):
     def __init__(self, dataDef):
@@ -187,7 +205,7 @@ class Downloader(object):
         self.headers = {"User-Agent": "PixieDust Sample Data Downloader/1.0"}
         self.prefix = str(uuid.uuid4())[:8]
 
-    def download(self, JSONdataLoader):
+    def download(self, dataLoader):
         displayName = self.dataDef["displayName"]
         if "path" in self.dataDef:
             path = self.dataDef["path"]
@@ -201,18 +219,12 @@ class Downloader(object):
                 path = f.name
                 self.dataDef["path"] = path = f.name
         if path:
-            if "json" in url:
-                try:
-                    return JSONdataLoader(path, self.dataDef.get("schema", None))
-                finally:
-                    print("Successfully created json dataframe")
-            else:
-                try:
-                    print("Downloaded {} bytes".format(bytesDownloaded))
-                    print("Creating {1} DataFrame for '{0}'. Please wait...".format(displayName, 'pySpark' if Environment.hasSpark else 'pandas'))
-                    return dataLoader(path, self.dataDef.get("schema", None))
-                finally:
-                    print("Successfully created {1} DataFrame for '{0}'".format(displayName, 'pySpark' if Environment.hasSpark else 'pandas'))
+            try:
+                print("Downloaded {} bytes".format(bytesDownloaded))
+                print("Creating {1} DataFrame for '{0}'. Please wait...".format(displayName, 'pySpark' if Environment.hasSpark else 'pandas'))
+                return dataLoader(path, self.dataDef.get("schema", None))
+            finally:
+                print("Successfully created {1} DataFrame for '{0}'".format(displayName, 'pySpark' if Environment.hasSpark else 'pandas'))
         
     def report(self, bytes_so_far, chunk_size, total_size):
         if useProgressMonitor:
