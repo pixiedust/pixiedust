@@ -1,12 +1,12 @@
 # -------------------------------------------------------------------------------
 # Copyright IBM Corp. 2017
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the 'License');
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 # http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an 'AS IS' BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -25,8 +25,8 @@ from collections import OrderedDict
 from IPython.display import display, HTML, Javascript
 import json
 import requests
-
 from pandas.io.json import json_normalize
+
 from pyspark.sql import SQLContext
 from pyspark import SparkContext
 
@@ -38,7 +38,7 @@ except ImportError:
 
 dataDefs = OrderedDict([
     ("1", {
-        "displayName": "Car performance data", 
+        "displayName": "Car performance data",
         "url": "https://github.com/ibm-watson-data-lab/open-data/raw/master/cars/cars.csv",
         "topic": "transportation",
         "publisher": "IBM",
@@ -46,37 +46,37 @@ dataDefs = OrderedDict([
             ('acceleration','double'),('year','int'),('origin','string'),('name','string')]
     }),
     ("2", {
-        "displayName": "Sample retail sales transactions, January 2009", 
+        "displayName": "Sample retail sales transactions, January 2009",
         "url": "https://raw.githubusercontent.com/ibm-watson-data-lab/open-data/master/salesjan2009/salesjan2009.csv",
         "topic": "Economy & Business",
         "publisher": "IBM Cloud Data Services"
     }),
     ("3", {
-        "displayName": "Total population by country", 
+        "displayName": "Total population by country",
         "url": "https://apsportal.ibm.com/exchange-api/v1/entries/889ca053a19986a4445839358a91963e/data?accessKey=657b130d504ab539947e51b50f0e338e",
         "topic": "Society",
         "publisher": "IBM Cloud Data Services"
     }),
     ("4", {
-        "displayName": "GoSales Transactions for Naive Bayes Model", 
+        "displayName": "GoSales Transactions for Naive Bayes Model",
         "url": "https://apsportal.ibm.com/exchange-api/v1/entries/8044492073eb964f46597b4be06ff5ea/data?accessKey=bec2ed69d9c84bed53826348cdc5690b",
         "topic": "Leisure",
         "publisher": "IBM"
     }),
     ("5", {
-        "displayName": "Election results by County", 
+        "displayName": "Election results by County",
         "url": "https://openobjectstore.mybluemix.net/Election/county_election_results.csv",
         "topic": "Society",
         "publisher": "IBM"
     }),
     ("6", {
-        "displayName": "Million dollar home sales in NE Mass late 2016", 
+        "displayName": "Million dollar home sales in NE Mass late 2016",
         "url": "https://openobjectstore.mybluemix.net/misc/milliondollarhomes.csv",
         "topic": "Economy & Business",
         "publisher": "Redfin.com"
     }),
     ("7", {
-        "displayName": "Boston Crime data, 2-week sample", 
+        "displayName": "Boston Crime data, 2-week sample",
         "url": "https://raw.githubusercontent.com/ibm-watson-data-lab/open-data/master/crime/boston_crime_sample.csv",
         "topic": "Society",
         "publisher": "City of Boston"
@@ -87,6 +87,8 @@ dataDefs = OrderedDict([
 def sampleData(dataId=None, type='csv'):
     global dataDefs
     global url
+    global sqlContext
+    global sc
     return SampleData(dataDefs).sampleData(dataId, type)
 
 class SampleData(object):
@@ -94,6 +96,8 @@ class SampleData(object):
     def __init__(self, dataDefs):
         self.dataDefs = dataDefs
         self.url = ""
+        self.sc = SparkContext()
+        self.sqlContext = SQLContext(sc)
 
     def sampleData(self, dataId = None, type='csv'):
         print("type={}".format(type))
@@ -124,7 +128,7 @@ class SampleData(object):
                     return DoubleType()
                 else:
                     return StringType()
-        
+
         if Environment.sparkVersion == 1:
             print("Loading file using 'com.databricks.spark.csv'")
             load = ShellAccess.sqlContext.read.format('com.databricks.spark.csv')
@@ -161,10 +165,10 @@ class SampleData(object):
 
         if Environment.sparkVersion == 1: # load into pyspark df
             print("spark version 1")
-            req = Request(url)
+            req = Request(self.url)
             res = urlopen(req).read()
             data = json.loads(res)
-            df = sqlContext.read.json(d)
+            df = sqlContext.read.json(data)
         elif Environment.sparkVersion == 2:
             print("spark version 2")
         else: # load into pandas df
@@ -184,7 +188,7 @@ class SampleData(object):
             "displayName": dataUrl,
             "url": dataUrl
         }
-        
+
         return Downloader(dataDef).download(self.dataLoader)
 
     def JSONloadSparkDataFrameFromUrl(self, dataUrl):
@@ -194,7 +198,7 @@ class SampleData(object):
             "displayName": dataUrl,
             "url": dataUrl
         }
-        
+
         return Downloader(dataDef).download(self.JSONdataLoader)
 
 # Use of progress Monitor doesn't render correctly when previewed a saved notebook, turning it off until solution is found
@@ -225,7 +229,7 @@ class Downloader(object):
                 return dataLoader(path, self.dataDef.get("schema", None))
             finally:
                 print("Successfully created {1} DataFrame for '{0}'".format(displayName, 'pySpark' if Environment.hasSpark else 'pandas'))
-        
+
     def report(self, bytes_so_far, chunk_size, total_size):
         if useProgressMonitor:
             if bytes_so_far == 0:
@@ -258,9 +262,8 @@ class Downloader(object):
             bytes_so_far += len(chunk)
             if not chunk:
                 break
-            file.write(chunk)             
+            file.write(chunk)
             total_size = bytes_so_far if bytes_so_far > total_size else total_size
             self.report(bytes_so_far, chunk_size, total_size)
 
         return bytes_so_far
-        
