@@ -26,15 +26,13 @@ from IPython.display import display, HTML, Javascript
 import json
 import requests
 from pandas.io.json import json_normalize
-
-from pyspark.sql import SQLContext
-from pyspark import SparkContext
-
-
 try:
     from urllib.request import Request, urlopen, URLError, HTTPError
 except ImportError:
     from urllib2 import Request, urlopen, URLError, HTTPError
+
+from pyspark.sql import SQLContext
+from pyspark import SparkContext
 
 dataDefs = OrderedDict([
     ("1", {
@@ -97,7 +95,7 @@ class SampleData(object):
         self.dataDefs = dataDefs
         self.url = ""
         self.sc = SparkContext()
-        self.sqlContext = SQLContext(sc)
+        self.sqlContext = SQLContext(self.sc)
 
     def sampleData(self, dataId = None, type='csv'):
         print("type={}".format(type))
@@ -163,18 +161,15 @@ class SampleData(object):
                 else:
                     return StringType()
 
+        req = Request(self.url)
+        res = urlopen(req).read()
+        data = json.loads(res)
         if Environment.sparkVersion == 1: # load into pyspark df
-            print("spark version 1")
-            req = Request(self.url)
-            res = urlopen(req).read()
-            data = json.loads(res)
             df = sqlContext.read.json(data)
+            return df
         elif Environment.sparkVersion == 2:
             print("spark version 2")
         else: # load into pandas df
-            req = Request(self.url)
-            res = urlopen(req).read()
-            data = json.loads(res)
             df = json_normalize(data)
             return df
 
