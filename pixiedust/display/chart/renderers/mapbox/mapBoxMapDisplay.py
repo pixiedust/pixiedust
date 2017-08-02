@@ -78,15 +78,24 @@ class MapViewDisplay(MapBoxBaseDisplay):
         df = self.getWorkingPandasDataFrame()
 
         keyFields = self.getKeyFields()
+
+        # geomType can be either 0: (Multi)Point, 1: (Multi)LineString, 2: (Multi)Polygon
+        geomType = 0
+
         if len(keyFields)>0:
-            lonFieldIdx = 0
-            latFieldIdx = 1
-            if keyFields[0] == self.getLatField(): 
-                lonFieldIdx = 1
-                latFieldIdx = 0
-            min = [df[keyFields[lonFieldIdx]].min(), df[keyFields[latFieldIdx]].min()]
-            max = [df[keyFields[lonFieldIdx]].max(), df[keyFields[latFieldIdx]].max()]
-            self.options["mapBounds"] = json.dumps([min,max], default=defaultJSONEncoding)
+            if len(keyFields)==1:
+                geomType = -1 #unknown as of yet
+            else:
+                lonFieldIdx = 0
+                latFieldIdx = 1
+                if keyFields[0] == self.getLatField(): 
+                    lonFieldIdx = 1
+                    latFieldIdx = 0
+                min = [df[keyFields[lonFieldIdx]].min(), df[keyFields[latFieldIdx]].min()]
+                max = [df[keyFields[lonFieldIdx]].max(), df[keyFields[latFieldIdx]].max()]
+                self.options["mapBounds"] = json.dumps([min,max], default=defaultJSONEncoding)
+        else:
+            return
 
         valueFields = self.getValueFields()
 
@@ -106,7 +115,13 @@ class MapViewDisplay(MapBoxBaseDisplay):
                         'properties':{},
                         'geometry':{'type':'Point',
                                     'coordinates':[]}}
-            feature['geometry']['coordinates'] = [row[lonFieldIdx+1], row[latFieldIdx+1]]
+            
+            if geomType == 0:
+                feature['geometry']['coordinates'] = [row[lonFieldIdx+1], row[latFieldIdx+1]]
+            else:
+                geomIdx = df.columns.get_loc(keyFields[0])+1
+                feature['geometry'] = json.loads(row[geomIdx])
+                
             for idx, valueFieldIdx in enumerate(valueFieldIdxs):
                 feature['properties'][allProps[idx]] = row[valueFieldIdx+1]
             features.append(feature)
@@ -115,28 +130,81 @@ class MapViewDisplay(MapBoxBaseDisplay):
             pygeojson = {'type':'FeatureCollection', 'features':features}
             self.options["mapData"] = json.dumps(pygeojson,default=defaultJSONEncoding)
 
-        paint = {'circle-radius':12,'circle-color':'#ff0000'}
-        paint['circle-opacity'] = 1.0 if (self.options.get("kind") and self.options.get("kind").find("cluster") >= 0) else 0.25
+            # Now let's figure out whether we have Line or Polygon data, if it wasn't already found to be Point
+            if geomType != 1:
+                if features[0]['geometry']['type'].endswith('LineString'):
+                    geomType = 1
+                elif features[0]['geometry']['type'].endswith('Polygon'):
+                    geomType = 2
+                else:
+                    geomType = -1
+                
+            #### build up the map style
 
-        bins = []
+            # basic color
+            paint = {}
+            if geomType == 1:
+                paint['line-color'] = '#ff0000'
+                paint['line-width'] = 2
+            elif geomType == 2:
+                paint['fill-color'] = '#ff0000'
+                paint['fill-opacity'] = 0.8
+            else:
+                paint['circle-radius'] = 12
+                paint['circle-color'] = '#ff0000'
+                paint['circle-opacity'] = 1.0 if (self.options.get("kind") and self.options.get("kind").find("cluster") >= 0) else 0.25
 
-        if len(valueFields) > 0:
-            mapValueField = valueFields[0]
-            self.options["mapValueField"] = mapValueField
 
-        if not self.options.get("kind"): 
-            self.options["kind"] = "choropleth-cluster"
-        # if there's a numeric value field paint the data as a choropleth map
-        if self.options.get("kind") and self.options.get("kind").find("simple") < 0 and len(valueFields) > 0:
-            minval = df[valueFields[0]].min()
-            maxval = df[valueFields[0]].max()
-            bins = [ (minval,'#ffffcc'), (df[valueFields[0]].quantile(0.25),'#a1dab4'), (df[valueFields[0]].quantile(0.5),'#41b6c4'), (df[valueFields[0]].quantile(0.75),'#2c7fb8'), (maxval,'#253494') ]
-            paint['circle-opacity'] = 0.85
-            paint['circle-color'] = {"property":mapValueField}
-            paint['circle-color']['stops'] = []
-            for bin in bins: 
-                paint['circle-color']['stops'].append( [bin[0], bin[1]] )
-        self.options["mapStyle"] = json.dumps(paint,default=defaultJSONEncoding)
+            if len(valueFields) > 0:
+                mapValueField = valueFields[0]
+                self.options["mapValueField"] = mapValueField
+
+            if not self.options.get("kind"): 
+                self.options["kind"] = "choropleth-cluster"
+
+            # if there's a numeric value field and type is not 'simple', paint the data as a choropleth map
+            bins = []
+            if self.options.get("kind") and self.options.get("kind").find("simple") < 0 and len(valueFields) > 0:
+                # color options
+                bincolors = []
+                bincolors.append(['#ffffcc','#a1dab4','#41b6c4','#2c7fb8','#253494']) #yellow to blue
+                bincolors.append(['#fee5d9','#fcae91','#fb6a4a','#de2d26','#a50f15']) #reds
+                bincolors.append(['#f7f7f7','#cccccc','#969696','#636363','#252525']) #grayscale
+
+                bincolorsIdx = 0
+                if self.options.get("colorrampidx"):
+                    bincolorsIdx = int(self.options.get("colorrampidx"))
+
+                minval = df[valueFields[0]].min()
+                maxval = df[valueFields[0]].max()
+                bins.append((minval,bincolors[bincolorsIdx][0]))
+                bins.append((df[valueFields[0]].quantile(0.25),bincolors[bincolorsIdx][1]))
+                bins.append((df[valueFields[0]].quantile(0.5),bincolors[bincolorsIdx][2]))
+                bins.append((df[valueFields[0]].quantile(0.75),bincolors[bincolorsIdx][3]))
+                bins.append((maxval,bincolors[bincolorsIdx][4]))
+
+                if geomType == 1:
+                    paint['line-opacity'] = 0.65
+                    paint['line-color'] = {"property":mapValueField}
+                    paint['line-color']['stops'] = []
+                    for bin in bins:
+                        paint['line-color']['stops'].append([bin[0], bin[1]])
+                elif geomType == 2:
+                    paint['fill-color'] = {"property":mapValueField}
+                    paint['fill-color']['stops'] = []
+                    for bin in bins:
+                        paint['fill-color']['stops'].append([bin[0], bin[1]])
+                else:
+                    paint['circle-opacity'] = 0.65
+                    paint['circle-color'] = {"property":mapValueField}
+                    paint['circle-color']['stops'] = []
+                    for bin in bins: 
+                        paint['circle-color']['stops'].append([bin[0], bin[1]])
+                    paint['circle-radius'] = 12
+
+
+            self.options["mapStyle"] = json.dumps(paint,default=defaultJSONEncoding)
+            
         w = self.getPreferredOutputWidth()
         h = self.getPreferredOutputHeight()
 
