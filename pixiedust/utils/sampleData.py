@@ -1,12 +1,12 @@
 # -------------------------------------------------------------------------------
 # Copyright IBM Corp. 2017
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the 'License');
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 # http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an 'AS IS' BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -23,6 +23,9 @@ import uuid
 import tempfile
 from collections import OrderedDict
 from IPython.display import display, HTML, Javascript
+import json
+import requests
+from pandas.io.json import json_normalize
 try:
     from urllib.request import Request, urlopen, URLError, HTTPError
 except ImportError:
@@ -30,7 +33,7 @@ except ImportError:
 
 dataDefs = OrderedDict([
     ("1", {
-        "displayName": "Car performance data", 
+        "displayName": "Car performance data",
         "url": "https://github.com/ibm-watson-data-lab/open-data/raw/master/cars/cars.csv",
         "topic": "transportation",
         "publisher": "IBM",
@@ -38,37 +41,37 @@ dataDefs = OrderedDict([
             ('acceleration','double'),('year','int'),('origin','string'),('name','string')]
     }),
     ("2", {
-        "displayName": "Sample retail sales transactions, January 2009", 
+        "displayName": "Sample retail sales transactions, January 2009",
         "url": "https://raw.githubusercontent.com/ibm-watson-data-lab/open-data/master/salesjan2009/salesjan2009.csv",
         "topic": "Economy & Business",
         "publisher": "IBM Cloud Data Services"
     }),
     ("3", {
-        "displayName": "Total population by country", 
+        "displayName": "Total population by country",
         "url": "https://apsportal.ibm.com/exchange-api/v1/entries/889ca053a19986a4445839358a91963e/data?accessKey=657b130d504ab539947e51b50f0e338e",
         "topic": "Society",
         "publisher": "IBM Cloud Data Services"
     }),
     ("4", {
-        "displayName": "GoSales Transactions for Naive Bayes Model", 
+        "displayName": "GoSales Transactions for Naive Bayes Model",
         "url": "https://apsportal.ibm.com/exchange-api/v1/entries/8044492073eb964f46597b4be06ff5ea/data?accessKey=bec2ed69d9c84bed53826348cdc5690b",
         "topic": "Leisure",
         "publisher": "IBM"
     }),
     ("5", {
-        "displayName": "Election results by County", 
+        "displayName": "Election results by County",
         "url": "https://openobjectstore.mybluemix.net/Election/county_election_results.csv",
         "topic": "Society",
         "publisher": "IBM"
     }),
     ("6", {
-        "displayName": "Million dollar home sales in NE Mass late 2016", 
+        "displayName": "Million dollar home sales in NE Mass late 2016",
         "url": "https://openobjectstore.mybluemix.net/misc/milliondollarhomes.csv",
         "topic": "Economy & Business",
         "publisher": "Redfin.com"
     }),
     ("7", {
-        "displayName": "Boston Crime data, 2-week sample", 
+        "displayName": "Boston Crime data, 2-week sample",
         "url": "https://raw.githubusercontent.com/ibm-watson-data-lab/open-data/master/crime/boston_crime_sample.csv",
         "topic": "Society",
         "publisher": "City of Boston"
@@ -76,20 +79,25 @@ dataDefs = OrderedDict([
 ])
 
 @scalaGateway
-def sampleData(dataId=None):
+def sampleData(dataId=None, type='csv'):
     global dataDefs
-    return SampleData(dataDefs).sampleData(dataId)
+    global url
+    return SampleData(dataDefs).sampleData(dataId, type)
 
 class SampleData(object):
     env = PixiedustTemplateEnvironment()
     def __init__(self, dataDefs):
         self.dataDefs = dataDefs
+        self.url = ""
 
-    def sampleData(self, dataId = None):
+    def sampleData(self, dataId = None, type='csv'):
         if dataId is None:
             self.printSampleDataList()
         elif str(dataId) in dataDefs:
             return self.loadSparkDataFrameFromSampleData(dataDefs[str(dataId)])
+        elif ("https://" in str(dataId) or "http://" in str(dataId) or "file://" in str(dataId)) and type is 'json':
+            self.url = str(dataId)
+            return self.JSONloadSparkDataFrameFromUrl(str(dataId))
         elif "https://" in str(dataId) or "http://" in str(dataId) or "file://" in str(dataId):
             return self.loadSparkDataFrameFromUrl(str(dataId))
         else:
@@ -98,8 +106,6 @@ class SampleData(object):
 
     def printSampleDataList(self):
         display( HTML( self.env.getTemplate("sampleData.html").render( dataDefs = iteritems(self.dataDefs) ) ))
-        #for key, val in iteritems(self.dataDefs):
-        #    print("{0}: {1}".format(key, val["displayName"]))
 
     def dataLoader(self, path, schema=None):
         if schema is not None and Environment.hasSpark:
@@ -121,13 +127,47 @@ class SampleData(object):
                 return load.options(header='true', mode="DROPMALFORMED", inferschema='true').load(path)
         elif Environment.sparkVersion == 2:
             print("Loading file using 'SparkSession'")
+            csvload = ShellAccess.SparkSession.builder.getOrCreate() \
+                .read \
+                .format("org.apache.spark.sql.execution.datasources.csv.CSVFileFormat") \
+                .option("header", "true") \
+                .option("mode", "DROPMALFORMED")
             if schema is not None:
-                return ShellAccess.SparkSession.builder.getOrCreate().read.csv(path, header=True, mode="DROPMALFORMED", schema=StructType([StructField(item[0], getType(item[1]), True) for item in schema]))
+                return csvload.schema(StructType([StructField(item[0], getType(item[1]), True) for item in schema])).load(path)
             else:
-                return ShellAccess.SparkSession.builder.getOrCreate().read.csv(path, header=True, mode="DROPMALFORMED", inferSchema='true')
+                return csvload.option("inferSchema", "true").load(path)
         else:
             print("Loading file using 'pandas'")
             return pd.read_csv(path)
+
+    def JSONdataLoader(self, path, schema=None):
+        if schema is not None and Environment.hasSpark:
+            from pyspark.sql.types import StructType,StructField,IntegerType,DoubleType,StringType
+            def getType(t):
+                if t == 'int':
+                    return IntegerType()
+                elif t == 'double':
+                    return DoubleType()
+                else:
+                    return StringType()
+
+        req = Request(self.url)
+        res = urlopen(req).read()
+        dataRDD = ShellAccess.sc.parallelize([res])
+
+        if Environment.sparkVersion == 1:
+            ("Loading file using a pyspark dataframe")
+            df = ShellAccess.sqlContext.jsonRDD(dataRDD)
+            return df
+        elif Environment.sparkVersion == 2:
+            ("Loading file using a pyspark dataframe")
+            df = ShellAccess.spark.read.json(dataRDD)
+            return df
+        else:
+            print("Loading file using 'pandas'")
+            data = json.loads(res)
+            df = json_normalize(data)
+            return df
 
     def loadSparkDataFrameFromSampleData(self, dataDef):
         return Downloader(dataDef).download(self.dataLoader)
@@ -139,38 +179,48 @@ class SampleData(object):
             "displayName": dataUrl,
             "url": dataUrl
         }
+
         return Downloader(dataDef).download(self.dataLoader)
 
-#Use of progress Monitor doesn't render correctly when previewed a saved notebook, turning it off until solution is found
+    def JSONloadSparkDataFrameFromUrl(self, dataUrl):
+        i = dataUrl.rfind('/')
+        dataName = dataUrl[(i+1):]
+        dataDef = {
+            "displayName": dataUrl,
+            "url": dataUrl
+        }
+
+        return Downloader(dataDef).download(self.JSONdataLoader)
+
+# Use of progress Monitor doesn't render correctly when previewed a saved notebook, turning it off until solution is found
 useProgressMonitor = False
 class Downloader(object):
     def __init__(self, dataDef):
         self.dataDef = dataDef
         self.headers = {"User-Agent": "PixieDust Sample Data Downloader/1.0"}
         self.prefix = str(uuid.uuid4())[:8]
-    
+
     def download(self, dataLoader):
         displayName = self.dataDef["displayName"]
-        bytesDownloaded = 0
         if "path" in self.dataDef:
             path = self.dataDef["path"]
         else:
             url = self.dataDef["url"]
             req = Request(url, None, self.headers)
             print("Downloading '{0}' from {1}".format(displayName, url))
+            bytesDownloaded = 0
             with tempfile.NamedTemporaryFile(delete=False) as f:
                 bytesDownloaded = self.write(urlopen(req), f)
                 path = f.name
                 self.dataDef["path"] = path = f.name
         if path:
             try:
-                if bytesDownloaded > 0:
-                    print("Downloaded {} bytes".format(bytesDownloaded))
+                print("Downloaded {} bytes".format(bytesDownloaded))
                 print("Creating {1} DataFrame for '{0}'. Please wait...".format(displayName, 'pySpark' if Environment.hasSpark else 'pandas'))
                 return dataLoader(path, self.dataDef.get("schema", None))
             finally:
                 print("Successfully created {1} DataFrame for '{0}'".format(displayName, 'pySpark' if Environment.hasSpark else 'pandas'))
-            
+
     def report(self, bytes_so_far, chunk_size, total_size):
         if useProgressMonitor:
             if bytes_so_far == 0:
@@ -203,7 +253,7 @@ class Downloader(object):
             bytes_so_far += len(chunk)
             if not chunk:
                 break
-            file.write(chunk)             
+            file.write(chunk)
             total_size = bytes_so_far if bytes_so_far > total_size else total_size
             self.report(bytes_so_far, chunk_size, total_size)
 
