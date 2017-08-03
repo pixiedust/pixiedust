@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+ <head>
+  <title>
+   1.0.9
+  </title>
+  <meta content="&#xA9;Copyright IBM Corporation 2017" name="copyright"/>
+  <meta content="&#xA9;Copyright IBM Corporation 2017" name="DC.Rights.Owner"/>
+  <meta content="&#xA9; Copyright IBM Corporation 2016, 2017" name="dcterms.rights"/>
+  <meta content="2017-06-05" name="DC.date"/>
+ </head>
+ <body>
+  <div>
+   <h1>
+    1.0.9
+   </h1>
+   <p>
+    Here's what's new in Release 1.0.7 (4 August 2017):
+   </p>
+   <p>
+    <strong>
+     Bug fixes
+    </strong>
+   </p>
+   <ul>
+    <li>
+     <p>
+      Fixed an error triggered by running a display command on a DataFrame shared from a Scala notebook. PixieDust's "scala magic" feature allows users to share variables between Python and Scala Notebooks. Now, such shared Scala DataFrames are correctly displayed from within a Python context (
+      <a href="https://github.com/ibm-watson-data-lab/pixiedust/issues/425">
+       #425
+      </a>
+      ).
+     </p>
+    </li>
+    <li>
+     <p>
+      PixieApp chart options are now accepted as JSON. Instead of adapting parameters into HTML-style tag attributes, PixieApp users can now simply paste valid JSON as the element content of the
+      <code>
+       &lt;pd_options&gt;
+      </code>
+      tag (
+      <a href="https://github.com/ibm-watson-data-lab/pixiedust/issues/423">
+       #423
+      </a>
+      ).
+     </p>
+    </li>
+   </ul>
+  </div>
+ </body>
+</html>
