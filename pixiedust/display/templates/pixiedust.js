@@ -240,7 +240,7 @@ function addOptions(command, options, override=true){
             if (override){
                 command = command.replace(rpattern, replaceValue);
             }
-        }else if (hasValue){
+        }else if (hasValue && command.search(/display\s*\(/) >= 0 ){
             var n = command.lastIndexOf(")");
             command = [command.slice(0, n), (command[n-1]=="("? "":",") + replaceValue, command.slice(n)].join('')
         }        
@@ -315,6 +315,18 @@ function readExecInfo(pd_controls, element, searchParents){
             }
         });
     }
+    {#read pd_options children using json format#}
+    $(element).find("> pd_options").each(function(){
+        debugger;
+        try{
+            var options = JSON.parse($(this).text());
+            for (var key in options) { 
+                execInfo.options[key] = options[key]; 
+            }
+        }catch(e){
+            console.log("Error parsing pd_options, invalid json", e);
+        }
+    })
     execInfo.options.nostore_figureOnly = true;
     execInfo.options.targetDivId = execInfo.targetDivId = pd_controls.refreshTarget || element.getAttribute("pd_target");
     if (execInfo.options.targetDivId){
@@ -345,6 +357,11 @@ function readExecInfo(pd_controls, element, searchParents){
         if (match){
             doptions.nostore_pixieapp = match[1];
         }
+
+        pd_controls.sniffers = pd_controls.sniffers || [];
+        pd_controls.sniffers.forEach(function(sniffer){
+            c = addOptions(c, eval('(' + sniffer + ')'))       
+        });
         if (!e){
             return addOptions(c, doptions);
         }
@@ -411,6 +428,16 @@ function readExecInfo(pd_controls, element, searchParents){
         if (!preRun(element)){
             return;
         }
+
+        pd_controls.sniffers = pd_controls.sniffers || [];
+        pd_controls.sniffers.forEach(function(sniffer){
+            if (this.script){
+                this.script = addOptions(this.script, eval('(' + sniffer + ')'));
+            }else{
+                pd_controls.command = addOptions(pd_controls.command, eval('(' + sniffer + ')'));
+            }    
+        }.bind(this));
+
         if ( this.options.dialog == 'true' ){
             pixiedust.executeInDialog(pd_controls, this);
         }else{
@@ -445,7 +472,7 @@ function runElement(element, searchParents){
 
 function filterNonTargetElements(element){
     if (element && ["I", "DIV", "SELECT"].includes(element.tagName)){
-        if (!element.hasAttribute("pd_options") || element.hasAttribute("pd_render_onload")){
+        if (!element.hasAttribute("pd_options") || $(element).find("> pd_options").length == 0 || element.hasAttribute("pd_render_onload")){
             return filterNonTargetElements(element.parentElement);
         }
     }

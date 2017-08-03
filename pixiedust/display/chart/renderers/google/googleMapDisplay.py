@@ -90,7 +90,7 @@ class MapViewDisplay(GoogleBaseDisplay):
 
         df = self.getWorkingPandasDataFrame()
         colData = str(df.columns.values.tolist())
-        valData = str(df.values.tolist()).encode('utf-8')
+        valData = str(df.values.tolist())
         mapData = "[" + valData.replace('[', (colData + ", "), 1)
 
         self.options["mapData"] = mapData.replace("'",'"').replace('[u"', '["').replace(', u"', ', "')
