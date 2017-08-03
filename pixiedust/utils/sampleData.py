@@ -153,14 +153,16 @@ class SampleData(object):
 
         req = Request(self.url)
         res = urlopen(req).read()
+        dataRDD = ShellAccess.sc.parallelize([res])
 
         if Environment.sparkVersion == 1:
             ("Loading file using a pyspark dataframe")
-            dataRDD = ShellAccess.sc.parallelize([res])
             df = ShellAccess.sqlContext.jsonRDD(dataRDD)
             return df
         elif Environment.sparkVersion == 2:
-            print("spark version 2")
+            ("Loading file using a pyspark dataframe")
+            df = ShellAccess.spark.read.json(dataRDD)
+            return df
         else:
             print("Loading file using 'pandas'")
             data = json.loads(res)
