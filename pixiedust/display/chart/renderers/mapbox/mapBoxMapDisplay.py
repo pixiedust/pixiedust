@@ -19,7 +19,7 @@ from .mapBoxBaseDisplay import MapBoxBaseDisplay
 from pixiedust.utils import cache
 from pixiedust.utils import Logger
 from pixiedust.utils.shellAccess import ShellAccess
-from pixiedust.display.streaming.streamingDisplay import *
+from pixiedust.display.streamingDisplay import *
 import json 
 import numpy
 import geojson

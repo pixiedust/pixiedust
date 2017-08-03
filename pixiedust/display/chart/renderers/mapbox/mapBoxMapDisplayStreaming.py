@@ -14,10 +14,15 @@
 # limitations under the License.
 # -------------------------------------------------------------------------------
 
-import bokeh
-from .bokehBaseDisplay import *
-from .barChartDisplay import *
-from .lineChartDisplay import *
-from .scatterPlotDisplay import *
-from .histogramDisplay import *
-from .streaming import *
+from .mapBoxMapDisplay import MapViewDisplay
+from pixiedust.display.chart.renderers import PixiedustRenderer
+from pixiedust.utils import Logger
+
+@PixiedustRenderer(id="mapView", isStreaming=True)
+@Logger()
+class MapViewStreamingDisplay(MapViewDisplay):
+    """
+    Streaming version of the Mapbox display renderer. 
+    TODO: Refactor the streaming related code from MapViewDisplay into this class
+    """
+    pass

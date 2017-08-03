@@ -14,10 +14,5 @@
 # limitations under the License.
 # -------------------------------------------------------------------------------
 
-import bokeh
-from .bokehBaseDisplay import *
-from .barChartDisplay import *
-from .lineChartDisplay import *
-from .scatterPlotDisplay import *
-from .histogramDisplay import *
-from .streaming import *
+from .lineChartDisplayStreaming import *
+from .scatterPlotStreamingDisplay import *

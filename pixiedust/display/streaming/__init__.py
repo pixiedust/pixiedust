@@ -35,7 +35,7 @@ class StreamingDataAdapter(with_metaclass(ABCMeta)):
         return {}
 
     def accept(self, handlerId):
-        return False
+        return True
 
     defaultValues = {
         "getFieldNames": lambda expandNested=False: [],
@@ -68,6 +68,9 @@ class StreamingDataAdapter(with_metaclass(ABCMeta)):
         2. pandas dataframe
         3. y: list/numpy array representing the y axis. In this case, the x axis is automatically created
         4. pandas serie: similar to #3
+        5. json
+        6. geojson
+        7. url with supported payload (json/geojson)
         """
         pass
 

@@ -330,7 +330,7 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
         return (dialogTemplate, dialogOptions)
 
     def getRendererList(self):
-        return PixiedustRenderer.getRendererList(self.options, self.entity)
+        return PixiedustRenderer.getRendererList(self.options, self.entity, self.isStreaming)
 
     @cache(fieldName="aggregation")
     def getAggregation(self):
