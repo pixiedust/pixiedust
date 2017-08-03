@@ -31,9 +31,6 @@ try:
 except ImportError:
     from urllib2 import Request, urlopen, URLError, HTTPError
 
-from pyspark.sql import SQLContext
-from pyspark import SparkContext
-
 dataDefs = OrderedDict([
     ("1", {
         "displayName": "Car performance data",
@@ -85,8 +82,6 @@ dataDefs = OrderedDict([
 def sampleData(dataId=None, type='csv'):
     global dataDefs
     global url
-    global sqlContext
-    global sc
     return SampleData(dataDefs).sampleData(dataId, type)
 
 class SampleData(object):
@@ -94,17 +89,13 @@ class SampleData(object):
     def __init__(self, dataDefs):
         self.dataDefs = dataDefs
         self.url = ""
-        self.sc = SparkContext()
-        self.sqlContext = SQLContext(self.sc)
 
     def sampleData(self, dataId = None, type='csv'):
-        print("type={}".format(type))
         if dataId is None:
             self.printSampleDataList()
         elif str(dataId) in dataDefs:
             return self.loadSparkDataFrameFromSampleData(dataDefs[str(dataId)])
         elif ("https://" in str(dataId) or "http://" in str(dataId) or "file://" in str(dataId)) and type is 'json':
-            print("true within sampleData()")
             self.url = str(dataId)
             return self.JSONloadSparkDataFrameFromUrl(str(dataId))
         elif "https://" in str(dataId) or "http://" in str(dataId) or "file://" in str(dataId):
@@ -149,7 +140,6 @@ class SampleData(object):
             print("Loading file using 'pandas'")
             return pd.read_csv(path)
 
-
     def JSONdataLoader(self, path, schema=None):
         if schema is not None and Environment.hasSpark:
             from pyspark.sql.types import StructType,StructField,IntegerType,DoubleType,StringType
@@ -163,13 +153,17 @@ class SampleData(object):
 
         req = Request(self.url)
         res = urlopen(req).read()
-        data = json.loads(res)
-        if Environment.sparkVersion == 1: # load into pyspark df
-            df = sqlContext.read.json(data)
+
+        if Environment.sparkVersion == 1:
+            ("Loading file using a pyspark dataframe")
+            dataRDD = ShellAccess.sc.parallelize([res])
+            df = ShellAccess.sqlContext.jsonRDD(dataRDD)
             return df
         elif Environment.sparkVersion == 2:
             print("spark version 2")
-        else: # load into pandas df
+        else:
+            print("Loading file using 'pandas'")
+            data = json.loads(res)
             df = json_normalize(data)
             return df
 
