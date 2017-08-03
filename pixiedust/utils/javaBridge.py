@@ -132,8 +132,10 @@ class JavaWrapper(object):
         jMethodParams = None if argLen == 0 else sc._gateway.new_array(sc._jvm.Class, argLen )
         jMethodArgs = None if argLen == 0 else sc._gateway.new_array(sc._jvm.Object, argLen )
         for i,arg in enumerate(args):
-            jMethodParams[i] = None if arg is None else (arg if arg.__class__.__name__ == "JavaClass" else arg.getClass())
-            jMethodArgs[i] = arg
+            if arg is not None: 
+                jMethodParams[i] = arg if arg.__class__.__name__ == "JavaClass" else arg.getClass()
+                jMethodArgs[i] = arg
+            myLogger.debug("Arg for {} is {}".format( i, arg))
         #find the method and invoke it
         for m in self.jHandle.getClass().getMethods():
             if m.getName() == methodName and len(m.getParameterTypes()) == argLen:
