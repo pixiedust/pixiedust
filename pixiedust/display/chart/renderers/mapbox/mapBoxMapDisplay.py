@@ -146,14 +146,25 @@ class MapViewDisplay(MapBoxBaseDisplay):
             if geomType == 1:
                 paint['line-color'] = '#ff0000'
                 paint['line-width'] = 2
+                if self.options.get("coloropacity"):
+                    paint['line-opacity'] = float(self.options.get("coloropacity")) / 100
             elif geomType == 2:
                 paint['fill-color'] = '#ff0000'
                 paint['fill-opacity'] = 0.8
+                if self.options.get("coloropacity"):
+                    paint['fill-opacity'] = float(self.options.get("coloropacity")) / 100
+
+                self.debug("opacity: ")
+                self.debug(int(self.options.get("coloropacity")))
+                self.debug(int(self.options.get("coloropacity"))/100)
             else:
                 paint['circle-radius'] = 12
                 paint['circle-color'] = '#ff0000'
-                paint['circle-opacity'] = 1.0 if (self.options.get("kind") and self.options.get("kind").find("cluster") >= 0) else 0.25
-
+                paint['circle-opacity'] = 0.25
+                if self.options.get("coloropacity"):
+                    paint['circle-opacity'] = float(self.options.get("coloropacity")) / 100
+                if (self.options.get("kind") and self.options.get("kind").find("cluster") >= 0):
+                    paint['circle-opacity'] = 1.0
 
             if len(valueFields) > 0:
                 mapValueField = valueFields[0]

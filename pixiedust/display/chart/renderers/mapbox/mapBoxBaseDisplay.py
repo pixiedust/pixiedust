@@ -47,6 +47,16 @@ class MapBoxBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
 							'default': 90
 					}
 			},
+			{
+					'name': 'coloropacity',
+					'description': 'Opacity',
+					'metadata': {
+							'type': 'slider',
+							'max': 100,
+							'min': 0,
+							'default': 80
+					}
+			},
 			{ 'name': 'kind',
 			  'description': 'Style',
 			  'metadata': {
