@@ -48,10 +48,19 @@ class MapBoxBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
 					}
 			},
 			{ 'name': 'kind',
+			  'description': 'Style',
 			  'metadata': {
 					'type': 'dropdown',
 					'values': ['simple','simple-cluster','choropleth','choropleth-cluster','densitymap'],
 					'default': 'simple'
+				}
+			},
+			{ 'name': 'colorrampname',
+			  'description': 'Color Ramp',
+			  'metadata': {
+					'type': 'dropdown',
+					'values': ['Yellow to Blue','Light to Dark Red','Grayscale','Orange to Purple'],
+					'default': 'Yellow to Blue'
 				}
 			},
 			{'name': 'basemap', 

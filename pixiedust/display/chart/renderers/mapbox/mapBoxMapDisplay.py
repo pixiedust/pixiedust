@@ -170,10 +170,16 @@ class MapViewDisplay(MapBoxBaseDisplay):
                 bincolors.append(['#ffffcc','#a1dab4','#41b6c4','#2c7fb8','#253494']) #yellow to blue
                 bincolors.append(['#fee5d9','#fcae91','#fb6a4a','#de2d26','#a50f15']) #reds
                 bincolors.append(['#f7f7f7','#cccccc','#969696','#636363','#252525']) #grayscale
+                bincolors.append(['#e66101','#fdb863','#f7f7f7','#b2abd2','#5e3c99']) #orange to purple (diverging values)
 
                 bincolorsIdx = 0
-                if self.options.get("colorrampidx"):
-                    bincolorsIdx = int(self.options.get("colorrampidx"))
+                if self.options.get("colorrampname"):
+                    if self.options.get("colorrampname") == "Light to Dark Red":
+                        bincolorsIdx = 1
+                    if self.options.get("colorrampname") == "Grayscale":
+                        bincolorsIdx = 2
+                    if self.options.get("colorrampname") == "Orange to Purple":
+                        bincolorsIdx = 3
 
                 minval = df[valueFields[0]].min()
                 maxval = df[valueFields[0]].max()
