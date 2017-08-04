@@ -21,7 +21,7 @@
         background-color: rgba(255,255,255, 0.75);
         border-radius: 3px;
         position: absolute;
-        left: calc(100% - 172px);
+        left: 14px;
         top: 14px;
         box-shadow: 0 1px 2px rgba(0,0,0,0.10);
         font-size: 12px;
@@ -50,14 +50,12 @@
 <body>
 <div id="map-{{prefix}}-{{randomid}}" style="width:calc({{prefwidth}}px - 4px);height:calc({{prefheight}}px - 4px)" />
 
-{%if this.options.get("legend") == "true" %}
+{% if this.options.get("kind") and this.options.get("kind").find("simple") < 0 and this.options.get("legend") == "true" %}
 <div id="maplegend" class="legend">
-    {% if this.options.get("kind") and this.options.get("kind").find("simple") < 0 %}
-        <h4>{{this.options.get("mapValueField")}}</h4>
-        {% for bin in bins %}
-        <div><span style="background-color: {{bin[1]}}"></span>{{bin[0]}}</div>
-        {% endfor %}
-    {%endif%}
+    <h4>{{this.options.get("mapValueField")}}</h4>
+    {% for bin in bins %}
+    <div><span style="background-color: {{bin[1]}}"></span>{{bin[0]}}</div>
+    {% endfor %}
 </div>
 {%endif%}
 <script>
