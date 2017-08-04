@@ -1,0 +1,20 @@
+1.0.9
+=====
+
+Here's what's new in Release 1.0.9 (4 August 2017): 
+
+**Bug fixes**
+
+- Fixed an error triggered by running a display command on a DataFrame shared from a Scala notebook. PixieDust's `scala magic <scalabridge.html>`_ feature allows users to share variables between Python and Scala Notebooks. Now, such shared Scala DataFrames are correctly displayed from within a Python context (`#425 <https://github.com/ibm-watson-data-lab/pixiedust/issues/425>`_).
+
+- PixieApp chart options are now accepted as JSON. Instead of adapting parameters into HTML-style tag attributes, PixieApp developers can now simply paste valid JSON as the element content of the ``<pd_options>`` tag (`#423 <https://github.com/ibm-watson-data-lab/pixiedust/issues/423>`_).
+
+- Calls to ``pixiedust.enableJobMonitor()`` now work properly on Spark 2.1 (`#223 <https://github.com/ibm-watson-data-lab/pixiedust/issues/223>`_).
+
+- Fixed an issue where, within a PixieApp, the ``showColumn`` attribute would actually hide the column (`#383 <https://github.com/ibm-watson-data-lab/pixiedust/issues/383>`_).
+
+- PixieDust display calls to the map render for Google now work correctly when using Python 3.x (`#417 <https://github.com/ibm-watson-data-lab/pixiedust/issues/417>`_).
+
+**Enhancements**
+
+- The local installer experience has been improved. The ``jupyter pixiedust install`` command now allows users to more easily install and switch between different versions of the Spark kernel (`#348 <https://github.com/ibm-watson-data-lab/pixiedust/issues/348>`_).
