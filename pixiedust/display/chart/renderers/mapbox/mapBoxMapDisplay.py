@@ -153,10 +153,6 @@ class MapViewDisplay(MapBoxBaseDisplay):
                 paint['fill-opacity'] = 0.8
                 if self.options.get("coloropacity"):
                     paint['fill-opacity'] = float(self.options.get("coloropacity")) / 100
-
-                self.debug("opacity: ")
-                self.debug(int(self.options.get("coloropacity")))
-                self.debug(int(self.options.get("coloropacity"))/100)
             else:
                 paint['circle-radius'] = 12
                 paint['circle-color'] = '#ff0000'
