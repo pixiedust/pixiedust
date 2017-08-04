@@ -45,6 +45,7 @@ class ChartDisplayMeta(DisplayHandlerMeta):
                 {"categoryId": "Chart", "title": "Histogram", "icon": "fa-table", "id": "histogram"}
             ]
 
+            infos = [info for info in infos if info["id"] in PixiedustRenderer.getHandlerIdList(dataHandler.isStreaming)]
             accept = getattr(dataHandler, "accept", lambda id: True)
             if not callable(accept):
                 accept = lambda id:True
@@ -53,5 +54,5 @@ class ChartDisplayMeta(DisplayHandlerMeta):
 
         return []
 
-    def newDisplayHandler(self, options, entity):
-        return PixiedustRenderer.getRenderer(options, entity)
+    def newDisplayHandler(self, options, entity, dataHandler):
+        return PixiedustRenderer.getRenderer(options, entity, dataHandler.isStreaming)

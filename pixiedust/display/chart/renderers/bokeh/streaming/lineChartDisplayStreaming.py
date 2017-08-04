@@ -14,10 +14,17 @@
 # limitations under the License.
 # -------------------------------------------------------------------------------
 
-import bokeh
-from .bokehBaseDisplay import *
-from .barChartDisplay import *
-from .lineChartDisplay import *
-from .scatterPlotDisplay import *
-from .histogramDisplay import *
-from .streaming import *
+from .baseStreamingDisplay import BokehStreamingDisplay
+from pixiedust.display.chart.renderers import PixiedustRenderer
+from pixiedust.utils import Logger
+
+@PixiedustRenderer(id="lineChart", isStreaming=True)
+@Logger()
+class LineChartStreamingDisplay(BokehStreamingDisplay):
+    def createGlyphRenderer(self, figure, x, y):
+        self.i = 0
+        return figure.line(x,y,color='navy', alpha=0.5, hover_line_color=None)
+    
+    def updateGlyphRenderer(self, figure, glyphRenderer):
+        self.i +=1
+        figure.title.text = str(self.i)

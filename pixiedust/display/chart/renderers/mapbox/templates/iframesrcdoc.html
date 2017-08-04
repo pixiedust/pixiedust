@@ -54,7 +54,7 @@
 <div pd_refresh_rate="{{this.options.get('refresh', 1000)}}">
     <pd_script>
 from ipykernel.comm import Comm
-from pixiedust.display.streaming.streamingDisplay import *
+from pixiedust.display.streamingDisplay import *
 cellId = "{{this.options["cell_id"]}}"
 entity = activesStreamingEntities[cellId] if cellId in activesStreamingEntities else None
 if entity is not None:

@@ -14,10 +14,12 @@
 # limitations under the License.
 # -------------------------------------------------------------------------------
 
-import bokeh
-from .bokehBaseDisplay import *
-from .barChartDisplay import *
-from .lineChartDisplay import *
-from .scatterPlotDisplay import *
-from .histogramDisplay import *
-from .streaming import *
+from pixiedust.display.datahandler.baseDataHandler import BaseDataHandler
+
+class BaseStreamingDataHandler(BaseDataHandler):
+    """
+    Base class for Streaming Data Handlers
+    Automatically infer a schema based on the streaming data
+    """
+    def __init__(self, options, entity):
+        super(BaseStreamingDataHandler, self).__init__(options, entity)

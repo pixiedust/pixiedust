@@ -116,7 +116,10 @@ def display(entity, **kwargs):
                 progressMonitor.onDisplayRun(kwargs.get("cell_id"))
             
             myLogger.debug("Creating a new display handler with options {0}: {1}".format(kwargs, selectedHandler))
-            displayHandler = selectedHandler.newDisplayHandler(kwargs,entity)
+            try:
+                displayHandler = selectedHandler.newDisplayHandler(kwargs,entity, dataHandler)
+            except TypeError:
+                displayHandler = selectedHandler.newDisplayHandler(kwargs, entity )
             if displayHandler is None:
                 printEx("Unable to obtain handler")
                 return
