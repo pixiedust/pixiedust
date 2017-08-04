@@ -72,7 +72,7 @@ class MessagehubStreamingAdapter(StreamingDataAdapter):
             for topicPartition,records in iteritems(msg):
                 for record in records:
                     if record.value is not None:                    
-                        jsonValue = json.loads(record.value)
+                        jsonValue = json.loads(str(record.value))
                         self.inferSchema(jsonValue)
                         msgs.append(jsonValue)
         return msgs
