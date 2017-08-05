@@ -81,7 +81,6 @@ dataDefs = OrderedDict([
 @scalaGateway
 def sampleData(dataId=None, type='csv'):
     global dataDefs
-    global url
     return SampleData(dataDefs).sampleData(dataId, type)
 
 class SampleData(object):
@@ -95,11 +94,12 @@ class SampleData(object):
             self.printSampleDataList()
         elif str(dataId) in dataDefs:
             return self.loadSparkDataFrameFromSampleData(dataDefs[str(dataId)])
-        elif ("https://" in str(dataId) or "http://" in str(dataId) or "file://" in str(dataId)) and type is 'json':
-            self.url = str(dataId)
-            return self.JSONloadSparkDataFrameFromUrl(str(dataId))
         elif "https://" in str(dataId) or "http://" in str(dataId) or "file://" in str(dataId):
-            return self.loadSparkDataFrameFromUrl(str(dataId))
+            if type is 'json':
+                self.url = str(dataId)
+                return self.JSONloadSparkDataFrameFromUrl(str(dataId))
+            else:
+                return self.loadSparkDataFrameFromUrl(str(dataId))
         else:
             print("Unknown sample data identifier. Please choose an id from the list below")
             self.printSampleDataList()
@@ -200,20 +200,21 @@ class Downloader(object):
 
     def download(self, dataLoader):
         displayName = self.dataDef["displayName"]
+        bytesDownloaded = 0
         if "path" in self.dataDef:
             path = self.dataDef["path"]
         else:
             url = self.dataDef["url"]
             req = Request(url, None, self.headers)
             print("Downloading '{0}' from {1}".format(displayName, url))
-            bytesDownloaded = 0
             with tempfile.NamedTemporaryFile(delete=False) as f:
                 bytesDownloaded = self.write(urlopen(req), f)
                 path = f.name
                 self.dataDef["path"] = path = f.name
         if path:
             try:
-                print("Downloaded {} bytes".format(bytesDownloaded))
+                if bytesDownloaded > 0:
+                   print("Downloaded {} bytes".format(bytesDownloaded))
                 print("Creating {1} DataFrame for '{0}'. Please wait...".format(displayName, 'pySpark' if Environment.hasSpark else 'pandas'))
                 return dataLoader(path, self.dataDef.get("schema", None))
             finally:
