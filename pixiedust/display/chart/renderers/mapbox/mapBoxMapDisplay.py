@@ -197,7 +197,7 @@ class MapViewDisplay(MapBoxBaseDisplay):
                 bins.append((maxval,bincolors[bincolorsIdx][4]))
 
                 if geomType == 1:
-                    paint['line-opacity'] = 0.65
+                    # paint['line-opacity'] = 0.65
                     paint['line-color'] = {"property":mapValueField}
                     paint['line-color']['stops'] = []
                     for bin in bins:
@@ -208,7 +208,7 @@ class MapViewDisplay(MapBoxBaseDisplay):
                     for bin in bins:
                         paint['fill-color']['stops'].append([bin[0], bin[1]])
                 else:
-                    paint['circle-opacity'] = 0.65
+                    # paint['circle-opacity'] = 0.65
                     paint['circle-color'] = {"property":mapValueField}
                     paint['circle-color']['stops'] = []
                     for bin in bins: 
