@@ -57,6 +57,7 @@ Watch this video to see PixieDust in action:
 
 [![about PixieDust](https://img.youtube.com/vi/FoOHFlkCaXI/0.jpg)](https://www.youtube.com/watch?v=FoOHFlkCaXI) 
 
+
 ## Usage
 
 You can use PixieDust locally or online within IBM's Data Science Experience (DSX). 
@@ -90,6 +91,7 @@ Wherever you prefer to work, try out the following sample notebooks:
 
 ### Tutorials
 
+ - [Discover hidden Facebook usage insights](https://developer.ibm.com/code/journey/discover-hidden-facebook-usage-insights/)
  - [FlightPredict II: The Sequel](https://medium.com/ibm-watson-data-lab/flightpredict-ii-the-sequel-fb613afd6e91) shows how to predict flight delays with PixieDust. Includes an embedded app
  - [Sentiment Analysis of Twitter Hashtags with Spark](https://medium.com/ibm-watson-data-lab/real-time-sentiment-analysis-of-twitter-hashtags-with-spark-7ee6ca5c1585#.gbqjjf3ef) revisits a spark streaming app this time using PixieDust and Jupyter. Includes an embedded app.
 
