@@ -81,6 +81,7 @@ class MapViewDisplay(MapBoxBaseDisplay):
 
         # geomType can be either 0: (Multi)Point, 1: (Multi)LineString, 2: (Multi)Polygon
         geomType = 0
+        bins = []
 
         if len(keyFields)>0:
             if len(keyFields)==1:
@@ -94,8 +95,6 @@ class MapViewDisplay(MapBoxBaseDisplay):
                 min = [df[keyFields[lonFieldIdx]].min(), df[keyFields[latFieldIdx]].min()]
                 max = [df[keyFields[lonFieldIdx]].max(), df[keyFields[latFieldIdx]].max()]
                 self.options["mapBounds"] = json.dumps([min,max], default=defaultJSONEncoding)
-        else:
-            return
 
         valueFields = self.getValueFields()
 
@@ -170,7 +169,6 @@ class MapViewDisplay(MapBoxBaseDisplay):
                 self.options["kind"] = "choropleth-cluster"
 
             # if there's a numeric value field and type is not 'simple', paint the data as a choropleth map
-            bins = []
             if self.options.get("kind") and self.options.get("kind").find("simple") < 0 and len(valueFields) > 0:
                 # color options
                 bincolors = []

@@ -294,7 +294,10 @@
         {%if this.options.get("mapBounds") %}
         map.fitBounds({{this.options.get("mapBounds")}});
         {%else%}
-        map.fitBounds(geojsonExtent(mapdata));        
+        var bounds = geojsonExtent(mapdata);
+        if (bounds){
+            map.fitBounds(geojsonExtent(mapdata));
+        }      
         {%endif%}
         
     });
