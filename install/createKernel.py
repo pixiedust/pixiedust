@@ -12,7 +12,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-# Inherited from maven-artifact https://github.com/hamnis/maven-artifact
 # -------------------------------------------------------------------------------
 import json
 import os
@@ -426,7 +425,7 @@ class PixiedustInstall(InstallKernelSpec):
             return None
 
     def get_scala_version(self):
-        return get_scala_version_from_dir(self.scala_home)
+        return self.get_scala_version_from_dir(self.scala_home)
 
     def download_scala(self, scala_version):
         while True:
