@@ -1,0 +1,12 @@
+1.0.10
+======
+
+Here's what's new in Release 1.0.10 (23 August 2017): 
+
+**Bug fixes**
+
+-  Using the ``sampleData`` API with a Spark 2.0 kernel previously threw a runtime exception. Now, calls to the API will run successfully with Spark 2.0 (`#434 <https://github.com/ibm-watson-data-lab/pixiedust/issues/434>`_).
+
+**Enhancements**
+
+- PixieDust contains a ``sampleData`` API for loading CSV data from a URL. In the 1.0.10 update, the API now supports loading of JSON data via URL, making it easier to load test data sets from various web APIs (`#408 <https://github.com/ibm-watson-data-lab/pixiedust/issues/408>`_).
