@@ -425,7 +425,7 @@ class PixiedustInstall(InstallKernelSpec):
             return None
 
     def get_scala_version(self):
-        return get_scala_version_from_dir(self.scala_home)
+        return self.get_scala_version_from_dir(self.scala_home)
 
     def download_scala(self, scala_version):
         while True:
