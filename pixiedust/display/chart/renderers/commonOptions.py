@@ -177,7 +177,7 @@ def histogram(displayObject):
     vals = len(displayObject.getWorkingPandasDataFrame().groupby(displayObject.getValueFields()[0]).size())
     options.append({
         'name': 'binsize',
-        'description': 'Bin size',
+        'description': 'Bin Count',
         'metadata': {
             'type': 'slider',
             'max': int(max(vals, default) + 10),
