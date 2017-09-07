@@ -81,7 +81,7 @@ dataDefs = OrderedDict([
 @scalaGateway
 def sampleData(dataId=None, type='csv', forcePandas=False):
     global dataDefs
-    return SampleData(dataDefs,forcePandas).sampleData(dataId, type)
+    return SampleData(dataDefs, forcePandas).sampleData(dataId, type)
 
 class SampleData(object):
     env = PixiedustTemplateEnvironment()
