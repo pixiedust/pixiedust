@@ -14,7 +14,7 @@
 # limitations under the License.
 # -------------------------------------------------------------------------------
 from pixiedust.display.streaming import *
-from six import string_types, iteritems
+from six import string_types, iteritems, integer_types
 import json
 import os
 import ssl
@@ -47,14 +47,24 @@ class MessagehubStreamingAdapter(StreamingDataAdapter):
         self.consumer.close() 
         
     def tryCast(self, value, t):
-        try:
-            return t(value)
-        except:
+        def _innerTryCast(value, t):
+            try:
+                return t(value)
+            except:
+                return None
+
+        if isinstance(t, tuple):
+            for a in t:
+                ret = _innerTryCast(value, a)
+                if ret is not None:
+                    return ret
             return None
+        
+        return _innerTryCast(value, t)
         
     def inferType(self, value):
         if isinstance(value, string_types):
-            value = self.tryCast(value, int) or self.tryCast(value, long) or self.tryCast(value, float) or value
+            value = self.tryCast(value, integer_types) or self.tryCast(value, float) or value
         return "integer" if value.__class__==int else "float" if value.__class__ == float else "string"
         
     def inferSchema(self, eventJSON):
@@ -72,7 +82,7 @@ class MessagehubStreamingAdapter(StreamingDataAdapter):
             for topicPartition,records in iteritems(msg):
                 for record in records:
                     if record.value is not None:                    
-                        jsonValue = json.loads(str(record.value))
+                        jsonValue = json.loads(record.value.decode('utf-8'))
                         self.inferSchema(jsonValue)
                         msgs.append(jsonValue)
         return msgs
