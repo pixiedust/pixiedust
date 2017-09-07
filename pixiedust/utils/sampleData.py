@@ -119,29 +119,25 @@ class SampleData(object):
                 else:
                     return StringType()
 
-        # Force load to pandas
-        if Environment.hasSpark and self.forcePandas:
-            print("Loading file using 'pandas'")
-            return pd.read_csv(path)
-
-        if Environment.sparkVersion == 1:
-            print("Loading file using 'com.databricks.spark.csv'")
-            load = ShellAccess.sqlContext.read.format('com.databricks.spark.csv')
-            if schema is not None:
-                return load.options(header='true', mode="DROPMALFORMED").load(path, schema=StructType([StructField(item[0], getType(item[1]), True) for item in schema]))
+        if Environment.hasSpark and not self.forcePandas:
+            if Environment.sparkVersion == 1:
+                print("Loading file using 'com.databricks.spark.csv'")
+                load = ShellAccess.sqlContext.read.format('com.databricks.spark.csv')
+                if schema is not None:
+                    return load.options(header='true', mode="DROPMALFORMED").load(path, schema=StructType([StructField(item[0], getType(item[1]), True) for item in schema]))
+                else:
+                    return load.options(header='true', mode="DROPMALFORMED", inferschema='true').load(path)
             else:
-                return load.options(header='true', mode="DROPMALFORMED", inferschema='true').load(path)
-        elif Environment.sparkVersion == 2:
-            print("Loading file using 'SparkSession'")
-            csvload = ShellAccess.SparkSession.builder.getOrCreate() \
-                .read \
-                .format("org.apache.spark.sql.execution.datasources.csv.CSVFileFormat") \
-                .option("header", "true") \
-                .option("mode", "DROPMALFORMED")
-            if schema is not None:
-                return csvload.schema(StructType([StructField(item[0], getType(item[1]), True) for item in schema])).load(path)
-            else:
-                return csvload.option("inferSchema", "true").load(path)
+                print("Loading file using 'SparkSession'")
+                csvload = ShellAccess.SparkSession.builder.getOrCreate() \
+                    .read \
+                    .format("org.apache.spark.sql.execution.datasources.csv.CSVFileFormat") \
+                    .option("header", "true") \
+                    .option("mode", "DROPMALFORMED")
+                if schema is not None:
+                    return csvload.schema(StructType([StructField(item[0], getType(item[1]), True) for item in schema])).load(path)
+                else:
+                    return csvload.option("inferSchema", "true").load(path)
         else:
             print("Loading file using 'pandas'")
             return pd.read_csv(path)
@@ -158,22 +154,15 @@ class SampleData(object):
                     return StringType()
 
         res = open(path, 'r').read()
-
-        # Force load to pandas
-        if Environment.hasSpark and self.forcePandas:
-            print("Loading file using 'pandas'")
-            data = json.loads(res)
-            df = json_normalize(data)
-            return df
-
-        if Environment.sparkVersion == 1:
-            print("Loading file using a pySpark DataFrame for Spark 1")
-            dataRDD = ShellAccess.sc.parallelize([res])
-            return ShellAccess.sqlContext.jsonRDD(dataRDD)
-        elif Environment.sparkVersion == 2:
-            print("Loading file using a pySpark DataFrame for Spark 2")
-            dataRDD = ShellAccess.sc.parallelize([res])
-            return ShellAccess.spark.read.json(dataRDD)
+        if Environment.hasSpark and not self.forcePandas:
+            if Environment.sparkVersion == 1:
+                print("Loading file using a pySpark DataFrame for Spark 1")
+                dataRDD = ShellAccess.sc.parallelize([res])
+                return ShellAccess.sqlContext.jsonRDD(dataRDD)
+            else:
+                print("Loading file using a pySpark DataFrame for Spark 2")
+                dataRDD = ShellAccess.sc.parallelize([res])
+                return ShellAccess.spark.read.json(dataRDD)
         else:
             print("Loading file using 'pandas'")
             data = json.loads(res)
@@ -230,11 +219,11 @@ class Downloader(object):
                 if bytesDownloaded > 0:
                    print("Downloaded {} bytes".format(bytesDownloaded))
                 print("Creating {1} DataFrame for '{0}'. Please wait...".\
-                    format(displayName, 'pandas' if Environment.hasSpark and self.forcePandas else 'pySpark' if Environment.hasSpark else 'pandas'))
+                    format(displayName, 'pySpark' if Environment.hasSpark and not self.forcePandas else 'pandas'))
                 return dataLoader(path, self.dataDef.get("schema", None))
             finally:
                 print("Successfully created {1} DataFrame for '{0}'".\
-                    format(displayName, 'pandas' if Environment.hasSpark and self.forcePandas else 'pySpark' if Environment.hasSpark else 'pandas'))
+                    format(displayName, 'pySpark' if Environment.hasSpark and not self.forcePandas else 'pandas'))
 
     def report(self, bytes_so_far, chunk_size, total_size):
         if useProgressMonitor:
