@@ -13,19 +13,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # -------------------------------------------------------------------------------
-from pixiedust.utils.environment import Environment
-if Environment.hasSpark:
-    from .pysparkDataFrameHandler import PySparkDataFrameDataHandler
-from .pandasDataFrameHandler import PandasDataFrameDataHandler
-import pixiedust.utils.dataFrameMisc as dataFrameMisc
-from pixiedust.display.streaming import *
 
-def getDataHandler(options, entity):
-    if dataFrameMisc.isPySparkDataFrame(entity):
-        return PySparkDataFrameDataHandler(options, entity)
-    elif dataFrameMisc.isPandasDataFrame(entity):
-        return PandasDataFrameDataHandler(options, entity)
-    elif isinstance(entity, StreamingDataAdapter):
-        return entity.getDisplayDataHandler(options, entity)
+from .mapBoxMapDisplay import MapViewDisplay
+from pixiedust.display.chart.renderers import PixiedustRenderer
+from pixiedust.utils import Logger
 
-    return None
+@PixiedustRenderer(id="mapView", isStreaming=True)
+@Logger()
+class MapViewStreamingDisplay(MapViewDisplay):
+    """
+    Streaming version of the Mapbox display renderer. 
+    TODO: Refactor the streaming related code from MapViewDisplay into this class
+    """
+    pass

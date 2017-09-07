@@ -22,7 +22,8 @@ class MapboxBase():
         self.layers = layers
 
     def getStyleTypeFromGeoJSON(self, layerDef, geoJSON):
-        styleType = geoJSON['features'][0]['geometry']['type']
+        geometry = geoJSON['geometry'] if 'geometry' in geoJSON else geoJSON['features'][0]['geometry']
+        styleType = geometry['type']
         if styleType == "Point":
             userStyleType = layerDef.get("type", "circle")
             if userStyleType == "symbol":
@@ -84,5 +85,5 @@ class MapboxBase():
                     return True
             return False
         payload = requests.get(url).json()
-        payload['features'] = [f for f in payload['features'] if not filterFeature(f['properties'])]
+        payload['features'] = [f for f in payload['features'] if not filterFeature(f['properties'])] if 'features' in payload else []
         return payload

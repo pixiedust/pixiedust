@@ -13,19 +13,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # -------------------------------------------------------------------------------
-from pixiedust.utils.environment import Environment
-if Environment.hasSpark:
-    from .pysparkDataFrameHandler import PySparkDataFrameDataHandler
-from .pandasDataFrameHandler import PandasDataFrameDataHandler
-import pixiedust.utils.dataFrameMisc as dataFrameMisc
-from pixiedust.display.streaming import *
+from pixiedust.display.display import *
+from pixiedust.display import addDisplayRunListener
 
-def getDataHandler(options, entity):
-    if dataFrameMisc.isPySparkDataFrame(entity):
-        return PySparkDataFrameDataHandler(options, entity)
-    elif dataFrameMisc.isPandasDataFrame(entity):
-        return PandasDataFrameDataHandler(options, entity)
-    elif isinstance(entity, StreamingDataAdapter):
-        return entity.getDisplayDataHandler(options, entity)
+#add a display Run Listener 
+addDisplayRunListener( lambda entity, options: onNewDisplayRun(entity, options) )
 
-    return None
+activesStreamingEntities = {}
+def onNewDisplayRun(entity, options):
+    if "cell_id" in options and "showchrome" in options:
+        if options["cell_id"] in activesStreamingEntities:
+            del activesStreamingEntities[options["cell_id"]]
+
+class StreamingDisplay(Display):
+    def __init__(self, options, entity, dataHandler=None):
+        super(StreamingDisplay,self).__init__(options,entity,dataHandler)
+        self.windowSize = 100

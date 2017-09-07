@@ -119,6 +119,8 @@ def getSelectedHandler(options, entity, dataHandler):
     for handler in handlers:
         menuInfos = handler.getMenuInfo(entity, dataHandler)
         if ( menuInfos is not None and len(menuInfos)>0 ):
+            #set the handlerId in the options
+            options["handlerId"] = menuInfos[0].get("id")
             return handler
     #we didn't find any, return the first
     myLogger.debug("Didn't find any handler for {0}".format(handlerId))
@@ -190,6 +192,10 @@ class Display(with_metaclass(ABCMeta)):
         self.executionTime=None
         self.extraTemplateArgs={}
         self.delaySaving = False    #tell the front-end runtime to delay the output saving to give the renderer time to process
+
+    @property
+    def isStreaming(self):
+        return self.dataHandler.isStreaming if self.dataHandler is not None else False
 
     def getBooleanOption(self, key, defValue):
         value = self.options.get(key, None)

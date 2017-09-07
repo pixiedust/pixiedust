@@ -16,3 +16,4 @@
 
 from .mapBoxBaseDisplay import *
 from .mapBoxMapDisplay import *
+from .mapBoxMapDisplayStreaming import *
