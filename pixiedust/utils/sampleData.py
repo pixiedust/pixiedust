@@ -35,7 +35,7 @@ dataDefs = OrderedDict([
     ("1", {
         "displayName": "Car performance data",
         "url": "https://github.com/ibm-watson-data-lab/open-data/raw/master/cars/cars.csv",
-        "topic": "transportation",
+        "topic": "Transportation",
         "publisher": "IBM",
         "schema2": [('mpg','int'),('cylinders','int'),('engine','double'),('horsepower','int'),('weight','int'),
             ('acceleration','double'),('year','int'),('origin','string'),('name','string')]
@@ -79,14 +79,15 @@ dataDefs = OrderedDict([
 ])
 
 @scalaGateway
-def sampleData(dataId=None, type='csv'):
+def sampleData(dataId=None, type='csv', forcePandas=False):
     global dataDefs
-    return SampleData(dataDefs).sampleData(dataId, type)
+    return SampleData(dataDefs,forcePandas).sampleData(dataId, type)
 
 class SampleData(object):
     env = PixiedustTemplateEnvironment()
-    def __init__(self, dataDefs):
+    def __init__(self, dataDefs, forcePandas):
         self.dataDefs = dataDefs
+        self.forcePandas = forcePandas
         self.url = ""
 
     def sampleData(self, dataId = None, type='csv'):
@@ -117,6 +118,11 @@ class SampleData(object):
                     return DoubleType()
                 else:
                     return StringType()
+
+        # Force load to pandas
+        if Environment.hasSpark and self.forcePandas:
+            print("Loading file using 'pandas'")
+            return pd.read_csv(path)
 
         if Environment.sparkVersion == 1:
             print("Loading file using 'com.databricks.spark.csv'")
@@ -153,12 +159,19 @@ class SampleData(object):
 
         res = open(path, 'r').read()
 
+        # Force load to pandas
+        if Environment.hasSpark and self.forcePandas:
+            print("Loading file using 'pandas'")
+            data = json.loads(res)
+            df = json_normalize(data)
+            return df
+
         if Environment.sparkVersion == 1:
-            print("Loading file using a pyspark dataframe for spark 1")
+            print("Loading file using a pySpark DataFrame for Spark 1")
             dataRDD = ShellAccess.sc.parallelize([res])
             return ShellAccess.sqlContext.jsonRDD(dataRDD)
         elif Environment.sparkVersion == 2:
-            print("Loading file using a pyspark dataframe for spark 2")
+            print("Loading file using a pySpark DataFrame for Spark 2")
             dataRDD = ShellAccess.sc.parallelize([res])
             return ShellAccess.spark.read.json(dataRDD)
         else:
@@ -168,7 +181,7 @@ class SampleData(object):
             return df
 
     def loadSparkDataFrameFromSampleData(self, dataDef):
-        return Downloader(dataDef).download(self.dataLoader)
+        return Downloader(dataDef, self.forcePandas).download(self.dataLoader)
 
     def loadSparkDataFrameFromUrl(self, dataUrl):
         i = dataUrl.rfind('/')
@@ -178,7 +191,7 @@ class SampleData(object):
             "url": dataUrl
         }
 
-        return Downloader(dataDef).download(self.dataLoader)
+        return Downloader(dataDef, self.forcePandas).download(self.dataLoader)
 
     def JSONloadSparkDataFrameFromUrl(self, dataUrl):
         i = dataUrl.rfind('/')
@@ -188,13 +201,14 @@ class SampleData(object):
             "url": dataUrl
         }
 
-        return Downloader(dataDef).download(self.JSONdataLoader)
+        return Downloader(dataDef, self.forcePandas).download(self.JSONdataLoader)
 
 # Use of progress Monitor doesn't render correctly when previewed a saved notebook, turning it off until solution is found
 useProgressMonitor = False
 class Downloader(object):
-    def __init__(self, dataDef):
+    def __init__(self, dataDef, forcePandas):
         self.dataDef = dataDef
+        self.forcePandas = forcePandas
         self.headers = {"User-Agent": "PixieDust Sample Data Downloader/1.0"}
         self.prefix = str(uuid.uuid4())[:8]
 
@@ -215,10 +229,12 @@ class Downloader(object):
             try:
                 if bytesDownloaded > 0:
                    print("Downloaded {} bytes".format(bytesDownloaded))
-                print("Creating {1} DataFrame for '{0}'. Please wait...".format(displayName, 'pySpark' if Environment.hasSpark else 'pandas'))
+                print("Creating {1} DataFrame for '{0}'. Please wait...".\
+                    format(displayName, 'pandas' if Environment.hasSpark and self.forcePandas else 'pySpark' if Environment.hasSpark else 'pandas'))
                 return dataLoader(path, self.dataDef.get("schema", None))
             finally:
-                print("Successfully created {1} DataFrame for '{0}'".format(displayName, 'pySpark' if Environment.hasSpark else 'pandas'))
+                print("Successfully created {1} DataFrame for '{0}'".\
+                    format(displayName, 'pandas' if Environment.hasSpark and self.forcePandas else 'pySpark' if Environment.hasSpark else 'pandas'))
 
     def report(self, bytes_so_far, chunk_size, total_size):
         if useProgressMonitor:
