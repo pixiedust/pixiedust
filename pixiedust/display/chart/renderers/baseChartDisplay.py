@@ -258,6 +258,8 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
             Calls ShowChartOptionDialog() if array is empty
         """
         fieldNames = self.getFieldNames() # get all field names in data format-independent way
+        if len(fieldNames) == 0:
+            return []
         if self.supportsKeyFields(self.handlerId) == False:
             return []
         keyFields = []
@@ -283,6 +285,8 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
     @cache(fieldName="valueFields")   
     def getValueFields(self):
         fieldNames = self.getFieldNames()
+        if len(fieldNames) == 0:
+            return []
         aggregation = self.getAggregation()
         valueFields = []
         valueFieldStr = self.options.get("valueFields")
@@ -326,7 +330,7 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
         return (dialogTemplate, dialogOptions)
 
     def getRendererList(self):
-        return PixiedustRenderer.getRendererList(self.options, self.entity)
+        return PixiedustRenderer.getRendererList(self.options, self.entity, self.isStreaming)
 
     @cache(fieldName="aggregation")
     def getAggregation(self):

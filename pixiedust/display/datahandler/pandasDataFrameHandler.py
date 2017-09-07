@@ -20,12 +20,10 @@ import pandas as pd
 import numpy as np
 from pixiedust.utils import Logger
 from six import iteritems
+from .baseDataHandler import BaseDataHandler
 
 @Logger()
-class PandasDataFrameDataHandler(object):
-    def __init__(self, options, entity):
-        self.options = options
-        self.entity = entity
+class PandasDataFrameDataHandler(BaseDataHandler):
 
     def getFieldNames(self, expandNested=False):
         return dataFrameMisc.getFieldNames(PandasDataFrameAdapter(self.entity), expandNested)

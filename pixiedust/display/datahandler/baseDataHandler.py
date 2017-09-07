@@ -14,9 +14,8 @@
 # limitations under the License.
 # -------------------------------------------------------------------------------
 
-from pixiedust.display.display import *
-
-class StreamingDisplay(Display):
-    def __init__(self, options, entity, dataHandler=None):
-        super(StreamingDisplay,self).__init__(options,entity,dataHandler)
-        self.windowSize = 100
+class BaseDataHandler(object):
+    def __init__(self, options, entity):
+        self.options = options
+        self.entity = entity
+        self.isStreaming = False
