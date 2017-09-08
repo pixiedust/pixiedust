@@ -19,12 +19,10 @@ from pyspark.sql.types import DecimalType
 import time
 import pandas as pd
 from pixiedust.utils import Logger
+from .baseDataHandler import BaseDataHandler
 
 @Logger()
-class PySparkDataFrameDataHandler(object):
-    def __init__(self, options, entity):
-        self.options = options
-        self.entity = entity
+class PySparkDataFrameDataHandler(BaseDataHandler):
 
     def __getattr__(self, name):
         if hasattr(self.entity, name):

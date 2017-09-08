@@ -13,19 +13,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # -------------------------------------------------------------------------------
-from pixiedust.utils.environment import Environment
-if Environment.hasSpark:
-    from .pysparkDataFrameHandler import PySparkDataFrameDataHandler
-from .pandasDataFrameHandler import PandasDataFrameDataHandler
-import pixiedust.utils.dataFrameMisc as dataFrameMisc
-from pixiedust.display.streaming import *
 
-def getDataHandler(options, entity):
-    if dataFrameMisc.isPySparkDataFrame(entity):
-        return PySparkDataFrameDataHandler(options, entity)
-    elif dataFrameMisc.isPandasDataFrame(entity):
-        return PandasDataFrameDataHandler(options, entity)
-    elif isinstance(entity, StreamingDataAdapter):
-        return entity.getDisplayDataHandler(options, entity)
+from .baseStreamingDisplay import BokehStreamingDisplay
+from pixiedust.display.chart.renderers import PixiedustRenderer
+from pixiedust.utils import Logger
 
-    return None
+@PixiedustRenderer(id="lineChart", isStreaming=True)
+@Logger()
+class LineChartStreamingDisplay(BokehStreamingDisplay):
+    def createGlyphRenderer(self, figure, x, y):
+        self.i = 0
+        return figure.line(x,y,color='navy', alpha=0.5, hover_line_color=None)
+    
+    def updateGlyphRenderer(self, figure, glyphRenderer):
+        self.i +=1
+        figure.title.text = str(self.i)

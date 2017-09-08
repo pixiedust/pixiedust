@@ -21,7 +21,7 @@
         background-color: rgba(255,255,255, 0.75);
         border-radius: 3px;
         position: absolute;
-        left: calc(100% - 172px);
+        left: 14px;
         top: 14px;
         box-shadow: 0 1px 2px rgba(0,0,0,0.10);
         font-size: 12px;
@@ -50,26 +50,74 @@
 <body>
 <div id="map-{{prefix}}-{{randomid}}" style="width:calc({{prefwidth}}px - 4px);height:calc({{prefheight}}px - 4px)" />
 
-{%if this.options.get("legend") == "true" %}
+{% if this.options.get("kind") and this.options.get("kind").find("simple") < 0 and this.options.get("legend") == "true" %}
 <div id="maplegend" class="legend">
-    {% if this.options.get("kind") and this.options.get("kind").find("simple") < 0 %}
-        <h4>{{this.options.get("mapValueField")}}</h4>
-        {% for bin in bins %}
-        <div><span style="background-color: {{bin[1]}}"></span>{{bin[0]}}</div>
-        {% endfor %}
-    {%endif%}
+    <h4>{{this.options.get("mapValueField")}}</h4>
+    {% for bin in bins %}
+    <div><span style="background-color: {{bin[1]}}"></span>{{bin[0]}}</div>
+    {% endfor %}
 </div>
 {%endif%}
-
 <script>
+    {%include "geojson-extent.js"%}    
     var comment = "";
     mapboxgl.accessToken="{{this.options.get('mapboxtoken')}}";
+    var mapdata = null;
     var map = new mapboxgl.Map({
         container: "map-{{prefix}}-{{randomid}}",
         style: "mapbox://styles/mapbox/{{this.options.get('basemap', 'light-v9')}}"
     });
 
+    setTimeout(function(){
+        if (window.addPDMessageListener){
+            window.addPDMessageListener(function(event){
+                streamingLayer = map.getSource("streamingLayer");
+                if (streamingLayer){
+                    streamingLayer.setData(event.data.data);
+                }else{
+                    map.addLayer({
+                        "id": "streamingLayer",
+                        "maptype": "mapbox",
+                        "type": event.data.type,
+                        "source": { type: "geojson", data: event.data.data },
+                        "layout": event.data.layout || {},
+                        "paint": event.data.paint || {}
+                    });
+                    if (event.data.fitbounds && event.data.data.features){
+                        function updateBounds(res, ar){
+                            if (ar[0].length >=2 && ar[1].length >= 2 ){
+                                if (!res){
+                                    return ar;
+                                }
+                                return [ 
+                                    [Math.min( ar[0][0]-0.1, res[0][0]), Math.min( ar[0][1]-0.1, res[0][1])],
+                                    [Math.max( ar[1][0]+0.1, res[1][0]), Math.max( ar[1][1]+0.1, res[1][1])]
+                                ]
+                            }
+                            return null;
+                        }
+                        var bbox = event.data.data.features.reduce(function(res, value){
+                            var coord = value.geometry.coordinates;
+                            if (coord.length >= 2 ){
+                                res = updateBounds( res, [coord[0], coord[1]]);
+                            }
+                            return res;
+                        }, null);
+                        if (bbox){
+                            map.fitBounds(bbox);
+                        }
+                    }
+                }
+            });
+        };
+    },100);
+
     var popup = new mapboxgl.Popup({closeButton: false,closeOnClick: true});
+
+    function divineGeometryType(mapdata) {
+        comment = "check type of first geometry. Later expand to check all geometries and make a good decision";
+        return mapdata.features[0].geometry.type;
+    }
     
     map.on("mousemove", function (e) {
         var fs = map.queryRenderedFeatures(e.point,{layers:["pxlayer"{%for l in userlayers%},"{{l['id']}}"{%endfor%}]});
@@ -92,7 +140,7 @@
     
     map.on("click", function (e) {
         var fs = map.queryRenderedFeatures(e.point, { layers: ["pxlayer"] });
-        if (fs.length) {
+        if (fs && fs.length) {
             var f = fs[0];
             console.log("clicked", f);
             var keylength = Object.keys(f.properties).length;
@@ -109,26 +157,39 @@
     });
         
     map.on("load", function() {
-        var mapdata={{this.options.get("mapData")}};
+        {% if this.options.get("mapData") %}
+        mapdata={{this.options.get("mapData")}};
+        geomtype = divineGeometryType(mapdata);
         {%if this.options.get("kind") != "densitymap" %}
-            var clusterme = false;
-            {% if this.options.get("kind") and this.options.get("kind").find("cluster") >= 0 %}
-                clusterme = true;
-            {% endif %}
-            map.addSource("pxdatasource", {
+            var ds = {
                 "type":"geojson",
-                "data":mapdata,
-                "cluster": clusterme, 
-                "clusterMaxZoom": 14, 
-                "clusterRadius": 20
-            });
+                "data":mapdata
+            };
+            var clusterme = false;
+            if (geomtype.substr(-5,5) == "Point") {
+                {% if this.options.get("kind") and this.options.get("kind").find("cluster") >= 0 %}
+                    clusterme = true;
+                    ds["cluster"] = true;
+                    ds["clusterMaxZoom"] = 14;
+                    ds["clusterRadius"] = 20;
+                    console.log("IM CLUSTERED");
+                {% endif %}
+            }
+            map.addSource("pxdatasource", ds);
+
+            var maplayertype = "circle";
+            if (geomtype.substr(-7,7) == "Polygon") 
+                maplayertype = "fill";
+            else if (geomtype.substr(-10,10) == "LineString")
+                maplayertype = "line";
             map.addLayer({
                 "id":"pxlayer",
-                "type":"circle", 
+                "type":maplayertype, 
                 "source": "pxdatasource", 
                 "paint": {{this.options.get("mapStyle")}}
             });
-            if (clusterme) {
+            
+            if (clusterme && geomtype.substr(-5,5) == "Point") {
                 map.addLayer({
                     "id": "cluster-count-labels", 
                     "type": "symbol", 
@@ -147,6 +208,7 @@
                 });
             }
         {% else %}
+        comment = "this is a densitymap...";
         map.addSource("pxdatasource", {
             "type":"geojson",
             "data":mapdata,
@@ -188,6 +250,7 @@
         }, "waterway-label");
 
         {% endif %}
+        {% endif %}
 
         comment = "Add user layers";
         var layers = [];
@@ -228,8 +291,14 @@
                 document.getElementById("maplegend").appendChild(t);
             {% endif %}
         }
-
+        {%if this.options.get("mapBounds") %}
         map.fitBounds({{this.options.get("mapBounds")}});
+        {%else%}
+        var bounds = geojsonExtent(mapdata);
+        if (bounds){
+            map.fitBounds(geojsonExtent(mapdata));
+        }      
+        {%endif%}
         
     });
 </script>
