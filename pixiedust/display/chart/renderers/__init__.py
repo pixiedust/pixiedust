@@ -16,6 +16,7 @@
 
 import pixiedust
 from pixiedust.utils.userPreferences import *
+from six import iteritems
 
 myLogger = pixiedust.getLogger(__name__)
 
@@ -29,15 +30,18 @@ PixieDust renderer decorator. Recommended pattern is to decorate a base class wi
 and have all renderer subclasses provide the id
 """
 class PixiedustRenderer(object):
-    def __init__(self, id=None, rendererId=None):
+    def __init__(self, id=None, rendererId=None, isStreaming=False):
         self.id = id
         self.rendererId = rendererId
+        self.isStreaming = isStreaming
 
     def __call__(self, cls, *args, **kwargs):
         if not hasattr(cls, "_id") or self.id is not None:
             cls._id = self.id
         if not hasattr(cls, "_rendererId") or self.rendererId is not None:
             cls._rendererId = self.rendererId
+
+        cls._isStreaming = self.isStreaming
 
         if cls._id is not None and cls._rendererId is not None:
             if _renderers.get(cls._id) is None:
@@ -47,14 +51,14 @@ class PixiedustRenderer(object):
         return cls
 
     @staticmethod
-    def getRenderer(options, entity):
+    def getRenderer(options, entity,isStreaming=False):
         handlerId = options.get("handlerId")
         rendererId = options.get('rendererId', None )
         if rendererId is not None:
             setUserPreference(handlerId, rendererId)
         else:
             rendererId = getUserPreference( handlerId, 'matplotlib')
-        renderers = _renderers.get(handlerId)
+        renderers = [r for r in _renderers.get(handlerId) if r._isStreaming is isStreaming]
         if renderers is None or len(renderers)==0:
             myLogger.debug("Couldn't find a renderer for {0} in {1}".format(handlerId, _renderers))
             raise Exception("No renderer available for {0}".format(handlerId) )
@@ -67,8 +71,12 @@ class PixiedustRenderer(object):
         return renderers[0](options, entity)
 
     @staticmethod
-    def getRendererList(options, entity):
+    def getRendererList(options, entity, isStreaming):
         handlerId = options.get("handlerId")
         if handlerId is None:
             return []
-        return _renderers.get(handlerId)
+        return [renderer for renderer in _renderers.get(handlerId) or [] if renderer._isStreaming is isStreaming]
+
+    @staticmethod
+    def getHandlerIdList(isStreaming=False):
+        return [k for k,v in iteritems(_renderers) if any( c._isStreaming is isStreaming for c in v)]

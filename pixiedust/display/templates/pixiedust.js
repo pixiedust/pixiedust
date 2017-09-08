@@ -317,7 +317,6 @@ function readExecInfo(pd_controls, element, searchParents){
     }
     {#read pd_options children using json format#}
     $(element).find("> pd_options").each(function(){
-        debugger;
         try{
             var options = JSON.parse($(this).text());
             for (var key in options) { 
@@ -496,7 +495,7 @@ $(document).on("pd_event", function(event, eventInfo){
     targetDivId = eventInfo.targetDivId;
     if (targetDivId){
         eventHandlers = $("pd_event_handler").filter(function(){
-            if (this.getAttribute("pd_target") == targetDivId){
+            if (this.getAttribute("pd_origin") == targetDivId){
                 return true;
             }
             {#Find a parent with pd_target attribute#}
