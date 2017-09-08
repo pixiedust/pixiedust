@@ -24,7 +24,7 @@ except:
     from confluent_kafka_prebuilt import Consumer
 
 class MessagehubStreamingAdapterConfluent(StreamingDataAdapter):
-    def __init__(self, topic, username, password):
+    def __init__(self, topic, username, password, prod=True):
         caLocation = '/etc/ssl/cert.pem'
         if not os.path.exists(caLocation):
             caLocation = '/etc/pki/tls/cert.pem'
@@ -34,13 +34,7 @@ class MessagehubStreamingAdapterConfluent(StreamingDataAdapter):
             'security.protocol': 'SASL_SSL',
             'sasl.mechanisms': 'PLAIN',
             'ssl.ca.location': caLocation,
-            "bootstrap.servers": ','.join([
-                "kafka01-prod01.messagehub.services.us-south.bluemix.net:9093",
-                "kafka02-prod01.messagehub.services.us-south.bluemix.net:9093",
-                "kafka03-prod01.messagehub.services.us-south.bluemix.net:9093",
-                "kafka04-prod01.messagehub.services.us-south.bluemix.net:9093",
-                "kafka05-prod01.messagehub.services.us-south.bluemix.net:9093"
-            ]),
+            "bootstrap.servers": ','.join(["kafka0{}-{}.messagehub.services.us-south.bluemix.net:9093".format(i, "prod01" if prod else "stage1") for i in range(1,6)]),
             "sasl.username": username,
             "sasl.password": password,
             'api.version.request': True

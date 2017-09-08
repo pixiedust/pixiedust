@@ -19,6 +19,7 @@ from .mapBoxBaseDisplay import MapBoxBaseDisplay
 from pixiedust.utils import cache
 from pixiedust.utils import Logger
 from pixiedust.utils.shellAccess import ShellAccess
+from pixiedust.display.streamingDisplay import *
 import json 
 import numpy
 import geojson
@@ -52,7 +53,7 @@ class MapViewDisplay(MapBoxBaseDisplay):
 
     def canRenderChart(self):
         keyFields = self.getKeyFields()
-        if ((keyFields is not None and len(keyFields) > 0) or len(self._getDefaultKeyFields()) > 0):
+        if len(self.getFieldNames()) == 0 or (keyFields is not None and len(keyFields) > 0) or len(self._getDefaultKeyFields()) > 0:
             return (True, None)
         else:
             return (False, "No location field found ('latitude'/'longitude', 'lat/lon', 'y/x').<br>Use the Chart Options dialog to specify location fields.")
@@ -66,14 +67,35 @@ class MapViewDisplay(MapBoxBaseDisplay):
         if not mbtoken or len(mbtoken)<5:
             return self.renderTemplate("noaccesstoken.html")
 
+        body = self.renderMapView(mbtoken)
+        if self.isStreaming:
+            self.commId = str(uuid.uuid4())
+            activesStreamingEntities[self.options.get("cell_id")] = self.entity
+
+        return self.renderTemplate("iframesrcdoc.html", body=body, prefwidth=self.getPreferredOutputWidth(), prefheight=self.getPreferredOutputHeight())
+
+    def renderMapView(self, mbtoken):
         df = self.getWorkingPandasDataFrame()
 
         keyFields = self.getKeyFields()
-        lonFieldIdx = 0
-        latFieldIdx = 1
-        if keyFields[0] == self.getLatField(): 
-            lonFieldIdx = 1
-            latFieldIdx = 0
+
+        # geomType can be either 0: (Multi)Point, 1: (Multi)LineString, 2: (Multi)Polygon
+        geomType = 0
+        bins = []
+
+        if len(keyFields)>0:
+            if len(keyFields)==1:
+                geomType = -1 #unknown as of yet
+            else:
+                lonFieldIdx = 0
+                latFieldIdx = 1
+                if keyFields[0] == self.getLatField(): 
+                    lonFieldIdx = 1
+                    latFieldIdx = 0
+                min = [df[keyFields[lonFieldIdx]].min(), df[keyFields[latFieldIdx]].min()]
+                max = [df[keyFields[lonFieldIdx]].max(), df[keyFields[latFieldIdx]].max()]
+                self.options["mapBounds"] = json.dumps([min,max], default=defaultJSONEncoding)
+
         valueFields = self.getValueFields()
 
         #check if we have a preserveCols
@@ -84,49 +106,116 @@ class MapViewDisplay(MapBoxBaseDisplay):
         allProps = valueFields + preserveCols
         for j, valueField in enumerate( allProps ):
             valueFieldIdxs.append(df.columns.get_loc(valueField))
-        
-
-        min = [df[keyFields[lonFieldIdx]].min(), df[keyFields[latFieldIdx]].min()]
-        max = [df[keyFields[lonFieldIdx]].max(), df[keyFields[latFieldIdx]].max()]
-        self.options["mapBounds"] = json.dumps([min,max], default=defaultJSONEncoding)
 
         # Transform the data into GeoJSON for use in the Mapbox client API
-        pygeojson = {'type':'FeatureCollection', 'features':[]}
-
+        features = []
         for row in df.itertuples():
             feature = {'type':'Feature',
                         'properties':{},
                         'geometry':{'type':'Point',
                                     'coordinates':[]}}
-            feature['geometry']['coordinates'] = [row[lonFieldIdx+1], row[latFieldIdx+1]]
+            
+            if geomType == 0:
+                feature['geometry']['coordinates'] = [row[lonFieldIdx+1], row[latFieldIdx+1]]
+            else:
+                geomIdx = df.columns.get_loc(keyFields[0])+1
+                feature['geometry'] = json.loads(row[geomIdx])
+                
             for idx, valueFieldIdx in enumerate(valueFieldIdxs):
                 feature['properties'][allProps[idx]] = row[valueFieldIdx+1]
-            pygeojson['features'].append(feature)
+            features.append(feature)
 
-        self.options["mapData"] = json.dumps(pygeojson,default=defaultJSONEncoding)
+        if len(features)>0:
+            pygeojson = {'type':'FeatureCollection', 'features':features}
+            self.options["mapData"] = json.dumps(pygeojson,default=defaultJSONEncoding)
 
-        paint = {'circle-radius':12,'circle-color':'#ff0000'}
-        paint['circle-opacity'] = 1.0 if (self.options.get("kind") and self.options.get("kind").find("cluster") >= 0) else 0.25
+            # Now let's figure out whether we have Line or Polygon data, if it wasn't already found to be Point
+            if geomType != 1:
+                if features[0]['geometry']['type'].endswith('LineString'):
+                    geomType = 1
+                elif features[0]['geometry']['type'].endswith('Polygon'):
+                    geomType = 2
+                else:
+                    geomType = -1
+                
+            #### build up the map style
 
-        bins = []
+            # basic color
+            paint = {}
+            if geomType == 1:
+                paint['line-color'] = '#ff0000'
+                paint['line-width'] = 2
+                if self.options.get("coloropacity"):
+                    paint['line-opacity'] = float(self.options.get("coloropacity")) / 100
+            elif geomType == 2:
+                paint['fill-color'] = '#ff0000'
+                paint['fill-opacity'] = 0.8
+                if self.options.get("coloropacity"):
+                    paint['fill-opacity'] = float(self.options.get("coloropacity")) / 100
+            else:
+                paint['circle-radius'] = 12
+                paint['circle-color'] = '#ff0000'
+                paint['circle-opacity'] = 0.25
+                if self.options.get("coloropacity"):
+                    paint['circle-opacity'] = float(self.options.get("coloropacity")) / 100
+                if (self.options.get("kind") and self.options.get("kind").find("cluster") >= 0):
+                    paint['circle-opacity'] = 1.0
 
-        if len(valueFields) > 0:
-            mapValueField = valueFields[0]
-            self.options["mapValueField"] = mapValueField
+            if len(valueFields) > 0:
+                mapValueField = valueFields[0]
+                self.options["mapValueField"] = mapValueField
 
-        if not self.options.get("kind"): 
-            self.options["kind"] = "choropleth-cluster"
-        # if there's a numeric value field paint the data as a choropleth map
-        if self.options.get("kind") and self.options.get("kind").find("simple") < 0 and len(valueFields) > 0:
-            minval = df[valueFields[0]].min()
-            maxval = df[valueFields[0]].max()
-            bins = [ (minval,'#ffffcc'), (df[valueFields[0]].quantile(0.25),'#a1dab4'), (df[valueFields[0]].quantile(0.5),'#41b6c4'), (df[valueFields[0]].quantile(0.75),'#2c7fb8'), (maxval,'#253494') ]
-            paint['circle-opacity'] = 0.85
-            paint['circle-color'] = {"property":mapValueField}
-            paint['circle-color']['stops'] = []
-            for bin in bins: 
-                paint['circle-color']['stops'].append( [bin[0], bin[1]] )
-        self.options["mapStyle"] = json.dumps(paint,default=defaultJSONEncoding)
+            if not self.options.get("kind"): 
+                self.options["kind"] = "choropleth-cluster"
+
+            # if there's a numeric value field and type is not 'simple', paint the data as a choropleth map
+            if self.options.get("kind") and self.options.get("kind").find("simple") < 0 and len(valueFields) > 0:
+                # color options
+                bincolors = []
+                bincolors.append(['#ffffcc','#a1dab4','#41b6c4','#2c7fb8','#253494']) #yellow to blue
+                bincolors.append(['#fee5d9','#fcae91','#fb6a4a','#de2d26','#a50f15']) #reds
+                bincolors.append(['#f7f7f7','#cccccc','#969696','#636363','#252525']) #grayscale
+                bincolors.append(['#e66101','#fdb863','#f7f7f7','#b2abd2','#5e3c99']) #orange to purple (diverging values)
+
+                bincolorsIdx = 0
+                if self.options.get("colorrampname"):
+                    if self.options.get("colorrampname") == "Light to Dark Red":
+                        bincolorsIdx = 1
+                    if self.options.get("colorrampname") == "Grayscale":
+                        bincolorsIdx = 2
+                    if self.options.get("colorrampname") == "Orange to Purple":
+                        bincolorsIdx = 3
+
+                minval = df[valueFields[0]].min()
+                maxval = df[valueFields[0]].max()
+                bins.append((minval,bincolors[bincolorsIdx][0]))
+                bins.append((df[valueFields[0]].quantile(0.25),bincolors[bincolorsIdx][1]))
+                bins.append((df[valueFields[0]].quantile(0.5),bincolors[bincolorsIdx][2]))
+                bins.append((df[valueFields[0]].quantile(0.75),bincolors[bincolorsIdx][3]))
+                bins.append((maxval,bincolors[bincolorsIdx][4]))
+
+                if geomType == 1:
+                    # paint['line-opacity'] = 0.65
+                    paint['line-color'] = {"property":mapValueField}
+                    paint['line-color']['stops'] = []
+                    for bin in bins:
+                        paint['line-color']['stops'].append([bin[0], bin[1]])
+                elif geomType == 2:
+                    paint['fill-color'] = {"property":mapValueField}
+                    paint['fill-color']['stops'] = []
+                    for bin in bins:
+                        paint['fill-color']['stops'].append([bin[0], bin[1]])
+                else:
+                    # paint['circle-opacity'] = 0.65
+                    paint['circle-color'] = {"property":mapValueField}
+                    paint['circle-color']['stops'] = []
+                    for bin in bins: 
+                        paint['circle-color']['stops'].append([bin[0], bin[1]])
+                    paint['circle-radius'] = 12
+
+
+            self.options["mapStyle"] = json.dumps(paint,default=defaultJSONEncoding)
+            
         w = self.getPreferredOutputWidth()
         h = self.getPreferredOutputHeight()
 
@@ -150,8 +239,7 @@ class MapViewDisplay(MapBoxBaseDisplay):
         # end handle custom layers
 
         uniqueid = str(uuid.uuid4())[:8]
-        body = self.renderTemplate("mapView.html", bins=bins, userlayers=userlayers, prefwidth=w, prefheight=h, randomid=uniqueid)
-        return self.renderTemplate("iframesrcdoc.html", body=body, prefwidth=w, prefheight=h)
+        return self.renderTemplate("mapView.html", bins=bins, userlayers=userlayers, prefwidth=w, prefheight=h, randomid=uniqueid)
 
     def isLatLonChart(self):
         llnames = ['lat','latitude','y','lon','long','longitude','x']
@@ -184,16 +272,15 @@ class MapViewDisplay(MapBoxBaseDisplay):
     def _getDefaultKeyFields(self):
         # check for lat/long
         latLongFields = []
-        for field in self.entity.schema.fields:
+        for field in self.getFieldNames():
             if field.name.lower() == 'lat' or field.name.lower() == 'latitude' or field.name.lower() == 'y':
                 latLongFields.append(field.name)
-        for field in self.entity.schema.fields:
-            if field.name.lower() == 'lon' or field.name.lower() == 'long' or field.name.lower() == 'longitude' or field.name.lower() == 'x':
+            elif field.name.lower() == 'lon' or field.name.lower() == 'long' or field.name.lower() == 'longitude' or field.name.lower() == 'x':
                 latLongFields.append(field.name)
         if (len(latLongFields) == 2):
             return latLongFields
         # if we get here, look for an address field
-        for field in self.entity.schema.fields:
+        for field in self.getFieldNames():
             if field.name.lower() == 'address':
                 return latLongFields.append(field.name)
         return []

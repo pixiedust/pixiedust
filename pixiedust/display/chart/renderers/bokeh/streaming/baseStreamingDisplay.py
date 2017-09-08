@@ -16,6 +16,8 @@
 
 from pixiedust.display.streamingDisplay import StreamingDisplay
 from pixiedust.display.display import CellHandshake
+from pixiedust.display.chart.renderers import PixiedustRenderer
+from pixiedust.utils import Logger
 import pandas
 import numpy as np
 from bokeh.io import push_notebook, show, output_notebook
@@ -24,7 +26,10 @@ from bokeh.plotting import figure
 from bokeh.io import notebook_div, _state, _CommsHandle
 from bokeh.util.serialization import make_id
 from bokeh.util.notebook import get_comms
+from pixiedust.display.streamingDisplay import *
 
+@PixiedustRenderer(rendererId="bokeh")
+@Logger()
 class BokehStreamingDisplay(StreamingDisplay):
     CellHandshake.addCallbackSniffer( lambda: "{'nostore_bokeh':!!window.Bokeh}")
 
@@ -117,8 +122,20 @@ class BokehStreamingDisplay(StreamingDisplay):
             self.handleId = make_id()
             if self.figure not in _state.document.roots:
                 _state.document.add_root(self.figure)
-            target = notebook_div(self.figure, self.handleId)
-            from IPython.display import display as ipythonDisplay, HTML, Javascript
+            activesStreamingEntities[self.getPrefix()] = self
+            target = """
+<div pd_refresh_rate="2000">
+    <pd_script>
+from pixiedust.display.streamingDisplay import *
+displayHandler = activesStreamingEntities["{prefix}"]
+displayHandler.render()
+    </pd_script>
+</div>
+            <div id="target{prefix}">
+            {chart}
+            </div>            
+            """.format(chart=notebook_div(self.figure, self.handleId), prefix=self.getPrefix())
+            from IPython.display import display as ipythonDisplay, HTML
             ipythonDisplay(HTML(target))
             self.comms_handle = _CommsHandle(get_comms(self.handleId), _state.document,_state.document.to_json())
         else:

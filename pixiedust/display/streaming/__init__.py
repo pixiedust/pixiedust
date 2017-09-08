@@ -15,6 +15,10 @@
 # -------------------------------------------------------------------------------
 from abc import abstractmethod, ABCMeta
 from six import with_metaclass
+import pandas
+from pixiedust.utils.dataFrameAdapter import PandasDataFrameAdapter
+
+__all__ = ['StreamingDataAdapter'] 
 
 class StreamingDataAdapter(with_metaclass(ABCMeta)):
     def __init__(self):
@@ -27,6 +31,35 @@ class StreamingDataAdapter(with_metaclass(ABCMeta)):
                 channel.processNextData(nextData)
         return nextData
 
+    def getMetadata(self):
+        return {}
+
+    def accept(self, handlerId):
+        return True
+
+    defaultValues = {
+        "getFieldNames": lambda expandNested=False: [],
+        "schema": PandasDataFrameAdapter(pandas.DataFrame()).schema,
+        "getWorkingPandasDataFrame": lambda xFields, yFields, extraFields=[], aggregation=None, maxRows = 100: pandas.DataFrame()
+    }
+
+    def getDisplayDataHandler(self, options, entity):
+        from pixiedust.display.datahandler.baseDataHandler import BaseDataHandler
+        this = self
+        class StreamingDisplayDataHandler(BaseDataHandler):
+            def __init__(self, options, entity):
+                super(StreamingDisplayDataHandler, self).__init__(options, entity)
+                self.isStreaming = True
+            def __getattr__(self, name):
+                if hasattr(this, name):
+                    return self.this.__getattribute__(name)
+                elif name in StreamingDataAdapter.defaultValues:
+                    return StreamingDataAdapter.defaultValues[name]
+                raise AttributeError("{0} attribute not found".format(name))
+            def accept(self, handlerId):
+                return this.accept(handlerId)
+        return StreamingDisplayDataHandler(options, entity)
+
     @abstractmethod
     def doGetNextData(self):
         """Return the next batch of data from the underlying stream. 
@@ -35,6 +68,9 @@ class StreamingDataAdapter(with_metaclass(ABCMeta)):
         2. pandas dataframe
         3. y: list/numpy array representing the y axis. In this case, the x axis is automatically created
         4. pandas serie: similar to #3
+        5. json
+        6. geojson
+        7. url with supported payload (json/geojson)
         """
         pass
 
