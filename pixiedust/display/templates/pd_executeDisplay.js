@@ -3,9 +3,13 @@
         return $('#' + ($targetDivId || ("wrapperHTML"+ pd_prefix)));
     }
     var cellId = options.cell_id || "";
+    {% if gateway %}
+    var curCell = [];
+    {% else %}
     var curCell=IPython.notebook.get_cells().filter(function(cell){
         return cell.cell_id==cellId;
     });
+    {%endif%}
     curCell=curCell.length>0?curCell[0]:null;
     console.log("curCell",curCell);
     var startWallToWall;
@@ -116,6 +120,9 @@
                         }
                     }
                 }else if (msg_type === "error") {
+                    {% if gateway %}
+                    getTargetNode().html(content.traceback);
+                    {%else%}
                     require(['base/js/utils'], function(utils) {
                         var tb = content.traceback;
                         console.log("tb",tb);
@@ -132,6 +139,7 @@
                             }
                         }
                     });
+                    {%endif%}
                 }else{
                     callbacks.response = false;
                 }
@@ -141,8 +149,11 @@
             }
         }
     }
-    
+    {% if gateway %}
+    if(true){
+    {% else %}
     if (IPython && IPython.notebook && IPython.notebook.session && IPython.notebook.session.kernel){
+    {% endif %}
         var command = user_controls.script || pd_controls.command.replace("cellId",cellId);
         if ( !user_controls.script){
             function addOptions(options, override=true){
@@ -230,6 +241,23 @@
             );
         }
         console.log("Running command2",command);
+        {% if gateway %}
+        $.post({
+            url: "/executeCode",
+            data: command, 
+            contentType: "text/plain",
+            success: function(data){
+                data = JSON.parse(data);
+                data.forEach( function(msg){
+                    if (msg.channel == "iopub"){
+                        callbacks.iopub.output(msg);
+                    }
+                });
+                console.log("result: ", data);
+            }
+        });
+        {%else%}
         IPython.notebook.session.kernel.execute(command, callbacks, {silent:true,store_history:false,stop_on_error:true});
+        {%endif%}
     }
 }()

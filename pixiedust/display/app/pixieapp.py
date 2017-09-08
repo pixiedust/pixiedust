@@ -28,11 +28,14 @@ def route(**kw):
         return fn
     return route_dec
 
+#Global object enables system wide customization of PixieApp run option
+pixieAppRunCustomizer = None
+
 @Logger()
 class PixieDustApp(Display):
 
     routesByClass = {}
-    
+
     def getOptionValue(self, optionName):
         #first check if the key is an field of the class
         option = getattr(self.entity, optionName) if self.entity is not None and hasattr(self.entity, optionName) else None
@@ -40,7 +43,7 @@ class PixieDustApp(Display):
         if callable(option):
             option = None
         if option is None:
-            option = self.options.get(optionName,None)
+            option = self.options.get(optionName, None)
         return option
 
     def matchRoute(self, route):
@@ -157,9 +160,11 @@ def PixieApp(cls):
         self.runInDialog = kwargs.get("runInDialog", "false") is "true"
         options = {"runInDialog": "true" if self.runInDialog else "false"}
         if self.runInDialog:
-            options.update( self.getDialogOptions() )
+            options.update(self.getDialogOptions())
 
-        options.update( {'handlerId': decoName(cls, "id") })
+        options.update({'handlerId': decoName(cls, "id")})
+        if pixieAppRunCustomizer is not None and callable(getattr(pixieAppRunCustomizer, "customizeOptions", None)):
+            pixieAppRunCustomizer.customizeOptions(options)
 
         s = "display({}{})".format(var, reduce(lambda k,v: k + "," + v[0] + "='" + v[1] + "'", iteritems(options), ""))
         try:
