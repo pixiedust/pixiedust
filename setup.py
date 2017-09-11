@@ -3,7 +3,7 @@ setup(name='pixiedust',
 	  version='1.0.11',
 	  description='Productivity library for Jupyter Notebook',
 	  url='https://github.com/ibm-watson-data-lab/pixiedust',
-	  install_requires=['mpld3','lxml','geojson'],
+	  install_requires=['mpld3','lxml','geojson','jupyter_kernel_gateway'],
 	  author='David Taieb',
 	  author_email='david_taieb@us.ibm.com',
 	  license='Apache 2.0',
@@ -12,7 +12,8 @@ setup(name='pixiedust',
 	  zip_safe=False,
 	  entry_points={
 		  'console_scripts': [
-			  'jupyter-pixiedust = install.pixiedustapp:main'
+			  'jupyter-pixiedust = install.pixiedustapp:main',
+              'jupyter-pixiegateway = gateway:main'
 		  ]		  
 	  }
 )
