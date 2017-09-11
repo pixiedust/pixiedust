@@ -113,3 +113,7 @@ scala/.settings
 node/
 
 docs/_sources/
+
+docs/objects.inv
+
+docs/searchindex.js
