@@ -82,6 +82,7 @@ Test().run()
                           "coloropacity": "65",
                           "kind": "densitymap",
                           "keyFields": "LATITUDE,LONGITUDE",
+                          "rendererId": "mapbox",
                           "aggregation": "AVG",
                           "rowCount": "500",
                           "handlerId": "mapView",
