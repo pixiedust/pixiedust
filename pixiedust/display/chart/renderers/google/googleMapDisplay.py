@@ -20,6 +20,7 @@ from .googleBaseDisplay import GoogleBaseDisplay
 import numpy as np
 import pixiedust
 import uuid
+import requests
 
 myLogger = pixiedust.getLogger(__name__)
 
@@ -31,6 +32,9 @@ class MapViewDisplay(GoogleBaseDisplay):
         self.delaySaving = True
 
     def supportsKeyFieldLabels(self, handlerId):
+        return False
+
+    def supportsAggregation(self, handlerId):
         return False
     
     def getPreferredDefaultValueFieldCount(self, handlerId):
@@ -61,6 +65,14 @@ class MapViewDisplay(GoogleBaseDisplay):
         latLong = self.dataHandler.isNumericField(keyFields[0])
         apikey = self.options.get("googlemapapikey")
 
+        if not apikey:
+            return self.renderTemplate("noapikey.html")
+        else:
+            self.response = requests.get("https://maps.googleapis.com/maps/api/geocode/json?address=1600+Amphitheatre+Parkway,+Mountain+View,+CA&key="+apikey)
+            if (self.response.status_code == 200 and self.response.json()['status'] != 'OK') \
+                    or self.response.status_code != 200:
+                return self.renderTemplate("tokenerror.html")
+
         if self.options.get("mapRegion") is None:
             if keyFields[0].lower() == "state":
                 self.options["mapRegion"] = "US"
@@ -72,9 +84,6 @@ class MapViewDisplay(GoogleBaseDisplay):
                 self.options["mapDisplayMode"] = "markers"
             else:
                 self.options["mapDisplayMode"] = "region"
-
-        if self.options.get("mapDisplayMode") != "region" and (apikey is None or len(apikey)<5):
-            return self.renderTemplate("noapikey.html")
             
         if self.options["mapRegion"] == "US":
             self.options["mapResolution"] = "provinces"
