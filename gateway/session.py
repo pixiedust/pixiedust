@@ -13,23 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # -------------------------------------------------------------------------------
-import base64
-import uuid
-from kernel_gateway.gatewayapp import KernelGatewayApp
-from traitlets import Unicode, default
 
-class PixieGatewayApp(KernelGatewayApp):
-    def initialize(self, argv=None):
-        self.api = 'gateway'
-        #self.api = 'notebook-http'
-        super(PixieGatewayApp, self).initialize(argv)
+class Session(object):
+    def __init__(self, session_id):
+        self.session_id = session_id
 
-    def init_webapp(self):
-        super(PixieGatewayApp, self).init_webapp()
-        self.web_app.settings["cookie_secret"] = base64.b64encode(uuid.uuid4().bytes + uuid.uuid4().bytes).decode("UTF-8")
-
-    prepend_execute_code = Unicode(None, config=True, allow_none=True,help="""Code to prepend before each execution""")
-
-    @default('prepend_execute_code')
-    def prepend_execute_code_default(self):
-        return ""
+    def getInstanceName(self, clazz):
+        return "inst_{}_{}".format(self.session_id.replace('-','_'), clazz.replace('.', '_'))

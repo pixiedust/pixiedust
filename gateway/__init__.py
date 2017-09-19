@@ -13,13 +13,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # -------------------------------------------------------------------------------
+import os
 from traitlets.config.configurable import LoggingConfigurable
 import tornado
 from tornado.concurrent import Future
 from tornado import gen, locks
+from tornado.log import app_log
 from .pixieGatewayApp import PixieGatewayApp
 from .managedClient import ManagedClient
-from .handlers import PixieDustHandler, PixieDustLogHandler, ExecuteCodeHandler, DynArgsHandler, TestHandler
+from .notebookMgr import NotebookMgr
+from .handlers import (
+    PixieDustHandler, PixieDustLogHandler, ExecuteCodeHandler, PixieAppHandler, TestHandler,
+    PixieAppListHandler
+)
 
 def main():
     PixieGatewayApp.launch_instance()
@@ -27,9 +33,9 @@ def main():
 class PixieGatewayTemplatePersonality(LoggingConfigurable):
     def init_configurables(self):
         for spec in self.parent.kernel_manager.kernel_spec_manager.get_all_specs():
-            print(spec)
-
+            app_log.info(spec)
         self.managed_client = ManagedClient(self.parent.kernel_manager)
+        self.notebook_mgr = NotebookMgr()
 
     def shutdown(self):
         """During a proper shutdown of the kernel gateway, this will be called so that
@@ -41,13 +47,16 @@ class PixieGatewayTemplatePersonality(LoggingConfigurable):
         name, and handler arguments, that should be registered in the kernel gateway's
         web application. Paths are used as given and should respect the kernel gateway's
         `base_url` traitlet value."""
+        pixiedustHome = os.environ.get("PIXIEDUST_HOME", os.path.expanduser('~'))
         return [
+            ("/static/(.*)", tornado.web.StaticFileHandler, {'path': os.path.join( pixiedustHome, 'static')}),
             ("/pixiedustLog", PixieDustLogHandler, {'managed_client': self.managed_client}),
             ("/myapp", TestHandler, {'managed_client': self.managed_client}),
             ("/pixiedust.js", PixieDustHandler, {'loadjs':True}),
             ("/pixiedust.css", PixieDustHandler, {'loadjs':False}),
             ("/executeCode", ExecuteCodeHandler, {'managed_client': self.managed_client}),
-            ("/pixieapp/(.*)", DynArgsHandler, {'managed_client': self.managed_client})
+            ("/pixieapp/(.*)", PixieAppHandler, {'managed_client': self.managed_client}),
+            ("/pixieapps", PixieAppListHandler)
         ]
 
     def should_seed_cell(self, code):

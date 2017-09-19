@@ -14,12 +14,33 @@
 # limitations under the License.
 # -------------------------------------------------------------------------------
 import traceback
+import uuid
 import tornado
 from tornado import gen
+from .session import Session
+from .notebookMgr import NotebookMgr
 
 class BaseHandler(tornado.web.RequestHandler):
+    sessionMap = {}
     def initialize(self, managed_client):
         self.managed_client = managed_client
+
+    def prepare(self):
+        """
+        Retrieve session for current user
+        """
+        session_id = self.get_secure_cookie("pd_session_id")
+        if session_id is None:
+            print("no session id present, creating one")
+            session_id = str(uuid.uuid4())
+            self.set_secure_cookie("pd_session_id", session_id)
+            BaseHandler.sessionMap[session_id] = Session(session_id)
+        else:
+            session_id = session_id.decode("utf-8")
+            print("Found a session id {}".format(session_id))
+
+        self.session = BaseHandler.sessionMap.get(session_id)
+        print("session {}".format(self.session))
 
     def set_default_headers(self):
         self.set_header("Access-Control-Allow-Origin", "*")
@@ -51,8 +72,11 @@ class TestHandler(BaseHandler):
 from pixiedust.display.app import *
 @PixieApp
 class Test():
+    globalHomes = None
     def setup(self):
-        self.homes = pixiedust.sampleData(6)
+        if Test.globalHomes is None:
+            Test.globalHomes = pixiedust.sampleData(6)
+        self.homes = Test.globalHomes
     @route()
     def main(self):
         return \"\"\"{}\"\"\"
@@ -107,10 +131,10 @@ Test().run()
         res = []
         for msg in result_accumulator:
             if msg['header']['msg_type'] == 'stream':
-                res.append( msg['content']['text'])
+                res.append(msg['content']['text'])
             elif msg['header']['msg_type'] == 'display_data':
                 if "data" in msg['content'] and "text/html" in msg['content']['data']:
-                    res.append( msg['content']['data']['text/html'] )
+                    res.append(msg['content']['data']['text/html'])
                 else:
                     print("display_data msg not processed: {}".format(msg))                    
             elif msg['header']['msg_type'] == 'error':
@@ -121,20 +145,32 @@ Test().run()
                 print("Message type not processed: {}".format(msg))
         return ''.join(res)
 
-class DynArgsHandler(TestHandler):
+class PixieAppHandler(TestHandler):
     @gen.coroutine
     def get(self, *args, **kwargs):
-        code = """
+        clazz = args[0]
+
+        #check the notebooks first
+        pixieapp_def = NotebookMgr.instance().get_notebook_pixieapp(clazz)
+        code = None
+        if pixieapp_def is not None:
+            yield pixieapp_def.warmup(self.managed_client)
+            code = pixieapp_def.run_code
+        else:
+            instance_name = self.session.getInstanceName(clazz)
+            code = """
 def my_import(name):
     components = name.split('.')
     mod = __import__(components[0])
     for comp in components[1:]:
         mod = getattr(mod, comp)
     return mod
-s = "{}"
-my_import(s)().run()
-        """.format(args[0])
-        
+clazz = "{clazz}"
+
+{instance_name} = my_import(clazz)()
+{instance_name}.run()
+            """.format(clazz=args[0], instance_name=instance_name)
+       
         with (yield self.managed_client.lock.acquire()):
             try:
                 response = yield self.managed_client.execute_code(code, self.result_extractor)
@@ -156,6 +192,10 @@ class PixieDustHandler(tornado.web.RequestHandler):
         disp.callerText="display(None)"
         self.write(disp.renderTemplate("pixiedust.js" if self.loadjs else "pixiedust.css"))
         self.finish()
+
+class PixieAppListHandler(tornado.web.RequestHandler):
+    def get(self):
+        self.render("template/pixieappList.html", pixieapp_list=NotebookMgr.instance().notebook_pixieapps())
 
 class PixieDustLogHandler(BaseHandler):
     @gen.coroutine

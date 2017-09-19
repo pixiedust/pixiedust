@@ -74,7 +74,7 @@ pixieapp.pixieAppRunCustomizer = Customizer()
         code : String
             Python code to be executed
 
-        result_extractor : function
+        result_extractor : function [Optional]
             Called when the code has finished executing to extract the results into the returned Future
 
         Returns
