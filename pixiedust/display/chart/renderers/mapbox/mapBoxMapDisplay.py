@@ -24,6 +24,7 @@ import json
 import numpy
 import geojson
 import uuid
+import requests
 
 def defaultJSONEncoding(o):
     if isinstance(o, numpy.integer): 
@@ -37,10 +38,7 @@ class MapViewDisplay(MapBoxBaseDisplay):
         return True
 
     def supportsAggregation(self, handlerId):
-        return True
-
-    def getDefaultAggregation(self, handlerId):
-        return "SUM"
+        return False
 
     def supportsLegend(self, handlerId):
         return True
@@ -64,8 +62,13 @@ class MapViewDisplay(MapBoxBaseDisplay):
     
     def doRenderChart(self):
         mbtoken = self.options.get("mapboxtoken")
-        if not mbtoken or len(mbtoken)<5:
+        if not mbtoken:
             return self.renderTemplate("noaccesstoken.html")
+        else:
+            self.response = requests.get("https://api.mapbox.com/tokens/v2?access_token=" + mbtoken)
+            if (self.response.status_code == 200 and self.response.json()['code'] != 'TokenValid') \
+                    or self.response.status_code != 200:
+                return self.renderTemplate("tokenerror.html")
 
         body = self.renderMapView(mbtoken)
         if self.isStreaming:
