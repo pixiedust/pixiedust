@@ -77,7 +77,6 @@ if ( connectionName ){
     var script = "from pixiedust.services.serviceManager import getConnection\\n"+
         "import json\\n"+
         "print( json.dumps( getConnection(\\\"cloudant\\\",\\\"" + connectionName + "\\\", raw=False)))";
-    debugger;
     pixiedust.executeDisplay({{pd_controls}}, {
         'targetDivId': "connTextArea{{prefix}}",
         'script': script,
@@ -85,7 +84,6 @@ if ( connectionName ){
             $("#connection-error").text(error);
         },
         'onSuccess': function(results){
-            debugger;
             createEditor(toJson(results));
         }
     })
@@ -103,7 +101,6 @@ if ( connectionName ){
 }
         """
         jsOK = """
-debugger;
 try {
     var connInfo = JSON.parse(global.editor.getValue());
     var script = "from pixiedust.services.serviceManager import addConnection\\n"+

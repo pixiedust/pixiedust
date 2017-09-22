@@ -24,7 +24,7 @@ from .managedClient import ManagedClient
 from .notebookMgr import NotebookMgr
 from .handlers import (
     PixieDustHandler, PixieDustLogHandler, ExecuteCodeHandler, PixieAppHandler, TestHandler,
-    PixieAppListHandler
+    PixieAppListHandler, PixieAppPublish
 )
 
 def main():
@@ -47,16 +47,17 @@ class PixieGatewayTemplatePersonality(LoggingConfigurable):
         name, and handler arguments, that should be registered in the kernel gateway's
         web application. Paths are used as given and should respect the kernel gateway's
         `base_url` traitlet value."""
-        pixiedustHome = os.environ.get("PIXIEDUST_HOME", os.path.expanduser('~'))
+        pixiedust_home = os.environ.get("PIXIEDUST_HOME", os.path.expanduser('~'))
         return [
-            ("/static/(.*)", tornado.web.StaticFileHandler, {'path': os.path.join( pixiedustHome, 'static')}),
-            ("/pixiedustLog", PixieDustLogHandler, {'managed_client': self.managed_client}),
-            ("/myapp", TestHandler, {'managed_client': self.managed_client}),
-            ("/pixiedust.js", PixieDustHandler, {'loadjs':True}),
-            ("/pixiedust.css", PixieDustHandler, {'loadjs':False}),
-            ("/executeCode", ExecuteCodeHandler, {'managed_client': self.managed_client}),
-            ("/pixieapp/(.*)", PixieAppHandler, {'managed_client': self.managed_client}),
-            ("/pixieapps", PixieAppListHandler)
+            (r"/static/(.*)", tornado.web.StaticFileHandler, {'path': os.path.join( pixiedust_home, 'static')}),
+            (r"/pixiedustLog", PixieDustLogHandler, {'managed_client': self.managed_client}),
+            (r"/myapp", TestHandler, {'managed_client': self.managed_client}),
+            (r"/pixiedust.js", PixieDustHandler, {'loadjs':True}),
+            (r"/pixiedust.css", PixieDustHandler, {'loadjs':False}),
+            (r"/executeCode", ExecuteCodeHandler, {'managed_client': self.managed_client}),
+            (r"/pixieapp/(.*)", PixieAppHandler, {'managed_client': self.managed_client}),
+            (r"/pixieapps", PixieAppListHandler),
+            (r"/publish/(?P<name>(?:.*))", PixieAppPublish)
         ]
 
     def should_seed_cell(self, code):

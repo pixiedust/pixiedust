@@ -189,6 +189,12 @@ function resolveScriptMacros(script){
             console.log("Warning: Unable to resolve value for element ", b);
             return a;
         }
+        if (typeof v === "object"){
+            return JSON.stringify(v)
+                .split('\\').join('\\\\')
+                .split("'''").join("\\'\\'\\'")
+                .split('"""').join('\\"\\"\\"')
+        }
         return v.split('"').join('&quot;').split('\n').join('\\n');
     });
     return script;
@@ -333,6 +339,10 @@ function readExecInfo(pd_controls, element, searchParents){
     }
 
     execInfo.options.widget = element.getAttribute("pd_widget");
+    execInfo.pixieapp = element.getAttribute("pd_app");
+    if (execInfo.pixieapp && !execInfo.targetDivId){
+        execInfo.options.targetDivId = execInfo.targetDivId = $(element).uniqueId().attr('id');
+    }
 
     computeGeometry(element, execInfo);
 
@@ -368,7 +378,8 @@ function readExecInfo(pd_controls, element, searchParents){
         return addOptions(c, doptions);
     }
 
-    if (!hasOptions && (execInfo.refresh || execInfo.options.widget) && !execInfo.script){
+    if ( (!hasOptions && (execInfo.refresh || execInfo.options.widget) && !execInfo.script) 
+        || (!execInfo.script && execInfo.pixieapp)){
         execInfo.script = "#refresh";
     }
 
@@ -389,8 +400,14 @@ function readExecInfo(pd_controls, element, searchParents){
                 "self=ShellAccess['" + entity + "']\n" +
                 resolveScriptMacros( getParentScript(element) ) + '\n' +
                 resolveScriptMacros(execInfo.script);
-            
-            if ( ( (!dialog && !execInfo.targetDivId) || execInfo.refresh || execInfo.entity || execInfo.options.widget) && 
+            if ( execInfo.pixieapp){
+                var locOptions = execInfo.options;
+                locOptions.cell_id = pd_controls.options.cell_id;
+                execInfo.script += "\nfrom pixiedust.display.app.pixieapp import runPixieApp" + 
+                    "\ntrue=True\nfalse=False\nnull=None" +
+                    "\nrunPixieApp('" + 
+                    execInfo.pixieapp + "', options=" + JSON.stringify(locOptions) + ")";
+            }else if ( ( (!dialog && !execInfo.targetDivId) || execInfo.refresh || execInfo.entity || execInfo.options.widget) && 
                     !execInfo.norefresh && $(element).children("target[pd_target]").length == 0){
                 {#include a refresh of the whole screen#}
                 execInfo.script += "\n" + applyEntity(pd_controls.command, execInfo.entity, execInfo.options)

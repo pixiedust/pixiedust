@@ -216,7 +216,7 @@
             })
             {% endif %}
         }
-        if(curCell&&curCell.output_area){
+        if(curCell&&curCell.output_area){            
             if ( !user_controls.nostoreMedatadata ){
                 curCell._metadata.pixiedust = curCell._metadata.pixiedust || {}
                 curCell._metadata.pixiedust.displayParams=displayParams

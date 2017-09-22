@@ -17,7 +17,7 @@ from pixiedust.display import display
 from pixiedust.display.display import *
 from pixiedust.utils.shellAccess import ShellAccess
 from pixiedust.utils import Logger
-from six import iteritems
+from six import iteritems, string_types
 import inspect
 import sys
 from six import string_types
@@ -30,6 +30,15 @@ def route(**kw):
 
 #Global object enables system wide customization of PixieApp run option
 pixieAppRunCustomizer = None
+
+def runPixieApp(app, parentApp=None, entity=None, **kwargs):
+    if isinstance(app, PixieDustApp):
+        app.run(entity, **kwargs)
+    elif isinstance(app, string_types):
+        parts = app.split('.')
+        getattr(__import__('.'.join(parts[:-1]), None, None, [parts[-1]], 0), parts[-1])().run(entity, **kwargs)
+    else:
+        raise ValueError("Invalid argument to runPixieApp. Only PixieApp or String allowed")
 
 @Logger()
 class PixieDustApp(Display):
@@ -158,15 +167,18 @@ def PixieApp(cls):
             ShellAccess[var] = self
 
         self.runInDialog = kwargs.get("runInDialog", "false") is "true"
-        options = {"runInDialog": "true" if self.runInDialog else "false"}
+        options = {"nostore_ispix":"true", "runInDialog": "true" if self.runInDialog else "false"}
         if self.runInDialog:
             options.update(self.getDialogOptions())
 
         options.update({'handlerId': decoName(cls, "id")})
+        if "options" in kwargs and isinstance(kwargs['options'], dict):
+            options.update(kwargs['options'])
         if pixieAppRunCustomizer is not None and callable(getattr(pixieAppRunCustomizer, "customizeOptions", None)):
             pixieAppRunCustomizer.customizeOptions(options)
 
-        s = "display({}{})".format(var, reduce(lambda k,v: k + "," + v[0] + "='" + v[1] + "'", iteritems(options), ""))
+        opts = [(k, str(v).lower() if isinstance(v, bool) else v) for (k,v) in iteritems(options) if v is not None]
+        s = "display({}{})".format(var, reduce(lambda k,v: k + "," + v[0] + "='" + str(v[1]) + "'", opts, ""))
         try:
             sys.modules['pixiedust.display'].pixiedust_display_callerText = s
             locals()[var] = self
@@ -202,12 +214,12 @@ def PixieApp(cls):
                 if callable(fn):
                     return fn(options, entity)
         return None
-    
+
     displayHandlerMetaClass = type( decoName(cls, "Meta"), (DisplayHandlerMeta,), {
             "getMenuInfo": getMenuInfo,
             "newDisplayHandler": newDisplayHandler
         })
-    
+
     displayHandlerMeta = displayHandlerMetaClass()
     ShellAccess["displayHandlerMeta"] = displayHandlerMeta
     registerDisplayHandler( displayHandlerMeta )

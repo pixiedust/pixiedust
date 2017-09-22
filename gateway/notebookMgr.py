@@ -36,6 +36,16 @@ class NotebookMgr(SingletonConfigurable):
 
     notebook_loader = Unicode(None, config=True, help="Notebook content loader")
 
+    @default('notebook_dir')
+    def notebook_dir_default(self):
+        pixiedust_home = os.environ.get("PIXIEDUST_HOME", os.path.expanduser('~'))
+        return self._ensure_dir( os.path.join(pixiedust_home, 'gateway') )
+
+    def _ensure_dir(self, parentLoc):
+        if not os.path.isdir(parentLoc):
+            os.makedirs(parentLoc)
+        return parentLoc
+
     @default('notebook_loader')
     def notebook_loader_default(self):
         return 'gateway.notebookMgr.NotebookFileLoader'
@@ -54,6 +64,10 @@ class NotebookMgr(SingletonConfigurable):
 
     def notebook_pixieapps(self):
         return list(self.pixieapps.values())
+
+    def publish(self, name, notebook):
+        with io.open(os.path.join(self.notebook_dir, name), 'w', encoding='utf-8') as f:
+            nbformat.write(notebook, f, version=nbformat.NO_CONVERT)
 
     def get_notebook_pixieapp(self, pixieAppName):
         """

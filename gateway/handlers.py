@@ -14,9 +14,11 @@
 # limitations under the License.
 # -------------------------------------------------------------------------------
 import traceback
+import json
 import uuid
+import nbformat
 import tornado
-from tornado import gen
+from tornado import gen, web
 from .session import Session
 from .notebookMgr import NotebookMgr
 
@@ -189,13 +191,24 @@ class PixieDustHandler(tornado.web.RequestHandler):
                 pass
         self.set_header('Content-Type', 'text/javascript' if self.loadjs else 'text/css')
         disp = PixieDustDisplay({"gateway":"true"}, None)
-        disp.callerText="display(None)"
+        disp.callerText = "display(None)"
         self.write(disp.renderTemplate("pixiedust.js" if self.loadjs else "pixiedust.css"))
         self.finish()
 
 class PixieAppListHandler(tornado.web.RequestHandler):
     def get(self):
         self.render("template/pixieappList.html", pixieapp_list=NotebookMgr.instance().notebook_pixieapps())
+
+class PixieAppPublish(tornado.web.RequestHandler):
+    def post(self, name):
+        payload = self.request.body.decode('utf-8')
+        try:
+            notebook = nbformat.from_dict(json.loads(payload))
+            NotebookMgr.instance().publish(name, notebook)
+        except Exception as exc:
+            raise web.HTTPError(400, u'Publish PixieApp error: {}'.format(exc))
+        self.set_status(200)
+        self.finish()
 
 class PixieDustLogHandler(BaseHandler):
     @gen.coroutine
