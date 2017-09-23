@@ -104,26 +104,31 @@ class NotebookMgr(SingletonConfigurable):
                     with nb_contents:
                         print("loading Notebook: {}".format(path))
                         notebook = nbformat.read(nb_contents, as_version=4)
-                        #Load the warmup and run code
-                        warmup_code = ""
-                        run_code = None
-                        for cell in notebook.cells:
-                            if cell.cell_type == "code":
-                                if 'tags' in cell.metadata and "pixieapp" in [t.lower() for t in cell.metadata.tags]:
-                                    run_code = cell.source
-                                    break
-                                elif get_symbol_table(ast.parse(cell.source)).get('pixieapp_root_node', None) is not None:
-                                    run_code = cell.source
-                                    break
-                                else:
-                                    warmup_code += "\n" + cell.source
+                        #Load the pixieapp definition if any
+                        pixieapp_def = self.read_pixieapp_def(notebook)
+                        if pixieapp_def is not None and pixieapp_def.is_valid:
+                            print("Found a valid Notebook PixieApp: {}".format(pixieapp_def))
+                            pixieapp_def.location = full_path
+                            self.pixieapps[pixieapp_def.name] = pixieapp_def
 
-                        if run_code is not None:
-                            pixieapp_def = PixieappDef(self.next_namespace(), warmup_code, run_code)
-                            if pixieapp_def.is_valid:
-                                print("Found a valid Notebook PixieApp: {}".format(pixieapp_def))
-                                pixieapp_def.location = full_path
-                                self.pixieapps[pixieapp_def.name] = pixieapp_def
+    def read_pixieapp_def(self, notebook):
+        #Load the warmup and run code
+        warmup_code = ""
+        run_code = None
+        for cell in notebook.cells:
+            if cell.cell_type == "code":
+                if 'tags' in cell.metadata and "pixieapp" in [t.lower() for t in cell.metadata.tags]:
+                    run_code = cell.source
+                    break
+                elif get_symbol_table(ast.parse(cell.source)).get('pixieapp_root_node', None) is not None:
+                    run_code = cell.source
+                    break
+                else:
+                    warmup_code += "\n" + cell.source
+
+        if run_code is not None:
+            pixieapp_def = PixieappDef(self.next_namespace(), warmup_code, run_code)
+            return pixieapp_def if pixieapp_def.is_valid else None
 
 def get_symbol_table(rootNode):
     lookup = VarsLookup()
@@ -136,6 +141,7 @@ class PixieappDef():
         self.run_code = run_code
         self.warmup_future = None
         self.namespace = namespace
+        self.location = None
 
         #validate and process the code
         symbols = get_symbol_table(ast.parse(self.warmup_code + "\n" + self.run_code))
