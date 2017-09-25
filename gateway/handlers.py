@@ -204,11 +204,12 @@ class PixieAppPublish(tornado.web.RequestHandler):
         payload = self.request.body.decode('utf-8')
         try:
             notebook = nbformat.from_dict(json.loads(payload))
-            NotebookMgr.instance().publish(name, notebook)
+            pixieapp_model = NotebookMgr.instance().publish(name, notebook)
+            self.set_status(200)
+            self.write(json.dumps(pixieapp_model))
+            self.finish()
         except Exception as exc:
             raise web.HTTPError(400, u'Publish PixieApp error: {}'.format(exc))
-        self.set_status(200)
-        self.finish()
 
 class PixieDustLogHandler(BaseHandler):
     @gen.coroutine

@@ -38,7 +38,7 @@ class NotebookMgr(SingletonConfigurable):
 
     @default('notebook_dir')
     def notebook_dir_default(self):
-        pixiedust_home = os.environ.get("PIXIEDUST_HOME", os.path.expanduser('~'))
+        pixiedust_home = os.environ.get("PIXIEDUST_HOME", os.path.join(os.path.expanduser('~'), "pixiedust"))
         return self._ensure_dir( os.path.join(pixiedust_home, 'gateway') )
 
     def _ensure_dir(self, parentLoc):
@@ -56,6 +56,7 @@ class NotebookMgr(SingletonConfigurable):
         # Read the notebooks
         self.ns_counter = 0
         self.pixieapps = {}
+        self.loader = import_object(self.notebook_loader)()
         self._readNotebooks()
 
     def next_namespace(self):
@@ -66,8 +67,16 @@ class NotebookMgr(SingletonConfigurable):
         return list(self.pixieapps.values())
 
     def publish(self, name, notebook):
-        with io.open(os.path.join(self.notebook_dir, name), 'w', encoding='utf-8') as f:
-            nbformat.write(notebook, f, version=nbformat.NO_CONVERT)
+        full_path=os.path.join(self.notebook_dir, name)
+        pixieapp_def = self.read_pixieapp_def(notebook)
+        if pixieapp_def is not None and pixieapp_def.is_valid:
+            pixieapp_def.location = full_path
+            self.pixieapps[pixieapp_def.name] = pixieapp_def
+            with io.open(full_path, 'w', encoding='utf-8') as f:
+                nbformat.write(notebook, f, version=nbformat.NO_CONVERT)
+            return pixieapp_def.to_dict()
+        else:
+            raise Exception("Invalid notebook or no PixieApp found")
 
     def get_notebook_pixieapp(self, pixieAppName):
         """
@@ -92,14 +101,14 @@ class NotebookMgr(SingletonConfigurable):
         return mod
 
     def _readNotebooks(self):
+        app_log.debug("Reading notebooks from notebook_dir {}".format(self.notebook_dir))
         if self.notebook_dir is None:
             app_log.warning("No notebooks to load")
             return
-        loader = import_object(self.notebook_loader)()
         for path in os.listdir(self.notebook_dir):
             if path.endswith(".ipynb"):
                 full_path = os.path.join(self.notebook_dir, path)
-                nb_contents = loader.load(full_path)
+                nb_contents = self.loader.load(full_path)
                 if nb_contents is not None:
                     with nb_contents:
                         print("loading Notebook: {}".format(path))
@@ -160,6 +169,15 @@ class PixieappDef():
             new_root = rewrite.visit(ast.parse(self.run_code))
             self.run_code = astunparse.unparse( new_root )
             print("new run code: {}".format(self.run_code))
+
+    def to_dict(self):
+        return {
+            "name": self.name,
+            "description": self.description,
+            "location": self.location,
+            "warmup_code": self.warmup_code,
+            "run_code": self.run_code
+        }
 
     @property
     def is_valid(self):
