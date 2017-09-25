@@ -14,19 +14,22 @@
 # limitations under the License.
 # -------------------------------------------------------------------------------
 from pixiedust.display.app import *
+import sys
+import os
 import requests
 import json
 import nbformat
 from pixiedust.utils.userPreferences import getUserPreference, setUserPreference
 from pixiedust.utils import Logger
 import warnings
+import pkg_resources
 from jupyter_client.manager import KernelManager
 
 import ast
 class ImportsLookup(ast.NodeVisitor):
     def __init__(self):
-        self.imports=set()
-    
+        self.imports = set()
+
     #pylint: disable=E0213,E1102
     def onvisit(func):
         def wrap(self, node):
@@ -34,15 +37,34 @@ class ImportsLookup(ast.NodeVisitor):
             super(ImportsLookup, self).generic_visit(node)
             return ret_node
         return wrap
+
+    def add_import(self, module_name):
+        if not module_name in sys.builtin_module_names:
+            module = __import__(module_name)
+            ok_to_add = module.__package__ != ""
+            if not ok_to_add and "site-packages" in module.__file__:
+                ok_to_add = True
+            #check if egg-link (aka editable mode)
+            if not ok_to_add:
+                for p in sys.path:
+                    if os.path.isfile(os.path.join(p,module_name+".egg-link")):
+                        ok_to_add = True
+
+            if ok_to_add:
+                try:
+                    version = pkg_resources.get_distribution(module_name).parsed_version._version.release
+                    self.imports.add( (module_name, version) )
+                except pkg_resources.DistributionNotFound:
+                    pass
     
     @onvisit
     def visit_ImportFrom(self, node):
-        self.imports.add(node.module.split(".")[0])
+        self.add_import(node.module.split(".")[0])
     
     @onvisit
     def visit_Import(self, node):
         for name in node.names:
-            self.imports.add(name.name)
+            self.add_import(name.name)
         
     @onvisit
     def generic_visit(self, node):
@@ -57,6 +79,8 @@ class PublishApp():
     
     def setup(self):
         self.server = getUserPreference("pixie_gateway_server", "http://localhost:8899")
+        self.kernel_spec = None
+        self.lookup = None
         
     def set_contents(self, contents):
         self.contents = json.loads(contents)
@@ -69,6 +93,7 @@ class PublishApp():
     @route(publish="*")
     def publish(self, publish):
         self.server = publish
+        self.compute_imports()
         setUserPreference("pixie_gateway_server", publish)
         response = requests.post(
             "{}/publish/{}".format(self.server, self.contents['name']), 
@@ -84,29 +109,50 @@ class PublishApp():
             """
         
         return "<div>An Error occured while publishing this notebook: {}".format(response.text)
+
+    def _sanitizeCode(self, code):
+        def translateMagicLine(line):
+            index = line.find('%')
+            if index >= 0:
+                try:
+                    ast.parse(line)
+                except SyntaxError:
+                    magic_line = line[index+1:].split()
+                    line= """{} get_ipython().run_line_magic("{}", "{}")""".format(
+                        line[:index], magic_line[0], ' '.join(magic_line[1:])
+                        ).strip()
+            return line
+        return '\n'.join([translateMagicLine(p) for p in code.split('\n') if not p.strip().startswith('!')])
+
+    def compute_imports(self):
+        if self.lookup is None:
+            notebook = nbformat.from_dict(self.contents['notebook'])
+            code = ""
+            for cell in notebook.cells:
+                if cell.cell_type == "code":
+                    code += "\n" + cell.source                
+            self.lookup = ImportsLookup()
+            self.lookup.visit(ast.parse(self._sanitizeCode(code)))
+            self.contents['notebook']['metadata']['pixiedust'] = {
+                "imports": {p[0]:p[1] for p in self.lookup.imports}
+            }
         
     @route(importTable="*")
     def imports(self):
-        notebook = nbformat.from_dict(self.contents['notebook'])
-        code = ""
-        for cell in notebook.cells:
-            if cell.cell_type == "code":
-                code += "\n" + cell.source                
-        self.lookup = ImportsLookup()
-        self.lookup.visit(ast.parse(code))
+        self.compute_imports()
         return """
 <table class="table">
     <thead>
         <tr>
-            <th>Import</th>
             <th>Package</th>
+            <th>Version</th>
         </tr>
     </thead>
     <tbody>
         {% for import in this.lookup.imports%}
         <tr>
-            <td>{{import}}</td>
-            <td>{{import}}</td>
+            <td>{{import[0]}}</td>
+            <td>{{import[1]}}</td>
         </tr>
         {%endfor%}
     </tbody>
@@ -206,7 +252,7 @@ $(".publishOptions .nav a").on("click", function(){
             </div>
             <div id="imports{{prefix}}" class="collapse">
                 <div class="form-group">
-                    <label for="imports{{prefix}}">Imports:</label>
+                    <label for="imports{{prefix}}">List of packages that will be automaticall imported if needed:</label>
                     <div pd_render_onload pd_refresh pd_options="importTable=true">
                         <pd_script>
 self.set_contents('''$val(getNotebookJSON)''')

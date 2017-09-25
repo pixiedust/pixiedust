@@ -26,6 +26,20 @@ from tornado.log import app_log
 from tornado.util import import_object
 from .pixieGatewayApp import PixieGatewayApp
 
+def _sanitizeCode(code):
+    def translateMagicLine(line):
+        index = line.find('%')
+        if index >= 0:
+            try:
+                ast.parse(line)
+            except SyntaxError:
+                magic_line = line[index+1:].split()
+                line= """{} get_ipython().run_line_magic("{}", "{}")""".format(
+                    line[:index], magic_line[0], ' '.join(magic_line[1:])
+                    ).strip()
+        return line
+    return '\n'.join([translateMagicLine(p) for p in code.split('\n') if not p.strip().startswith('!')])
+
 class NotebookFileLoader():
     def load(self, path):
         return io.open(path)
@@ -129,7 +143,7 @@ class NotebookMgr(SingletonConfigurable):
                 if 'tags' in cell.metadata and "pixieapp" in [t.lower() for t in cell.metadata.tags]:
                     run_code = cell.source
                     break
-                elif get_symbol_table(ast.parse(cell.source)).get('pixieapp_root_node', None) is not None:
+                elif get_symbol_table(ast.parse(_sanitizeCode(cell.source))).get('pixieapp_root_node', None) is not None:
                     run_code = cell.source
                     break
                 else:
@@ -153,7 +167,7 @@ class PixieappDef():
         self.location = None
 
         #validate and process the code
-        symbols = get_symbol_table(ast.parse(self.warmup_code + "\n" + self.run_code))
+        symbols = get_symbol_table(ast.parse(_sanitizeCode(self.warmup_code + "\n" + self.run_code)))
         pixieapp_root_node = symbols.get('pixieapp_root_node', None)
         self.name = pixieapp_root_node.name if pixieapp_root_node is not None else None
         self.description = ast.get_docstring(pixieapp_root_node) if pixieapp_root_node is not None else None
@@ -161,12 +175,12 @@ class PixieappDef():
         if self.is_valid:
             if self.warmup_code != "":
                 rewrite = RewriteGlobals(symbols, self.namespace)
-                new_root = rewrite.visit(ast.parse(self.warmup_code))
+                new_root = rewrite.visit(ast.parse(_sanitizeCode(self.warmup_code)))
                 self.warmup_code = astunparse.unparse( new_root )
                 print("New warmup code: {}".format(self.warmup_code))
 
             rewrite = RewriteGlobals(symbols, self.namespace)
-            new_root = rewrite.visit(ast.parse(self.run_code))
+            new_root = rewrite.visit(ast.parse(_sanitizeCode(self.run_code)))
             self.run_code = astunparse.unparse( new_root )
             print("new run code: {}".format(self.run_code))
 
