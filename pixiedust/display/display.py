@@ -499,9 +499,7 @@ class UnknownEntityMeta(DisplayHandlerMeta):
         
 class UnknownEntityDisplay(Display):
     def render(self):
-        ipythonDisplay(HTML(
-            self.renderTemplate("unknownEntity.html")
-        ))
+        ipythonDisplay(self.entity)
         
     def doRender(self, handlerId):
         pass
