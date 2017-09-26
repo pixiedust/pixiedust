@@ -25,6 +25,7 @@ from tornado.concurrent import Future
 from tornado.log import app_log
 from tornado.util import import_object
 from .pixieGatewayApp import PixieGatewayApp
+from .managedClient import ManagedClientPool
 
 def _sanitizeCode(code):
     def translateMagicLine(line):
@@ -80,15 +81,18 @@ class NotebookMgr(SingletonConfigurable):
     def notebook_pixieapps(self):
         return list(self.pixieapps.values())
 
+    @gen.coroutine
     def publish(self, name, notebook):
-        full_path=os.path.join(self.notebook_dir, name)
+        full_path = os.path.join(self.notebook_dir, name)
         pixieapp_def = self.read_pixieapp_def(notebook)
         if pixieapp_def is not None and pixieapp_def.is_valid:
             pixieapp_def.location = full_path
             self.pixieapps[pixieapp_def.name] = pixieapp_def
             with io.open(full_path, 'w', encoding='utf-8') as f:
                 nbformat.write(notebook, f, version=nbformat.NO_CONVERT)
-            return pixieapp_def.to_dict()
+
+            yield ManagedClientPool.instance().on_publish(pixieapp_def)
+            raise gen.Return(pixieapp_def.to_dict())
         else:
             raise Exception("Invalid notebook or no PixieApp found")
 
@@ -125,12 +129,12 @@ class NotebookMgr(SingletonConfigurable):
                 nb_contents = self.loader.load(full_path)
                 if nb_contents is not None:
                     with nb_contents:
-                        print("loading Notebook: {}".format(path))
+                        #print("loading Notebook: {}".format(path))
                         notebook = nbformat.read(nb_contents, as_version=4)
                         #Load the pixieapp definition if any
                         pixieapp_def = self.read_pixieapp_def(notebook)
                         if pixieapp_def is not None and pixieapp_def.is_valid:
-                            print("Found a valid Notebook PixieApp: {}".format(pixieapp_def))
+                            #print("Found a valid Notebook PixieApp: {}".format(pixieapp_def))
                             pixieapp_def.location = full_path
                             self.pixieapps[pixieapp_def.name] = pixieapp_def
 
@@ -150,7 +154,7 @@ class NotebookMgr(SingletonConfigurable):
                     warmup_code += "\n" + cell.source
 
         if run_code is not None:
-            pixieapp_def = PixieappDef(self.next_namespace(), warmup_code, run_code)
+            pixieapp_def = PixieappDef(self.next_namespace(), warmup_code, run_code, notebook)
             return pixieapp_def if pixieapp_def.is_valid else None
 
 def get_symbol_table(rootNode):
@@ -159,12 +163,12 @@ def get_symbol_table(rootNode):
     return lookup.symbol_table
 
 class PixieappDef():
-    def __init__(self, namespace, warmup_code, run_code):
+    def __init__(self, namespace, warmup_code, run_code, notebook):
         self.warmup_code = warmup_code
         self.run_code = run_code
-        self.warmup_future = None
         self.namespace = namespace
         self.location = None
+        self.title = notebook.get("metadata",{}).get("pixiedust",{}).get("title",None)
 
         #validate and process the code
         symbols = get_symbol_table(ast.parse(_sanitizeCode(self.warmup_code + "\n" + self.run_code)))
@@ -177,12 +181,12 @@ class PixieappDef():
                 rewrite = RewriteGlobals(symbols, self.namespace)
                 new_root = rewrite.visit(ast.parse(_sanitizeCode(self.warmup_code)))
                 self.warmup_code = astunparse.unparse( new_root )
-                print("New warmup code: {}".format(self.warmup_code))
+                #("New warmup code: {}".format(self.warmup_code))
 
             rewrite = RewriteGlobals(symbols, self.namespace)
             new_root = rewrite.visit(ast.parse(_sanitizeCode(self.run_code)))
             self.run_code = astunparse.unparse( new_root )
-            print("new run code: {}".format(self.run_code))
+            #print("new run code: {}".format(self.run_code))
 
     def to_dict(self):
         return {
@@ -199,20 +203,22 @@ class PixieappDef():
 
     @gen.coroutine
     def warmup(self, managed_client):
-        if self.warmup_future is None:
-            self.warmup_future = Future()
+        warmup_future = managed_client.get_running_stats(self, 'warmup_future')
+        if warmup_future is None:
+            warmup_future = Future()
+            managed_client.set_running_stats(self, 'warmup_future', warmup_future)
             if self.warmup_code == "":
-                self.warmup_future.done()
+                warmup_future.done()
             else:
                 print("Running warmup code: {}".format(self.warmup_code))
                 with (yield managed_client.lock.acquire()):
                     try:
-                        print("got al lock")
                         yield managed_client.execute_code(self.warmup_code)
+                        warmup_future.done()
                     except:
                         import traceback
                         traceback.print_exc()
-        return self.warmup_future
+        return warmup_future
 
 class VarsLookup(ast.NodeVisitor):
     def __init__(self):

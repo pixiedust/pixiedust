@@ -21,11 +21,12 @@ import tornado
 from tornado import gen, web
 from .session import Session
 from .notebookMgr import NotebookMgr
+from .managedClient import ManagedClientPool
 
 class BaseHandler(tornado.web.RequestHandler):
     sessionMap = {}
-    def initialize(self, managed_client):
-        self.managed_client = managed_client
+    def initialize(self):
+        pass
 
     def prepare(self):
         """
@@ -56,9 +57,10 @@ Implement generic kernel code execution routine
     """
     @gen.coroutine
     def post(self):
-        with (yield self.managed_client.lock.acquire()):
+        managed_client = ManagedClientPool.instance().get()
+        with (yield managed_client.lock.acquire()):
             try:
-                response = yield self.managed_client.execute_code(self.request.body.decode('utf-8'))
+                response = yield managed_client.execute_code(self.request.body.decode('utf-8'))
                 self.write(response)
             except:
                 traceback.print_exc()
@@ -122,9 +124,10 @@ Test().run()
             <div class="col-sm-10" id="target{{prefix}}"/>
         </div>
         """)
-        with (yield self.managed_client.lock.acquire()):
+        managed_client = ManagedClientPool.instance().get()
+        with (yield managed_client.lock.acquire()):
             try:
-                response = yield self.managed_client.execute_code(code, self.result_extractor)
+                response = yield managed_client.execute_code(code, self.result_extractor)
                 self.render("template/main.html", response = response)
             except:
                 traceback.print_exc()
@@ -155,8 +158,9 @@ class PixieAppHandler(TestHandler):
         #check the notebooks first
         pixieapp_def = NotebookMgr.instance().get_notebook_pixieapp(clazz)
         code = None
+        managed_client = ManagedClientPool.instance().get()
         if pixieapp_def is not None:
-            yield pixieapp_def.warmup(self.managed_client)
+            yield pixieapp_def.warmup(managed_client)
             code = pixieapp_def.run_code
         else:
             instance_name = self.session.getInstanceName(clazz)
@@ -172,11 +176,11 @@ clazz = "{clazz}"
 {instance_name} = my_import(clazz)()
 {instance_name}.run()
             """.format(clazz=args[0], instance_name=instance_name)
-       
-        with (yield self.managed_client.lock.acquire()):
+
+        with (yield managed_client.lock.acquire()):
             try:
-                response = yield self.managed_client.execute_code(code, self.result_extractor)
-                self.render("template/main.html", response = response)
+                response = yield managed_client.execute_code(code, self.result_extractor)
+                self.render("template/main.html", response = response, title=pixieapp_def.title if pixieapp_def is not None else None)
             except:
                 traceback.print_exc()
 
@@ -200,15 +204,17 @@ class PixieAppListHandler(tornado.web.RequestHandler):
         self.render("template/pixieappList.html", pixieapp_list=NotebookMgr.instance().notebook_pixieapps())
 
 class PixieAppPublish(tornado.web.RequestHandler):
+    @gen.coroutine
     def post(self, name):
         payload = self.request.body.decode('utf-8')
         try:
             notebook = nbformat.from_dict(json.loads(payload))
-            pixieapp_model = NotebookMgr.instance().publish(name, notebook)
+            pixieapp_model = yield NotebookMgr.instance().publish(name, notebook)
             self.set_status(200)
             self.write(json.dumps(pixieapp_model))
             self.finish()
         except Exception as exc:
+            print(traceback.print_exc())
             raise web.HTTPError(400, u'Publish PixieApp error: {}'.format(exc))
 
 class PixieDustLogHandler(BaseHandler):
@@ -220,9 +226,10 @@ class PixieDustLogHandler(BaseHandler):
 import pixiedust
 %pixiedustLog -l debug
         """
-        with (yield self.managed_client.lock.acquire()):
+        managed_client = ManagedClientPool.instance().get()
+        with (yield managed_client.lock.acquire()):
             try:
-                response = yield self.managed_client.execute_code(code, self.result_extractor)
+                response = yield managed_client.execute_code(code, self.result_extractor)
                 self.write(response)
             except:
                 traceback.print_exc()

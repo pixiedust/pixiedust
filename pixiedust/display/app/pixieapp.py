@@ -18,6 +18,7 @@ from pixiedust.display.display import *
 from pixiedust.utils.shellAccess import ShellAccess
 from pixiedust.utils import Logger
 from six import iteritems, string_types
+from collections import OrderedDict
 import inspect
 import sys
 from six import string_types
@@ -66,7 +67,7 @@ class PixieDustApp(Display):
         argspec = inspect.getargspec(method)
         args = argspec.args
         args = args[1:] if hasattr(method, "__self__") else args
-        return dict(zip([a for a in args],[ None if arg not in route else self.getOptionValue(arg) for arg in args] ) )
+        return OrderedDict(zip([a for a in args],[ self.getOptionValue(arg) for arg in args] ) )
 
     def doRender(self, handlerId):
         if self.__class__.__name__ in PixieDustApp.routesByClass:
@@ -82,6 +83,7 @@ class PixieDustApp(Display):
                         self.debug("match found: {}".format(t[0]))
                         meth = getattr(self, t[1])
                         injectedArgs = self.injectArgs(meth, t[0])
+                        self.debug("Injected args: {}".format(injectedArgs))
                         retValue = meth(*list(injectedArgs.values()))
                         return
                 if defRoute:

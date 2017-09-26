@@ -84,17 +84,20 @@ class PublishApp():
         
     def set_contents(self, contents):
         self.contents = json.loads(contents)
+        self.contents['notebook']['metadata']['pixiedust'] = {}
         kernel_spec = self.contents['notebook']['metadata']['kernelspec']
         km = KernelManager(kernel_name=kernel_spec['name'])
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
             self.kernel_spec = json.dumps(km.kernel_spec.to_dict(), indent=4, sort_keys=True)
     
-    @route(publish="*")
-    def publish(self, publish):
-        self.server = publish
+    @route(publish_server="*")
+    def publish(self, publish_server, publish_title, publish_icon):
+        self.debug("server david {}".format(publish_server))
+        self.server = publish_server
+        self.contents['notebook']['metadata']['pixiedust'].update({"title":publish_title, "icon":publish_icon})
         self.compute_imports()
-        setUserPreference("pixie_gateway_server", publish)
+        setUserPreference("pixie_gateway_server", publish_server)
         response = requests.post(
             "{}/publish/{}".format(self.server, self.contents['name']), 
             json = self.contents['notebook']
@@ -133,9 +136,9 @@ class PublishApp():
                     code += "\n" + cell.source                
             self.lookup = ImportsLookup()
             self.lookup.visit(ast.parse(self._sanitizeCode(code)))
-            self.contents['notebook']['metadata']['pixiedust'] = {
+            self.contents['notebook']['metadata']['pixiedust'].update({
                 "imports": {p[0]:p[1] for p in self.lookup.imports}
-            }
+            })
         
     @route(importTable="*")
     def imports(self):
@@ -268,8 +271,17 @@ self.set_contents('''$val(getNotebookJSON)''')
     </div>
 </div>
 
-<center><button type="button" class="btn btn-primary" pd_options="publish=$val(server{{prefix}})">
+<center>
+    <button type="button" class="btn btn-primary">
+        <pd_options>
+        {
+            "publish_server": "$val(server{{prefix}})",
+            "publish_title":"$val(title{{prefix}})",
+            "publish_icon":"$val(icon{{prefix}})"
+        }
+        </pd_options>
     Publish
-</button></center>
+    </button>
+</center>
 <div id="nb{{prefix}}"></div>
         """

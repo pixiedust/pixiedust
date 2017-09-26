@@ -178,14 +178,19 @@ var pixiedust = (function(){
 
 function resolveScriptMacros(script){
     script = script && script.replace(/\$val\(\"?(\w*)\"?\)/g, function(a,b){
-        var v = $("#" + b ).val() || $("#" + b ).text();
-        if (!v && window[b] && typeof window[b] === "function"){
+        debugger;
+        var n = $("#" + b );
+        var v = null;
+        if (n.length > 0){
+            v = $("#" + b ).val() || $("#" + b ).text();
+        }
+        if (!v && v!=="" && window[b] && typeof window[b] === "function"){
             v = window[b]();
         }
-        if (!v && pixiedust[b] && typeof pixiedust[b] === "function"){
+        if (!v && v!=="" && pixiedust[b] && typeof pixiedust[b] === "function"){
             v = pixiedust[b]();
         }
-        if (!v){
+        if (!v && v!==""){
             console.log("Warning: Unable to resolve value for element ", b);
             return a;
         }
@@ -325,8 +330,9 @@ function readExecInfo(pd_controls, element, searchParents){
     $(element).find("> pd_options").each(function(){
         try{
             var options = JSON.parse($(this).text());
+            hasOptions = true;
             for (var key in options) { 
-                execInfo.options[key] = options[key]; 
+                execInfo.options[key] = resolveScriptMacros(options[key]); 
             }
         }catch(e){
             console.log("Error parsing pd_options, invalid json", e);

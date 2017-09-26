@@ -20,7 +20,7 @@ from tornado.concurrent import Future
 from tornado import gen, locks
 from tornado.log import app_log
 from .pixieGatewayApp import PixieGatewayApp
-from .managedClient import ManagedClient
+from .managedClient import ManagedClient, ManagedClientPool
 from .notebookMgr import NotebookMgr
 from .handlers import (
     PixieDustHandler, PixieDustLogHandler, ExecuteCodeHandler, PixieAppHandler, TestHandler,
@@ -34,13 +34,13 @@ class PixieGatewayTemplatePersonality(LoggingConfigurable):
     def init_configurables(self):
         for spec in self.parent.kernel_manager.kernel_spec_manager.get_all_specs():
             app_log.info(spec)
-        self.managed_client = ManagedClient(self.parent.kernel_manager)
+        self.managed_client_pool = ManagedClientPool.instance(self.parent.kernel_manager)
         self.notebook_mgr = NotebookMgr()
 
     def shutdown(self):
         """During a proper shutdown of the kernel gateway, this will be called so that
         any held resources may be properly released."""
-        pass 
+        self.managed_client_pool.shutdown()
 
     def create_request_handlers(self):
         """Returns a list of zero or more tuples of handler path, Tornado handler class
@@ -50,12 +50,12 @@ class PixieGatewayTemplatePersonality(LoggingConfigurable):
         pixiedust_home = os.environ.get("PIXIEDUST_HOME", os.path.expanduser('~'))
         return [
             (r"/static/(.*)", tornado.web.StaticFileHandler, {'path': os.path.join( pixiedust_home, 'static')}),
-            (r"/pixiedustLog", PixieDustLogHandler, {'managed_client': self.managed_client}),
-            (r"/myapp", TestHandler, {'managed_client': self.managed_client}),
+            (r"/pixiedustLog", PixieDustLogHandler),
+            (r"/myapp", TestHandler),
             (r"/pixiedust.js", PixieDustHandler, {'loadjs':True}),
             (r"/pixiedust.css", PixieDustHandler, {'loadjs':False}),
-            (r"/executeCode", ExecuteCodeHandler, {'managed_client': self.managed_client}),
-            (r"/pixieapp/(.*)", PixieAppHandler, {'managed_client': self.managed_client}),
+            (r"/executeCode", ExecuteCodeHandler),
+            (r"/pixieapp/(.*)", PixieAppHandler),
             (r"/pixieapps", PixieAppListHandler),
             (r"/publish/(?P<name>(?:.*))", PixieAppPublish)
         ]

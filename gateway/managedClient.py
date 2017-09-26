@@ -15,9 +15,9 @@
 # -------------------------------------------------------------------------------
 import json
 from datetime import datetime
-from tornado import locks
+from tornado import locks, gen
 from tornado.concurrent import Future
-
+from traitlets.config.configurable import SingletonConfigurable
 from .pixieGatewayApp import PixieGatewayApp
 
 class ManagedClient(object):
@@ -25,15 +25,32 @@ class ManagedClient(object):
     Managed access to a kernel client
     """
     def __init__(self, kernel_manager):
-        kernel_id = kernel_manager.start_kernel()
-        kernel = kernel_manager.get_kernel(kernel_id.result())
+        self.kernel_manager = kernel_manager
+        self.start()
+        self.installed_modules = []
+        self.stats = {}
+
+    def get_running_stats(self, pixieapp_def, stat_name = None):
+        if not pixieapp_def.name in self.stats or (stat_name is not None and stat_name not in self.stats[pixieapp_def.name]):
+            return None
+        return self.stats[pixieapp_def.name][stat_name] if stat_name is not None else self.stats[pixieapp_def.name]
+
+    def set_running_stats(self, pixieapp_def, stat_name, stat_value):
+        if not pixieapp_def.name in self.stats:
+            self.stats[pixieapp_def.name] = {}
+
+        self.stats[pixieapp_def.name][stat_name] = stat_value
+
+    def start(self):
+        self.kernel_id = self.kernel_manager.start_kernel().result()
+        kernel = self.kernel_manager.get_kernel(self.kernel_id)
 
         self.kernel_client = kernel.client()
         self.kernel_client.session = type(self.kernel_client.session)(
             config=kernel.session.config,
-            key=kernel.session.key,
+            key=kernel.session.key
         )
-        self.iopub = kernel_manager.connect_iopub(kernel_id.result())
+        self.iopub = self.kernel_manager.connect_iopub(self.kernel_id)
 
         # Start channels and wait for ready
         self.kernel_client.start_channels()
@@ -43,15 +60,49 @@ class ManagedClient(object):
         self.lock = locks.Lock()
 
         #Initialize PixieDust
-        self.execute_code("""
+        future = self.execute_code("""
 import pixiedust
+import pkg_resources
+import json
 from pixiedust.display.app import pixieapp
 class Customizer():
     def customizeOptions(self, options):
         options.update( {'cell_id': 'dummy', 'showchrome':'false', 'gateway':'true'})
         options.update( {'nostore_pixiedust': 'true'})
 pixieapp.pixieAppRunCustomizer = Customizer()
-            """)
+print(json.dumps( {"installed_modules": list(pkg_resources.AvailableDistributions())} ))
+            """, lambda acc: json.dumps([msg['content']['text'] for msg in acc if msg['header']['msg_type'] == 'stream'], default=self._date_json_serializer))
+        
+        def done(fut):
+            results = json.loads(fut.result())
+            for result in results:
+                try:
+                    val = json.loads(result)
+                    if isinstance(val, dict) and "installed_modules" in val:
+                        self.installed_modules = val["installed_modules"]
+                        break
+                except:
+                    pass
+            print(self.installed_modules)
+        future.add_done_callback( done )
+
+    def shutdown(self):
+        self.kernel_client.stop_channels()
+        self.kernel_manager.shutdown_kernel(self.kernel_id, now=True)
+
+    @gen.coroutine
+    def on_publish(self, pixieapp_def):
+        future = Future()
+        if self.get_running_stats(pixieapp_def) is not None:
+            yield self.restart()
+        future.set_result("OK")
+        return future
+
+    @gen.coroutine
+    def restart(self):
+        with (yield self.lock.acquire()):
+            yield self.shutdown()
+            yield self.start()
 
     def _date_json_serializer(self, obj):
         if isinstance(obj, datetime):
@@ -85,10 +136,10 @@ pixieapp.pixieAppRunCustomizer = Customizer()
         if result_extractor is None:
             result_extractor = self._result_extractor
         code = PixieGatewayApp.instance().prepend_execute_code + "\n" + code
-        print("Executing Code: {}".format(code))
+        #print("Executing Code: {}".format(code))
         future = Future()
         parent_header = self.kernel_client.execute(code)
-        print("parent_header: {}".format(parent_header))
+        #print("parent_header: {}".format(parent_header))
         result_accumulator = []
         def on_reply(msgList):
             session = type(self.kernel_client.session)(
@@ -106,7 +157,36 @@ pixieapp.pixieAppRunCustomizer = Customizer()
                     if msg['header']['msg_type'] == 'status' and msg['content']['execution_state'] == 'idle':
                         future.set_result(result_extractor( result_accumulator ))
             else:
-                print("Got an orphan message {}".format(msg))
+                #print("Got an orphan message {}".format(msg))
+                pass
 
         self.iopub.on_recv(on_reply)
         return future
+
+class ManagedClientPool(SingletonConfigurable):
+    """
+    Orchestrates a Pool of ManagedClients, load-balancing based on user load
+    """
+    def __init__(self, kernel_manager, **kwargs):
+        kwargs['parent'] = PixieGatewayApp.instance()
+        super(ManagedClientPool, self).__init__(**kwargs)
+        self.kernel_manager = kernel_manager
+        self.managed_clients = []
+        self.managed_clients.append(ManagedClient(kernel_manager))
+
+    def shutdown(self):
+        for managed_client in self.managed_clients:
+            print("Start client shutdown")
+            managed_client.shutdown()
+            print("Done client shutdown")
+
+    def on_publish(self, pixieapp_def):
+        #find all the affect clients
+        print("Calling on-Publish from ManageClientPool")
+        try:
+            return [managed_client.on_publish(pixieapp_def) for managed_client in self.managed_clients]
+        finally:
+            print("Done with on-publish from ManagedClientPool")
+
+    def get(self):
+        return self.managed_clients[0]
