@@ -85,15 +85,20 @@ class NotebookMgr(SingletonConfigurable):
     def publish(self, name, notebook):
         full_path = os.path.join(self.notebook_dir, name)
         pixieapp_def = self.read_pixieapp_def(notebook)
+        log_messages = ["Validating Notebook... Looking for a PixieApp"]
         if pixieapp_def is not None and pixieapp_def.is_valid:
+            log_messages.append("PixieApp {} found. Proceeding with Publish".format(pixieapp_def.name))
             pixieapp_def.location = full_path
             self.pixieapps[pixieapp_def.name] = pixieapp_def
             with io.open(full_path, 'w', encoding='utf-8') as f:
                 nbformat.write(notebook, f, version=nbformat.NO_CONVERT)
-
-            yield ManagedClientPool.instance().on_publish(pixieapp_def)
-            raise gen.Return(pixieapp_def.to_dict())
+            log_messages.append("Successfully stored notebook file {}".format(name))
+            yield ManagedClientPool.instance().on_publish(pixieapp_def, log_messages)
+            pixieapp_model = {"log":log_messages}
+            pixieapp_model.update(pixieapp_def.to_dict())
+            raise gen.Return(pixieapp_model)
         else:
+            log_messages.append("Invalid notebook or no PixieApp found")
             raise Exception("Invalid notebook or no PixieApp found")
 
     def get_notebook_pixieapp(self, pixieAppName):
@@ -168,7 +173,9 @@ class PixieappDef():
         self.run_code = run_code
         self.namespace = namespace
         self.location = None
-        self.title = notebook.get("metadata",{}).get("pixiedust",{}).get("title",None)
+        pixiedust_meta = notebook.get("metadata",{}).get("pixiedust",{})
+        self.title = pixiedust_meta.get("title",None)
+        self.deps = list(pixiedust_meta.get("imports", {}).keys())
 
         #validate and process the code
         symbols = get_symbol_table(ast.parse(_sanitizeCode(self.warmup_code + "\n" + self.run_code)))

@@ -72,7 +72,7 @@ class Customizer():
 pixieapp.pixieAppRunCustomizer = Customizer()
 print(json.dumps( {"installed_modules": list(pkg_resources.AvailableDistributions())} ))
             """, lambda acc: json.dumps([msg['content']['text'] for msg in acc if msg['header']['msg_type'] == 'stream'], default=self._date_json_serializer))
-        
+    
         def done(fut):
             results = json.loads(fut.result())
             for result in results:
@@ -83,18 +83,30 @@ print(json.dumps( {"installed_modules": list(pkg_resources.AvailableDistribution
                         break
                 except:
                     pass
-            print(self.installed_modules)
-        future.add_done_callback( done )
+            print("Installed modules {}".format(self.installed_modules))
+        future.add_done_callback(done)
 
     def shutdown(self):
         self.kernel_client.stop_channels()
         self.kernel_manager.shutdown_kernel(self.kernel_id, now=True)
 
     @gen.coroutine
-    def on_publish(self, pixieapp_def):
+    def install_dependencies(self, pixieapp_def, log_messages):
+        restart = False
+        for dep in [d for d in pixieapp_def.deps if not any(a for a in [d,d.replace("-","_"),d.replace("_","-")] if a in self.installed_modules)]:
+            log_messages.append("Installing module: {}".format(dep))
+            yield self.execute_code("!pip install {}".format(dep))
+            restart = True
+        raise gen.Return(restart)
+
+    @gen.coroutine
+    def on_publish(self, pixieapp_def, log_messages):
         future = Future()
-        if self.get_running_stats(pixieapp_def) is not None:
+        restart = yield self.install_dependencies(pixieapp_def, log_messages)
+        if restart or self.get_running_stats(pixieapp_def) is not None:
+            log_messages.append("Restarting kernel {}...".format(self.kernel_id))
             yield self.restart()
+            log_messages.append("Kernel successfully restarted...")
         future.set_result("OK")
         return future
 
@@ -102,6 +114,8 @@ print(json.dumps( {"installed_modules": list(pkg_resources.AvailableDistribution
     def restart(self):
         with (yield self.lock.acquire()):
             yield self.shutdown()
+            self.installed_modules = []
+            self.stats = {}
             yield self.start()
 
     def _date_json_serializer(self, obj):
@@ -176,17 +190,15 @@ class ManagedClientPool(SingletonConfigurable):
 
     def shutdown(self):
         for managed_client in self.managed_clients:
-            print("Start client shutdown")
             managed_client.shutdown()
-            print("Done client shutdown")
 
-    def on_publish(self, pixieapp_def):
+    def on_publish(self, pixieapp_def, log_messages):
         #find all the affect clients
-        print("Calling on-Publish from ManageClientPool")
         try:
-            return [managed_client.on_publish(pixieapp_def) for managed_client in self.managed_clients]
+            log_messages.append("Validating Kernels for publishing...")
+            return [managed_client.on_publish(pixieapp_def, log_messages) for managed_client in self.managed_clients]
         finally:
-            print("Done with on-publish from ManagedClientPool")
+            log_messages.append("Done Validating Kernels...")
 
     def get(self):
         return self.managed_clients[0]

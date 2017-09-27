@@ -93,7 +93,6 @@ class PublishApp():
     
     @route(publish_server="*")
     def publish(self, publish_server, publish_title, publish_icon):
-        self.debug("server david {}".format(publish_server))
         self.server = publish_server
         self.contents['notebook']['metadata']['pixiedust'].update({"title":publish_title, "icon":publish_icon})
         self.compute_imports()
@@ -105,10 +104,38 @@ class PublishApp():
         if response.status_code == requests.codes.ok:
             self.pixieapp_model = response.json()
             return """
-            <div>Notebook Successfully published</div>
+<style type="text/css">
+.publish{
+    font-size: larger;
+    margin-left: 30px;
+}
+.publish .logmessages{
+}
+.publish .logmessage{
+    color: darkblue;
+}
+.publish .summary{
+    font-size: xx-large;
+    text-align: center;
+}
+</style>
+<div class="publish">
+    <div class="logmessages">
+        {%for message in this.pixieapp_model['log']%}
+        <div class="logmessage">
+            {{message}}
+        </div>
+        {%endfor%}
+    </div>
+    <div class="summary">
+        <div>Notebook Successfully published</div>
+        <div>
             <a href="{{this.server}}/pixieapp/{{this.pixieapp_model['name']}}" target="blank">
                 {{this.contents['name']}}
             </a>
+        </div>
+    </div>
+</div>
             """
         
         return "<div>An Error occured while publishing this notebook: {}".format(response.text)

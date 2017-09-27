@@ -178,7 +178,6 @@ var pixiedust = (function(){
 
 function resolveScriptMacros(script){
     script = script && script.replace(/\$val\(\"?(\w*)\"?\)/g, function(a,b){
-        debugger;
         var n = $("#" + b );
         var v = null;
         if (n.length > 0){

@@ -480,11 +480,15 @@ class RunInDialog(Display):
         self._checkPixieDustJS()
         self.debug("In RunInDialog")
         # del self.options['runInDialog']
-        ipythonDisplay(Javascript("pixiedust.executeInDialog({0});".format(
+        ipythonDisplay(Javascript("pixiedust.executeInDialog({0},{1});".format(
             json.dumps({
                 "prefix": self.getPrefix(),
                 "command": self.callerText.replace(",runInDialog='true'",""),
                 "options": self.options
+            }),
+            json.dumps({
+                "nostoreMedatadata": True,
+                "options":{}
             })
         )))
     def doRender(self, handlerId):
