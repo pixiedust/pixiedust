@@ -105,7 +105,7 @@ print(json.dumps( {"installed_modules": list(pkg_resources.AvailableDistribution
         restart = yield self.install_dependencies(pixieapp_def, log_messages)
         if restart or self.get_running_stats(pixieapp_def) is not None:
             log_messages.append("Restarting kernel {}...".format(self.kernel_id))
-            yield self.restart()
+            yield gen.maybe_future(self.restart())
             log_messages.append("Kernel successfully restarted...")
         future.set_result("OK")
         return future
@@ -113,10 +113,10 @@ print(json.dumps( {"installed_modules": list(pkg_resources.AvailableDistribution
     @gen.coroutine
     def restart(self):
         with (yield self.lock.acquire()):
-            yield self.shutdown()
+            yield gen.maybe_future(self.shutdown())
             self.installed_modules = []
             self.stats = {}
-            yield self.start()
+            yield gen.maybe_future(self.start())
 
     def _date_json_serializer(self, obj):
         if isinstance(obj, datetime):
