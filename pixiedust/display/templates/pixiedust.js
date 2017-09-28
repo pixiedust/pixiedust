@@ -292,21 +292,38 @@ function computeGeometry(element, execInfo){
     });
 }
 
-function readExecInfo(pd_controls, element, searchParents){
+function readScriptAttribute(element){
+    retValue = element.getAttribute("pd_script");
+    if (!retValue){
+        $(element).find("> pd_script").each(function(){
+            var type = this.getAttribute("type");
+            if (!type || type=="python"){
+                retValue = $(this).text();
+            }
+        })
+    }
+    return retValue;
+}
+
+function readExecInfo(pd_controls, element, searchParents, fromExecInfo){
     if (searchParents === null || searchParents === undefined ){
         searchParents = true;
     }
+    var execInfo = {};
+    execInfo.options = {};
+    $.extend(execInfo, fromExecInfo || {});
+
     {#special case pd_refresh points to another element #}
     var refreshTarget = element.getAttribute("pd_refresh");
     if (refreshTarget){
         var node = $("#" + refreshTarget);
         if (node.length){
+            debugger;
+            execInfo.script = readScriptAttribute(element);
             pd_controls.refreshTarget = refreshTarget;
-            return readExecInfo(pd_controls, node.get(0));
+            return readExecInfo(pd_controls, node.get(0), true, execInfo);
         }
     }
-    var execInfo = {}
-    execInfo.options = {}
     var hasOptions = false;
     $.each( element.attributes, function(){
         if (this.name.startsWith("option_")){
@@ -351,16 +368,10 @@ function readExecInfo(pd_controls, element, searchParents){
 
     computeGeometry(element, execInfo);
 
-    execInfo.script = element.getAttribute("pd_script");
-    if (!execInfo.script){
-        $(element).find("> pd_script").each(function(){
-            var type = this.getAttribute("type");
-            if (!type || type=="python"){
-                execInfo.script = $(this).text();
-            }
-        })
+    scriptAttr = readScriptAttribute(element);
+    if (scriptAttr){
+        execInfo.script = (execInfo.script || "") + "\n" + scriptAttr;
     }
-
     execInfo.refresh = element.hasAttribute("pd_refresh");
     execInfo.norefresh = element.hasAttribute("pd_norefresh");
     execInfo.entity = element.hasAttribute("pd_entity") ? element.getAttribute("pd_entity") || "pixieapp_entity" : null;
