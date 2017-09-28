@@ -230,12 +230,17 @@ class MapViewDisplay(MapBoxBaseDisplay):
             l = (ShellAccess[papp], dir(ShellAccess[papp]))
         for key in [a for a in l[1] if not callable(getattr(l[0], a)) and not a.startswith("_")]:
             v = getattr(l[0],key)
+            
             if isinstance(v, dict) and "maptype" in v and v["maptype"].lower() == "mapbox" and "source" in v and "type" in v["source"] and v["source"]["type"] == "geojson" and "id" in v and "data" in v["source"]:
                 gj = geojson.loads(json.dumps(v["source"]["data"]))
-                isvalid = geojson.is_valid(gj)
-                if isvalid["valid"] == "yes":
+                isvalid = True
+                if hasattr(geojson, "is_valid"): # then we're using old version of geojson module
+                    isvalid = geojson.is_valid(gj)["valid"] == "yes"
+                    self.debug("IN hasattr(geojson,is_valid). Validity is "+str(isvalid))
+                else: # we're using a newer version of geojson module
+                    isvalid = gj.is_valid
+                if isvalid:
                     userlayers.append(v)
-                    # self.debug("GOT VALID GEOJSON!!!!")
                 else:
                     self.debug("Invalid GeoJSON: {0}".format(str(v["source"]["data"])))
         self.debug("userlayers length: "+str(len(userlayers)))
