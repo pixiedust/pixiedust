@@ -27,7 +27,13 @@ from tornado.util import import_object
 from .pixieGatewayApp import PixieGatewayApp
 from .managedClient import ManagedClientPool
 
-def _sanitizeCode(code):
+def ast_parse(code):
+    try:
+        #Do we even need to sanitize
+        return ast.parse(code)
+    except SyntaxError:
+        pass
+
     def translateMagicLine(line):
         index = line.find('%')
         if index >= 0:
@@ -39,7 +45,7 @@ def _sanitizeCode(code):
                     line[:index], magic_line[0], ' '.join(magic_line[1:])
                     ).strip()
         return line
-    return '\n'.join([translateMagicLine(p) for p in code.split('\n') if not p.strip().startswith('!')])
+    return ast.parse('\n'.join([translateMagicLine(p) for p in code.split('\n') if not p.strip().startswith('!')]))
 
 class NotebookFileLoader():
     def load(self, path):
@@ -152,7 +158,7 @@ class NotebookMgr(SingletonConfigurable):
                 if 'tags' in cell.metadata and "pixieapp" in [t.lower() for t in cell.metadata.tags]:
                     run_code = cell.source
                     break
-                elif get_symbol_table(ast.parse(_sanitizeCode(cell.source))).get('pixieapp_root_node', None) is not None:
+                elif get_symbol_table(ast_parse(cell.source)).get('pixieapp_root_node', None) is not None:
                     run_code = cell.source
                     break
                 else:
@@ -178,7 +184,7 @@ class PixieappDef():
         self.deps = list(pixiedust_meta.get("imports", {}).keys())
 
         #validate and process the code
-        symbols = get_symbol_table(ast.parse(_sanitizeCode(self.warmup_code + "\n" + self.run_code)))
+        symbols = get_symbol_table(ast_parse(self.warmup_code + "\n" + self.run_code))
         pixieapp_root_node = symbols.get('pixieapp_root_node', None)
         self.name = pixieapp_root_node.name if pixieapp_root_node is not None else None
         self.description = ast.get_docstring(pixieapp_root_node) if pixieapp_root_node is not None else None
@@ -186,12 +192,12 @@ class PixieappDef():
         if self.is_valid:
             if self.warmup_code != "":
                 rewrite = RewriteGlobals(symbols, self.namespace)
-                new_root = rewrite.visit(ast.parse(_sanitizeCode(self.warmup_code)))
+                new_root = rewrite.visit(ast_parse(self.warmup_code))
                 self.warmup_code = astunparse.unparse( new_root )
                 #("New warmup code: {}".format(self.warmup_code))
 
             rewrite = RewriteGlobals(symbols, self.namespace)
-            new_root = rewrite.visit(ast.parse(_sanitizeCode(self.run_code)))
+            new_root = rewrite.visit(ast_parse(self.run_code))
             self.run_code = astunparse.unparse( new_root )
             #print("new run code: {}".format(self.run_code))
 
