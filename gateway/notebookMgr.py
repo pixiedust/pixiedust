@@ -130,7 +130,7 @@ class NotebookMgr(SingletonConfigurable):
         return mod
 
     def _readNotebooks(self):
-        app_log.debug("Reading notebooks from notebook_dir {}".format(self.notebook_dir))
+        app_log.debug("Reading notebooks from notebook_dir %s", self.notebook_dir)
         if self.notebook_dir is None:
             app_log.warning("No notebooks to load")
             return
@@ -233,6 +233,12 @@ class PixieappDef():
                         traceback.print_exc()
         return warmup_future
 
+    def get_run_code(self, session):
+        pars = ast.parse(self.run_code)
+        vl = RewriteGlobals(get_symbol_table(pars), session.namespace)
+        vl.visit(pars)
+        return astunparse.unparse(pars)
+    
 class VarsLookup(ast.NodeVisitor):
     def __init__(self):
         self.symbol_table = {"vars":set(), "functions":set(), "classes":set(), "pixieapp_root_node":None}
@@ -315,7 +321,7 @@ class RewriteGlobals(ast.NodeTransformer):
             self.localTables.append( get_symbol_table(node) )
             try:
                 super(RewriteGlobals, self).generic_visit(node)
-                return ret_node
+                return ret_node or node
             finally:
                 self.level -= 1
                 self.localTables.pop()

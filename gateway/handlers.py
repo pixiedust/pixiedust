@@ -19,12 +19,11 @@ import uuid
 import nbformat
 import tornado
 from tornado import gen, web
-from .session import Session
+from .session import Session, SessionManager
 from .notebookMgr import NotebookMgr
 from .managedClient import ManagedClientPool
 
 class BaseHandler(tornado.web.RequestHandler):
-    sessionMap = {}
     def initialize(self):
         pass
 
@@ -32,17 +31,7 @@ class BaseHandler(tornado.web.RequestHandler):
         """
         Retrieve session for current user
         """
-        session_id = self.get_secure_cookie("pd_session_id")
-        if session_id is None:
-            print("no session id present, creating one")
-            session_id = str(uuid.uuid4())
-            self.set_secure_cookie("pd_session_id", session_id)
-            BaseHandler.sessionMap[session_id] = Session(session_id)
-        else:
-            session_id = session_id.decode("utf-8")
-            print("Found a session id {}".format(session_id))
-
-        self.session = BaseHandler.sessionMap.get(session_id)
+        self.session = SessionManager.instance().get_session(self)
         print("session {}".format(self.session))
 
     def set_default_headers(self):
@@ -161,7 +150,7 @@ class PixieAppHandler(TestHandler):
         managed_client = ManagedClientPool.instance().get()
         if pixieapp_def is not None:
             yield pixieapp_def.warmup(managed_client)
-            code = pixieapp_def.run_code
+            code = pixieapp_def.get_run_code(self.session)
         else:
             instance_name = self.session.getInstanceName(clazz)
             code = """

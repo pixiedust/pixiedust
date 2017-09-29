@@ -19,6 +19,7 @@ from tornado import locks, gen
 from tornado.concurrent import Future
 from traitlets.config.configurable import SingletonConfigurable
 from .pixieGatewayApp import PixieGatewayApp
+from .session import SessionManager
 
 class ManagedClient(object):
     """
@@ -191,6 +192,8 @@ class ManagedClientPool(SingletonConfigurable):
     def shutdown(self):
         for managed_client in self.managed_clients:
             managed_client.shutdown()
+
+        SessionManager.instance().shutdown()
 
     def on_publish(self, pixieapp_def, log_messages):
         #find all the affect clients
