@@ -1,4 +1,5 @@
 <div class="pixiedust" pixiedust="{{pd_controls|htmlAttribute}}">
+  {% if not gateway %}
   <button class="btn btn-default btn-sm expandButton" data-toggle="collapse"
           data-target="#pixiedust-output-wrapper-{{this.getPrefix()}}" title="Expand/Collapse Pixiedust output">
     <i class="fa"></i>
@@ -8,6 +9,7 @@
     border: 0 none;font-size: 15px;padding: 0; position: relative; right: 0; text-align: right;top: 0;" title="Publish PixieApp">
     <i class="fa fa-plug no_loading_msg"></i>
   </button>
+  {%endif%}
   {%endif%}
   <div id="pixiedust-output-wrapper-{{this.getPrefix()}}" class="pixiedust-output-wrapper collapse in">
     {%if numMenu > 1 %}

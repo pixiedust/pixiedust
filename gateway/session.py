@@ -65,16 +65,12 @@ class SessionManager(SingletonConfigurable):
 
     def get_session(self, request_handler):
         session_id = request_handler.get_secure_cookie("pd_session_id")
-        if session_id is None:
-            print("no session id present, creating one")
+        session = self.session_map.get(session_id.decode("utf-8")) if session_id is not None else None
+        if session is None:
+            print("no session present, creating one")
             session_id = str(uuid.uuid4())
             request_handler.set_secure_cookie("pd_session_id", session_id)
-            self.session_map[session_id] = Session(session_id)
-        else:
-            session_id = session_id.decode("utf-8")
-            print("Found a session id {}".format(session_id))
+            session = self.session_map[session_id] = Session(session_id)
 
-        session = self.session_map.get(session_id)
-        if session is not None:
-            session.touch()
+        session.touch()
         return session
