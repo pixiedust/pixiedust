@@ -181,7 +181,11 @@ function resolveScriptMacros(script){
         var n = $("#" + b );
         var v = null;
         if (n.length > 0){
-            v = $("#" + b ).val() || $("#" + b ).text();
+            if (n.is(':checkbox')){
+                v = n.is(':checked').toString();
+            }else{
+                v = $("#" + b ).val() || $("#" + b ).text();
+            }
         }
         if (!v && v!=="" && window[b] && typeof window[b] === "function"){
             v = window[b]();
@@ -309,20 +313,28 @@ function readExecInfo(pd_controls, element, searchParents, fromExecInfo){
     if (searchParents === null || searchParents === undefined ){
         searchParents = true;
     }
-    var execInfo = {};
-    execInfo.options = {};
+    var execInfo = {"options":{}};
     $.extend(execInfo, fromExecInfo || {});
 
     {#special case pd_refresh points to another element #}
     var refreshTarget = element.getAttribute("pd_refresh");
     if (refreshTarget){
-        var node = $("#" + refreshTarget);
-        if (node.length){
-            debugger;
-            execInfo.script = readScriptAttribute(element);
-            pd_controls.refreshTarget = refreshTarget;
-            return readExecInfo(pd_controls, node.get(0), true, execInfo);
-        }
+        var targets = refreshTarget.split(",");
+        retQueue = []
+        $.each( targets, function(index){
+            var node = $("#" + this);
+            if (node.length){
+                pd_controls.refreshTarget = this;
+                var thisexecInfo = {"options":{}};
+                $.extend(thisexecInfo, fromExecInfo || {});
+                if (index==0){
+                    thisexecInfo.script = readScriptAttribute(element);
+                }
+                thisexecInfo.refresh = true;
+                retQueue.push( readExecInfo(pd_controls, node.get(0), true, thisexecInfo) );
+            }
+        });
+        return retQueue;
     }
     var hasOptions = false;
     $.each( element.attributes, function(){
@@ -372,7 +384,7 @@ function readExecInfo(pd_controls, element, searchParents, fromExecInfo){
     if (scriptAttr){
         execInfo.script = (execInfo.script || "") + "\n" + scriptAttr;
     }
-    execInfo.refresh = element.hasAttribute("pd_refresh");
+    execInfo.refresh = execInfo.refresh || element.hasAttribute("pd_refresh");
     execInfo.norefresh = element.hasAttribute("pd_norefresh");
     execInfo.entity = element.hasAttribute("pd_entity") ? element.getAttribute("pd_entity") || "pixieapp_entity" : null;
 
@@ -489,21 +501,30 @@ function runElement(element, searchParents){
         });
     }
     var execQueue = [];
+    function addToQueue(execInfo){
+        if (Array.isArray(execInfo)){
+            execInfo.forEach(function(exec){
+                execQueue.push(exec);
+            });
+        }else{
+            execQueue.push(execInfo);
+        }
+    }
     if (pd_controls){
         pd_controls = JSON.parse(pd_controls);
         {#read the current element#}
-        execQueue.push( readExecInfo(pd_controls, element, searchParents) );
+        addToQueue( readExecInfo(pd_controls, element, searchParents) );
 
         {#get other execution targets if any#}
         $(element).children("target[pd_target]").each(function(){
-            execQueue.push( readExecInfo(pd_controls, this, searchParents))
+            addToQueue( readExecInfo(pd_controls, this, searchParents))
         });
     }
     return execQueue;
 }
 
 function filterNonTargetElements(element){
-    if (element && ["I", "DIV", "SELECT"].includes(element.tagName)){
+    if (element && ["I", "DIV"].includes(element.tagName)){
         if (!element.hasAttribute("pd_options") || $(element).find("> pd_options").length == 0 || element.hasAttribute("pd_render_onload")){
             return filterNonTargetElements(element.parentElement);
         }
@@ -512,7 +533,7 @@ function filterNonTargetElements(element){
 }
 
 {#Dynamically add click handler on the pixiedust chrome menus#}
-$(document).on( "click", "[pixiedust]", function(event){
+function processEvent(event){
     execQueue = runElement(filterNonTargetElements(event.target));
     {#execute#}
     $.each( execQueue, function(index, value){
@@ -521,6 +542,16 @@ $(document).on( "click", "[pixiedust]", function(event){
             value.execute();
         }
     });
+}
+$(document).on( "click", "[pixiedust]", function(event){
+    if (event.target.tagName == "SELECT"){
+        return;
+    }
+    processEvent(event)
+});
+
+$(document).on( "change", "[pixiedust]", function(event){
+    processEvent(event)
 });
 
 {#handler for customer pd_event#}
