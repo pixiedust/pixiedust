@@ -18,6 +18,7 @@ import uuid
 from traitlets import Int
 from traitlets.config.configurable import SingletonConfigurable
 from tornado.ioloop import PeriodicCallback
+from tornado.log import app_log
 from .pixieGatewayApp import PixieGatewayApp
 
 class Session(object):
@@ -60,14 +61,14 @@ class SessionManager(SingletonConfigurable):
         current_time = round(time.time()*1000)
         for key,session in list(self.session_map.items()):
             if current_time - session.last_accessed > self.session_timeout*1000:
-                print("Stale session, deleting")
+                app_log.debug("Stale session, deleting")
                 del self.session_map[key]
 
     def get_session(self, request_handler):
         session_id = request_handler.get_secure_cookie("pd_session_id")
         session = self.session_map.get(session_id.decode("utf-8")) if session_id is not None else None
         if session is None:
-            print("no session present, creating one")
+            app_log.debug("no session present, creating one")
             session_id = str(uuid.uuid4())
             request_handler.set_secure_cookie("pd_session_id", session_id)
             session = self.session_map[session_id] = Session(session_id)

@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 setup(name='pixiedust',
-      version='1.0.11',
+      version='1.1.0',
       description='Productivity library for Jupyter Notebook',
       url='https://github.com/ibm-watson-data-lab/pixiedust',
       install_requires=['mpld3', 'lxml', 'geojson', 'jupyter_kernel_gateway', 'astunparse'],

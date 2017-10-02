@@ -140,12 +140,11 @@ class NotebookMgr(SingletonConfigurable):
                 nb_contents = self.loader.load(full_path)
                 if nb_contents is not None:
                     with nb_contents:
-                        #print("loading Notebook: {}".format(path))
+                        app_log.debug("loading Notebook: %s",path)
                         notebook = nbformat.read(nb_contents, as_version=4)
                         #Load the pixieapp definition if any
                         pixieapp_def = self.read_pixieapp_def(notebook)
                         if pixieapp_def is not None and pixieapp_def.is_valid:
-                            #print("Found a valid Notebook PixieApp: {}".format(pixieapp_def))
                             pixieapp_def.location = full_path
                             self.pixieapps[pixieapp_def.name] = pixieapp_def
 
@@ -194,12 +193,12 @@ class PixieappDef():
                 rewrite = RewriteGlobals(symbols, self.namespace)
                 new_root = rewrite.visit(ast_parse(self.warmup_code))
                 self.warmup_code = astunparse.unparse( new_root )
-                #("New warmup code: {}".format(self.warmup_code))
+                app_log.debug("New warmup code: %s", self.warmup_code)
 
             rewrite = RewriteGlobals(symbols, self.namespace)
             new_root = rewrite.visit(ast_parse(self.run_code))
             self.run_code = astunparse.unparse( new_root )
-            #print("new run code: {}".format(self.run_code))
+            app_log.debug("new run code: %s", self.run_code)
 
     def to_dict(self):
         return {
@@ -223,7 +222,7 @@ class PixieappDef():
             if self.warmup_code == "":
                 warmup_future.done()
             else:
-                print("Running warmup code: {}".format(self.warmup_code))
+                app_log.debug("Running warmup code: %s", self.warmup_code)
                 with (yield managed_client.lock.acquire()):
                     try:
                         yield managed_client.execute_code(self.warmup_code)
@@ -247,12 +246,12 @@ class VarsLookup(ast.NodeVisitor):
     #pylint: disable=E0213,E1102
     def onvisit(func):
         def wrap(self, node):
-            if self.level > 0 and False:
+            if self.level > 0:
                 if self.level == 1:
-                    print("\n")
-                print("{} Level {}: {}".format("\t" * (self.level - 1), self.level, ast.dump(node)))
+                    app_log.debug("\n")
+                app_log.debug("%s Level %s: %s", "\t" * (self.level - 1), self.level, ast.dump(node))
             elif self.level < 0:
-                print("GOT A NON ZERO LEVEL {}".format(ast.dump(node)))
+                app_log.debug("GOT A NON ZERO LEVEL %s", ast.dump(node))
             ret_node = func(self, node)
             self.level += 1
             try:
@@ -266,12 +265,10 @@ class VarsLookup(ast.NodeVisitor):
 
     @onvisit
     def visit_Name(self, node):
-        #print(ast.dump(node))
         if hasattr(node, "ctx") and isinstance(node.ctx, ast.Store):
             self.symbol_table["vars"].add(node.id)
     @onvisit    
     def visit_FunctionDef(self, node):
-        #print(ast.dump(node))
         self.symbol_table["functions"].add(node.name)
     
     @onvisit
@@ -299,23 +296,19 @@ class RewriteGlobals(ast.NodeTransformer):
         if len(self.localTables) > 1:
             for table in reversed(self.localTables[2:]):
                 if name in table["vars"] or name in table["functions"] or name in table["classes"]:
-                    if False:
-                        print("found in a local context: {}".format(name))
                     return False
         ret = name in self.symbols["vars"] or name in self.symbols["functions"] or name in self.symbols["classes"]
-        if False:
-            print("Checking {}: return {}".format(name, ret))
         return ret
 
     #pylint: disable=E0213,E1102    
     def onvisit(fn):
         def wrap(self, node):
-            if self.level > 0 and False:
+            if self.level > 0:
                 if self.level == 1:
-                    print("\n")
-                print("{} Level {}: {}".format("\t" * (self.level - 1), self.level, ast.dump(node)))
+                    app_log.debug("\n")
+                app_log.debug("%s Level %s: %s", "\t" * (self.level - 1), self.level, ast.dump(node))
             elif self.level < 0:
-                print("GOT A NON ZERO LEVEL {}".format(ast.dump(node)))
+                app_log.debug("GOT A NON ZERO LEVEL %s", ast.dump(node))
             ret_node = fn(self,node)
             self.level += 1
             self.localTables.append( get_symbol_table(node) )
@@ -329,11 +322,7 @@ class RewriteGlobals(ast.NodeTransformer):
     
     @onvisit
     def visit_FunctionDef(self, node):
-        if False:
-            print("In function: {} - Level {}".format(node.name, self.level))
         if self.level == 1 and self.isGlobal(node.name):
-            if False:
-                print("Rewriting function {}".format(node.name))
             node.name = self.namespace + node.name
         return node
 
@@ -349,7 +338,6 @@ class RewriteGlobals(ast.NodeTransformer):
 
     @onvisit
     def visit_Name(self, node):
-        #print("Name Level{}".format(self.level))
         if hasattr(node, "ctx"):
             if self.pixieApp != node.id and isinstance(node.ctx, ast.Load) and self.isGlobal(node.id):
                 node.id = self.namespace + node.id

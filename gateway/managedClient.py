@@ -16,6 +16,7 @@
 import json
 from datetime import datetime
 from tornado import locks, gen
+from tornado.log import app_log
 from tornado.concurrent import Future
 from traitlets.config.configurable import SingletonConfigurable
 from .pixieGatewayApp import PixieGatewayApp
@@ -84,7 +85,7 @@ print(json.dumps( {"installed_modules": list(pkg_resources.AvailableDistribution
                         break
                 except:
                     pass
-            print("Installed modules {}".format(self.installed_modules))
+            app_log.debug("Installed modules %s", self.installed_modules)
         future.add_done_callback(done)
 
     def shutdown(self):
@@ -151,10 +152,9 @@ print(json.dumps( {"installed_modules": list(pkg_resources.AvailableDistribution
         if result_extractor is None:
             result_extractor = self._result_extractor
         code = PixieGatewayApp.instance().prepend_execute_code + "\n" + code
-        #print("Executing Code: {}".format(code))
+        app_log.debug("Executing Code: %s", code)
         future = Future()
         parent_header = self.kernel_client.execute(code)
-        #print("parent_header: {}".format(parent_header))
         result_accumulator = []
         def on_reply(msgList):
             session = type(self.kernel_client.session)(
@@ -172,8 +172,7 @@ print(json.dumps( {"installed_modules": list(pkg_resources.AvailableDistribution
                     if msg['header']['msg_type'] == 'status' and msg['content']['execution_state'] == 'idle':
                         future.set_result(result_extractor( result_accumulator ))
             else:
-                #print("Got an orphan message {}".format(msg))
-                pass
+                app_log.warning("Got an orphan message %s", msg)
 
         self.iopub.on_recv(on_reply)
         return future

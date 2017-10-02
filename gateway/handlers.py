@@ -15,11 +15,11 @@
 # -------------------------------------------------------------------------------
 import traceback
 import json
-import uuid
 import nbformat
 import tornado
 from tornado import gen, web
-from .session import Session, SessionManager
+from tornado.log import app_log
+from .session import SessionManager
 from .notebookMgr import NotebookMgr
 from .managedClient import ManagedClientPool
 
@@ -32,7 +32,7 @@ class BaseHandler(tornado.web.RequestHandler):
         Retrieve session for current user
         """
         self.session = SessionManager.instance().get_session(self)
-        print("session {}".format(self.session))
+        app_log.debug("session %s", self.session)
 
     def set_default_headers(self):
         self.set_header("Access-Control-Allow-Origin", "*")
@@ -130,13 +130,13 @@ Test().run()
                 if "data" in msg['content'] and "text/html" in msg['content']['data']:
                     res.append(msg['content']['data']['text/html'])
                 else:
-                    print("display_data msg not processed: {}".format(msg))                    
+                    app_log.warning("display_data msg not processed: %s", msg)                    
             elif msg['header']['msg_type'] == 'error':
                 error_name = msg['content']['ename']
                 error_value = msg['content']['evalue']
                 return 'Error {}: {} \n'.format(error_name, error_value)
             else:
-                print("Message type not processed: {}".format(msg))
+                app_log.warning("Message type not processed: %s", msg)
         return ''.join(res)
 
 class PixieAppHandler(TestHandler):

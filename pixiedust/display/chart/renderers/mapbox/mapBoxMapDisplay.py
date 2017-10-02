@@ -229,8 +229,7 @@ class MapViewDisplay(MapBoxBaseDisplay):
         if papp is not None and ShellAccess[papp] is not None:
             l = (ShellAccess[papp], dir(ShellAccess[papp]))
         for key in [a for a in l[1] if not callable(getattr(l[0], a)) and not a.startswith("_")]:
-            v = getattr(l[0],key)
-            
+            v = getattr(l[0],key)            
             if isinstance(v, dict) and "maptype" in v and v["maptype"].lower() == "mapbox" and "source" in v and "type" in v["source"] and v["source"]["type"] == "geojson" and "id" in v and "data" in v["source"]:
                 gj = geojson.loads(json.dumps(v["source"]["data"]))
                 isvalid = True

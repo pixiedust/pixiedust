@@ -544,7 +544,7 @@ function processEvent(event){
     });
 }
 $(document).on( "click", "[pixiedust]", function(event){
-    if (event.target.tagName == "SELECT"){
+    if (event.target.tagName == "SELECT" || $(event.target).is(':checkbox')){
         return;
     }
     processEvent(event)
