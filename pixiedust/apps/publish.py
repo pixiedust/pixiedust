@@ -52,10 +52,37 @@ class ImportsLookup(ast.NodeVisitor):
 
             if ok_to_add:
                 try:
-                    version = pkg_resources.get_distribution(module_name).parsed_version._version.release
-                    self.imports.add( (module_name, version) )
+                    pkg = pkg_resources.get_distribution(module_name)
+                    version = pkg.parsed_version._version.release
+                    self.imports.add( (module_name, version, self.get_egg_url(pkg, module_name)) )
                 except pkg_resources.DistributionNotFound:
                     pass
+
+    def get_egg_url(self, pkg, module_name):
+        if requests.get("https://pypi.python.org/pypi/{}/json".format(module_name)).status_code == 200:
+            return None
+        def try_location(base, name):
+            ret = os.path.join(base,name)
+            if not os.path.exists(ret):
+                ret = os.path.join(base, name.replace("-", "_"))
+            if not os.path.exists(ret):
+                ret = os.path.join(base, name.replace("_", "-"))
+            return ret
+        
+        location = pkg.location
+        if not os.path.exists(os.path.join(location, "setup.py")):
+            location = try_location(location, module_name)
+        if not os.path.exists(os.path.join(location, "setup.py")):
+            #try the github page
+                pkg_info = os.path.join(pkg.location, "{}.egg-info".format(pkg.egg_name()), "PKG-INFO")
+                if os.path.isfile(pkg_info):
+                    with open(pkg_info) as fp:
+                        for line in fp.readlines():
+                            index = line.find(':')
+                            if index>0:
+                                key = line[0:index].strip()
+                                if key.lower()=="home-page":
+                                    return "git+{}#egg={}".format(line[index+1:].strip(), module_name)
     
     @onvisit
     def visit_ImportFrom(self, node):
@@ -164,7 +191,7 @@ class PublishApp():
             self.lookup = ImportsLookup()
             self.lookup.visit(ast.parse(self._sanitizeCode(code)))
             self.contents['notebook']['metadata']['pixiedust'].update({
-                "imports": {p[0]:p[1] for p in self.lookup.imports}
+                "imports": {p[0]:{"version":p[1],"install":p[2]} for p in self.lookup.imports}
             })
         
     @route(importTable="*")
@@ -176,6 +203,7 @@ class PublishApp():
         <tr>
             <th>Package</th>
             <th>Version</th>
+            <th>Install</th>
         </tr>
     </thead>
     <tbody>
@@ -183,6 +211,7 @@ class PublishApp():
         <tr>
             <td>{{import[0]}}</td>
             <td>{{import[1]}}</td>
+            <td>{{import[2] or "PyPi"}}</td>
         </tr>
         {%endfor%}
     </tbody>

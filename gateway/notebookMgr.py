@@ -180,7 +180,7 @@ class PixieappDef():
         self.location = None
         pixiedust_meta = notebook.get("metadata",{}).get("pixiedust",{})
         self.title = pixiedust_meta.get("title",None)
-        self.deps = list(pixiedust_meta.get("imports", {}).keys())
+        self.deps = pixiedust_meta.get("imports", {})
 
         #validate and process the code
         symbols = get_symbol_table(ast_parse(self.warmup_code + "\n" + self.run_code))

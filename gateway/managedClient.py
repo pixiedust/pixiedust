@@ -15,6 +15,7 @@
 # -------------------------------------------------------------------------------
 import json
 from datetime import datetime
+from six import iteritems
 from tornado import locks, gen
 from tornado.log import app_log
 from tornado.concurrent import Future
@@ -96,9 +97,12 @@ print(json.dumps( {"installed_modules": list(pkg_resources.AvailableDistribution
     @gen.coroutine
     def install_dependencies(self, pixieapp_def, log_messages):
         restart = False
-        for dep in [d for d in pixieapp_def.deps if not any(a for a in [d,d.replace("-","_"),d.replace("_","-")] if a in self.installed_modules)]:
-            log_messages.append("Installing module: {}".format(dep))
-            yield self.execute_code("!pip install {}".format(dep))
+        for dep, info in [ (d,i) for d,i in iteritems(pixieapp_def.deps) if not any(a for a in [d,d.replace("-","_"),d.replace("_","-")] if a in self.installed_modules)]:
+            log_messages.append("Installing module: {} from {}".format(dep, info))
+            pip_dep = dep
+            if info.get("install", None) is not None:
+                pip_dep = info.get("install")
+            yield self.execute_code("!pip install {}".format(pip_dep))
             restart = True
         raise gen.Return(restart)
 
