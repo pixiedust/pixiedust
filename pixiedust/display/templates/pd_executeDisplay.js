@@ -243,7 +243,7 @@
         console.log("Running command2",command);
         {% if gateway %}
         $.post({
-            url: "/executeCode",
+            url: "/executeCode/" + pd_controls.options.gateway,
             data: command, 
             contentType: "text/plain",
             success: function(data){

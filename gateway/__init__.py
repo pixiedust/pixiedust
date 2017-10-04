@@ -21,9 +21,10 @@ from tornado import gen, locks
 from tornado.log import app_log
 from .pixieGatewayApp import PixieGatewayApp
 from .managedClient import ManagedClient, ManagedClientPool
+from .session import SessionManager
 from .notebookMgr import NotebookMgr
 from .handlers import (
-    PixieDustHandler, PixieDustLogHandler, ExecuteCodeHandler, PixieAppHandler, TestHandler,
+    PixieDustHandler, PixieDustLogHandler, ExecuteCodeHandler, PixieAppHandler,
     PixieAppListHandler, PixieAppPublish
 )
 
@@ -41,6 +42,7 @@ class PixieGatewayTemplatePersonality(LoggingConfigurable):
         """During a proper shutdown of the kernel gateway, this will be called so that
         any held resources may be properly released."""
         self.managed_client_pool.shutdown()
+        SessionManager.instance().shutdown()
 
     def create_request_handlers(self):
         """Returns a list of zero or more tuples of handler path, Tornado handler class
@@ -51,10 +53,9 @@ class PixieGatewayTemplatePersonality(LoggingConfigurable):
         return [
             (r"/static/(.*)", tornado.web.StaticFileHandler, {'path': os.path.join( pixiedust_home, 'static')}),
             (r"/pixiedustLog", PixieDustLogHandler),
-            (r"/myapp", TestHandler),
             (r"/pixiedust.js", PixieDustHandler, {'loadjs':True}),
             (r"/pixiedust.css", PixieDustHandler, {'loadjs':False}),
-            (r"/executeCode", ExecuteCodeHandler),
+            (r"/executeCode/(.*)", ExecuteCodeHandler),
             (r"/pixieapp/(.*)", PixieAppHandler),
             (r"/pixieapps", PixieAppListHandler),
             (r"/publish/(?P<name>(?:.*))", PixieAppPublish)

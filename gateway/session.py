@@ -20,11 +20,13 @@ from traitlets.config.configurable import SingletonConfigurable
 from tornado.ioloop import PeriodicCallback
 from tornado.log import app_log
 from .pixieGatewayApp import PixieGatewayApp
+from .managedClient import ManagedClientPool
 
 class Session(object):
     def __init__(self, session_id):
         self.session_id = session_id
         self.touch()
+        self.run_ids = {}
 
     @property
     def namespace(self):
@@ -38,6 +40,67 @@ class Session(object):
         Update the last access time
         """
         self.last_accessed = round(time.time()*1000)
+
+    def shutdown(self):
+        """
+        Last chance to clean up before deleting the session
+        remove all existing pixieapps for this session
+        """
+        print("Shutting down runs: {} Namespace: {}".format(self.run_ids, self.namespace))
+        for managed_client in list(set(self.run_ids.values())):
+            future = managed_client.execute_code("""
+from pixiedust.utils.shellAccess import ShellAccess
+from pixiedust.display.app import PixieDustApp
+deleted_instances=[]
+try:
+    for key in list(ShellAccess.keys()):
+        var = ShellAccess[key]
+        if isinstance(var, PixieDustApp) and key.startswith("{}"):
+            deleted_instances.append((key,var))
+    for key, var in deleted_instances:
+        print("Deleting instance {{}}".format(key))
+        del var
+except Exception as e:
+    print("error", e)
+    import traceback
+    for line in traceback.format_stack():
+        print(line.strip())
+            """.format(self.namespace),
+                lambda acc: "\n".join([msg['content']['text'] for msg in acc if msg['header']['msg_type'] == 'stream'])
+            )
+
+        def done(future):
+            print(future.result())
+        future.add_done_callback(done)
+
+    def _get_run_id_cookie_name(self, pixieapp_def):
+        return "pd_runid_{}".format(pixieapp_def.name.replace(" ", "_"))
+
+    def get_pixieapp_run_id(self, request_handler, pixieapp_def=None):
+        if pixieapp_def is None:
+            return None
+        cookie_name = self._get_run_id_cookie_name(pixieapp_def)
+        cookie = request_handler.get_secure_cookie(cookie_name)
+        if cookie is None:
+            cookie = str(uuid.uuid4())
+            request_handler.set_secure_cookie(cookie_name, cookie)
+        else:
+            cookie = cookie.decode("utf-8")
+        return cookie
+
+    def get_managed_client(self, request_handler, pixieapp_def=None):
+        if pixieapp_def is None:
+            return ManagedClientPool.instance().get()
+
+        run_id = self.get_pixieapp_run_id(request_handler, pixieapp_def)
+        return self.get_managed_client_by_run_id(run_id, True)
+
+    def get_managed_client_by_run_id(self, run_id, create = False):
+        managed_client = self.run_ids[run_id] if run_id in self.run_ids else None
+        if managed_client is None and create:
+            managed_client = ManagedClientPool.instance().get()
+            self.run_ids[run_id] = managed_client
+        return managed_client
 
 class SessionManager(SingletonConfigurable):
     """
@@ -62,6 +125,7 @@ class SessionManager(SingletonConfigurable):
         for key,session in list(self.session_map.items()):
             if current_time - session.last_accessed > self.session_timeout*1000:
                 app_log.debug("Stale session, deleting")
+                session.shutdown()
                 del self.session_map[key]
 
     def get_session(self, request_handler):

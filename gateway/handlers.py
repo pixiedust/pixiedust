@@ -45,8 +45,9 @@ Common Base Tornado Request Handler class.
 Implement generic kernel code execution routine
     """
     @gen.coroutine
-    def post(self):
-        managed_client = ManagedClientPool.instance().get()
+    def post(self, *args, **kwargs):
+        run_id = args[0]
+        managed_client = self.session.get_managed_client(self)
         with (yield managed_client.lock.acquire()):
             try:
                 response = yield managed_client.execute_code(self.request.body.decode('utf-8'))
@@ -56,90 +57,7 @@ Implement generic kernel code execution routine
             finally:
                 self.finish()
 
-class TestHandler(BaseHandler):
-    @gen.coroutine
-    def get(self):
-        self.set_header('Content-Type', 'text/html')
-        self.set_status(200)
-        code = """
-from pixiedust.display.app import *
-@PixieApp
-class Test():
-    globalHomes = None
-    def setup(self):
-        if Test.globalHomes is None:
-            Test.globalHomes = pixiedust.sampleData(6)
-        self.homes = Test.globalHomes
-    @route()
-    def main(self):
-        return \"\"\"{}\"\"\"
-Test().run()
-        """.format("""
-        <div class="row">
-            <div class="col-sm-2">
-                <button pd_entity="homes" pd_target="target{{prefix}}" type="button">
-                    Bar Chart
-                    <pd_options>
-                        {
-                          "handlerId": "barChart",
-                          "keyFields": "CITY",
-                          "valueFields": "PRICE",
-                          "aggregation": "AVG",
-                          "rowCount": "500",
-                          "rendererId": "bokeh",
-                          "legend": "false"
-                        }
-                    </pd_options>
-                </button>
-                <br/>
-                <button pd_entity="homes" pd_target="target{{prefix}}" type="button">
-                    Map
-                    <pd_options>
-                        {
-                          "coloropacity": "65",
-                          "kind": "densitymap",
-                          "keyFields": "LATITUDE,LONGITUDE",
-                          "rendererId": "mapbox",
-                          "aggregation": "AVG",
-                          "rowCount": "500",
-                          "handlerId": "mapView",
-                          "valueFields": "PRICE",
-                          "mapboxtoken": "pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4M29iazA2Z2gycXA4N2pmbDZmangifQ.-g_vE53SD2WrJ6tFX7QHmA"
-                        }
-                    </pd_options>
-                </button>
-                
-            </div>
-            <div class="col-sm-10" id="target{{prefix}}"/>
-        </div>
-        """)
-        managed_client = ManagedClientPool.instance().get()
-        with (yield managed_client.lock.acquire()):
-            try:
-                response = yield managed_client.execute_code(code, self.result_extractor)
-                self.render("template/main.html", response = response)
-            except:
-                traceback.print_exc()
-
-    def result_extractor(self, result_accumulator):
-        res = []
-        for msg in result_accumulator:
-            if msg['header']['msg_type'] == 'stream':
-                res.append(msg['content']['text'])
-            elif msg['header']['msg_type'] == 'display_data':
-                if "data" in msg['content'] and "text/html" in msg['content']['data']:
-                    res.append(msg['content']['data']['text/html'])
-                else:
-                    app_log.warning("display_data msg not processed: %s", msg)                    
-            elif msg['header']['msg_type'] == 'error':
-                error_name = msg['content']['ename']
-                error_value = msg['content']['evalue']
-                return 'Error {}: {} \n'.format(error_name, error_value)
-            else:
-                app_log.warning("Message type not processed: %s", msg)
-        return ''.join(res)
-
-class PixieAppHandler(TestHandler):
+class PixieAppHandler(BaseHandler):
     @gen.coroutine
     def get(self, *args, **kwargs):
         clazz = args[0]
@@ -147,10 +65,10 @@ class PixieAppHandler(TestHandler):
         #check the notebooks first
         pixieapp_def = NotebookMgr.instance().get_notebook_pixieapp(clazz)
         code = None
-        managed_client = ManagedClientPool.instance().get()
+        managed_client = self.session.get_managed_client(self, pixieapp_def)
         if pixieapp_def is not None:
             yield pixieapp_def.warmup(managed_client)
-            code = pixieapp_def.get_run_code(self.session)
+            code = pixieapp_def.get_run_code(self.session, self.session.get_pixieapp_run_id(self, pixieapp_def))
         else:
             instance_name = self.session.getInstanceName(clazz)
             code = """
@@ -172,6 +90,24 @@ clazz = "{clazz}"
                 self.render("template/main.html", response = response, title=pixieapp_def.title if pixieapp_def is not None else None)
             except:
                 traceback.print_exc()
+
+    def result_extractor(self, result_accumulator):
+        res = []
+        for msg in result_accumulator:
+            if msg['header']['msg_type'] == 'stream':
+                res.append(msg['content']['text'])
+            elif msg['header']['msg_type'] == 'display_data':
+                if "data" in msg['content'] and "text/html" in msg['content']['data']:
+                    res.append(msg['content']['data']['text/html'])
+                else:
+                    app_log.warning("display_data msg not processed: %s", msg)                    
+            elif msg['header']['msg_type'] == 'error':
+                error_name = msg['content']['ename']
+                error_value = msg['content']['evalue']
+                return 'Error {}: {} \n'.format(error_name, error_value)
+            else:
+                app_log.warning("Message type not processed: %s", msg)
+        return ''.join(res)
 
 class PixieDustHandler(tornado.web.RequestHandler):
     def initialize(self, loadjs):

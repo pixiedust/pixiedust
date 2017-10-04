@@ -232,11 +232,20 @@ class PixieappDef():
                         traceback.print_exc()
         return warmup_future
 
-    def get_run_code(self, session):
+    def get_run_code(self, session, run_id):
         pars = ast.parse(self.run_code)
         vl = RewriteGlobals(get_symbol_table(pars), session.namespace)
         vl.visit(pars)
-        return astunparse.unparse(pars)
+        run_code = """
+from pixiedust.display.app import pixieapp
+try:
+    pixieapp.pixieAppRunCustomizer.gateway = '{}'
+    {}
+finally:
+    pixieapp.pixieAppRunCustomizer.gateway = 'true'
+        """.format(run_id, astunparse.unparse(pars).strip().replace('\n', '\n    '))
+        print("Run code: {}".format(run_code))
+        return run_code
     
 class VarsLookup(ast.NodeVisitor):
     def __init__(self):

@@ -20,7 +20,6 @@ from tornado.log import app_log
 from tornado.concurrent import Future
 from traitlets.config.configurable import SingletonConfigurable
 from .pixieGatewayApp import PixieGatewayApp
-from .session import SessionManager
 
 class ManagedClient(object):
     """
@@ -68,8 +67,10 @@ import pkg_resources
 import json
 from pixiedust.display.app import pixieapp
 class Customizer():
+    def __init__(self):
+        self.gateway = 'true'
     def customizeOptions(self, options):
-        options.update( {'cell_id': 'dummy', 'showchrome':'false', 'gateway':'true'})
+        options.update( {'cell_id': 'dummy', 'showchrome':'false', 'gateway':self.gateway})
         options.update( {'nostore_pixiedust': 'true'})
 pixieapp.pixieAppRunCustomizer = Customizer()
 print(json.dumps( {"installed_modules": list(pkg_resources.AvailableDistributions())} ))
@@ -191,8 +192,6 @@ class ManagedClientPool(SingletonConfigurable):
     def shutdown(self):
         for managed_client in self.managed_clients:
             managed_client.shutdown()
-
-        SessionManager.instance().shutdown()
 
     def on_publish(self, pixieapp_def, log_messages):
         #find all the affect clients

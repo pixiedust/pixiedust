@@ -236,7 +236,7 @@ class Display(with_metaclass(ABCMeta)):
             "entity": self.entity, 
             "prefix": self.getPrefix(),
             "module": self.__module__,
-            "gateway": "gateway" in self.options,
+            "gateway": self.options.get("gateway", None),
             "pd_controls": json.dumps({
                 "prefix": self.getPrefix(),
                 "command": self._genDisplayScript(menuInfo=kwargs.get("menuInfo", None) ),
