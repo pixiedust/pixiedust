@@ -179,8 +179,9 @@ print(json.dumps( {"installed_modules": list(pkg_resources.AvailableDistribution
                     elif msg['header']['msg_type'] == 'error':
                         error_name = msg['content']['ename']
                         error_value = msg['content']['evalue']
+                        traceback = "\n".join(msg['content']['traceback'])
                         future.set_exception( 
-                            Exception( 'Code execution Error {}: {} \nRunning code: {}'.format(error_name, error_value, code) ) 
+                            Exception( 'Code execution Error {}: {} \nTraceback: {}\nRunning code: {}'.format(error_name, error_value, traceback, code) ) 
                         )
             else:
                 app_log.warning("Got an orphan message %s", msg)
