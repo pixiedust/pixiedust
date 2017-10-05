@@ -58,6 +58,15 @@ Implement generic kernel code execution routine
                 self.finish()
 
 class PixieAppHandler(BaseHandler):
+    def handle_exception(self, exc):
+        self.write("<div>Code Execution error <pre>{}</pre></div>".format(exc))
+        self.write("<pre>")
+        for line in traceback.format_stack():
+            self.write(line)
+        self.write("</pre>")
+        #raise web.HTTPError(500, u'Execution error: {}'.format(exc))
+        self.finish()
+
     @gen.coroutine
     def get(self, *args, **kwargs):
         clazz = args[0]
@@ -67,8 +76,11 @@ class PixieAppHandler(BaseHandler):
         code = None
         managed_client = self.session.get_managed_client(self, pixieapp_def)
         if pixieapp_def is not None:
-            yield pixieapp_def.warmup(managed_client)
-            code = pixieapp_def.get_run_code(self.session, self.session.get_pixieapp_run_id(self, pixieapp_def))
+            try:
+                yield pixieapp_def.warmup(managed_client)
+                code = pixieapp_def.get_run_code(self.session, self.session.get_pixieapp_run_id(self, pixieapp_def))
+            except Exception as exc:
+                return self.handle_exception(exc)
         else:
             instance_name = self.session.getInstanceName(clazz)
             code = """
@@ -88,8 +100,8 @@ clazz = "{clazz}"
             try:
                 response = yield managed_client.execute_code(code, self.result_extractor)
                 self.render("template/main.html", response = response, title=pixieapp_def.title if pixieapp_def is not None else None)
-            except:
-                traceback.print_exc()
+            except Exception as exc:
+                self.handle_exception(exc)
 
     def result_extractor(self, result_accumulator):
         res = []

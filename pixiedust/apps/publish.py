@@ -40,23 +40,26 @@ class ImportsLookup(ast.NodeVisitor):
 
     def add_import(self, module_name):
         if not module_name in sys.builtin_module_names:
-            module = __import__(module_name)
-            ok_to_add = module.__package__ != ""
-            if not ok_to_add and "site-packages" in module.__file__:
-                ok_to_add = True
-            #check if egg-link (aka editable mode)
-            if not ok_to_add:
-                for p in sys.path:
-                    if os.path.isfile(os.path.join(p,module_name+".egg-link")):
-                        ok_to_add = True
+            try:
+                module = __import__(module_name)
+                ok_to_add = module.__package__ != ""
+                if not ok_to_add and "site-packages" in module.__file__:
+                    ok_to_add = True
+                #check if egg-link (aka editable mode)
+                if not ok_to_add:
+                    for p in sys.path:
+                        if os.path.isfile(os.path.join(p,module_name+".egg-link")):
+                            ok_to_add = True
 
-            if ok_to_add:
-                try:
-                    pkg = pkg_resources.get_distribution(module_name)
-                    version = pkg.parsed_version._version.release
-                    self.imports.add( (module_name, version, self.get_egg_url(pkg, module_name)) )
-                except pkg_resources.DistributionNotFound:
-                    pass
+                if ok_to_add:
+                    try:
+                        pkg = pkg_resources.get_distribution(module_name)
+                        version = pkg.parsed_version._version.release
+                        self.imports.add( (module_name, version, self.get_egg_url(pkg, module_name)) )
+                    except pkg_resources.DistributionNotFound:
+                        pass
+            except:
+                print("Unknown import found {}".format(module_name))
 
     def get_egg_url(self, pkg, module_name):
         if requests.get("https://pypi.python.org/pypi/{}/json".format(module_name)).status_code == 200:

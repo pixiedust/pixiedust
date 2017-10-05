@@ -215,21 +215,25 @@ class PixieappDef():
 
     @gen.coroutine
     def warmup(self, managed_client):
+        exc = managed_client.get_running_stats(self, 'warmup_exception')
+        if exc is not None:
+            raise exc
         warmup_future = managed_client.get_running_stats(self, 'warmup_future')
         if warmup_future is None:
             warmup_future = Future()
             managed_client.set_running_stats(self, 'warmup_future', warmup_future)
             if self.warmup_code == "":
-                warmup_future.done()
+                warmup_future.set_result("")
             else:
                 app_log.debug("Running warmup code: %s", self.warmup_code)
                 with (yield managed_client.lock.acquire()):
                     try:
                         yield managed_client.execute_code(self.warmup_code)
                         warmup_future.done()
-                    except:
-                        import traceback
-                        traceback.print_exc()
+                    except Exception as exc:
+                        app_log.exception(exc)
+                        managed_client.set_running_stats(self, 'warmup_exception', exc)
+                        raise exc
         return warmup_future
 
     def get_run_code(self, session, run_id):

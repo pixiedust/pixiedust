@@ -133,7 +133,7 @@ print(json.dumps( {"installed_modules": list(pkg_resources.AvailableDistribution
     def _result_extractor(self, result_accumulator):
         return json.dumps(result_accumulator, default=self._date_json_serializer)
 
-    def execute_code(self, code, result_extractor = None):
+    def execute_code(self, code, result_extractor = None, done_callback = None):
         """
         Asynchronously execute the given code using the underlying managed kernel client
         Note: this method is not synchronized, it is the responsibility of the caller to synchronize using the lock member variable
@@ -176,10 +176,19 @@ print(json.dumps( {"installed_modules": list(pkg_resources.AvailableDistribution
                     # Complete the future on idle status
                     if msg['header']['msg_type'] == 'status' and msg['content']['execution_state'] == 'idle':
                         future.set_result(result_extractor( result_accumulator ))
+                    elif msg['header']['msg_type'] == 'error':
+                        error_name = msg['content']['ename']
+                        error_value = msg['content']['evalue']
+                        future.set_exception( 
+                            Exception( 'Code execution Error {}: {} \nRunning code: {}'.format(error_name, error_value, code) ) 
+                        )
             else:
                 app_log.warning("Got an orphan message %s", msg)
 
         self.iopub.on_recv(on_reply)
+
+        if done_callback is not None:
+            future.add_done_callback(done_callback)
         return future
 
 class ManagedClientPool(SingletonConfigurable):
