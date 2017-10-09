@@ -19,6 +19,6 @@ Here's what's new in Release 1.1 (9 October 2017):
 
 **Enhancements**
 
-- An alpha release of **PixieApps web publishing** is now live. Introduced in `release 1.0.8 <1-0-8.html>`_, PixieApps allow developers to run interactive UI elements, directly from notebook cells. Now with PixieApps' web publishing feature, the same interactive UI elements developed to run in-notebook can now be published as a web application at the click of a button (`#450 <https://github.com/ibm-watson-data-lab/pixiedust/issues/450>`_).
+- An alpha release of **PixieApps web publishing** is now live. Introduced in `release 1.0.8 <1-0-8.html>`_, PixieApps allow developers to run interactive UI elements, directly from notebook cells. Now with PixieApps' web publishing feature, the same interactive UI elements developed to run in-notebook can now be published as a web application at the click of a button. `See the announcement blog <https://medium.com/ibm-watson-data-lab/deploy-your-analytics-as-web-apps-using-pixiedusts-1-1-release-d08067584a14>`_ for more details (`#450 <https://github.com/ibm-watson-data-lab/pixiedust/issues/450>`_).
 
 - Mapbox is now the default option for visualizing geospatial data on a map. Previously, PixieDust would choose Google maps by default, which requires additional configuration (`#451 <https://github.com/ibm-watson-data-lab/pixiedust/issues/451>`_).
