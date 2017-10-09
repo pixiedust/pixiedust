@@ -2,6 +2,18 @@
     function getTargetNode(){
         return $('#' + ($targetDivId || ("wrapperHTML"+ pd_prefix)));
     }
+    function setHTML(targetNode, contents){
+        var pd_elements = []
+        targetNode.children().each(function(){
+            if (this.tagName.toLowerCase().startsWith("pd_")){
+                pd_elements.push($(this).clone());
+            }
+        })
+        targetNode.html(contents);
+        if (pd_elements.length > 0 ){
+            targetNode.append(pd_elements);
+        }
+    }
     var cellId = options.cell_id || "";
     {% if gateway %}
     var curCell = [];
@@ -19,7 +31,7 @@
             reply : function(){
                 if ( !callbacks.response ){
                     if (!user_controls.partialUpdate){
-                        getTargetNode().html("");
+                        setHTML(getTargetNode(), "");
                     }
                     if (user_controls.onDisplayDone){
                         user_controls.onDisplayDone(getTargetNode());
@@ -53,7 +65,7 @@
                     if (user_controls.onSuccess){
                         user_controls.onSuccess(content.text);
                     }else{
-                        getTargetNode().html(content.text);
+                        setHTML(getTargetNode(), content.text);
                     }
                 }else if (msg_type==="display_data" || msg_type==="execute_result"){
                     var html=null;
@@ -78,11 +90,11 @@
                             if (user_controls.onSuccess){
                                 user_controls.onSuccess(html);
                             }else{
-                                getTargetNode().html(html);
+                                setHTML(getTargetNode(), html);
                             }
                         }catch(e){
                             console.log("Invalid html output", e, html);
-                            getTargetNode().html( "Invalid html output: " + e.message + "<pre>" 
+                            setHTML(getTargetNode(),  "Invalid html output: " + e.message + "<pre>" 
                                 + html.replace(/>/g,'&gt;').replace(/</g,'&lt;').replace(/"/g,'&quot;') + "<pre>");
                         }
 
@@ -121,7 +133,7 @@
                     }
                 }else if (msg_type === "error") {
                     {% if gateway %}
-                    getTargetNode().html(content.traceback);
+                    setHTML(getTargetNode(), content.traceback);
                     {%else%}
                     require(['base/js/utils'], function(utils) {
                         var tb = content.traceback;
@@ -135,7 +147,7 @@
                             if (user_controls.onError){
                                 user_controls.onError(data);
                             }else{
-                                getTargetNode().html("<pre>" + data +"</pre>");
+                                setHTML(getTargetNode(), "<pre>" + data +"</pre>");
                             }
                         }
                     });
@@ -231,7 +243,7 @@
         }
         $('#wrapperJS' + pd_prefix).html("")
         if (!getTargetNode().hasClass( "no_loading_msg" )){
-            getTargetNode().html(
+            setHTML(getTargetNode(), 
                 '<div style="width:100px;height:60px;left:47%;position:relative">'+
                     '<i class="fa fa-circle-o-notch fa-spin" style="font-size:48px"></i>'+
                 '</div>'+
