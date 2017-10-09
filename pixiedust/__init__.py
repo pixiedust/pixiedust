@@ -56,9 +56,11 @@ with warnings.catch_warnings():
     #automated import into the user namespace
     try:
         from IPython.core.getipython import get_ipython
-        import pixiedust.display
+        from pixiedust.display import display
         import pixiedust.services
-        get_ipython().user_ns["display"]=display.display
+        if "display" not in get_ipython().user_ns:
+            #be nice, only set the display variable on the user namespace if it's not already taken
+            get_ipython().user_ns["display"]=display
 
         from pixiedust.utils.sampleData import sampleData
         from pixiedust.utils import checkVersion
