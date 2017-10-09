@@ -72,9 +72,12 @@ def display(entity, **kwargs):
 
             return entity
 
-        callerText = traceback.extract_stack(limit=2)[0][3]
-        if (callerText is None or callerText == "") and 'pixiedust_display_callerText' in globals():
+        if 'pixiedust_display_callerText' in globals():
             callerText = globals()['pixiedust_display_callerText']
+        else:
+            callerText = traceback.extract_stack(limit=2)[0][3]
+        if callerText is None or callerText == "":
+            raise Exception("Unable to get caller text")
 
         pr = None
         try:
