@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>1.0.9 &#8212; PixieDust Documentation</title>
+    <title>1.1 &#8212; PixieDust Documentation</title>
     
     <link rel="stylesheet" href="_static/better.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -28,8 +28,7 @@
     <link rel="shortcut icon" href="_static/pd_icon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="1.0.10" href="1-0-10.html" />
-    <link rel="prev" title="1.0.8" href="1-0-8.html" />
+    <link rel="prev" title="1.0.11" href="1-0-11.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   </head>
   <body role="document">
@@ -43,19 +42,21 @@
           <div class="body" role="main">
             
   <div class="section" id="id1">
-<h1>1.0.9<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h1>
-<p>Here&#8217;s what&#8217;s new in Release 1.0.9 (4 August 2017):</p>
+<h1>1.1<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h1>
+<p>Here&#8217;s what&#8217;s new in Release 1.1 (9 October 2017):</p>
 <p><strong>Bug fixes</strong></p>
 <ul class="simple">
-<li>Fixed an error triggered by running a display command on a DataFrame shared from a Scala notebook. PixieDust&#8217;s <a class="reference external" href="scalabridge.html">scala magic</a> feature allows users to share variables between Python and Scala Notebooks. Now, such shared Scala DataFrames are correctly displayed from within a Python context (<a class="reference external" href="https://github.com/ibm-watson-data-lab/pixiedust/issues/425">#425</a>).</li>
-<li>PixieApp chart options are now accepted as JSON. Instead of adapting parameters into HTML-style tag attributes, PixieApp developers can now simply paste valid JSON as the element content of the <code class="docutils literal"><span class="pre">&lt;pd_options&gt;</span></code> tag (<a class="reference external" href="https://github.com/ibm-watson-data-lab/pixiedust/issues/423">#423</a>).</li>
-<li>Calls to <code class="docutils literal"><span class="pre">pixiedust.enableJobMonitor()</span></code> now work properly on Spark 2.1 (<a class="reference external" href="https://github.com/ibm-watson-data-lab/pixiedust/issues/223">#223</a>).</li>
-<li>Fixed an issue where, within a PixieApp, the <code class="docutils literal"><span class="pre">showColumn</span></code> attribute would actually hide the column (<a class="reference external" href="https://github.com/ibm-watson-data-lab/pixiedust/issues/383">#383</a>).</li>
-<li>PixieDust display calls to the map render for Google now work correctly when using Python 3.x (<a class="reference external" href="https://github.com/ibm-watson-data-lab/pixiedust/issues/417">#417</a>).</li>
+<li>Fixed an issue with datetime64 values. Previously, in the <code class="docutils literal"><span class="pre">display()</span></code> function&#8217;s table view, datetime64 values in Pandas appeared as Unix timestamps. These date values are now properly displayed (<a class="reference external" href="https://github.com/ibm-watson-data-lab/pixiedust/issues/279">#279</a>).</li>
+<li>When importing PixieDust, it will no longer override an existing function named &#8220;display.&#8221; In which case, users can still call PixieDust&#8217;s display function using <code class="docutils literal"><span class="pre">pixiedust.display()</span></code>. If no pre-existing functions named &#8220;display&#8221; are found, then PixieDust will work as usual, allowing users to call display directly. (<a class="reference external" href="https://github.com/ibm-watson-data-lab/pixiedust/issues/455">#455</a>).</li>
+<li>New behavior when calling the display function on an unsupported entity. Instead of telling users that &#8220;No PixieDust visualization was found&#8221; when attempting to call <code class="docutils literal"><span class="pre">display()</span></code> on a data object that&#8217;s not a PySpark or Pandas DataFrame, PixieDust now falls back to the IPython display method (<a class="reference external" href="https://github.com/ibm-watson-data-lab/pixiedust/issues/343">#343</a>).</li>
+<li>Mapbox user layers are fixed. Previously, PixieDust would break this feature because of changes to Python&#8217;s geojson package (<a class="reference external" href="https://github.com/ibm-watson-data-lab/pixiedust/issues/453">#453</a>).</li>
+<li>Map visualizations no longer aggregate latitude-longitude data. Previously, PixieDust expected an aggregation function in this situation, making it difficult to simply explore points on a map (<a class="reference external" href="https://github.com/ibm-watson-data-lab/pixiedust/issues/410">#410</a>).</li>
+<li>Better handling of invalid API keys for map visualizations. Previously, if a maps API key was missing or invalid, PixieDust would display a black map. Now, it surfaces an error message to the user (<a class="reference external" href="https://github.com/ibm-watson-data-lab/pixiedust/issues/367">#367</a>).</li>
 </ul>
 <p><strong>Enhancements</strong></p>
 <ul class="simple">
-<li>The local installer experience has been improved. The <code class="docutils literal"><span class="pre">jupyter</span> <span class="pre">pixiedust</span> <span class="pre">install</span></code> command now allows users to more easily install and switch between different versions of the Spark kernel (<a class="reference external" href="https://github.com/ibm-watson-data-lab/pixiedust/issues/348">#348</a>).</li>
+<li>An alpha release of <strong>PixieApps web publishing</strong> is now live. Introduced in <a class="reference external" href="1-0-8.html">release 1.0.8</a>, PixieApps allow developers to run interactive UI elements, directly from notebook cells. Now with PixieApps&#8217; web publishing feature, the same interactive UI elements developed to run in-notebook can now be published as a web application at the click of a button (<a class="reference external" href="https://github.com/ibm-watson-data-lab/pixiedust/issues/450">#450</a>).</li>
+<li>Mapbox is now the default option for visualizing geospatial data on a map. Previously, PixieDust would choose Google maps by default, which requires additional configuration (<a class="reference external" href="https://github.com/ibm-watson-data-lab/pixiedust/issues/451">#451</a>).</li>
 </ul>
 </div>
 
@@ -76,10 +77,10 @@
 <li class="toctree-l2"><a class="reference internal" href="1-0-6.html">1.0.6</a></li>
 <li class="toctree-l2"><a class="reference internal" href="1-0-7.html">1.0.7</a></li>
 <li class="toctree-l2"><a class="reference internal" href="1-0-8.html">1.0.8</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">1.0.9</a></li>
+<li class="toctree-l2"><a class="reference internal" href="1-0-9.html">1.0.9</a></li>
 <li class="toctree-l2"><a class="reference internal" href="1-0-10.html">1.0.10</a></li>
 <li class="toctree-l2"><a class="reference internal" href="1-0-11.html">1.0.11</a></li>
-<li class="toctree-l2"><a class="reference internal" href="1-1.html">1.1</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">1.1</a></li>
 </ul>
 </li>
 </ul>
