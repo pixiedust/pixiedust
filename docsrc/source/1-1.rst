@@ -1,0 +1,24 @@
+1.1
+=====
+
+Here's what's new in Release 1.1 (9 October 2017):   
+
+**Bug fixes**
+
+- Fixed an issue with datetime64 values. Previously, in the ``display()`` function's table view, datetime64 values in Pandas appeared as Unix timestamps. These date values are now properly displayed (`#279 <https://github.com/ibm-watson-data-lab/pixiedust/issues/279>`_).
+
+- When importing PixieDust, it will no longer override an existing function named "display." In which case, users can still call PixieDust's display function using ``pixiedust.display()``. If no pre-existing functions named "display" are found, then PixieDust will work as usual, allowing users to call display directly. (`#455 <https://github.com/ibm-watson-data-lab/pixiedust/issues/455>`_).
+
+- New behavior when calling the display function on an unsupported entity. Instead of telling users that "No PixieDust visualization was found" when attempting to call ``display()`` on a data object that's not a PySpark or Pandas DataFrame, PixieDust now falls back to the IPython display method (`#343 <https://github.com/ibm-watson-data-lab/pixiedust/issues/343>`_).
+
+- Mapbox user layers are fixed. Previously, PixieDust would break this feature because of changes to Python's geojson package (`#453 <https://github.com/ibm-watson-data-lab/pixiedust/issues/453>`_).
+
+- Map visualizations no longer aggregate latitude-longitude data. Previously, PixieDust expected an aggregation function in this situation, making it difficult to simply explore points on a map (`#410 <https://github.com/ibm-watson-data-lab/pixiedust/issues/410>`_).
+
+- Better handling of invalid API keys for map visualizations. Previously, if a maps API key was missing or invalid, PixieDust would display a black map. Now, it surfaces an error message to the user (`#367 <https://github.com/ibm-watson-data-lab/pixiedust/issues/367>`_).
+
+**Enhancements**
+
+- An alpha release of **PixieApps web publishing** is now live. Introduced in `release 1.0.8 <1-0-8.html>`_, PixieApps allow developers to run interactive UI elements, directly from notebook cells. Now with PixieApps' web publishing feature, the same interactive UI elements developed to run in-notebook can now be published as a web application at the click of a button. `See the announcement blog <https://medium.com/ibm-watson-data-lab/deploy-your-analytics-as-web-apps-using-pixiedusts-1-1-release-d08067584a14>`_ for more details (`#450 <https://github.com/ibm-watson-data-lab/pixiedust/issues/450>`_).
+
+- Mapbox is now the default option for visualizing geospatial data on a map. Previously, PixieDust would choose Google maps by default, which requires additional configuration (`#451 <https://github.com/ibm-watson-data-lab/pixiedust/issues/451>`_).

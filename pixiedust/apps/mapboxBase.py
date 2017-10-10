@@ -15,6 +15,7 @@
 # -------------------------------------------------------------------------------
 from pixiedust.display.app import *
 import requests
+import six
 
 @PixieApp
 class MapboxBase():
@@ -81,7 +82,7 @@ class MapboxBase():
     def loadGeoJSON(self, url):
         def filterFeature(f):
             for key,value in iteritems(f):
-                if value is None or "'" in value:
+                if value is None or (isinstance(value, six.string_types ) and "'" in value):
                     return True
             return False
         payload = requests.get(url).json()
