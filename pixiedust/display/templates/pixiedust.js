@@ -54,6 +54,8 @@ var pixiedust = (function(){
                     notebook: IPython.notebook,
                     keyboard_manager: IPython.notebook.keyboard_manager,
                     maximize_modal: (displayOptions.maximize === "true"),
+                    custom_class: (displayOptions.customClass || ''),
+                    hide_header: (displayOptions.hideHeader === 'true'),
                     buttons: {
                         OK: {
                             class : "btn-primary btn-ok",
@@ -80,6 +82,10 @@ var pixiedust = (function(){
                     global.modalFooterStyle = $('.pixiedust .modal-footer').attr('style');
                     $('.pixiedust .modal-body').attr('style', global.modalBodyStyle ? global.modalBodyStyle + ';padding:5px 20px !important;' : 'padding:5px 20px !important;');
                     $('.pixiedust .modal-footer').attr('style', 'display:none !important;');
+                    if (options.hide_header) {
+                        global.modalHeaderStyle = $('.pixiedust .modal-header').attr('style');
+                        $('.pixiedust .modal-header').attr('style', 'display:none !important;');
+                    }
                 };
 
                 function resetDialog() {
@@ -93,12 +99,17 @@ var pixiedust = (function(){
                     } else {
                         $('.pixiedust .modal-footer').removeAttr('style');
                     }
+                    if (global.modalHeaderStyle) {
+                        $('.pixiedust .modal-header').attr('style', global.modalHeaderStyle);
+                    } else {
+                        $('.pixiedust .modal-header').removeAttr('style');
+                    }
                 };
 
                 var modal_obj = modal(options);
-                modal_obj.addClass('pixiedust pixiedust-app');
+                modal_obj.addClass('pixiedust pixiedust-app ' + options.custom_class);
                 if (options.maximize_modal) {
-                    modal_obj.addClass('pixiedust pixiedust-app pixiedust-maximize');
+                    modal_obj.addClass('pixiedust pixiedust-app pixiedust-maximize ' + options.custom_class);
                 }
                 modal_obj.on('shown.bs.modal', function(){
                     resizeDialog();
