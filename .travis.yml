@@ -32,7 +32,7 @@ script:
 - python $TRAVIS_BUILD_DIR/tests/runPixiedustNotebooks.py -t spark
 - echo Starting Test with plain Python kernel
 - python $TRAVIS_BUILD_DIR/tests/runPixiedustNotebooks.py -t plain
-- nosetests gateway
+- if [[ $TRAVIS_PYTHON_VERSION == '3.5' ]]; then nosetests gateway; fi
 sudo: false
 notifications:
   slack:
