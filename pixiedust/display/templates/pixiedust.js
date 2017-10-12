@@ -315,27 +315,6 @@ function readExecInfo(pd_controls, element, searchParents, fromExecInfo){
     }
     var execInfo = {"options":{}};
     $.extend(execInfo, fromExecInfo || {});
-
-    {#special case pd_refresh points to another element #}
-    var refreshTarget = element.getAttribute("pd_refresh");
-    if (refreshTarget){
-        var targets = refreshTarget.split(",");
-        retQueue = []
-        $.each( targets, function(index){
-            var node = $("#" + this);
-            if (node.length){
-                pd_controls.refreshTarget = this;
-                var thisexecInfo = {"options":{}};
-                $.extend(thisexecInfo, fromExecInfo || {});
-                if (index==0){
-                    thisexecInfo.script = readScriptAttribute(element);
-                }
-                thisexecInfo.refresh = true;
-                retQueue.push( readExecInfo(pd_controls, node.get(0), true, thisexecInfo) );
-            }
-        });
-        return retQueue;
-    }
     var hasOptions = false;
     $.each( element.attributes, function(){
         if (this.name.startsWith("option_")){
@@ -384,7 +363,7 @@ function readExecInfo(pd_controls, element, searchParents, fromExecInfo){
     if (scriptAttr){
         execInfo.script = (execInfo.script || "") + "\n" + scriptAttr;
     }
-    execInfo.refresh = execInfo.refresh || element.hasAttribute("pd_refresh");
+    execInfo.refresh = execInfo.refresh || (element.getAttribute("pd_refresh")=='true');
     execInfo.norefresh = element.hasAttribute("pd_norefresh");
     execInfo.entity = element.hasAttribute("pd_entity") ? element.getAttribute("pd_entity") || "pixieapp_entity" : null;
 
@@ -435,13 +414,13 @@ function readExecInfo(pd_controls, element, searchParents, fromExecInfo){
                     "\ntrue=True\nfalse=False\nnull=None" +
                     "\nrunPixieApp('" + 
                     execInfo.pixieapp + "', options=" + JSON.stringify(locOptions) + ")";
-            }else if ( ( (!dialog && !execInfo.targetDivId) || execInfo.refresh || execInfo.entity || execInfo.options.widget) && 
+            }else if ( ( execInfo.refresh || execInfo.entity || execInfo.options.widget) && 
                     !execInfo.norefresh && $(element).children("target[pd_target]").length == 0){
                 {#include a refresh of the whole screen#}
                 execInfo.script += "\n" + applyEntity(pd_controls.command, execInfo.entity, execInfo.options)
             }else{
                 {#make sure we have a targetDivId#}
-                execInfo.targetDivId=execInfo.targetDivId || "dummy";
+                execInfo.targetDivId=execInfo.targetDivId || "pixiedust_dummy";
             }
         }else{
             console.log("Unable to extract entity variable from command", pd_controls.command);
@@ -487,6 +466,23 @@ function readExecInfo(pd_controls, element, searchParents, fromExecInfo){
         }else{
             pixiedust.executeDisplay(pd_controls, this);
         }
+    }
+
+    {#special case pd_refresh points to another element #}
+    var refreshTarget = element.getAttribute("pd_refresh");
+    if (refreshTarget){
+        var retQueue = [execInfo];
+        var targets = refreshTarget.split(",");
+        $.each( targets, function(index){
+            var node = $("#" + this);
+            if (node.length){
+                pd_controls.refreshTarget = this;
+                var thisexecInfo = {"options":{}};
+                thisexecInfo.options.targetDivId = this;
+                retQueue.push( readExecInfo(pd_controls, node.get(0), false, thisexecInfo) );
+            }
+        });
+        return retQueue
     }
 
     console.log("execution info: ", execInfo);
