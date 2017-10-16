@@ -29,6 +29,7 @@ from .handlers import (
 )
 
 def main():
+    os.environ['PIXIEDUST_DB_NAME'] = "gateway.db"
     PixieGatewayApp.launch_instance()
 
 class PixieGatewayTemplatePersonality(LoggingConfigurable):
