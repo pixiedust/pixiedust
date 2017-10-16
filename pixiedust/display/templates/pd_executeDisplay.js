@@ -168,11 +168,14 @@
     {% endif %}
         var command = user_controls.script || pd_controls.command.replace("cellId",cellId);
         if ( !user_controls.script){
-            function addOptions(options, override=true){
+            function addOptions(options, override=true, ignoreKeys=[]){
                 function getStringRep(v) {
                     return "'" + v + "'";
                 }
                 for (var key in (options||{})){
+                    if (ignoreKeys.indexOf(key)>=0){
+                        continue;
+                    }
                     var value = options[key];
                     var hasValue = value != null && typeof value !== 'undefined' && value !== '';
                     var replaceValue = hasValue ? (key+"=" + getStringRep(value) ) : "";
@@ -193,7 +196,8 @@
                 addOptions(cellMetadata.displayParams);
                 addOptions({"showchrome":"true"});
             }else if (curCell && curCell._metadata.pixiedust ){
-                addOptions(curCell._metadata.pixiedust.displayParams || {}, pd_controls.useCellMetadata);
+                ignoreKeys = pd_controls.options.nostore_pixieapp?["handlerId"]:[];
+                addOptions(curCell._metadata.pixiedust.displayParams || {}, pd_controls.useCellMetadata, ignoreKeys);
             }
             addOptions(user_controls.options||{});
             var pattern = "\\w*\\s*=\\s*'(\\\\'|[^'])*'";

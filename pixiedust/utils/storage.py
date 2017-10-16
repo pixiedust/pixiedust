@@ -135,13 +135,13 @@ class Storage(object):
         try:
             cursor=_conn.execute(sqlQuery)
             _conn.commit()
-            return _conn.total_changes
+            return cursor.rowcount
         finally:
             if cursor is not None:
                 cursor.close()
 
-    def insert(self, sqlQuery):
-        _conn.execute(sqlQuery)
+    def insert(self, sqlQuery, arguments=None):
+        _conn.execute(sqlQuery, arguments)
         _conn.commit()
 
     def update(self, sqlQuery):

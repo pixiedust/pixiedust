@@ -320,6 +320,14 @@ function readScriptAttribute(element){
     return retValue;
 }
 
+function getAttribute(element, name, defValue, defValueIfKeyAlone){
+    if (!element.hasAttribute(name)){
+        return defValue;
+    }
+    retValue = element.getAttribute(name);
+    return retValue || defValueIfKeyAlone;
+}
+
 function readExecInfo(pd_controls, element, searchParents, fromExecInfo){
     if (searchParents === null || searchParents === undefined ){
         searchParents = true;
@@ -374,7 +382,7 @@ function readExecInfo(pd_controls, element, searchParents, fromExecInfo){
     if (scriptAttr){
         execInfo.script = (execInfo.script || "") + "\n" + scriptAttr;
     }
-    execInfo.refresh = execInfo.refresh || (element.getAttribute("pd_refresh")=='true');
+    execInfo.refresh = execInfo.refresh || (getAttribute(element, "pd_refresh", "false", "true")=='true');
     execInfo.norefresh = element.hasAttribute("pd_norefresh");
     execInfo.entity = element.hasAttribute("pd_entity") ? element.getAttribute("pd_entity") || "pixieapp_entity" : null;
 
@@ -421,10 +429,17 @@ function readExecInfo(pd_controls, element, searchParents, fromExecInfo){
             if ( execInfo.pixieapp){
                 var locOptions = execInfo.options;
                 locOptions.cell_id = pd_controls.options.cell_id;
+                debugger;
+                function makePythonStringOrNone(s){
+                    return !s?"None":('"""' + s + '"""')
+                }
                 execInfo.script += "\nfrom pixiedust.display.app.pixieapp import runPixieApp" + 
                     "\ntrue=True\nfalse=False\nnull=None" +
                     "\nrunPixieApp('" + 
-                    execInfo.pixieapp + "', options=" + JSON.stringify(locOptions) + ")";
+                    execInfo.pixieapp + "', options=" + JSON.stringify(locOptions) 
+                    + ",parent_command=" + makePythonStringOrNone(pd_controls.command)
+                    + ",parent_pixieapp=" + makePythonStringOrNone(pd_controls.options.nostore_pixieapp)
+                    + ")";
             }else if ( ( execInfo.refresh || execInfo.entity || execInfo.options.widget) && 
                     !execInfo.norefresh && $(element).children("target[pd_target]").length == 0){
                 {#include a refresh of the whole screen#}

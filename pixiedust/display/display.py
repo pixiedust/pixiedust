@@ -395,7 +395,7 @@ class Display(with_metaclass(ABCMeta)):
                 retCommand+= command[k:]
             return retCommand
 
-        command = self.callerText
+        command = self.callerText if hasattr(self, "callerText") else None
         if command is None:
             raise ValueError("command is None")
         if menuInfo:
