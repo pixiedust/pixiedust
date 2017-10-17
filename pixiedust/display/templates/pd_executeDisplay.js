@@ -15,14 +15,7 @@
         }
     }
     var cellId = options.cell_id || "";
-    {% if gateway %}
-    var curCell = [];
-    {% else %}
-    var curCell=IPython.notebook.get_cells().filter(function(cell){
-        return cell.cell_id==cellId;
-    });
-    {%endif%}
-    curCell=curCell.length>0?curCell[0]:null;
+    var curCell = pixiedust.getCell(cellId);
     console.log("curCell",curCell);
     var startWallToWall;
     //Resend the display command

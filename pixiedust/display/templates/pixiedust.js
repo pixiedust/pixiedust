@@ -2,6 +2,16 @@
 {%import "commonExecuteCallback.js" as commons with context%}
 var pixiedust = (function(){
     return {
+        getCell: function(cell_id){
+            {% if gateway %}
+            var cells = [];
+            {% else %}
+            var cells=IPython.notebook.get_cells().filter(function(cell){
+                return cell.cell_id==cell_id;
+            });
+            {%endif%}
+            return cells.length>0?cells[0]:null;
+        },
         {# 
             executeDisplay helper method: run a new display command
             displayCallback:{
@@ -429,9 +439,13 @@ function readExecInfo(pd_controls, element, searchParents, fromExecInfo){
             if ( execInfo.pixieapp){
                 var locOptions = execInfo.options;
                 locOptions.cell_id = pd_controls.options.cell_id;
-                debugger;
                 function makePythonStringOrNone(s){
                     return !s?"None":('"""' + s + '"""')
+                }
+                function getCellMetadata(){
+                    var cell = pixiedust.getCell(execInfo.options.cell_id);
+                    var retValue = cell?cell._metadata:{};
+                    return JSON.stringify(retValue || {});
                 }
                 execInfo.script += "\nfrom pixiedust.display.app.pixieapp import runPixieApp" + 
                     "\ntrue=True\nfalse=False\nnull=None" +
@@ -439,6 +453,7 @@ function readExecInfo(pd_controls, element, searchParents, fromExecInfo){
                     execInfo.pixieapp + "', options=" + JSON.stringify(locOptions) 
                     + ",parent_command=" + makePythonStringOrNone(pd_controls.command)
                     + ",parent_pixieapp=" + makePythonStringOrNone(pd_controls.options.nostore_pixieapp)
+                    + ",cell_metadata=" + getCellMetadata()
                     + ")";
             }else if ( ( execInfo.refresh || execInfo.entity || execInfo.options.widget) && 
                     !execInfo.norefresh && $(element).children("target[pd_target]").length == 0){

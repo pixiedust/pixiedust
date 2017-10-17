@@ -30,17 +30,19 @@ class ShareChartApp(BaseGatewayApp):
             "id": "options",
             "name": "Options",
             "contents": lambda: self.renderTemplate("shareBasicOptions.html")
-        },{
-            "title": "Access Control",
-            "id": "permissions",
-            "name": "Permissions",
-            "contents": lambda: self.renderTemplate("sharePermissionsOptions.html")
-        },{
-            "title": "Chart Refresh Options",
-            "id": "refresh",
-            "name": "Refresh",
-            "contents": lambda: self.renderTemplate("shareRefreshOptions.html")
-        }]
+        }
+        # ,{
+        #     "title": "Access Control",
+        #     "id": "permissions",
+        #     "name": "Permissions",
+        #     "contents": lambda: self.renderTemplate("sharePermissionsOptions.html")
+        # },{
+        #     "title": "Chart Refresh Options",
+        #     "id": "refresh",
+        #     "name": "Refresh",
+        #     "contents": lambda: self.renderTemplate("shareRefreshOptions.html")
+        # }
+        ]
         self.gateway_buttons = [{
             "title": "Share",
             "options": ["server", "description"]
@@ -67,6 +69,10 @@ class ShareChartApp(BaseGatewayApp):
         with capture_output() as buf:
             try:
                 command = self.parent_command
+                #add any options from the current cell metadata
+                if self.cell_metadata is not None and 'pixiedust' in self.cell_metadata and 'displayParams' in self.cell_metadata['pixiedust']:
+                    for key,value in iteritems(self.cell_metadata['pixiedust']['displayParams']):
+                        command = self.update_command(command, key, value)
                 command = self.update_command(command, "nostore_figureOnly", "true")
                 sys.modules['pixiedust.display'].pixiedust_display_callerText = command
                 for key in ShellAccess:
