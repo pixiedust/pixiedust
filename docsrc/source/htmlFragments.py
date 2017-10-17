@@ -6,9 +6,13 @@ from bs4 import BeautifulSoup
 
 # Grab only .rst files in current directory
 for fn in os.listdir('.') :
-     if os.path.isfile(fn) :
+    if os.path.isfile(fn) :
         tmp = os.path.splitext(fn)
 
+        # This if and corresponding HTML piece below are a quick fix to ignore 1.6 instructions I manually updated for Inge.
+        if tmp[0] == "loaddata" or tmp[0] == "download" or tmp[0] == "install":
+            print ("Skipped .rst: " + tmp[0])
+            continue
         if tmp[1] == ".rst" :
             source = fn
             parsed = (tmp[0]+"-tmp.rst")
@@ -39,6 +43,9 @@ for fn in os.listdir('clean-for-dsx') :
     if os.path.isfile(filePath) :
         tmp = os.path.splitext(fn)
 
+        if tmp[0] == "loaddata" or tmp[0] == "download" or tmp[0] == "install":
+            print ("Skipped .html: " + tmp[0])
+            continue
         if tmp[1] == ".html" :
             fh = open(filePath)
             data=fh.read()
