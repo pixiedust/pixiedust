@@ -25,10 +25,11 @@ from .session import SessionManager
 from .notebookMgr import NotebookMgr
 from .handlers import (
     PixieDustHandler, PixieDustLogHandler, ExecuteCodeHandler, PixieAppHandler,
-    PixieAppListHandler, PixieAppPublish
+    PixieAppListHandler, PixieAppPublishHandler, ChartShareHandler
 )
 
 def main():
+    os.environ['PIXIEDUST_DB_NAME'] = "gateway.db"
     PixieGatewayApp.launch_instance()
 
 class PixieGatewayTemplatePersonality(LoggingConfigurable):
@@ -58,7 +59,8 @@ class PixieGatewayTemplatePersonality(LoggingConfigurable):
             (r"/executeCode/(.*)", ExecuteCodeHandler),
             (r"/pixieapp/(.*)", PixieAppHandler),
             (r"/pixieapps", PixieAppListHandler),
-            (r"/publish/(?P<name>(?:.*))", PixieAppPublish)
+            (r"/publish/(?P<name>(?:.*))", PixieAppPublishHandler),
+            (r"/chart(?:/(?P<chart_id>(?:.*))?)?", ChartShareHandler)
         ]
 
     def should_seed_cell(self, code):

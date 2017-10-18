@@ -22,6 +22,7 @@ from tornado.log import app_log
 from .session import SessionManager
 from .notebookMgr import NotebookMgr
 from .managedClient import ManagedClientPool
+from .chartsManager import chart_storage
 
 class BaseHandler(tornado.web.RequestHandler):
     def initialize(self):
@@ -140,7 +141,7 @@ class PixieAppListHandler(tornado.web.RequestHandler):
     def get(self):
         self.render("template/pixieappList.html", pixieapp_list=NotebookMgr.instance().notebook_pixieapps())
 
-class PixieAppPublish(tornado.web.RequestHandler):
+class PixieAppPublishHandler(tornado.web.RequestHandler):
     @gen.coroutine
     def post(self, name):
         payload = self.request.body.decode('utf-8')
@@ -153,6 +154,26 @@ class PixieAppPublish(tornado.web.RequestHandler):
         except Exception as exc:
             print(traceback.print_exc())
             raise web.HTTPError(400, u'Publish PixieApp error: {}'.format(exc))
+
+class ChartShareHandler(tornado.web.RequestHandler):
+    def post(self, chart_id):
+        payload = json.loads(self.request.body.decode('utf-8'))
+        try:
+            chart_model = chart_storage.store_chart(payload)
+            self.set_status(200)
+            self.write(json.dumps(chart_model))
+            self.finish()
+        except Exception as exc:
+            print(traceback.print_exc())
+            raise web.HTTPError(400, u'Share Chart error: {}'.format(exc))
+
+    def get(self, chart_id):
+        chart_model = chart_storage.get_chart(chart_id)
+        if chart_model is not None:
+            self.render("template/showChart.html", chart_model=chart_model)
+        else:
+            self.set_status(404)
+            self.write("Chart not found")
 
 class PixieDustLogHandler(BaseHandler):
     @gen.coroutine

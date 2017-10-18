@@ -35,7 +35,7 @@ myLogger = getLogger(__name__)
 
 __all__ = ['Storage']
 
-SQLITE_DB_NAME = 'pixiedust.db'
+SQLITE_DB_NAME = os.environ.get('PIXIEDUST_DB_NAME', 'pixiedust.db')
 SQLITE_DB_NAME_PATH = os.environ.get("PIXIEDUST_HOME", os.path.expanduser('~')) + "/" + SQLITE_DB_NAME
 
 if not os.path.exists(os.path.dirname(SQLITE_DB_NAME_PATH)):
@@ -135,13 +135,16 @@ class Storage(object):
         try:
             cursor=_conn.execute(sqlQuery)
             _conn.commit()
-            return _conn.total_changes
+            return cursor.rowcount
         finally:
             if cursor is not None:
                 cursor.close()
 
-    def insert(self, sqlQuery):
-        _conn.execute(sqlQuery)
+    def insert(self, sqlQuery, arguments=None):
+        if arguments is not None:
+            _conn.execute(sqlQuery, arguments)
+        else:
+            _conn.execute(sqlQuery)
         _conn.commit()
 
     def update(self, sqlQuery):
