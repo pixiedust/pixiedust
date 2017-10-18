@@ -170,7 +170,14 @@ class PublishApp():
         
         return "<div>An Error occured while publishing this notebook: {}".format(response.text)
 
-    def _sanitizeCode(self, code):
+    
+    def ast_parse(self, code):
+        try:
+            #Do we even need to sanitize
+            return ast.parse(code)
+        except SyntaxError:
+            pass
+
         def translateMagicLine(line):
             index = line.find('%')
             if index >= 0:
@@ -182,7 +189,7 @@ class PublishApp():
                         line[:index], magic_line[0], ' '.join(magic_line[1:])
                         ).strip()
             return line
-        return '\n'.join([translateMagicLine(p) for p in code.split('\n') if not p.strip().startswith('!')])
+        return ast.parse('\n'.join([translateMagicLine(p) for p in code.split('\n') if not p.strip().startswith('!')]))
 
     def compute_imports(self):
         if self.lookup is None:
@@ -192,7 +199,7 @@ class PublishApp():
                 if cell.cell_type == "code":
                     code += "\n" + cell.source                
             self.lookup = ImportsLookup()
-            self.lookup.visit(ast.parse(self._sanitizeCode(code)))
+            self.lookup.visit(ast.parse(self.ast_parse(code)))
             self.contents['notebook']['metadata']['pixiedust'].update({
                 "imports": {p[0]:{"version":p[1],"install":p[2]} for p in self.lookup.imports}
             })

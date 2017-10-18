@@ -1,0 +1,15 @@
+<div class="form-group" style="margin-left:20px">
+    <div class="radio">
+        <label><input type="radio" name="permissions" value="1" checked>Anyone with the link</label>
+    </div>
+    <div class="radio">
+        <label><input type="radio" name="permissions" value="2">Anyone within the Project</label>
+    </div>
+    <div class="radio">
+        <label>
+            <input type="radio" name="permissions" value="3">Anyone in the following list
+        </label>
+        <input type="text" class="form-control" id="acl{{prefix}}" name="acl" 
+                placeholder="Enter one or more email addresses separated with comma">
+    </div>
+</div>
