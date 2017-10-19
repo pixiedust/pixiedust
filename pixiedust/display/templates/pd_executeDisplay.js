@@ -15,14 +15,7 @@
         }
     }
     var cellId = options.cell_id || "";
-    {% if gateway %}
-    var curCell = [];
-    {% else %}
-    var curCell=IPython.notebook.get_cells().filter(function(cell){
-        return cell.cell_id==cellId;
-    });
-    {%endif%}
-    curCell=curCell.length>0?curCell[0]:null;
+    var curCell = pixiedust.getCell(cellId);
     console.log("curCell",curCell);
     var startWallToWall;
     //Resend the display command
@@ -168,11 +161,14 @@
     {% endif %}
         var command = user_controls.script || pd_controls.command.replace("cellId",cellId);
         if ( !user_controls.script){
-            function addOptions(options, override=true){
+            function addOptions(options, override=true, ignoreKeys=[]){
                 function getStringRep(v) {
                     return "'" + v + "'";
                 }
                 for (var key in (options||{})){
+                    if (ignoreKeys.indexOf(key)>=0){
+                        continue;
+                    }
                     var value = options[key];
                     var hasValue = value != null && typeof value !== 'undefined' && value !== '';
                     var replaceValue = hasValue ? (key+"=" + getStringRep(value) ) : "";
@@ -193,7 +189,8 @@
                 addOptions(cellMetadata.displayParams);
                 addOptions({"showchrome":"true"});
             }else if (curCell && curCell._metadata.pixiedust ){
-                addOptions(curCell._metadata.pixiedust.displayParams || {}, pd_controls.useCellMetadata);
+                ignoreKeys = pd_controls.options.nostore_pixieapp?["handlerId"]:[];
+                addOptions(curCell._metadata.pixiedust.displayParams || {}, pd_controls.useCellMetadata, ignoreKeys);
             }
             addOptions(user_controls.options||{});
             var pattern = "\\w*\\s*=\\s*'(\\\\'|[^'])*'";

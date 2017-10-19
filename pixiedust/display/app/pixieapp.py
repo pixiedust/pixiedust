@@ -169,7 +169,7 @@ def PixieApp(cls):
             ShellAccess[var] = self
 
         self.runInDialog = kwargs.get("runInDialog", "false") is "true"
-        options = {"nostore_ispix":"true", "runInDialog": "true" if self.runInDialog else "false"}
+        options = {"nostore_pixieapp": var, "nostore_ispix":"true", "runInDialog": "true" if self.runInDialog else "false"}
         if self.runInDialog:
             options.update(self.getDialogOptions())
 

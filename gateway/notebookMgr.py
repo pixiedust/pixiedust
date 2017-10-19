@@ -167,8 +167,8 @@ class NotebookMgr(SingletonConfigurable):
             pixieapp_def = PixieappDef(self.next_namespace(), warmup_code, run_code, notebook)
             return pixieapp_def if pixieapp_def.is_valid else None
 
-def get_symbol_table(rootNode):
-    lookup = VarsLookup()
+def get_symbol_table(rootNode, ctx_symbols=None):
+    lookup = VarsLookup(ctx_symbols)
     lookup.visit(rootNode)
     return lookup.symbol_table
 
@@ -234,7 +234,7 @@ class PixieappDef():
                         app_log.exception(exc)
                         managed_client.set_running_stats(self, 'warmup_exception', exc)
                         raise exc
-        return warmup_future
+        raise gen.Return(warmup_future)
 
     def get_run_code(self, session, run_id):
         pars = ast.parse(self.run_code)
@@ -252,9 +252,15 @@ finally:
         return run_code
     
 class VarsLookup(ast.NodeVisitor):
-    def __init__(self):
+    def __init__(self, ctx_symbols=None):
         self.symbol_table = {"vars":set(), "functions":set(), "classes":set(), "pixieapp_root_node":None}
+        self.ctx_symbols = ctx_symbols
         self.level = 0
+
+    def is_in_ctx(self, name):
+        if self.ctx_symbols is None:
+            return None
+        return name in self.ctx_symbols["vars"] or name in self.ctx_symbols["functions"] or name in self.ctx_symbols["classes"]
     
     #pylint: disable=E0213,E1102
     def onvisit(func):
@@ -278,7 +284,7 @@ class VarsLookup(ast.NodeVisitor):
 
     @onvisit
     def visit_Name(self, node):
-        if hasattr(node, "ctx") and isinstance(node.ctx, ast.Store):
+        if hasattr(node, "ctx") and isinstance(node.ctx, ast.Store) and not self.is_in_ctx(node.id):
             self.symbol_table["vars"].add(node.id)
     @onvisit    
     def visit_FunctionDef(self, node):
@@ -324,7 +330,7 @@ class RewriteGlobals(ast.NodeTransformer):
                 app_log.debug("GOT A NON ZERO LEVEL %s", ast.dump(node))
             ret_node = fn(self,node)
             self.level += 1
-            self.localTables.append( get_symbol_table(node) )
+            self.localTables.append( get_symbol_table(node, self.symbols) )
             try:
                 super(RewriteGlobals, self).generic_visit(node)
                 return ret_node or node
@@ -354,7 +360,7 @@ class RewriteGlobals(ast.NodeTransformer):
         if hasattr(node, "ctx"):
             if self.pixieApp != node.id and isinstance(node.ctx, ast.Load) and self.isGlobal(node.id):
                 node.id = self.namespace + node.id
-            elif isinstance(node.ctx, ast.Store) and self.level <= 2 and self.isGlobal(node.id):
+            elif isinstance(node.ctx, ast.Store) and self.isGlobal(node.id):
                 node.id = self.namespace + node.id
         return node
 
