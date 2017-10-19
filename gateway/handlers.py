@@ -81,7 +81,8 @@ class PixieAppHandler(BaseHandler):
                 yield pixieapp_def.warmup(managed_client)
                 code = pixieapp_def.get_run_code(self.session, self.session.get_pixieapp_run_id(self, pixieapp_def))
             except Exception as exc:
-                return self.handle_exception(exc)
+                self.handle_exception(exc)
+                return
         else:
             instance_name = self.session.getInstanceName(clazz)
             code = """

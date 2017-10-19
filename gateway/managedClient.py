@@ -115,7 +115,7 @@ print(json.dumps( {"installed_modules": list(pkg_resources.AvailableDistribution
             yield gen.maybe_future(self.restart())
             log_messages.append("Kernel successfully restarted...")
         future.set_result("OK")
-        return future
+        raise gen.Return(future)
 
     @gen.coroutine
     def restart(self):
