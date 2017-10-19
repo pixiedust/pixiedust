@@ -123,7 +123,7 @@ class PublishApp():
     
     @route(publish_server="*")
     def publish(self, publish_server, publish_title, publish_icon):
-        self.server = publish_server
+        self.server = publish_server.strip("/")
         self.contents['notebook']['metadata']['pixiedust'].update({"title":publish_title, "icon":publish_icon})
         self.compute_imports()
         setUserPreference("pixie_gateway_server", publish_server)
@@ -335,19 +335,25 @@ self.set_contents('''$val(getNotebookJSON)''')
             </div>
         </div>
     </div>
+
+    <div class="row">
+        <div class="col-sm-2">
+        </div>
+        <div class="col-sm-10">
+            <button type="button" data-dismiss="modal" class="btn btn-cancel">Cancel</button>
+            <button type="button" class="btn btn-primary">
+                <pd_options>
+                {
+                    "publish_server": "$val(server{{prefix}})",
+                    "publish_title":"$val(title{{prefix}})",
+                    "publish_icon":"$val(icon{{prefix}})"
+                }
+                </pd_options>
+                Publish
+            </button>
+        </div>
+    </div>
 </div>
 
-<center>
-    <button type="button" class="btn btn-primary">
-        <pd_options>
-        {
-            "publish_server": "$val(server{{prefix}})",
-            "publish_title":"$val(title{{prefix}})",
-            "publish_icon":"$val(icon{{prefix}})"
-        }
-        </pd_options>
-    Publish
-    </button>
-</center>
 <div id="nb{{prefix}}"></div>
         """
