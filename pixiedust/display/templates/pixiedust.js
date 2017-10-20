@@ -262,6 +262,9 @@ function preRun(element){
 
 function addOptions(command, options, override=true){
     function getStringRep(v) {
+        if (typeof v === 'string' || v instanceof String){
+            v = v.replace(/'/g,"\\\'");
+        }
         return "'" + v + "'";
     }
     for (var key in (options||{})){
