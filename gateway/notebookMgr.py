@@ -234,7 +234,7 @@ class PixieappDef():
                         app_log.exception(exc)
                         managed_client.set_running_stats(self, 'warmup_exception', exc)
                         raise exc
-        return warmup_future
+        raise gen.Return(warmup_future)
 
     def get_run_code(self, session, run_id):
         pars = ast.parse(self.run_code)

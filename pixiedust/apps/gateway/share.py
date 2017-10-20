@@ -64,7 +64,7 @@ class ShareChartApp(BaseGatewayApp):
 
     @route(gateway_server="*")
     def shareIt(self, gateway_server, gateway_description):
-        self.server = gateway_server
+        self.server = gateway_server.strip('/')
         setUserPreference("pixie_gateway_server", gateway_server)
         with capture_output() as buf:
             try:
@@ -85,40 +85,35 @@ class ShareChartApp(BaseGatewayApp):
             "chart": "\n".join([output._repr_html_() for output in buf.outputs]),
             "description": gateway_description
         }
-        #return print("<pre>{}</pre>".format(payload))
         
-        response = requests.post(
-            "{}/chart".format(self.server), 
-            json = payload
-        )
-        if response.status_code == requests.codes.ok:
-            self.chart_model = response.json()
-            return """
-<style type="text/css">
-.share{
-    font-size: larger;
-    margin-left: 30px;
-}
-.publish .summary{
-    font-size: xx-large;
-    text-align: center;
-}
-</style>
-<div class="share">
-    <div class="summary">
-        <div>Chart Successfully shared</div>
-        <div>
-            <a href="{{this.server}}/chart/{{this.chart_model['CHARTID']}}" target="blank">
-                {{this.server}}/chart/{{this.chart_model['CHARTID']}}
-            </a>
+        try:
+            share_url = "{}/chart".format(self.server)
+            response = requests.post(share_url, json = payload)
+            if response.status_code == requests.codes.ok:
+                self.chart_model = response.json()
+                return """
+    <style type="text/css">
+    .share{
+        font-size: larger;
+        margin-left: 30px;
+    }
+    .publish .summary{
+        font-size: xx-large;
+        text-align: center;
+    }
+    </style>
+    <div class="share">
+        <div class="summary">
+            <div>Chart Successfully shared</div>
+            <div>
+                <a href="{{this.server}}/chart/{{this.chart_model['CHARTID']}}" target="blank">
+                    {{this.server}}/chart/{{this.chart_model['CHARTID']}}
+                </a>
+            </div>
         </div>
     </div>
-</div>
-            """
-        
-        return "<div>An Error occured while sharing this chart: {}".format(response.text)
-        #print(payload)
-
-    @route()
-    def main(self):
-        return self._addHTMLTemplate("mainOptions.html")
+                """
+            
+            return "<div>An Error occured while sharing this chart: {}".format(response.text)
+        except Exception as ex:
+            return "<div>Unexcepted error, Please check that PixieGateway server {} is reachable: {}".format(self.server, ex)

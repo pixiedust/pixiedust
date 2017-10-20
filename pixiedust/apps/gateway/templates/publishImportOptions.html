@@ -1,0 +1,8 @@
+<div class="form-group">
+    <label for="imports{{prefix}}">List of packages that will be automatically imported if needed:</label>
+    <div pd_render_onload pd_refresh pd_options="importTable=true">
+        <pd_script>
+self.set_contents('''$val(getNotebookJSON)''')
+        </pd_script>
+    </div>
+</div>

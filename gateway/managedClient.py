@@ -72,7 +72,7 @@ class Customizer():
         self.gateway = 'true'
     def customizeOptions(self, options):
         options.update( {'cell_id': 'dummy', 'showchrome':'false', 'gateway':self.gateway})
-        options.update( {'nostore_pixiedust': 'true'})
+        options.update( {'nostore_pixiedust': 'true', 'runInDialog': 'false'})
 pixieapp.pixieAppRunCustomizer = Customizer()
 print(json.dumps( {"installed_modules": list(pkg_resources.AvailableDistributions())} ))
             """, lambda acc: json.dumps([msg['content']['text'] for msg in acc if msg['header']['msg_type'] == 'stream'], default=self._date_json_serializer))
@@ -115,7 +115,7 @@ print(json.dumps( {"installed_modules": list(pkg_resources.AvailableDistribution
             yield gen.maybe_future(self.restart())
             log_messages.append("Kernel successfully restarted...")
         future.set_result("OK")
-        return future
+        raise gen.Return(future)
 
     @gen.coroutine
     def restart(self):

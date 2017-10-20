@@ -21,6 +21,7 @@ import json
 import nbformat
 from pixiedust.utils.userPreferences import getUserPreference, setUserPreference
 from pixiedust.utils import Logger
+from pixiedust.apps.gateway import BaseGatewayApp
 import warnings
 import pkg_resources
 from jupyter_client.manager import KernelManager
@@ -102,15 +103,38 @@ class ImportsLookup(ast.NodeVisitor):
 
 @PixieApp
 @Logger()
-class PublishApp():
+class PublishApp(BaseGatewayApp):
     """
     Publish a PixieApp as a web app
     """
     
     def setup(self):
-        self.server = getUserPreference("pixie_gateway_server", "http://localhost:8899")
+        BaseGatewayApp.setup(self)
         self.kernel_spec = None
         self.lookup = None
+        self.title = "Publish PixieApp to the web"
+        self.tab_definitions = [{
+            "title": "Basic Publish Options",
+            "id": "options",
+            "name": "Options",
+            "contents": lambda: self.renderTemplate("publishBasicOptions.html")
+        }
+        ,{
+            "title": "Package dependencies",
+            "id": "imports",
+            "name": "Imports",
+            "contents": lambda: self.renderTemplate("publishImportOptions.html")
+        },{
+            "title": "Kernel Specification",
+            "id": "kernelspec",
+            "name": "Kernel Spec",
+            "contents": lambda: self.renderTemplate("publishKernelSpecOptions.html")
+        }
+        ]
+        self.gateway_buttons = [{
+            "title": "Publish",
+            "options": ["server", "title", "icon"]
+        }]
         
     def set_contents(self, contents):
         self.contents = json.loads(contents)
@@ -121,12 +145,12 @@ class PublishApp():
             warnings.simplefilter("ignore")
             self.kernel_spec = json.dumps(km.kernel_spec.to_dict(), indent=4, sort_keys=True)
     
-    @route(publish_server="*")
-    def publish(self, publish_server, publish_title, publish_icon):
-        self.server = publish_server
-        self.contents['notebook']['metadata']['pixiedust'].update({"title":publish_title, "icon":publish_icon})
+    @route(gateway_server="*")
+    def publish(self, gateway_server, gateway_title, gateway_icon):
+        self.server = gateway_server.strip("/")
+        self.contents['notebook']['metadata']['pixiedust'].update({"title":gateway_title, "icon":gateway_icon})
         self.compute_imports()
-        setUserPreference("pixie_gateway_server", publish_server)
+        setUserPreference("pixie_gateway_server", gateway_server)
         response = requests.post(
             "{}/publish/{}".format(self.server, self.contents['name']), 
             json = self.contents['notebook']
@@ -231,123 +255,3 @@ class PublishApp():
     @route(showKernelSpec="*")
     def show_kernel_spec(self):
         return "<pre>{{this.kernel_spec}}</pre>"
-    
-    @route()
-    def main(self):
-        return """
-<script>
-function getNotebookJSON(){
-    return {
-        "name": IPython.notebook.notebook_name,
-        "notebook": IPython.notebook.toJSON()
-    }
-}
-
-$(".publishOptions .nav a").on("click", function(){
-   n = $(".publishOptions .nav").find(".active");
-   o = $(".publishContents").find(".collapse.in");
-   p = $(this).parent();
-   if (n[0] != p[0]){
-       n.removeClass("active");
-       o.removeClass("in")
-       p.addClass("active");
-    }
-});
-</script>
-
-<style type="text/css">
-.publishOptions{
-    background-color: #fff;
-    border: 1px solid #d1d5da;
-    border-radius: 3px;
-}
-.publishOptions a{
-    text-decoration:none !important;
-}
-
-.publishOptions li:not(.active) a{
-    text-decoration:none !important;
-    color: initial !important;
-}
-.publishOptions ul{
-    padding-left: 0px !important;
-}
-
-.publishOptions2 .nav-pills>li.active>a, .publishOptions .nav-pills>li.active>a:focus, .publishOptions.nav-pills>li.active>a:hover {
-    color: #fff;
-    background-color: #337ab7;
-}
-.publishContents{
-    padding-left:10px;
-    min-height:200px;
-}
-</style>
-<div style="display: flex;
-    padding-bottom: 8px;
-    margin-bottom: 16px;
-    border-bottom: 1px #e1e4e8 solid;
-    flex-flow: row wrap;">
-    <h2>Publish Notebook as a web application</h2>
-</div>
-<div class="container" style="width:inherit">
-    <div class="row">
-        <div class="col-sm-2 publishOptions">
-            <div>
-                <ul class="nav nav-pills nav-stacked">
-                   <li class="active"><a data-toggle="collapse" data-target="#options{{prefix}}" href="#">Options</a></li>
-                   <li><a data-toggle="collapse" data-target="#imports{{prefix}}" href="#">Imports</a></li>
-                   <li><a data-toggle="collapse" data-target="#kernelspec{{prefix}}" href="#">Kernel Spec</a></li>
-                </ul>
-            </div>
-        </div>
-        <div class="col-sm-10 publishContents">
-            <div id="options{{prefix}}" class="collapse in">
-                <div class="form-group">
-                    <label for="server{{prefix}}">PixieGateway Server:</label>
-                    <input type="text" class="form-control" id="server{{prefix}}" name="server" value="{{this.server}}">
-                </div>
-                <div class="form-group">
-                    <label for="title{{prefix}}">Page Title:</label>
-                    <input type="text" class="form-control" id="title{{prefix}}" name="title" value="">
-                </div>
-                <div class="form-group">
-                    <label for="icon{{prefix}}">Page Icon:</label>
-                    <input type="text" class="form-control" id="icon{{prefix}}" name="icon" value="">
-                </div>
-                <div>
-                    <input type="checkbox" id="run{{prefix}}" name="run" value="1">
-                    <label for="run{{prefix}}">Run application in dedicated kernel</label>
-                </div>
-            </div>
-            <div id="imports{{prefix}}" class="collapse">
-                <div class="form-group">
-                    <label for="imports{{prefix}}">List of packages that will be automaticall imported if needed:</label>
-                    <div pd_render_onload pd_refresh pd_options="importTable=true">
-                        <pd_script>
-self.set_contents('''$val(getNotebookJSON)''')
-                        </pd_script>
-                    </div>
-                </div>
-            </div>
-            <div id="kernelspec{{prefix}}" class="collapse">
-                <div pd_render_onload pd_refresh pd_options="showKernelSpec=true">
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<center>
-    <button type="button" class="btn btn-primary">
-        <pd_options>
-        {
-            "publish_server": "$val(server{{prefix}})",
-            "publish_title":"$val(title{{prefix}})",
-            "publish_icon":"$val(icon{{prefix}})"
-        }
-        </pd_options>
-    Publish
-    </button>
-</center>
-<div id="nb{{prefix}}"></div>
-        """
