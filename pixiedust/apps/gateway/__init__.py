@@ -21,3 +21,7 @@ class BaseGatewayApp():
     def setup(self):
         self.server = getUserPreference("pixie_gateway_server", "http://localhost:8899")
         self.title = "PixieGateway Configuration"
+
+    @route()
+    def main(self):
+        return self._addHTMLTemplate("mainOptions.html")

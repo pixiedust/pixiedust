@@ -72,7 +72,7 @@ class Customizer():
         self.gateway = 'true'
     def customizeOptions(self, options):
         options.update( {'cell_id': 'dummy', 'showchrome':'false', 'gateway':self.gateway})
-        options.update( {'nostore_pixiedust': 'true'})
+        options.update( {'nostore_pixiedust': 'true', 'runInDialog': 'false'})
 pixieapp.pixieAppRunCustomizer = Customizer()
 print(json.dumps( {"installed_modules": list(pkg_resources.AvailableDistributions())} ))
             """, lambda acc: json.dumps([msg['content']['text'] for msg in acc if msg['header']['msg_type'] == 'stream'], default=self._date_json_serializer))

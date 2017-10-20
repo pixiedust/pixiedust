@@ -117,7 +117,3 @@ class ShareChartApp(BaseGatewayApp):
             return "<div>An Error occured while sharing this chart: {}".format(response.text)
         except Exception as ex:
             return "<div>Unexcepted error, Please check that PixieGateway server {} is reachable: {}".format(self.server, ex)
-
-    @route()
-    def main(self):
-        return self._addHTMLTemplate("mainOptions.html")
