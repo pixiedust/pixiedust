@@ -628,7 +628,6 @@ $(document).on("pd_event", function(event, eventInfo){
             if (accept(this)){
                 var thisId = $(this).uniqueId().attr('id');
                 this.setAttribute( "id", thisId );
-                $(this).addClass("no_loading_msg");
                 if (!this.hasAttribute("pd_target") ){
                     this.setAttribute("pd_target", this.getAttribute("id") );
                 }
