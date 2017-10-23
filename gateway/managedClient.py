@@ -28,6 +28,7 @@ class ManagedClient(object):
     """
     def __init__(self, kernel_manager):
         self.kernel_manager = kernel_manager
+        self.current_iopub_handler = None
         self.start()
         self.installed_modules = []
         self.stats = {}
@@ -53,11 +54,17 @@ class ManagedClient(object):
             key=kernel.session.key
         )
         self.iopub = self.kernel_manager.connect_iopub(self.kernel_id)
+        self.iopub.on_recv(self.iopub_handler)
 
         # Start channels and wait for ready
         self.kernel_client.start_channels()
         self.kernel_client.wait_for_ready()
         print("kernel client initialized")
+
+        self.session = type(self.kernel_client.session)(
+            config=self.kernel_client.session.config,
+            key=self.kernel_client.session.key,
+        )
 
         self.lock = locks.Lock()
 
@@ -89,6 +96,12 @@ print(json.dumps( {"installed_modules": list(pkg_resources.AvailableDistribution
                     pass
             app_log.debug("Installed modules %s", self.installed_modules)
         future.add_done_callback(done)
+
+    def iopub_handler(self, msgList):
+        _, msgList = self.session.feed_identities(msgList)
+        msg = self.session.deserialize(msgList)
+        if self.current_iopub_handler:
+            self.current_iopub_handler(msg)
 
     def shutdown(self):
         self.kernel_client.stop_channels()
@@ -161,13 +174,7 @@ print(json.dumps( {"installed_modules": list(pkg_resources.AvailableDistribution
         future = Future()
         parent_header = self.kernel_client.execute(code)
         result_accumulator = []
-        def on_reply(msgList):
-            session = type(self.kernel_client.session)(
-                config=self.kernel_client.session.config,
-                key=self.kernel_client.session.key,
-            )
-            _, msgList = session.feed_identities(msgList)
-            msg = session.deserialize(msgList)
+        def on_reply(msg):
             if 'msg_id' in msg['parent_header'] and msg['parent_header']['msg_id'] == parent_header:
                 if not future.done():
                     if "channel" not in msg:
@@ -186,7 +193,7 @@ print(json.dumps( {"installed_modules": list(pkg_resources.AvailableDistribution
             else:
                 app_log.warning("Got an orphan message %s", msg)
 
-        self.iopub.on_recv(on_reply)
+        self.current_iopub_handler = on_reply
 
         if done_callback is not None:
             future.add_done_callback(done_callback)

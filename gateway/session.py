@@ -47,6 +47,9 @@ class Session(object):
         remove all existing pixieapps for this session
         """
         print("Shutting down runs: {} Namespace: {}".format(self.run_ids, self.namespace))
+        def done(future):
+            print("Session successfully shut down: {}".format(future.result()))
+
         for managed_client in list(set(self.run_ids.values())):
             future = managed_client.execute_code("""
 from pixiedust.utils.shellAccess import ShellAccess
@@ -68,10 +71,7 @@ except Exception as e:
             """.format(self.namespace),
                 lambda acc: "\n".join([msg['content']['text'] for msg in acc if msg['header']['msg_type'] == 'stream'])
             )
-
-        def done(future):
-            print(future.result())
-        future.add_done_callback(done)
+            future.add_done_callback(done)
 
     def _get_run_id_cookie_name(self, pixieapp_def):
         return "pd_runid_{}".format(pixieapp_def.name.replace(" ", "_"))

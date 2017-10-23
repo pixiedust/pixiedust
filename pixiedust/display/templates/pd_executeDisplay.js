@@ -13,6 +13,7 @@
         if (pd_elements.length > 0 ){
             targetNode.append(pd_elements);
         }
+        return true;
     }
     var cellId = options.cell_id || "";
     var curCell = pixiedust.getCell(cellId);
@@ -25,9 +26,9 @@
                 if ( !callbacks.response ){
                     if (!user_controls.partialUpdate){
                         setHTML(getTargetNode(), "");
-                    }
-                    if (user_controls.onDisplayDone){
-                        user_controls.onDisplayDone(getTargetNode());
+                        if (user_controls.onDisplayDone){
+                            user_controls.onDisplayDone(getTargetNode());
+                        }
                     }
                 }
             },
@@ -54,11 +55,12 @@
                 }
                 var msg_type=msg.header.msg_type;
                 var content = msg.content;
+                var targetNodeUpdated = false;
                 if(msg_type==="stream"){
                     if (user_controls.onSuccess){
                         user_controls.onSuccess(content.text);
                     }else{
-                        setHTML(getTargetNode(), content.text);
+                        targetNodeUpdated = setHTML(getTargetNode(), content.text);
                     }
                 }else if (msg_type==="display_data" || msg_type==="execute_result"){
                     var html=null;
@@ -83,11 +85,11 @@
                             if (user_controls.onSuccess){
                                 user_controls.onSuccess(html);
                             }else{
-                                setHTML(getTargetNode(), html);
+                                targetNodeUpdated = setHTML(getTargetNode(), html);
                             }
                         }catch(e){
                             console.log("Invalid html output", e, html);
-                            setHTML(getTargetNode(),  "Invalid html output: " + e.message + "<pre>" 
+                            targetNodeUpdated = setHTML(getTargetNode(),  "Invalid html output: " + e.message + "<pre>" 
                                 + html.replace(/>/g,'&gt;').replace(/</g,'&lt;').replace(/"/g,'&quot;') + "<pre>");
                         }
 
@@ -126,7 +128,7 @@
                     }
                 }else if (msg_type === "error") {
                     {% if gateway %}
-                    setHTML(getTargetNode(), content.traceback);
+                    targetNodeUpdated = setHTML(getTargetNode(), content.traceback);
                     {%else%}
                     require(['base/js/utils'], function(utils) {
                         var tb = content.traceback;
@@ -140,7 +142,7 @@
                             if (user_controls.onError){
                                 user_controls.onError(data);
                             }else{
-                                setHTML(getTargetNode(), "<pre>" + data +"</pre>");
+                                targetNodeUpdated = setHTML(getTargetNode(), "<pre>" + data +"</pre>");
                             }
                         }
                     });
@@ -148,7 +150,7 @@
                 }else{
                     callbacks.response = false;
                 }
-                if (user_controls.onDisplayDone){
+                if (targetNodeUpdated && user_controls.onDisplayDone){
                     user_controls.onDisplayDone(getTargetNode());
                 }
             }
