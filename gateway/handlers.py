@@ -19,10 +19,12 @@ import nbformat
 import tornado
 from tornado import gen, web
 from tornado.log import app_log
+from six import PY3, iteritems
 from .session import SessionManager
 from .notebookMgr import NotebookMgr
 from .managedClient import ManagedClientPool
 from .chartsManager import chart_storage
+from .utils import sanitize_traceback
 
 class BaseHandler(tornado.web.RequestHandler):
     def initialize(self):
@@ -48,7 +50,7 @@ Implement generic kernel code execution routine
     @gen.coroutine
     def post(self, *args, **kwargs):
         run_id = args[0]
-        managed_client = self.session.get_managed_client(self)
+        managed_client = self.session.get_managed_client_by_run_id(run_id)
         with (yield managed_client.lock.acquire()):
             try:
                 response = yield managed_client.execute_code(self.request.body.decode('utf-8'))
@@ -59,6 +61,9 @@ Implement generic kernel code execution routine
                 self.finish()
 
 class PixieAppHandler(BaseHandler):
+    """
+    Entry point for running a PixieApp
+    """
     def handle_exception(self, exc):
         self.write("<div>Code Execution error <pre>{}</pre></div>".format(exc))
         self.write("<pre>")
@@ -118,9 +123,10 @@ clazz = "{clazz}"
             elif msg['header']['msg_type'] == 'error':
                 error_name = msg['content']['ename']
                 error_value = msg['content']['evalue']
-                return 'Error {}: {} \n'.format(error_name, error_value)
+                trace = sanitize_traceback(msg['content']['traceback'])
+                return 'Error {}: {}\n{}\n'.format(error_name, error_value, trace)
             else:
-                app_log.warning("Message type not processed: %s", msg)
+                app_log.warning("Message type not processed: %s", msg['header']['msg_type'])
         return ''.join(res)
 
 class PixieDustHandler(tornado.web.RequestHandler):
@@ -176,7 +182,28 @@ class ChartShareHandler(tornado.web.RequestHandler):
             self.set_status(404)
             self.write("Chart not found")
 
+class StatsHandler(tornado.web.RequestHandler):
+    """
+    Provides various stats about the running kernels
+    """
+    def initialize(self, km):
+        self.kernel_manager = km
+
+    def get(self, command):
+        if command is None:
+            self.write(ManagedClientPool.instance().get_stats())
+        elif command == "kernels":
+            specs = self.kernel_manager.kernel_spec_manager.get_all_specs()
+            for k, v in iteritems(specs):
+                v['default'] = True if k == ('python3' if PY3 else 'python2') else False
+            self.write(specs)
+        else:
+            raise web.HTTPError(400, u'Unknown stat command: {}'.format(command))
+
 class PixieDustLogHandler(BaseHandler):
+    """
+    Access the PixieDust Logs
+    """
     @gen.coroutine
     def get(self):
         self.set_header('Content-Type', 'text/html')
@@ -206,6 +233,7 @@ import pixiedust
             elif msg['header']['msg_type'] == 'error':
                 error_name = msg['content']['ename']
                 error_value = msg['content']['evalue']
-                return 'Error {}: {} \n'.format(error_name, error_value)
+                trace = sanitize_traceback(msg['content']['traceback'])
+                return 'Error {}: {}\n{}\n'.format(error_name, error_value, trace)
 
         return '<br/>'.join([w.replace('\n', '<br/>') for w in res])

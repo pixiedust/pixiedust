@@ -25,7 +25,7 @@ from .session import SessionManager
 from .notebookMgr import NotebookMgr
 from .handlers import (
     PixieDustHandler, PixieDustLogHandler, ExecuteCodeHandler, PixieAppHandler,
-    PixieAppListHandler, PixieAppPublishHandler, ChartShareHandler
+    PixieAppListHandler, PixieAppPublishHandler, ChartShareHandler, StatsHandler
 )
 
 def main():
@@ -60,7 +60,8 @@ class PixieGatewayTemplatePersonality(LoggingConfigurable):
             (r"/pixieapp/(.*)", PixieAppHandler),
             (r"/pixieapps", PixieAppListHandler),
             (r"/publish/(?P<name>(?:.*))", PixieAppPublishHandler),
-            (r"/chart(?:/(?P<chart_id>(?:.*))?)?", ChartShareHandler)
+            (r"/chart(?:/(?P<chart_id>(?:.*))?)?", ChartShareHandler),
+            (r"/stats(?:/(?P<command>(?:.*))?)?", StatsHandler, {"km":self.parent.kernel_manager})
         ]
 
     def should_seed_cell(self, code):

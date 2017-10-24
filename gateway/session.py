@@ -81,9 +81,12 @@ except Exception as e:
             return None
         cookie_name = self._get_run_id_cookie_name(pixieapp_def)
         cookie = request_handler.get_secure_cookie(cookie_name)
+        if cookie is None and hasattr(request_handler, cookie_name):
+            cookie = getattr(request_handler, cookie_name)
         if cookie is None:
             cookie = str(uuid.uuid4())
             request_handler.set_secure_cookie(cookie_name, cookie)
+            setattr(request_handler, cookie_name, cookie)
         else:
             cookie = cookie.decode("utf-8")
         return cookie
@@ -93,13 +96,15 @@ except Exception as e:
             return ManagedClientPool.instance().get()
 
         run_id = self.get_pixieapp_run_id(request_handler, pixieapp_def)
-        return self.get_managed_client_by_run_id(run_id, True)
+        return self.get_managed_client_by_run_id(run_id, pixieapp_def)
 
-    def get_managed_client_by_run_id(self, run_id, create = False):
+    def get_managed_client_by_run_id(self, run_id, pixieapp_def = None):
         managed_client = self.run_ids[run_id] if run_id in self.run_ids else None
-        if managed_client is None and create:
-            managed_client = ManagedClientPool.instance().get()
+        if managed_client is None and pixieapp_def is not None:
+            managed_client = ManagedClientPool.instance().get(pixieapp_def)
             self.run_ids[run_id] = managed_client
+        if managed_client is None:
+            raise Exception("Invalid run_id: {}".format(run_id))
         return managed_client
 
 class SessionManager(SingletonConfigurable):
