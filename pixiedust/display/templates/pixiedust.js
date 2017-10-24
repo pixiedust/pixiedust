@@ -2,6 +2,16 @@
 {%import "commonExecuteCallback.js" as commons with context%}
 var pixiedust = (function(){
     return {
+        getCell: function(cell_id){
+            {% if gateway %}
+            var cells = [];
+            {% else %}
+            var cells=IPython.notebook.get_cells().filter(function(cell){
+                return cell.cell_id==cell_id;
+            });
+            {%endif%}
+            return cells.length>0?cells[0]:null;
+        },
         {# 
             executeDisplay helper method: run a new display command
             displayCallback:{
@@ -54,6 +64,8 @@ var pixiedust = (function(){
                     notebook: IPython.notebook,
                     keyboard_manager: IPython.notebook.keyboard_manager,
                     maximize_modal: (displayOptions.maximize === "true"),
+                    custom_class: (displayOptions.customClass || ''),
+                    hide_header: (displayOptions.hideHeader === 'true'),
                     buttons: {
                         OK: {
                             class : "btn-primary btn-ok",
@@ -80,6 +92,10 @@ var pixiedust = (function(){
                     global.modalFooterStyle = $('.pixiedust .modal-footer').attr('style');
                     $('.pixiedust .modal-body').attr('style', global.modalBodyStyle ? global.modalBodyStyle + ';padding:5px 20px !important;' : 'padding:5px 20px !important;');
                     $('.pixiedust .modal-footer').attr('style', 'display:none !important;');
+                    if (options.hide_header) {
+                        global.modalHeaderStyle = $('.pixiedust .modal-header').attr('style');
+                        $('.pixiedust .modal-header').attr('style', 'display:none !important;');
+                    }
                 };
 
                 function resetDialog() {
@@ -93,12 +109,17 @@ var pixiedust = (function(){
                     } else {
                         $('.pixiedust .modal-footer').removeAttr('style');
                     }
+                    if (global.modalHeaderStyle) {
+                        $('.pixiedust .modal-header').attr('style', global.modalHeaderStyle);
+                    } else {
+                        $('.pixiedust .modal-header').removeAttr('style');
+                    }
                 };
 
                 var modal_obj = modal(options);
-                modal_obj.addClass('pixiedust pixiedust-app');
+                modal_obj.addClass('pixiedust pixiedust-app ' + options.custom_class);
                 if (options.maximize_modal) {
-                    modal_obj.addClass('pixiedust pixiedust-app pixiedust-maximize');
+                    modal_obj.addClass('pixiedust pixiedust-app pixiedust-maximize ' + options.custom_class);
                 }
                 modal_obj.on('shown.bs.modal', function(){
                     resizeDialog();
@@ -178,16 +199,30 @@ var pixiedust = (function(){
 
 function resolveScriptMacros(script){
     script = script && script.replace(/\$val\(\"?(\w*)\"?\)/g, function(a,b){
-        var v = $("#" + b ).val() || $("#" + b ).text();
-        if (!v && window[b] && typeof window[b] === "function"){
+        var n = $("#" + b );
+        var v = null;
+        if (n.length > 0){
+            if (n.is(':checkbox')){
+                v = n.is(':checked').toString();
+            }else{
+                v = $("#" + b ).val() || $("#" + b ).text();
+            }
+        }
+        if (!v && v!=="" && window[b] && typeof window[b] === "function"){
             v = window[b]();
         }
-        if (!v && pixiedust[b] && typeof pixiedust[b] === "function"){
+        if (!v && v!=="" && pixiedust[b] && typeof pixiedust[b] === "function"){
             v = pixiedust[b]();
         }
-        if (!v){
+        if (!v && v!==""){
             console.log("Warning: Unable to resolve value for element ", b);
             return a;
+        }
+        if (typeof v === "object"){
+            return JSON.stringify(v)
+                .split('\\').join('\\\\')
+                .split("'''").join("\\'\\'\\'")
+                .split('"""').join('\\"\\"\\"')
         }
         return v.split('"').join('&quot;').split('\n').join('\\n');
     });
@@ -227,6 +262,9 @@ function preRun(element){
 
 function addOptions(command, options, override=true){
     function getStringRep(v) {
+        if (typeof v === 'string' || v instanceof String){
+            v = v.replace(/'/g,"\\\'");
+        }
         return "'" + v + "'";
     }
     for (var key in (options||{})){
@@ -282,21 +320,33 @@ function computeGeometry(element, execInfo){
     });
 }
 
-function readExecInfo(pd_controls, element, searchParents){
+function readScriptAttribute(element){
+    retValue = element.getAttribute("pd_script");
+    if (!retValue){
+        $(element).find("> pd_script").each(function(){
+            var type = this.getAttribute("type");
+            if (!type || type=="python"){
+                retValue = $(this).text();
+            }
+        })
+    }
+    return retValue;
+}
+
+function getAttribute(element, name, defValue, defValueIfKeyAlone){
+    if (!element.hasAttribute(name)){
+        return defValue;
+    }
+    retValue = element.getAttribute(name);
+    return retValue || defValueIfKeyAlone;
+}
+
+function readExecInfo(pd_controls, element, searchParents, fromExecInfo){
     if (searchParents === null || searchParents === undefined ){
         searchParents = true;
     }
-    {#special case pd_refresh points to another element #}
-    var refreshTarget = element.getAttribute("pd_refresh");
-    if (refreshTarget){
-        var node = $("#" + refreshTarget);
-        if (node.length){
-            pd_controls.refreshTarget = refreshTarget;
-            return readExecInfo(pd_controls, node.get(0));
-        }
-    }
-    var execInfo = {}
-    execInfo.options = {}
+    var execInfo = {"options":{}};
+    $.extend(execInfo, fromExecInfo || {});
     var hasOptions = false;
     $.each( element.attributes, function(){
         if (this.name.startsWith("option_")){
@@ -319,8 +369,9 @@ function readExecInfo(pd_controls, element, searchParents){
     $(element).find("> pd_options").each(function(){
         try{
             var options = JSON.parse($(this).text());
+            hasOptions = true;
             for (var key in options) { 
-                execInfo.options[key] = options[key]; 
+                execInfo.options[key] = resolveScriptMacros(options[key]); 
             }
         }catch(e){
             console.log("Error parsing pd_options, invalid json", e);
@@ -333,20 +384,18 @@ function readExecInfo(pd_controls, element, searchParents){
     }
 
     execInfo.options.widget = element.getAttribute("pd_widget");
+    execInfo.pixieapp = element.getAttribute("pd_app");
+    if (execInfo.pixieapp && !execInfo.targetDivId){
+        execInfo.options.targetDivId = execInfo.targetDivId = $(element).uniqueId().attr('id');
+    }
 
     computeGeometry(element, execInfo);
 
-    execInfo.script = element.getAttribute("pd_script");
-    if (!execInfo.script){
-        $(element).find("> pd_script").each(function(){
-            var type = this.getAttribute("type");
-            if (!type || type=="python"){
-                execInfo.script = $(this).text();
-            }
-        })
+    scriptAttr = readScriptAttribute(element);
+    if (scriptAttr){
+        execInfo.script = (execInfo.script || "") + "\n" + scriptAttr;
     }
-
-    execInfo.refresh = element.hasAttribute("pd_refresh");
+    execInfo.refresh = execInfo.refresh || (getAttribute(element, "pd_refresh", "false", "true")=='true');
     execInfo.norefresh = element.hasAttribute("pd_norefresh");
     execInfo.entity = element.hasAttribute("pd_entity") ? element.getAttribute("pd_entity") || "pixieapp_entity" : null;
 
@@ -368,7 +417,8 @@ function readExecInfo(pd_controls, element, searchParents){
         return addOptions(c, doptions);
     }
 
-    if (!hasOptions && (execInfo.refresh || execInfo.options.widget) && !execInfo.script){
+    if ( (!hasOptions && (execInfo.refresh || execInfo.options.widget) && !execInfo.script) 
+        || (!execInfo.script && execInfo.pixieapp)){
         execInfo.script = "#refresh";
     }
 
@@ -389,14 +439,32 @@ function readExecInfo(pd_controls, element, searchParents){
                 "self=ShellAccess['" + entity + "']\n" +
                 resolveScriptMacros( getParentScript(element) ) + '\n' +
                 resolveScriptMacros(execInfo.script);
-            
-            if ( ( (!dialog && !execInfo.targetDivId) || execInfo.refresh || execInfo.entity || execInfo.options.widget) && 
+            if ( execInfo.pixieapp){
+                var locOptions = execInfo.options;
+                locOptions.cell_id = pd_controls.options.cell_id;
+                function makePythonStringOrNone(s){
+                    return !s?"None":('"""' + s + '"""')
+                }
+                function getCellMetadata(){
+                    var cell = pixiedust.getCell(execInfo.options.cell_id);
+                    var retValue = cell?cell._metadata:{};
+                    return JSON.stringify(retValue || {});
+                }
+                execInfo.script += "\nfrom pixiedust.display.app.pixieapp import runPixieApp" + 
+                    "\ntrue=True\nfalse=False\nnull=None" +
+                    "\nrunPixieApp('" + 
+                    execInfo.pixieapp + "', options=" + JSON.stringify(locOptions) 
+                    + ",parent_command=" + makePythonStringOrNone(pd_controls.command)
+                    + ",parent_pixieapp=" + makePythonStringOrNone(pd_controls.options.nostore_pixieapp)
+                    + ",cell_metadata=" + getCellMetadata()
+                    + ")";
+            }else if ( ( execInfo.refresh || execInfo.entity || execInfo.options.widget) && 
                     !execInfo.norefresh && $(element).children("target[pd_target]").length == 0){
                 {#include a refresh of the whole screen#}
                 execInfo.script += "\n" + applyEntity(pd_controls.command, execInfo.entity, execInfo.options)
             }else{
                 {#make sure we have a targetDivId#}
-                execInfo.targetDivId=execInfo.targetDivId || "dummy";
+                execInfo.targetDivId=execInfo.targetDivId || "pixiedust_dummy";
             }
         }else{
             console.log("Unable to extract entity variable from command", pd_controls.command);
@@ -444,6 +512,23 @@ function readExecInfo(pd_controls, element, searchParents){
         }
     }
 
+    {#special case pd_refresh points to another element #}
+    var refreshTarget = element.getAttribute("pd_refresh");
+    if (refreshTarget){
+        var retQueue = [execInfo];
+        var targets = refreshTarget.split(",");
+        $.each( targets, function(index){
+            var node = $("#" + this);
+            if (node.length){
+                pd_controls.refreshTarget = this;
+                var thisexecInfo = {"options":{}};
+                thisexecInfo.options.targetDivId = this;
+                retQueue.push( readExecInfo(pd_controls, node.get(0), false, thisexecInfo) );
+            }
+        });
+        return retQueue
+    }
+
     console.log("execution info: ", execInfo);
     return execInfo;
 }
@@ -456,21 +541,30 @@ function runElement(element, searchParents){
         });
     }
     var execQueue = [];
+    function addToQueue(execInfo){
+        if (Array.isArray(execInfo)){
+            execInfo.forEach(function(exec){
+                execQueue.push(exec);
+            });
+        }else{
+            execQueue.push(execInfo);
+        }
+    }
     if (pd_controls){
         pd_controls = JSON.parse(pd_controls);
         {#read the current element#}
-        execQueue.push( readExecInfo(pd_controls, element, searchParents) );
+        addToQueue( readExecInfo(pd_controls, element, searchParents) );
 
         {#get other execution targets if any#}
         $(element).children("target[pd_target]").each(function(){
-            execQueue.push( readExecInfo(pd_controls, this, searchParents))
+            addToQueue( readExecInfo(pd_controls, this, searchParents))
         });
     }
     return execQueue;
 }
 
 function filterNonTargetElements(element){
-    if (element && ["I", "DIV", "SELECT"].includes(element.tagName)){
+    if (element && ["I", "DIV"].includes(element.tagName)){
         if (!element.hasAttribute("pd_options") || $(element).find("> pd_options").length == 0 || element.hasAttribute("pd_render_onload")){
             return filterNonTargetElements(element.parentElement);
         }
@@ -479,7 +573,7 @@ function filterNonTargetElements(element){
 }
 
 {#Dynamically add click handler on the pixiedust chrome menus#}
-$(document).on( "click", "[pixiedust]", function(event){
+function processEvent(event){
     execQueue = runElement(filterNonTargetElements(event.target));
     {#execute#}
     $.each( execQueue, function(index, value){
@@ -488,6 +582,16 @@ $(document).on( "click", "[pixiedust]", function(event){
             value.execute();
         }
     });
+}
+$(document).on( "click", "[pixiedust]", function(event){
+    if (event.target.tagName == "SELECT" || $(event.target).is(':checkbox')){
+        return;
+    }
+    processEvent(event)
+});
+
+$(document).on( "change", "[pixiedust]", function(event){
+    processEvent(event)
 });
 
 {#handler for customer pd_event#}
@@ -524,7 +628,6 @@ $(document).on("pd_event", function(event, eventInfo){
             if (accept(this)){
                 var thisId = $(this).uniqueId().attr('id');
                 this.setAttribute( "id", thisId );
-                $(this).addClass("no_loading_msg");
                 if (!this.hasAttribute("pd_target") ){
                     this.setAttribute("pd_target", this.getAttribute("id") );
                 }

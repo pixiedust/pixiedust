@@ -17,7 +17,8 @@ from pixiedust.display import display
 from pixiedust.display.display import *
 from pixiedust.utils.shellAccess import ShellAccess
 from pixiedust.utils import Logger
-from six import iteritems
+from six import iteritems, string_types
+from collections import OrderedDict
 import inspect
 import sys
 from six import string_types
@@ -28,11 +29,23 @@ def route(**kw):
         return fn
     return route_dec
 
+#Global object enables system wide customization of PixieApp run option
+pixieAppRunCustomizer = None
+
+def runPixieApp(app, parentApp=None, entity=None, **kwargs):
+    if isinstance(app, PixieDustApp):
+        app.run(entity, **kwargs)
+    elif isinstance(app, string_types):
+        parts = app.split('.')
+        getattr(__import__('.'.join(parts[:-1]), None, None, [parts[-1]], 0), parts[-1])().run(entity, **kwargs)
+    else:
+        raise ValueError("Invalid argument to runPixieApp. Only PixieApp or String allowed")
+
 @Logger()
 class PixieDustApp(Display):
 
     routesByClass = {}
-    
+
     def getOptionValue(self, optionName):
         #first check if the key is an field of the class
         option = getattr(self.entity, optionName) if self.entity is not None and hasattr(self.entity, optionName) else None
@@ -40,7 +53,7 @@ class PixieDustApp(Display):
         if callable(option):
             option = None
         if option is None:
-            option = self.options.get(optionName,None)
+            option = self.options.get(optionName, None)
         return option
 
     def matchRoute(self, route):
@@ -54,7 +67,7 @@ class PixieDustApp(Display):
         argspec = inspect.getargspec(method)
         args = argspec.args
         args = args[1:] if hasattr(method, "__self__") else args
-        return dict(zip([a for a in args],[ None if arg not in route else self.getOptionValue(arg) for arg in args] ) )
+        return OrderedDict(zip([a for a in args],[ self.getOptionValue(arg) for arg in args] ) )
 
     def doRender(self, handlerId):
         if self.__class__.__name__ in PixieDustApp.routesByClass:
@@ -70,6 +83,7 @@ class PixieDustApp(Display):
                         self.debug("match found: {}".format(t[0]))
                         meth = getattr(self, t[1])
                         injectedArgs = self.injectArgs(meth, t[0])
+                        self.debug("Injected args: {}".format(injectedArgs))
                         retValue = meth(*list(injectedArgs.values()))
                         return
                 if defRoute:
@@ -155,13 +169,18 @@ def PixieApp(cls):
             ShellAccess[var] = self
 
         self.runInDialog = kwargs.get("runInDialog", "false") is "true"
-        options = {"runInDialog": "true" if self.runInDialog else "false"}
+        options = {"nostore_pixieapp": var, "nostore_ispix":"true", "runInDialog": "true" if self.runInDialog else "false"}
         if self.runInDialog:
-            options.update( self.getDialogOptions() )
+            options.update(self.getDialogOptions())
 
-        options.update( {'handlerId': decoName(cls, "id") })
+        options.update({'handlerId': decoName(cls, "id")})
+        if "options" in kwargs and isinstance(kwargs['options'], dict):
+            options.update(kwargs['options'])
+        if pixieAppRunCustomizer is not None and callable(getattr(pixieAppRunCustomizer, "customizeOptions", None)):
+            pixieAppRunCustomizer.customizeOptions(options)
 
-        s = "display({}{})".format(var, reduce(lambda k,v: k + "," + v[0] + "='" + v[1] + "'", iteritems(options), ""))
+        opts = [(k, str(v).lower() if isinstance(v, bool) else v) for (k,v) in iteritems(options) if v is not None]
+        s = "display({}{})".format(var, reduce(lambda k,v: k + "," + v[0] + "='" + str(v[1]) + "'", opts, ""))
         try:
             sys.modules['pixiedust.display'].pixiedust_display_callerText = s
             locals()[var] = self
@@ -197,12 +216,12 @@ def PixieApp(cls):
                 if callable(fn):
                     return fn(options, entity)
         return None
-    
+
     displayHandlerMetaClass = type( decoName(cls, "Meta"), (DisplayHandlerMeta,), {
             "getMenuInfo": getMenuInfo,
             "newDisplayHandler": newDisplayHandler
         })
-    
+
     displayHandlerMeta = displayHandlerMetaClass()
     ShellAccess["displayHandlerMeta"] = displayHandlerMeta
     registerDisplayHandler( displayHandlerMeta )

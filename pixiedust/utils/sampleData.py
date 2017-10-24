@@ -212,8 +212,25 @@ class Downloader(object):
             print("Downloading '{0}' from {1}".format(displayName, url))
             with tempfile.NamedTemporaryFile(delete=False) as f:
                 bytesDownloaded = self.write(urlopen(req), f)
-                path = f.name
-                self.dataDef["path"] = path = f.name
+                path = f.name            
+            if url.endswith(".zip"):
+                #unzip first and get the first file in it
+                print("Extracting first item in zip file...")
+                import zipfile
+                import shutil
+                zfile = zipfile.ZipFile(path, 'r')
+                if len(zfile.filelist)==0:
+                    raise(Exception("Error: zip file is empty"))
+                with tempfile.NamedTemporaryFile(delete=False) as zf:
+                    with zfile.open( zfile.filelist[0], 'r') as first_file:
+                        print("File extracted: {}".format(first_file.name))
+                        shutil.copyfileobj( first_file, zf)
+                    path = zf.name
+                
+            self.dataDef["path"] = path
+            self.dataDef["transient"] = True
+            global dataDefs
+            dataDefs[url] = self.dataDef
         if path:
             try:
                 if bytesDownloaded > 0:

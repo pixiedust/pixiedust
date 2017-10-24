@@ -2,11 +2,21 @@
     function getTargetNode(){
         return $('#' + ($targetDivId || ("wrapperHTML"+ pd_prefix)));
     }
+    function setHTML(targetNode, contents){
+        var pd_elements = []
+        targetNode.children().each(function(){
+            if (this.tagName.toLowerCase().startsWith("pd_")){
+                pd_elements.push($(this).clone());
+            }
+        })
+        targetNode.html(contents);
+        if (pd_elements.length > 0 ){
+            targetNode.append(pd_elements);
+        }
+        return true;
+    }
     var cellId = options.cell_id || "";
-    var curCell=IPython.notebook.get_cells().filter(function(cell){
-        return cell.cell_id==cellId;
-    });
-    curCell=curCell.length>0?curCell[0]:null;
+    var curCell = pixiedust.getCell(cellId);
     console.log("curCell",curCell);
     var startWallToWall;
     //Resend the display command
@@ -15,10 +25,10 @@
             reply : function(){
                 if ( !callbacks.response ){
                     if (!user_controls.partialUpdate){
-                        getTargetNode().html("");
-                    }
-                    if (user_controls.onDisplayDone){
-                        user_controls.onDisplayDone(getTargetNode());
+                        setHTML(getTargetNode(), "");
+                        if (user_controls.onDisplayDone){
+                            user_controls.onDisplayDone(getTargetNode());
+                        }
                     }
                 }
             },
@@ -45,11 +55,12 @@
                 }
                 var msg_type=msg.header.msg_type;
                 var content = msg.content;
+                var targetNodeUpdated = false;
                 if(msg_type==="stream"){
                     if (user_controls.onSuccess){
                         user_controls.onSuccess(content.text);
                     }else{
-                        getTargetNode().html(content.text);
+                        targetNodeUpdated = setHTML(getTargetNode(), content.text);
                     }
                 }else if (msg_type==="display_data" || msg_type==="execute_result"){
                     var html=null;
@@ -74,11 +85,11 @@
                             if (user_controls.onSuccess){
                                 user_controls.onSuccess(html);
                             }else{
-                                getTargetNode().html(html);
+                                targetNodeUpdated = setHTML(getTargetNode(), html);
                             }
                         }catch(e){
                             console.log("Invalid html output", e, html);
-                            getTargetNode().html( "Invalid html output: " + e.message + "<pre>" 
+                            targetNodeUpdated = setHTML(getTargetNode(),  "Invalid html output: " + e.message + "<pre>" 
                                 + html.replace(/>/g,'&gt;').replace(/</g,'&lt;').replace(/"/g,'&quot;') + "<pre>");
                         }
 
@@ -116,6 +127,9 @@
                         }
                     }
                 }else if (msg_type === "error") {
+                    {% if gateway %}
+                    targetNodeUpdated = setHTML(getTargetNode(), content.traceback);
+                    {%else%}
                     require(['base/js/utils'], function(utils) {
                         var tb = content.traceback;
                         console.log("tb",tb);
@@ -128,28 +142,35 @@
                             if (user_controls.onError){
                                 user_controls.onError(data);
                             }else{
-                                getTargetNode().html("<pre>" + data +"</pre>");
+                                targetNodeUpdated = setHTML(getTargetNode(), "<pre>" + data +"</pre>");
                             }
                         }
                     });
+                    {%endif%}
                 }else{
                     callbacks.response = false;
                 }
-                if (user_controls.onDisplayDone){
+                if (targetNodeUpdated && user_controls.onDisplayDone){
                     user_controls.onDisplayDone(getTargetNode());
                 }
             }
         }
     }
-    
+    {% if gateway %}
+    if(true){
+    {% else %}
     if (IPython && IPython.notebook && IPython.notebook.session && IPython.notebook.session.kernel){
+    {% endif %}
         var command = user_controls.script || pd_controls.command.replace("cellId",cellId);
         if ( !user_controls.script){
-            function addOptions(options, override=true){
+            function addOptions(options, override=true, ignoreKeys=[]){
                 function getStringRep(v) {
                     return "'" + v + "'";
                 }
                 for (var key in (options||{})){
+                    if (ignoreKeys.indexOf(key)>=0){
+                        continue;
+                    }
                     var value = options[key];
                     var hasValue = value != null && typeof value !== 'undefined' && value !== '';
                     var replaceValue = hasValue ? (key+"=" + getStringRep(value) ) : "";
@@ -170,7 +191,8 @@
                 addOptions(cellMetadata.displayParams);
                 addOptions({"showchrome":"true"});
             }else if (curCell && curCell._metadata.pixiedust ){
-                addOptions(curCell._metadata.pixiedust.displayParams || {}, pd_controls.useCellMetadata);
+                ignoreKeys = pd_controls.options.nostore_pixieapp?["handlerId"]:[];
+                addOptions(curCell._metadata.pixiedust.displayParams || {}, pd_controls.useCellMetadata, ignoreKeys);
             }
             addOptions(user_controls.options||{});
             var pattern = "\\w*\\s*=\\s*'(\\\\'|[^'])*'";
@@ -205,7 +227,7 @@
             })
             {% endif %}
         }
-        if(curCell&&curCell.output_area){
+        if(curCell&&curCell.output_area){            
             if ( !user_controls.nostoreMedatadata ){
                 curCell._metadata.pixiedust = curCell._metadata.pixiedust || {}
                 curCell._metadata.pixiedust.displayParams=displayParams
@@ -220,7 +242,7 @@
         }
         $('#wrapperJS' + pd_prefix).html("")
         if (!getTargetNode().hasClass( "no_loading_msg" )){
-            getTargetNode().html(
+            setHTML(getTargetNode(), 
                 '<div style="width:100px;height:60px;left:47%;position:relative">'+
                     '<i class="fa fa-circle-o-notch fa-spin" style="font-size:48px"></i>'+
                 '</div>'+
@@ -230,6 +252,23 @@
             );
         }
         console.log("Running command2",command);
+        {% if gateway %}
+        $.post({
+            url: "/executeCode/" + pd_controls.options.gateway,
+            data: command, 
+            contentType: "text/plain",
+            success: function(data){
+                data = JSON.parse(data);
+                data.forEach( function(msg){
+                    if (msg.channel == "iopub"){
+                        callbacks.iopub.output(msg);
+                    }
+                });
+                console.log("result: ", data);
+            }
+        });
+        {%else%}
         IPython.notebook.session.kernel.execute(command, callbacks, {silent:true,store_history:false,stop_on_error:true});
+        {%endif%}
     }
 }()
