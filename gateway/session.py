@@ -91,20 +91,27 @@ except Exception as e:
             cookie = cookie.decode("utf-8")
         return cookie
 
-    def get_managed_client(self, request_handler, pixieapp_def=None):
+    def get_managed_client(self, request_handler, pixieapp_def=None, retry=False):
         if pixieapp_def is None:
             return ManagedClientPool.instance().get()
 
         run_id = self.get_pixieapp_run_id(request_handler, pixieapp_def)
-        return self.get_managed_client_by_run_id(run_id, pixieapp_def)
+        return self.get_managed_client_by_run_id(run_id, pixieapp_def, retry)
 
-    def get_managed_client_by_run_id(self, run_id, pixieapp_def = None):
+    def get_managed_client_by_run_id(self, run_id, pixieapp_def = None, retry=False):
         managed_client = self.run_ids[run_id] if run_id in self.run_ids else None
-        if managed_client is None and pixieapp_def is not None:
-            managed_client = ManagedClientPool.instance().get(pixieapp_def)
-            self.run_ids[run_id] = managed_client
+        if pixieapp_def is not None:
+            if managed_client is None:
+                managed_client = ManagedClientPool.instance().get(pixieapp_def)
+                self.run_ids[run_id] = managed_client
+            elif managed_client.get_app_stats(pixieapp_def) is None:
+                del self.run_ids[run_id]
+                if retry:
+                    return self.get_managed_client_by_run_id(run_id, pixieapp_def, False)
+                else:
+                    raise Exception("Pixieapp has been restarted for this session. Please refresh the page")
         if managed_client is None:
-            raise Exception("Invalid run_id: {}".format(run_id))
+            raise Exception("Invalid run_id: {} - {}".format(run_id, pixieapp_def))
         return managed_client
 
 class SessionManager(SingletonConfigurable):

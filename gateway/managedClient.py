@@ -32,8 +32,8 @@ class ManagedClient(object):
         self.kernel_manager = kernel_manager
         self.current_iopub_handler = None
         self.installed_modules = []
-        self.app_stats = ManagedClientAppMetrics()
-        self.run_stats = ManagedClientRunMetrics()
+        self.app_stats = None
+        self.run_stats = None
         #auto-start
         self.start(kernel_name)
 
@@ -62,6 +62,8 @@ class ManagedClient(object):
         }
 
     def start(self, kernel_name=None):
+        self.app_stats = ManagedClientAppMetrics()
+        self.run_stats = ManagedClientRunMetrics()
         self.kernel_id = self.kernel_manager.start_kernel(kernel_name=kernel_name).result()
         kernel = self.kernel_manager.get_kernel(self.kernel_id)
 
@@ -159,8 +161,7 @@ print(json.dumps( {"installed_modules": list(pkg_resources.AvailableDistribution
         with (yield self.lock.acquire()):
             yield gen.maybe_future(self.shutdown())
             self.installed_modules = []
-            self.stats = {}
-            yield gen.maybe_future(self.start())
+            yield gen.maybe_future(self.start(self.run_stats["kernel_name"]))
 
     def _date_json_serializer(self, obj):
         if isinstance(obj, datetime):
@@ -297,7 +298,9 @@ class ManagedClientPool(SingletonConfigurable):
         if len(clients)>0:
             return clients[0]
         print("Creating a new Managed client for kernel: {}".format(kernel_name))
-        self.managed_clients.append(ManagedClient(self.kernel_manager, kernel_name=kernel_name))
+        client = ManagedClient(self.kernel_manager, kernel_name=kernel_name)
+        self.managed_clients.append(client)
+        return client
 
     def get_stats(self, kernel_id=None):
         return {mc.kernel_id:mc.get_stats() for mc in self.managed_clients

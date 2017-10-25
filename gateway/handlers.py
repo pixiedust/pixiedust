@@ -80,7 +80,7 @@ class PixieAppHandler(BaseHandler):
         #check the notebooks first
         pixieapp_def = NotebookMgr.instance().get_notebook_pixieapp(clazz)
         code = None
-        managed_client = self.session.get_managed_client(self, pixieapp_def)
+        managed_client = self.session.get_managed_client(self, pixieapp_def, True)
         if pixieapp_def is not None:
             try:
                 yield pixieapp_def.warmup(managed_client)
