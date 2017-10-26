@@ -65,10 +65,9 @@ class PixieAppHandler(BaseHandler):
     Entry point for running a PixieApp
     """
     def handle_exception(self, exc):
-        self.write("<div>Code Execution error <pre>{}</pre></div>".format(exc))
+        self.write("<div>Code Execution error:</div>")
         self.write("<pre>")
-        for line in traceback.format_stack():
-            self.write(line)
+        traceback.print_exc(file=self)
         self.write("</pre>")
         #raise web.HTTPError(500, u'Execution error: {}'.format(exc))
         self.finish()

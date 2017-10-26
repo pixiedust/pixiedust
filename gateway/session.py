@@ -15,6 +15,7 @@
 # -------------------------------------------------------------------------------
 import time
 import uuid
+import six
 from traitlets import Int
 from traitlets.config.configurable import SingletonConfigurable
 from tornado.ioloop import PeriodicCallback
@@ -87,7 +88,7 @@ except Exception as e:
             cookie = str(uuid.uuid4())
             request_handler.set_secure_cookie(cookie_name, cookie)
             setattr(request_handler, cookie_name, cookie)
-        else:
+        elif six.PY2:
             cookie = cookie.decode("utf-8")
         return cookie
 
