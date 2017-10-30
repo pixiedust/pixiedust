@@ -41,6 +41,13 @@ class Session(object):
         """
         self.last_accessed = round(time.time()*1000)
 
+    def get_users_stats(self, mc_id):
+        count = 0
+        for managed_client in list(set(self.run_ids.values())):
+            if managed_client.kernel_id == mc_id:
+                count += 1
+        return {"count": count}
+
     def shutdown(self):
         """
         Last chance to clean up before deleting the session
@@ -81,25 +88,37 @@ except Exception as e:
             return None
         cookie_name = self._get_run_id_cookie_name(pixieapp_def)
         cookie = request_handler.get_secure_cookie(cookie_name)
+        if cookie is None and hasattr(request_handler, cookie_name):
+            cookie = getattr(request_handler, cookie_name)
         if cookie is None:
             cookie = str(uuid.uuid4())
             request_handler.set_secure_cookie(cookie_name, cookie)
-        else:
+            setattr(request_handler, cookie_name, cookie)
+        elif hasattr(cookie, "decode"):
             cookie = cookie.decode("utf-8")
         return cookie
 
-    def get_managed_client(self, request_handler, pixieapp_def=None):
+    def get_managed_client(self, request_handler, pixieapp_def=None, retry=False):
         if pixieapp_def is None:
             return ManagedClientPool.instance().get()
 
         run_id = self.get_pixieapp_run_id(request_handler, pixieapp_def)
-        return self.get_managed_client_by_run_id(run_id, True)
+        return self.get_managed_client_by_run_id(run_id, pixieapp_def, retry)
 
-    def get_managed_client_by_run_id(self, run_id, create = False):
+    def get_managed_client_by_run_id(self, run_id, pixieapp_def = None, retry=False):
         managed_client = self.run_ids[run_id] if run_id in self.run_ids else None
-        if managed_client is None and create:
-            managed_client = ManagedClientPool.instance().get()
-            self.run_ids[run_id] = managed_client
+        if pixieapp_def is not None:
+            if managed_client is None:
+                managed_client = ManagedClientPool.instance().get(pixieapp_def)
+                self.run_ids[run_id] = managed_client
+            elif managed_client.get_app_stats(pixieapp_def) is None:
+                del self.run_ids[run_id]
+                if retry:
+                    return self.get_managed_client_by_run_id(run_id, pixieapp_def, False)
+                else:
+                    raise Exception("Pixieapp has been restarted for this session. Please refresh the page")
+        if managed_client is None:
+            raise Exception("Invalid run_id: {} - {}".format(run_id, pixieapp_def))
         return managed_client
 
 class SessionManager(SingletonConfigurable):
@@ -119,6 +138,12 @@ class SessionManager(SingletonConfigurable):
 
     def shutdown(self):
         self.session_validation_callback.stop()
+
+    def get_users_stats(self, mc_id):
+        count = 0
+        for session in list(self.session_map.values()):
+            count += session.get_users_stats(mc_id)['count']
+        return {"count": count}
 
     def validate_sessions(self):
         current_time = round(time.time()*1000)

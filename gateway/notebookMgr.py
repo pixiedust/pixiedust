@@ -181,6 +181,7 @@ class PixieappDef():
         pixiedust_meta = notebook.get("metadata",{}).get("pixiedust",{})
         self.title = pixiedust_meta.get("title",None)
         self.deps = pixiedust_meta.get("imports", {})
+        self.pref_kernel = pixiedust_meta.get("kernel", None)
 
         #validate and process the code
         symbols = get_symbol_table(ast_parse(self.warmup_code + "\n" + self.run_code))
@@ -215,13 +216,13 @@ class PixieappDef():
 
     @gen.coroutine
     def warmup(self, managed_client):
-        exc = managed_client.get_running_stats(self, 'warmup_exception')
+        exc = managed_client.get_app_stats(self, 'warmup_exception')
         if exc is not None:
             raise exc
-        warmup_future = managed_client.get_running_stats(self, 'warmup_future')
+        warmup_future = managed_client.get_app_stats(self, 'warmup_future')
         if warmup_future is None:
             warmup_future = Future()
-            managed_client.set_running_stats(self, 'warmup_future', warmup_future)
+            managed_client.set_app_stats(self, 'warmup_future', warmup_future)
             if self.warmup_code == "":
                 warmup_future.set_result("")
             else:
@@ -232,7 +233,7 @@ class PixieappDef():
                         warmup_future.done()
                     except Exception as exc:
                         app_log.exception(exc)
-                        managed_client.set_running_stats(self, 'warmup_exception', exc)
+                        managed_client.set_app_stats(self, 'warmup_exception', exc)
                         raise exc
         raise gen.Return(warmup_future)
 
