@@ -158,6 +158,8 @@ class PublishApp(BaseGatewayApp):
         except Exception as exc:
             icon="fa-times"
             message = str(exc)
+            self.error( "Unable to validate gateway server {} - {}".format(server, exc))
+
 
         if gateway_server is not None:
             print("""

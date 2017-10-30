@@ -15,6 +15,9 @@
 # -------------------------------------------------------------------------------
 import traceback
 import json
+import inspect
+import os
+from collections import OrderedDict
 import nbformat
 import tornado
 from tornado import gen, web
@@ -29,6 +32,16 @@ from .utils import sanitize_traceback
 class BaseHandler(tornado.web.RequestHandler):
     def initialize(self):
         pass
+
+    def _handle_request_exception(self, exc):
+        self.write("<div>Unexpected error:</div>")
+        self.write("<pre>")
+        traceback.print_exc(file=self)
+        self.write("</pre>")
+        self.finish()
+
+    def get_template_path(self):
+        return os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 
     def prepare(self):
         """
@@ -64,14 +77,6 @@ class PixieAppHandler(BaseHandler):
     """
     Entry point for running a PixieApp
     """
-    def handle_exception(self, exc):
-        self.write("<div>Code Execution error:</div>")
-        self.write("<pre>")
-        traceback.print_exc(file=self)
-        self.write("</pre>")
-        #raise web.HTTPError(500, u'Execution error: {}'.format(exc))
-        self.finish()
-
     @gen.coroutine
     def get(self, *args, **kwargs):
         clazz = args[0]
@@ -81,12 +86,8 @@ class PixieAppHandler(BaseHandler):
         code = None
         managed_client = self.session.get_managed_client(self, pixieapp_def, True)
         if pixieapp_def is not None:
-            try:
-                yield pixieapp_def.warmup(managed_client)
-                code = pixieapp_def.get_run_code(self.session, self.session.get_pixieapp_run_id(self, pixieapp_def))
-            except Exception as exc:
-                self.handle_exception(exc)
-                return
+            yield pixieapp_def.warmup(managed_client)
+            code = pixieapp_def.get_run_code(self.session, self.session.get_pixieapp_run_id(self, pixieapp_def))
         else:
             instance_name = self.session.getInstanceName(clazz)
             code = """
@@ -103,11 +104,8 @@ clazz = "{clazz}"
             """.format(clazz=args[0], instance_name=instance_name)
 
         with (yield managed_client.lock.acquire()):
-            try:
-                response = yield managed_client.execute_code(code, self.result_extractor)
-                self.render("template/main.html", response = response, title=pixieapp_def.title if pixieapp_def is not None else None)
-            except Exception as exc:
-                self.handle_exception(exc)
+            response = yield managed_client.execute_code(code, self.result_extractor)
+            self.render("template/main.html", response = response, title=pixieapp_def.title if pixieapp_def is not None else None)
 
     def result_extractor(self, result_accumulator):
         res = []
@@ -128,7 +126,7 @@ clazz = "{clazz}"
                 app_log.warning("Message type not processed: %s", msg['header']['msg_type'])
         return ''.join(res)
 
-class PixieDustHandler(tornado.web.RequestHandler):
+class PixieDustHandler(BaseHandler):
     def initialize(self, loadjs):
         self.loadjs = loadjs
 
@@ -143,11 +141,21 @@ class PixieDustHandler(tornado.web.RequestHandler):
         self.write(disp.renderTemplate("pixiedust.js" if self.loadjs else "pixiedust.css"))
         self.finish()
 
-class PixieAppListHandler(tornado.web.RequestHandler):
+class PixieAppListHandler(BaseHandler):
     def get(self):
-        self.render("template/pixieappList.html", pixieapp_list=NotebookMgr.instance().notebook_pixieapps())
+        self.redirect("/admin/apps")
 
-class PixieAppPublishHandler(tornado.web.RequestHandler):
+class AdminHandler(BaseHandler):
+    def get(self, tab_id):
+        tab_definitions = OrderedDict([
+            ("apps", {"name": "PixieApps", "path": "pixieappList.html",
+                      "args": lambda: {"pixieapp_list":NotebookMgr.instance().notebook_pixieapps()}}),
+            ("stats", {"name": "Kernel Stats", "path": "adminStats.html"})
+        ])
+        tab_id = tab_id or "apps"
+        self.render("template/adminConsole.html", tab_definitions=tab_definitions, selected_tab_id=tab_id)
+
+class PixieAppPublishHandler(BaseHandler):
     @gen.coroutine
     def post(self, name):
         payload = self.request.body.decode('utf-8')
@@ -161,7 +169,7 @@ class PixieAppPublishHandler(tornado.web.RequestHandler):
             print(traceback.print_exc())
             raise web.HTTPError(400, u'Publish PixieApp error: {}'.format(exc))
 
-class ChartShareHandler(tornado.web.RequestHandler):
+class ChartShareHandler(BaseHandler):
     def post(self, chart_id):
         payload = json.loads(self.request.body.decode('utf-8'))
         try:
@@ -181,7 +189,7 @@ class ChartShareHandler(tornado.web.RequestHandler):
             self.set_status(404)
             self.write("Chart not found")
 
-class StatsHandler(tornado.web.RequestHandler):
+class StatsHandler(BaseHandler):
     """
     Provides various stats about the running kernels
     """
@@ -190,7 +198,10 @@ class StatsHandler(tornado.web.RequestHandler):
 
     def get(self, command):
         if command is None:
-            self.write(ManagedClientPool.instance().get_stats())
+            stats = ManagedClientPool.instance().get_stats()
+            for mc_id in stats:
+                stats[mc_id]['users'] = SessionManager.instance().get_users_stats(mc_id)
+            self.write(stats)
         elif command == "kernels":
             specs = self.kernel_manager.kernel_spec_manager.get_all_specs()
             for k, v in iteritems(specs):

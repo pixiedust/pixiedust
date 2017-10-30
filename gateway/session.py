@@ -41,6 +41,13 @@ class Session(object):
         """
         self.last_accessed = round(time.time()*1000)
 
+    def get_users_stats(self, mc_id):
+        count = 0
+        for managed_client in list(set(self.run_ids.values())):
+            if managed_client.kernel_id == mc_id:
+                count += 1
+        return {"count": count}
+
     def shutdown(self):
         """
         Last chance to clean up before deleting the session
@@ -131,6 +138,12 @@ class SessionManager(SingletonConfigurable):
 
     def shutdown(self):
         self.session_validation_callback.stop()
+
+    def get_users_stats(self, mc_id):
+        count = 0
+        for session in list(self.session_map.values()):
+            count += session.get_users_stats(mc_id)['count']
+        return {"count": count}
 
     def validate_sessions(self):
         current_time = round(time.time()*1000)

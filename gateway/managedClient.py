@@ -288,7 +288,7 @@ class ManagedClientPool(SingletonConfigurable):
             log_messages.append("Done Validating Kernels...")
 
     def get(self, pixieapp_def=None):
-        kernel_name = pixieapp_def.pref_kernel
+        kernel_name = None if pixieapp_def is None else pixieapp_def.pref_kernel
         if kernel_name is not None:
             kernel_name = None if kernel_name.strip() == "" else kernel_name.strip()
         if pixieapp_def is None or kernel_name is None:
