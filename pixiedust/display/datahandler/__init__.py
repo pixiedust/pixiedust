@@ -14,17 +14,25 @@
 # limitations under the License.
 # -------------------------------------------------------------------------------
 from pixiedust.utils.environment import Environment
+from pixiedust.display.streaming import StreamingDataAdapter
+import pixiedust.utils.dataFrameMisc as dataFrameMisc
+from .jsonDataHandler import JSONDataHandler
+from .pandasDataFrameHandler import PandasDataFrameDataHandler
 if Environment.hasSpark:
     from .pysparkDataFrameHandler import PySparkDataFrameDataHandler
-from .pandasDataFrameHandler import PandasDataFrameDataHandler
-import pixiedust.utils.dataFrameMisc as dataFrameMisc
-from pixiedust.display.streaming import *
+
+def isArrayOfDict(entity):
+    if not isinstance(entity, list):
+        return False
+    return all([isinstance(x, dict) for x in entity])
 
 def getDataHandler(options, entity):
     if dataFrameMisc.isPySparkDataFrame(entity):
         return PySparkDataFrameDataHandler(options, entity)
     elif dataFrameMisc.isPandasDataFrame(entity):
         return PandasDataFrameDataHandler(options, entity)
+    elif isinstance(entity, dict) or isArrayOfDict(entity):
+        return JSONDataHandler(options, entity)
     elif isinstance(entity, StreamingDataAdapter):
         return entity.getDisplayDataHandler(options, entity)
 
