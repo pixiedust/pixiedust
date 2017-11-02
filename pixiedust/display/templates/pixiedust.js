@@ -343,7 +343,7 @@ function getAttribute(element, name, defValue, defValueIfKeyAlone){
 
 function readExecInfo(pd_controls, element, searchParents, fromExecInfo){
     if (searchParents === null || searchParents === undefined ){
-        searchParents = true;
+        searchParents = !element.hasAttribute("pd_stop_propagation");
     }
     var execInfo = {"options":{}};
     $.extend(execInfo, fromExecInfo || {});
@@ -515,6 +515,7 @@ function readExecInfo(pd_controls, element, searchParents, fromExecInfo){
     {#special case pd_refresh points to another element #}
     var refreshTarget = element.getAttribute("pd_refresh");
     if (refreshTarget){
+        debugger;
         var retQueue = [execInfo];
         var targets = refreshTarget.split(",");
         $.each( targets, function(index){
@@ -584,7 +585,7 @@ function processEvent(event){
     });
 }
 $(document).on( "click", "[pixiedust]", function(event){
-    if (event.target.tagName == "SELECT" || $(event.target).is(':checkbox')){
+    if (event.target.tagName == "SELECT" || event.target.tagName == "INPUT" || $(event.target).is(':checkbox')){
         return;
     }
     processEvent(event)

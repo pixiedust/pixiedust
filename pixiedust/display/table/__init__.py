@@ -14,14 +14,16 @@
 # limitations under the License.
 # -------------------------------------------------------------------------------
 
-from .display import TableDisplay
-from ..display import *
 import pixiedust.utils.dataFrameMisc as dataFrameMisc
+from .display import TableDisplay
+from ..display import PixiedustDisplay, addId, DisplayHandlerMeta
 
 @PixiedustDisplay(isDefault=True)
 class TableDisplayMeta(DisplayHandlerMeta):
     @addId
     def getMenuInfo(self,entity, dataHandler):
+        if dataHandler is not None:
+            entity = dataHandler.entity
         if dataFrameMisc.isPySparkDataFrame(entity) or dataFrameMisc.isPandasDataFrame(entity):
             return [
                 {"categoryId": "Table", "title": "DataFrame Table", "icon": "fa-table", "id": "dataframe"}
@@ -33,5 +35,7 @@ class TableDisplayMeta(DisplayHandlerMeta):
             ]
         else:
             return []
-    def newDisplayHandler(self,options,entity):
+    def newDisplayHandler(self,options,entity, dataHandler):
+        if dataHandler is not None:
+            entity = dataHandler.entity
         return TableDisplay(options,entity)

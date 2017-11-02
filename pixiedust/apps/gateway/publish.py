@@ -63,7 +63,7 @@ class ImportsLookup(ast.NodeVisitor):
                 print("Unknown import found {}".format(module_name))
 
     def get_egg_url(self, pkg, module_name):
-        if requests.get("https://pypi.python.org/pypi/{}/json".format(module_name)).status_code == 200:
+        if requests.get("https://pypi.python.org/pypi/{}/json".format(module_name), timeout=5).status_code == 200:
             return None
         def try_location(base, name):
             ret = os.path.join(base,name)
@@ -111,6 +111,8 @@ class PublishApp(BaseGatewayApp):
     def setup(self):
         BaseGatewayApp.setup(self)
         self.kernel_spec = None
+        self.kernel_name = None
+        self.kernels = []
         self.lookup = None
         self.title = "Publish PixieApp to the web"
         self.tab_definitions = [{
@@ -133,22 +135,68 @@ class PublishApp(BaseGatewayApp):
         ]
         self.gateway_buttons = [{
             "title": "Publish",
-            "options": ["server", "title", "icon"]
+            "options": ["server", "title", "icon", "sel_kernel"]
         }]
-        
+        self.set_gateway_server()
+
+    def set_gateway_server(self, gateway_server = None):
+        server = gateway_server.strip("/ ") if gateway_server is not None else self.server.strip("/ ")
+        message = ""
+        icon = "fa-check"
+        try:
+            #get the list of kernels
+            response = requests.get("{}/stats/kernels".format(server), timeout=5)
+            if response.status_code != requests.codes.ok:
+                raise Exception(response.text)
+            kernels_spec = response.json()
+            if self.kernel_name and self.kernel_name in kernels_spec:
+                for spec in kernels_spec.values(): spec['default'] = False
+                kernels_spec[self.kernel_name]['default'] = True
+            self.kernels = [(kernel, spec['default']) for kernel,spec in iteritems(kernels_spec)]
+
+            message = "PixieGateway successfully validated. You can optionally pick a kernel in the Kernels tab"
+        except Exception as exc:
+            icon="fa-times"
+            message = str(exc)
+            self.error( "Unable to validate gateway server {} - {}".format(server, exc))
+
+
+        if gateway_server is not None:
+            print("""
+                    <span style="bottom:0px;position:absolute">
+                        <i style="font-size:2em" class="fa {}" aria-hidden="true"></i>
+                        <span>{}</span>
+                    </span>
+                """.format(icon, message))
+
+    @route(kernel_list="*")
+    def kernel_list(self):
+        return """
+        <select pd_stop_propagation id="sel_kernel{{prefix}}" class="form-control">
+            {%for kernel, default_value in this.kernels %}
+                <option {%if default_value%}selected{%endif%} value="{{kernel|escape}}">
+                    {{kernel|escape}}
+                </option>
+            {%endfor%}
+        </select>
+        """
+   
     def set_contents(self, contents):
         self.contents = json.loads(contents)
         self.contents['notebook']['metadata']['pixiedust'] = {}
         kernel_spec = self.contents['notebook']['metadata']['kernelspec']
+        self.kernel_name=kernel_spec['name']
         km = KernelManager(kernel_name=kernel_spec['name'])
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
             self.kernel_spec = json.dumps(km.kernel_spec.to_dict(), indent=4, sort_keys=True)
-    
+
     @route(gateway_server="*")
-    def publish(self, gateway_server, gateway_title, gateway_icon):
-        self.server = gateway_server.strip("/")
+    def publish(self, gateway_server, gateway_title, gateway_icon, gateway_sel_kernel):
+        self.server = gateway_server.strip("/ ")
         self.contents['notebook']['metadata']['pixiedust'].update({"title":gateway_title, "icon":gateway_icon})
+        if gateway_sel_kernel != "Default":
+            self.contents['notebook']['metadata']['pixiedust'].update({"kernel":gateway_sel_kernel})
         self.compute_imports()
         setUserPreference("pixie_gateway_server", gateway_server)
         response = requests.post(
