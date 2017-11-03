@@ -24,12 +24,14 @@ def test_store_chart():
 
     do_store_chart({
         "description":"mock description",
-        'chart':"<div>Here comes some chart</div>"
+        'chart':"<div>Here comes some chart</div>",
+        'rendererId':""
     })
 
     do_store_chart({
         "description":"with bokeh",
-        'chart':bokeh_rendering
+        'chart':bokeh_rendering,
+        'rendererId':"bokeh"
     })
 
     print("List after tests")
