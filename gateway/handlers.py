@@ -17,6 +17,7 @@ import traceback
 import json
 import inspect
 import os
+import re
 from collections import OrderedDict
 import nbformat
 import tornado
@@ -185,6 +186,34 @@ class ChartShareHandler(BaseHandler):
         chart_model = chart_storage.get_chart(chart_id)
         if chart_model is not None:
             self.render("template/showChart.html", chart_model=chart_model)
+        else:
+            self.set_status(404)
+            self.write("Chart not found")
+
+class ChartEmbedHandler(BaseHandler):
+    def get(self, chart_id, width, height):
+        chart_model = chart_storage.get_chart(chart_id)
+        if chart_model is not None:
+            if 'RENDERERID' in chart_model:
+                content = chart_model['CONTENT']
+                if chart_model['RENDERERID'] == 'bokeh':
+                    if width:
+                        regex = re.compile('(("|\')plot_width("|\')\s*:\s*[0-9]+)')
+                        content = re.sub(regex, '"plot_width":' + str(int(width) - 25), content)
+                    if height:
+                        regex = re.compile('(("|\')plot_height("|\')\s*:\s*[0-9]+)')
+                        content = re.sub(regex, '"plot_height":' + str(int(height) - 40), content)
+                if chart_model['RENDERERID'] == 'matplotlib':
+                    size = ';'
+                    if width:
+                        size += 'width:' + str(int(width) - 25) + 'px;'
+                    if height:
+                        size += 'height:' + str(int(height) - 40) + 'px;'
+                    regex = re.search('(<img.*)(?P<style_tag>style="[^"]+)([^<]*>)', content)
+                    if regex and regex.group('style_tag'):
+                        content = content.replace(regex.group('style_tag'), regex.group('style_tag') + size)
+                chart_model['CONTENT'] = content
+            self.render("template/embedChart.html", chart_model=chart_model)
         else:
             self.set_status(404)
             self.write("Chart not found")
