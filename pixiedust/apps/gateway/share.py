@@ -66,6 +66,7 @@ class ShareChartApp(BaseGatewayApp):
     def shareIt(self, gateway_server, gateway_description):
         self.server = gateway_server.strip('/')
         setUserPreference("pixie_gateway_server", gateway_server)
+        rendererid = ''
         with capture_output() as buf:
             try:
                 command = self.parent_command
@@ -73,6 +74,8 @@ class ShareChartApp(BaseGatewayApp):
                 if self.cell_metadata is not None and 'pixiedust' in self.cell_metadata and 'displayParams' in self.cell_metadata['pixiedust']:
                     for key,value in iteritems(self.cell_metadata['pixiedust']['displayParams']):
                         command = self.update_command(command, key, value)
+                        if key == 'rendererId':
+                            rendererid = value
                 command = self.update_command(command, "nostore_figureOnly", "true")
                 sys.modules['pixiedust.display'].pixiedust_display_callerText = command
                 for key in ShellAccess:
@@ -83,7 +86,8 @@ class ShareChartApp(BaseGatewayApp):
 
         payload = {
             "chart": "\n".join([output._repr_html_() for output in buf.outputs]),
-            "description": gateway_description
+            "description": gateway_description,
+            "rendererId": rendererid
         }
         
         try:
@@ -97,18 +101,36 @@ class ShareChartApp(BaseGatewayApp):
         font-size: larger;
         margin-left: 30px;
     }
+    .share h2 {
+        padding-bottom: 15px;
+    }
+    .share h2:not(:first-child) {
+        margin-top: 50px;
+    }
     .publish .summary{
         font-size: xx-large;
         text-align: center;
     }
+    .share textarea{
+        font-family: monospace;
+        resize: none;
+    }
     </style>
     <div class="share">
         <div class="summary">
-            <div>Chart Successfully shared</div>
+            <h2>Chart Successfully shared</h2>
             <div>
                 <a href="{{this.server}}/chart/{{this.chart_model['CHARTID']}}" target="blank">
                     {{this.server}}/chart/{{this.chart_model['CHARTID']}}
                 </a>
+            </div>
+            <h2>Embed the chart into your web app</h2>
+            <div>
+                <textarea class="form-control" rows="4"  readonly>
+&lt;object type="text/html" data="{{this.server}}/embed/{{this.chart_model['CHARTID']}}/600/400" width="600" height="400"&gt;
+    &lt;a href="{{this.server}}/embed/{{this.chart_model['CHARTID']}}"&gt;View Chart&lt;/a&gt;
+&lt;/object&gt;
+                </textarea>
             </div>
         </div>
     </div>
