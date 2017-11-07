@@ -149,9 +149,9 @@ class PixieAppListHandler(BaseHandler):
 class AdminHandler(BaseHandler):
     def get(self, tab_id):
         tab_definitions = OrderedDict([
-            ("apps", {"name": "PixieApps", "path": "pixieappList.html",
+            ("apps", {"name": "PixieApps", "path": "pixieappList.html", "description": "Published PixieApps",
                       "args": lambda: {"pixieapp_list":NotebookMgr.instance().notebook_pixieapps()}}),
-            ("stats", {"name": "Kernel Stats", "path": "adminStats.html"})
+            ("stats", {"name": "Kernel Stats", "path": "adminStats.html", "description": "PixieGateway Statistics"})
         ])
         tab_id = tab_id or "apps"
         self.render("template/adminConsole.html", tab_definitions=tab_definitions, selected_tab_id=tab_id)
