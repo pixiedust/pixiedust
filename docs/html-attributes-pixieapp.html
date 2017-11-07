@@ -56,6 +56,24 @@
 <p class="first admonition-title">Note</p>
 <p class="last">To build the pd_options value for display(), use the display() API in a separate cell. When the correct chart is created, simply copy the options from the cell metadata. (You&#8217;ll need to use the <em>View/Cell Toolbar/Edit Metadata</em> menu to show the &#8220;edit metadata&#8221; button.) You will also need to transform the JSON to the pd_options attribute format, e.g., no quote in the value, semi-colon separator, and &#8220;key=value&#8221; format.</p>
 </div>
+<p>You can now alternatively use JSON notation to configure pd_options. To do so, simply create a pd_options child element and directly store the JSON options as text. For example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">div</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;map{{prefix}}&quot;</span> <span class="n">pd_entity</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="n">pd_options</span><span class="o">&gt;</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;mapboxtoken&quot;</span><span class="p">:</span> <span class="s2">&quot;XXXXX&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;chartsize&quot;</span><span class="p">:</span> <span class="s2">&quot;90&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;aggregation&quot;</span><span class="p">:</span> <span class="s2">&quot;SUM&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;rowCount&quot;</span><span class="p">:</span> <span class="s2">&quot;500&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;handlerId&quot;</span><span class="p">:</span> <span class="s2">&quot;mapView&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;rendererId&quot;</span><span class="p">:</span> <span class="s2">&quot;mapbox&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;valueFields&quot;</span><span class="p">:</span> <span class="s2">&quot;IncidntNum&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;keyFields&quot;</span><span class="p">:</span> <span class="s2">&quot;X,Y&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;basemap&quot;</span><span class="p">:</span> <span class="s2">&quot;light-v9&quot;</span>
+    <span class="p">}</span>
+    <span class="o">&lt;/</span><span class="n">pd_options</span><span class="o">&gt;</span>
+<span class="o">&lt;/</span><span class="n">div</span><span class="o">&gt;</span>
+</pre></div>
+</div>
 </div>
 <div class="section" id="pd-entity">
 <h2>pd_entity<a class="headerlink" href="#pd-entity" title="Permalink to this headline">¶</a></h2>
@@ -141,6 +159,17 @@
 <h2>pd_norefresh<a class="headerlink" href="#pd-norefresh" title="Permalink to this headline">¶</a></h2>
 <p>Similar to pd_refresh, <code class="docutils literal"><span class="pre">pd_norefresh</span></code> forces PixieDust to not refresh the current output target.</p>
 </div>
+<div class="section" id="pd-stop-propagation">
+<h2>pd_stop_propagation<a class="headerlink" href="#pd-stop-propagation" title="Permalink to this headline">¶</a></h2>
+<p>Use the <code class="docutils literal"><span class="pre">pd_stop_propagation</span></code> attribute to tell PixieDust that in the case where it couldn&#8217;t find anything to execute in the current element, to stop searching parent elements. This can be useful when the content of an element is dynamically generated via a route which has no execution info and you want to prevent accidental execution of a parent element configuration.</p>
+</div>
+<div class="section" id="pd-refresh-rate">
+<h2>pd_refresh_rate<a class="headerlink" href="#pd-refresh-rate" title="Permalink to this headline">¶</a></h2>
+<p>Use the <code class="docutils literal"><span class="pre">pd_refresh_rate</span></code> attribute to repeat the execution at a specified interval expressed in milliseconds. This is useful for when you want to poll the state of a particular variable and show the result in the UI. For example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">div</span> <span class="n">pd_refresh_rate</span><span class="o">=</span><span class="s2">&quot;3000&quot;</span> <span class="n">pd_script</span><span class="o">=</span><span class="s2">&quot;print(self.get_status())&quot;</span><span class="o">/&gt;</span>
+</pre></div>
+</div>
+</div>
 </div>
 
 
@@ -163,6 +192,7 @@
 <li class="toctree-l2"><a class="reference internal" href="hello-world-data-pixieapp.html">Hello World with Data</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="pixiegateway.html">PixieGateway</a></li>
 <li class="toctree-l1"><a class="reference internal" href="releasenotes.html">Release Notes</a></li>
 </ul>
 

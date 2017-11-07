@@ -70,7 +70,7 @@ Install from maven search repository
 
 Go to the maven search site, `search.maven.org <http://search.maven.org/>`_, and look for the package of your choice, like **org.apache.commons**. In the results page, open the link of the component you want, like **commons-proxy**. You get the group ID, artifact ID, and version number to use with the **pixiedust.installPackage** API.  
 
-By default, PixieDust automatically looks for the following 2 maven repositories: http://repo1.maven.org/maven2 and http://dl.bintray.com/spark-packages/maven. If you use a custom maven repository, you can specify it by using the following base keyword argument:
+By default, PixieDust automatically looks for the following 2 maven repositories: http://repo1.maven.org/maven2 and http://dl.bintray.com/spark-packages/maven. If you use a custom maven repository, you can specify it by using the following base keyword argument: 
 
 ::
 

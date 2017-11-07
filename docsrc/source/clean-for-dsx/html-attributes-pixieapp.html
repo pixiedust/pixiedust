@@ -64,6 +64,24 @@
       menu to show the "edit metadata" button.) You will also need to transform the JSON to the pd_options attribute format, e.g., no quote in the value, semi-colon separator, and "key=value" format.
      </p>
     </div>
+    <p>
+     You can now alternatively use JSON notation to configure pd_options. To do so, simply create a pd_options child element and directly store the JSON options as text. For example:
+    </p>
+    <pre>&lt;div id="map{{prefix}}" pd_entity&gt;
+    &lt;pd_options&gt;
+    {
+        "mapboxtoken": "XXXXX",
+        "chartsize": "90",
+        "aggregation": "SUM",
+        "rowCount": "500",
+        "handlerId": "mapView",
+        "rendererId": "mapbox",
+        "valueFields": "IncidntNum",
+        "keyFields": "X,Y",
+        "basemap": "light-v9"
+    }
+    &lt;/pd_options&gt;
+&lt;/div&gt;</pre>
    </div>
    <div>
     <h1>
@@ -273,6 +291,31 @@ Refresh().run()</pre>
      </code>
      forces PixieDust to not refresh the current output target.
     </p>
+   </div>
+   <div>
+    <h1>
+     pd_stop_propagation
+    </h1>
+    <p>
+     Use the
+     <code>
+      pd_stop_propagation
+     </code>
+     attribute to tell PixieDust that in the case where it couldn't find anything to execute in the current element, to stop searching parent elements. This can be useful when the content of an element is dynamically generated via a route which has no execution info and you want to prevent accidental execution of a parent element configuration.
+    </p>
+   </div>
+   <div>
+    <h1>
+     pd_refresh_rate
+    </h1>
+    <p>
+     Use the
+     <code>
+      pd_refresh_rate
+     </code>
+     attribute to repeat the execution at a specified interval expressed in milliseconds. This is useful for when you want to poll the state of a particular variable and show the result in the UI. For example:
+    </p>
+    <pre>&lt;div pd_refresh_rate="3000" pd_script="print(self.get_status())"/&gt;</pre>
    </div>
   </div>
  </body>
