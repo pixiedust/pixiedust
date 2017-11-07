@@ -12,6 +12,26 @@ List of key-value pairs that define transient states for the kernel request, acc
 .. Note:: To build the pd_options value for display(), use the display() API in a separate cell. When the correct chart is created, simply copy the options from the cell metadata. (You'll need to use the *View/Cell Toolbar/Edit Metadata* menu to show the "edit metadata" button.) You will also need to transform the JSON to the pd_options attribute format, e.g., no quote in the value, semi-colon separator, and "key=value" format.
 
 
+You can now alternatively use JSON notation to configure pd_options. To do so, simply create a pd_options child element and directly store the JSON options as text. For example:
+
+::
+
+  <div id="map{{prefix}}" pd_entity>
+      <pd_options>
+      {          
+          "mapboxtoken": "XXXXX",
+          "chartsize": "90",          
+          "aggregation": "SUM",
+          "rowCount": "500",
+          "handlerId": "mapView",
+          "rendererId": "mapbox",
+          "valueFields": "IncidntNum",
+          "keyFields": "X,Y",
+          "basemap": "light-v9"
+      }
+      </pd_options>
+  </div>
+
 pd_entity
 *********
 Use the pd_entity attribute only if you want to invoke the display() API on specific data. In this case, pd_options must be display-options-specific to the visualization you want to show. The output will be returned by display(), but without the `UI chrome <https://en.wikipedia.org/wiki/Graphical_user_interface#User_interface_and_interaction_design>`_. The value of pd_entity is interpreted as a field to the PixieApp class, e.g., ``pd_entity="filteredDataFrame"``, and requires that the PixieApp instance has a field named filteredDataFrame. If the field is not present, then an error will be raised.
@@ -89,3 +109,15 @@ There are two ways of using the ``pd_refresh`` attribute:
 pd_norefresh
 ************
 Similar to pd_refresh, ``pd_norefresh`` forces PixieDust to not refresh the current output target.
+
+pd_stop_propagation
+*******************
+Use the ``pd_stop_propagation`` attribute to tell PixieDust that in the case where it couldn't find anything to execute in the current element, to stop searching parent elements. This can be useful when the content of an element is dynamically generated via a route which has no execution info and you want to prevent accidental execution of a parent element configuration.
+
+pd_refresh_rate
+***************
+Use the ``pd_refresh_rate`` attribute to repeat the execution at a specified interval expressed in milliseconds. This is useful for when you want to poll the state of a particular variable and show the result in the UI. For example:
+
+::
+
+  <div pd_refresh_rate="3000" pd_script="print(self.get_status())"/>
