@@ -45,9 +45,10 @@
   <div class="section" id="pixiegateway">
 <h1>PixieGateway<a class="headerlink" href="#pixiegateway" title="Permalink to this headline">¶</a></h1>
 <p><strong>What is PixieGateway?</strong></p>
-<p>PixieGateway is a web application server that is responsible for loading and running PixieApps. It allows PixieDust users to free their apps and charts from the confines of data science notebooks, in order to share their work as web apps or standalone webpages. The goal is for developers and data scientists to more easily make the analytics in their notebooks available to line-of-business colleagues.</p>
+<p>PixieGateway is a web application server used for sharing charts and running PixieApps as web applications. It allows PixieDust users to free their apps and charts from the confines of data science notebooks, in order to better share their work. The goal is for developers and data scientists to more easily make the analytics in their notebooks available to line-of-business colleagues and other people less comfortable with Jupyter Notebooks.</p>
 <p>PixieGateway is built on top of the <a class="reference external" href="https://github.com/jupyter/kernel_gateway">Jupyter Kernel Gateway</a> and therefore follows a similar architecture:</p>
 <a class="reference internal image-reference" href="_images/pixiegateway_architecture.png"><img alt="_images/pixiegateway_architecture.png" src="_images/pixiegateway_architecture.png" style="width: 800px;" /></a>
+<p>While designed to be used with the PixieDust package, PixieGateway is developed in a separate GitHub repository at <a class="reference external" href="https://github.com/ibm-watson-data-lab/pixiegateway">https://github.com/ibm-watson-data-lab/pixiegateway</a> . You’ll find more details in the sub-topics here.</p>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="install-pixiegateway.html">Install PixieGateway</a><ul>
@@ -55,14 +56,8 @@
 <li class="toctree-l2"><a class="reference internal" href="install-pixiegateway.html#optional-running-pixiegateway-in-kubernetes-on-ibm-bluemix">[optional] Running PixieGateway in Kubernetes on IBM Bluemix</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="chart-sharing.html">Chart Sharing</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="chart-sharing.html#chart-sharing-in-action">Chart Sharing in Action</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="pixieapp-publishing.html">PixieApp Publishing</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="pixieapp-publishing.html#the-publication-process">The Publication Process</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="chart-sharing.html">Chart Sharing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pixieapp-publishing.html">PixieApp Publishing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="admin-pixiegateway.html">Admin PixieGateway</a></li>
 </ul>
 </div>

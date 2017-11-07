@@ -5,8 +5,7 @@ Starting with PixieDust 1.1.1, the PixieGateway server now supports sharing of c
 
 Simply use the interactive PixieDust display() function from within a Jupyter Notebook to build your chart, click on the Share button, add an optional description. You'll get a URL. Visitors to your page will see the chart without needing to run a Jupyter Notebook. All they need is a web browser.
 
-Chart Sharing in Action
------------------------
+**Chart Sharing in Action**
 
 Using ``display()`` to create a chart, you’ll now see a **Share** button next to “Options”:
 

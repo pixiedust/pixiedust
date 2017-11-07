@@ -1,8 +1,7 @@
 PixieApp Publishing
 ===================
 
-The Publication Process
------------------------
+**The Publication Process**
 
 Once you have developed your PixieApp in a Jupyter Notebook, here's how you can publish it to the web
 
