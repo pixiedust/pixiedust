@@ -1,0 +1,109 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Chart Sharing &#8212; PixieDust Documentation</title>
+    
+    <link rel="stylesheet" href="_static/better.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="shortcut icon" href="_static/pd_icon.ico"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="PixieApp Publishing" href="pixieapp-publishing.html" />
+    <link rel="prev" title="Install PixieGateway" href="install-pixiegateway.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  </head>
+  <body role="document">
+    <header id="pageheader"><h1><a href="index.html ">
+        PixieDust Documentation
+    </a></h1></header>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="chart-sharing">
+<h1>Chart Sharing<a class="headerlink" href="#chart-sharing" title="Permalink to this headline">¶</a></h1>
+<p>Starting with PixieDust 1.1.1, the PixieGateway server now supports sharing of charts created with the display() function, effectively turning them into standalone web pages. No coding necessary.</p>
+<p>Simply use the interactive PixieDust display() function from within a Jupyter Notebook to build your chart, click on the Share button, add an optional description. You&#8217;ll get a URL. Visitors to your page will see the chart without needing to run a Jupyter Notebook. All they need is a web browser.</p>
+<div class="section" id="chart-sharing-in-action">
+<h2>Chart Sharing in Action<a class="headerlink" href="#chart-sharing-in-action" title="Permalink to this headline">¶</a></h2>
+<p>Using <code class="docutils literal"><span class="pre">display()</span></code> to create a chart, you’ll now see a <strong>Share</strong> button next to “Options”:</p>
+<img alt="_images/pixiegateway-chart-sharing.png" src="_images/pixiegateway-chart-sharing.png" />
+<p>The Share dialog will ask for the following information:</p>
+<ol class="arabic simple">
+<li><strong>PixieGateway server:</strong> If you don’t have one, <a class="reference external" href="install-pixiegateway.html">see the docs</a> for instructions on how to set one up.</li>
+<li><strong>Description:</strong> Optional free-form text explaining what the chart is about. It will be added to the standalone webpage.</li>
+</ol>
+<img alt="_images\pixiegateway-share-chart.png" src="_images\pixiegateway-share-chart.png" />
+<p>Click <strong>Share</strong>, and if all goes well, you should get a URL for your chart webpage that is ready to share:</p>
+<a class="reference internal image-reference" href="_images\pixiegateway-chart-url.png"><img alt="_images\pixiegateway-chart-url.png" src="_images\pixiegateway-chart-url.png" style="width: 800px;" /></a>
+<p>You can copy the URL or click on the link to go directly to the page:</p>
+<img alt="_images\pixiegateway-published-chart.png" src="_images\pixiegateway-published-chart.png" />
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="index.html">Table Of Contents</a></h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="use.html">Use PixieDust</a></li>
+<li class="toctree-l1"><a class="reference internal" href="develop.html">Develop for PixieDust</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pixieapps.html">PixieApps</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="pixiegateway.html">PixieGateway</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="install-pixiegateway.html">Install PixieGateway</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Chart Sharing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pixieapp-publishing.html">PixieApp Publishing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="admin-pixiegateway.html">Admin PixieGateway</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="releasenotes.html">Release Notes</a></li>
+</ul>
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+  <footer id="pagefooter">&copy; 2017, IBM.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a>
+      1.5.6.
+
+  </footer>
+
+  
+  </body>
+</html>

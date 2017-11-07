@@ -1,7 +1,7 @@
 Custom HTML Attributes
 ======================
 
-The PixieDust JS runtime listens to click events on any HTML element that has one or more of the custom attributes below, and then transforms the attribute values into a kernel request. The following section describes all the custom attributes available, and how they affect the kernel request executed when a click event is received. 
+The PixieDust JS runtime listens to click events on any HTML element that has one or more of the custom attributes below, and then transforms the attribute values into a kernel request. The following section describes all the custom attributes available, and how they affect the kernel request executed when a click event is received.  
 
 pd_options
 **********
