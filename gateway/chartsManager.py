@@ -25,20 +25,22 @@ class ChartStorage(Storage):
             AUTHOR         TEXT  NOT NULL,
             DATE           DATETIME  NOT NULL,
             DESCRIPTION    TEXT,
-            CONTENT        BLOB
+            CONTENT        BLOB,
+            RENDERERID     TEXT
         ''')
 
     def store_chart(self, payload):
         chart_id = str(uuid.uuid4())
         print(chart_id.__class__)
         self.insert("""
-            INSERT INTO {0} (CHARTID,AUTHOR,DATE,DESCRIPTION,CONTENT)
-            VALUES (?,?,CURRENT_TIMESTAMP,?,?)
+            INSERT INTO {0} (CHARTID,AUTHOR,DATE,DESCRIPTION,CONTENT,RENDERERID)
+            VALUES (?,?,CURRENT_TIMESTAMP,?,?,?)
         """.format(ChartStorage.CHARTS_TBL_NAME), (
             chart_id,
             "username",
             payload.get("description", ""),
-            payload['chart']
+            payload['chart'],
+            payload['rendererId']
         ))
         #return the chart_model for this newly stored chart
         return self.get_chart(chart_id)
