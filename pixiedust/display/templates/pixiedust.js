@@ -458,7 +458,7 @@ function readExecInfo(pd_controls, element, searchParents, fromExecInfo){
                     + ",parent_pixieapp=" + makePythonStringOrNone(pd_controls.options.nostore_pixieapp)
                     + ",cell_metadata=" + getCellMetadata()
                     + ")";
-            }else if ( ( execInfo.refresh || execInfo.entity || execInfo.options.widget) && 
+            }else if ( ( hasOptions || execInfo.refresh || execInfo.entity || execInfo.options.widget) && 
                     !execInfo.norefresh && $(element).children("target[pd_target]").length == 0){
                 {#include a refresh of the whole screen#}
                 execInfo.script += "\n" + applyEntity(pd_controls.command, execInfo.entity, execInfo.options)
@@ -585,7 +585,9 @@ function processEvent(event){
     });
 }
 $(document).on( "click", "[pixiedust]", function(event){
-    if (event.target.tagName == "SELECT" || event.target.tagName == "INPUT" || $(event.target).is(':checkbox')){
+    if (event.target.tagName == "SELECT" || 
+        (event.target.tagName == "INPUT" && (getAttribute(event.target, "type", "").toLowerCase() != "button")) || 
+        $(event.target).is(':checkbox')){
         return;
     }
     processEvent(event)
