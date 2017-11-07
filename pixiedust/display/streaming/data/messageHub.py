@@ -35,7 +35,8 @@ class MessagehubStreamingAdapter(StreamingDataAdapter):
             'ssl_context': context,
             "bootstrap_servers": [ "kafka0{}-{}.messagehub.services.us-south.bluemix.net:9093".format(i, "prod01" if prod else "stage1") for i in range(1,6)],
             "sasl_plain_username": username,
-            "sasl_plain_password": password
+            "sasl_plain_password": password,
+            "auto_offset_reset":"latest"
         }
         self.consumer = KafkaConsumer(**conf)
         self.consumer.subscribe([topic])
@@ -77,7 +78,7 @@ class MessagehubStreamingAdapter(StreamingDataAdapter):
     
     def doGetNextData(self):
         msgs = []
-        msg = self.consumer.poll(1, max_records=10)
+        msg = self.consumer.poll(1000, max_records=10)
         if msg is not None:
             for topicPartition,records in iteritems(msg):
                 for record in records:
