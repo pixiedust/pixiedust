@@ -33,7 +33,6 @@
             <topicref format="html" scope="peer" navtitle="Install Gateway" href="install-pixiegateway.html"></topicref>
             <topicref format="html" scope="peer" navtitle="Chart Sharing" href="chart-sharing.html"></topicref>
             <topicref format="html" scope="peer" navtitle="PixieApp Publishing" href="pixieapp-publishing.html"></topicref>
-            <topicref format="html" scope="peer" navtitle="Admin Gateway" href="admin-pixiegateway.html"></topicref>
         </topicref>
         <topicref format="html" scope="peer" navtitle="Release notes" href="releasenotes.html">
             <topicref format="html" scope="peer" navtitle="1.0.4" href="1-0-4.html"></topicref>

@@ -19,4 +19,3 @@ While designed to be used with the PixieDust package, PixieGateway is developed 
    install-pixiegateway
    chart-sharing
    pixieapp-publishing
-   admin-pixiegateway
