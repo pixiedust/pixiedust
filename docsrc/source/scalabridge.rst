@@ -7,7 +7,7 @@ Introduction
 
 Python has a rich ecosystem of modules including plotting with Matplotlib, data structure and analysis with Pandas, Machine Learning or Natural Language Processing. However, data scientists working with Spark may occasionaly need to call out one of the hundreds of libraries available on `spark-packages.org <https://spark-packages.org/>`_ which are written in Scala or Java. Unfortunately, Jupyter Python notebooks do not currently provide a way to call out scala code. As a result, a typical workaround is to first use a Scala notebook to run the Scala code, persist the output somewhere like a Hadoop Distributed File System, create another Python notebook, and re-load the data. This is obviously inefficent and awkward. 
 
-PixieDust provides a solution to this problem by letting users directly write and run scala code in its own cell. It also lets variables be shared between Python and Scala and vice-versa.
+PixieDust provides a solution to this problem by letting users directly write and run scala code in its own cell. It also lets variables be shared between Python and Scala and vice-versa. 
 
 Using Scala cell magic
 ----------------------

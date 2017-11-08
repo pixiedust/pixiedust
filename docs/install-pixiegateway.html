@@ -1,0 +1,145 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Install PixieGateway &#8212; PixieDust Documentation</title>
+    
+    <link rel="stylesheet" href="_static/better.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="shortcut icon" href="_static/pd_icon.ico"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Chart Sharing" href="chart-sharing.html" />
+    <link rel="prev" title="PixieGateway" href="pixiegateway.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  </head>
+  <body role="document">
+    <header id="pageheader"><h1><a href="index.html ">
+        PixieDust Documentation
+    </a></h1></header>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="install-pixiegateway">
+<h1>Install PixieGateway<a class="headerlink" href="#install-pixiegateway" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="local-install">
+<h2>Local Install<a class="headerlink" href="#local-install" title="Permalink to this headline">¶</a></h2>
+<p>If you want to demo PixieApp publishing locally, follow these instructions. If you’d rather deploy your application to the cloud, see the section below on using Kubernetes on Bluemix.</p>
+<p>To start, install the pixiegateway package from PyPi. On the command line, run the following: (Note: PixieGateway supports both Python 2.7 and 3.x)</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">pixiegateway</span>
+</pre></div>
+</div>
+<p>Then you can start the PixieGateway will a simple command:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">jupyter</span> <span class="n">pixiegateway</span> <span class="o">--</span><span class="n">port</span> <span class="o">&lt;</span><span class="n">portnumber</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>Example output:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>dtaieb$ jupyter pixiegateway --port 8899
+[PixieGatewayApp] Kernel started: b5be0b3b-a018–4ace-95d1-d94b556a0bfe
+kernel client initialized
+[PixieGatewayApp] Jupyter Kernel Gateway at http://127.0.0.1:8899
+</pre></div>
+</div>
+<p>Now, go to <code class="docutils literal"><span class="pre">http://localhost:&lt;portnumber&gt;/pixieapps</span></code> to review and use your apps.</p>
+</div>
+<div class="section" id="optional-running-pixiegateway-in-kubernetes-on-ibm-bluemix">
+<h2>[optional] Running PixieGateway in Kubernetes on IBM Bluemix<a class="headerlink" href="#optional-running-pixiegateway-in-kubernetes-on-ibm-bluemix" title="Permalink to this headline">¶</a></h2>
+<p>If you’re new to Kubernetes on the IBM Bluemix container service, <a class="reference external" href="https://medium.com/ibm-watson-data-lab/zero-to-kubernetes-on-the-ibm-bluemix-container-service-fd104fd193c1">read this intro article</a> that explains the basics of using the service with the <code class="docutils literal"><span class="pre">bx</span></code> and <code class="docutils literal"><span class="pre">kubectl</span></code> command-line tools.</p>
+<p>Here are the steps to install PixieGateway using Kubernetes on Bluemix:</p>
+<ol class="arabic simple">
+<li>Download the <a class="reference external" href="https://kubernetes.io/docs/tasks/tools/install-kubectl/">Kubernetes CLI</a> and the <a class="reference external" href="https://console.bluemix.net/docs/cli/reference/bluemix_cli/get_started.html#getting-started">Bluemix CLI</a>.</li>
+<li><code class="docutils literal"><span class="pre">bx</span> <span class="pre">login</span> <span class="pre">[-sso]</span> <span class="pre">-a</span> <span class="pre">https://api.ng.bluemix.net</span></code></li>
+<li><code class="docutils literal"><span class="pre">bx</span> <span class="pre">target</span> <span class="pre">-o</span> <span class="pre">&lt;YOUR_ORG&gt;</span> <span class="pre">-s</span> <span class="pre">&lt;YOUR_SPACE&gt;</span></code></li>
+<li><code class="docutils literal"><span class="pre">bx</span> <span class="pre">plugin</span> <span class="pre">install</span> <span class="pre">container-service</span> <span class="pre">-r</span> <span class="pre">Bluemix</span></code></li>
+<li><code class="docutils literal"><span class="pre">bx</span> <span class="pre">cs</span> <span class="pre">init</span></code></li>
+<li>If not already done, create a cluster: <code class="docutils literal"><span class="pre">bx</span> <span class="pre">cs</span> <span class="pre">cluster-create</span> <span class="pre">--name</span> <span class="pre">my-cluster</span></code></li>
+<li>Verify that the cluster is correctly created (this may take a few minutes): <code class="docutils literal"><span class="pre">bx</span> <span class="pre">cs</span> <span class="pre">clusters</span></code></li>
+<li>Download the cluster config: <code class="docutils literal"><span class="pre">bx</span> <span class="pre">cs</span> <span class="pre">cluster-config</span> <span class="pre">my-cluster</span></code></li>
+<li>Run the export command returned by the command above, e.g., <code class="docutils literal"><span class="pre">export</span> <span class="pre">KUBECONFIG=/Users/dtaieb/.bluemix/plugins/container-service/clusters/davidcluster/kube-config-hou02-davidcluster.yml</span></code></li>
+<li>Create the deployment: <code class="docutils literal"><span class="pre">kubectl</span> <span class="pre">create</span> <span class="pre">-f</span> <span class="pre">https://github.com/ibm-watson-data-lab/pixiegateway/raw/master/etc/deployment.yml</span></code></li>
+<li>Create the service: <code class="docutils literal"><span class="pre">kubectl</span> <span class="pre">create</span> <span class="pre">-f</span> <span class="pre">https://github.com/ibm-watson-data-lab/pixiegateway/raw/master/etc/service.yml</span></code></li>
+<li>Verify the pods: <code class="docutils literal"><span class="pre">kubectl</span> <span class="pre">get</span> <span class="pre">pods</span></code></li>
+<li>Verify the nodes: <code class="docutils literal"><span class="pre">kubectl</span> <span class="pre">get</span> <span class="pre">nodes</span></code></li>
+<li>Verify the services: <code class="docutils literal"><span class="pre">kubectl</span> <span class="pre">get</span> <span class="pre">services</span></code></li>
+<li>Finally, you can get the public ip address of the server: <code class="docutils literal"><span class="pre">bx</span> <span class="pre">cs</span> <span class="pre">workers</span> <span class="pre">my-cluster</span></code></li>
+</ol>
+<a class="reference internal image-reference" href="_images/bx-cs-workers.png"><img alt="_images/bx-cs-workers.png" src="_images/bx-cs-workers.png" style="width: 800px;" /></a>
+<ol class="arabic simple" start="16">
+<li>To check that the install worked, enter the following URL in your browser: <code class="docutils literal"><span class="pre">http://&lt;publicIP&gt;:32222/pixieapps</span></code>. You’ll be able to interact with your PixieApp-published web apps from there.</li>
+</ol>
+<a class="reference internal image-reference" href="_images/pixiegateway-list.png"><img alt="_images/pixiegateway-list.png" src="_images/pixiegateway-list.png" style="width: 800px;" /></a>
+<ol class="arabic simple" start="17">
+<li><strong>Optional:</strong> In the future, if you need to update the PixieGateway version, you do not have to retrace the previous steps. Instead, simply delete the Kubernetes pod, which will cause Docker to restart and automatically pull down a new version of PixieDust, like so: <code class="docutils literal"><span class="pre">kubectl</span> <span class="pre">delete</span> <span class="pre">pod</span> <span class="pre">&lt;name&gt;</span></code>. Here, <code class="docutils literal"><span class="pre">&lt;name&gt;</span></code> is the pod’s name obtained with the command: <code class="docutils literal"><span class="pre">kubectl</span> <span class="pre">get</span> <span class="pre">pods</span></code>.</li>
+</ol>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The deployed PixieApps are not stored in a persisted volume, so deleting the pod will also delete them, and you’ll have to re-publish.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="index.html">Table Of Contents</a></h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="use.html">Use PixieDust</a></li>
+<li class="toctree-l1"><a class="reference internal" href="develop.html">Develop for PixieDust</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pixieapps.html">PixieApps</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="pixiegateway.html">PixieGateway</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Install PixieGateway</a></li>
+<li class="toctree-l2"><a class="reference internal" href="chart-sharing.html">Chart Sharing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pixieapp-publishing.html">PixieApp Publishing</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="releasenotes.html">Release Notes</a></li>
+</ul>
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+  <footer id="pagefooter">&copy; 2017, IBM.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a>
+      1.5.6.
+
+  </footer>
+
+  
+  </body>
+</html>

@@ -1,7 +1,7 @@
 Hello World with Data
 =====================
 
-The following sample PixieApp simplifies the mechanics of loading and visualizing data. When run successfully, you'll see a preview button appear in the same area as your Jupyter input cell. Clicking the button will display the data as a table.
+The following sample PixieApp simplifies the mechanics of loading and visualizing data. When run successfully, you'll see a preview button appear in the same area as your Jupyter input cell. Clicking the button will display the data as a table.  
 
 ::
 
