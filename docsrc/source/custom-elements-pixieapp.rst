@@ -3,7 +3,7 @@ Custom Elements
 
 <target>
 ********
-Child element to the clickable source element. ``<target>`` can have any of the `custom PixieApp HTML attributes <html-attributes-pixieapps.html>`_ defined above. For example: 
+Child element to the clickable source element. ``<target>`` can have any of the `custom PixieApp HTML attributes <html-attributes-pixieapps.html>`_ defined above. For example:  
 
 ::
   

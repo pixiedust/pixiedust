@@ -47,6 +47,7 @@ Get Started
    use
    develop
    pixieapps
+   pixiegateway
    releasenotes
 
 
