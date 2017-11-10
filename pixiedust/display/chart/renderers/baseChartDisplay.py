@@ -129,6 +129,12 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
         return []
 
     def validateOptions(self):
+        #start with the value Field, if empty, then we need to add a dummy column
+        value_fields = self.getValueFields()
+        if self.supportsKeyFields(self.handlerId) and len(value_fields) == 0:
+            new_col_name = self.dataHandler.add_numerical_column()
+            self.valueFields = [new_col_name]
+            self.aggregation = "COUNT"
         #validate options
         chartOptions = self.getChartOptions()   
         self.debug("chartOptions {}".format(chartOptions)) 
@@ -297,10 +303,10 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
         for valueField in valueFields:
             if self.dataHandler.isNumericField(valueField) or aggregation == "COUNT":
                 numericValueFields.append(valueField)
-        if len(numericValueFields) == 0:
+
+        if not self.supportsKeyFields(self.handlerId) and len(numericValueFields) == 0:
             raise ShowChartOptionDialog()
-        else:
-            return numericValueFields
+        return numericValueFields
     
     def canRenderChart(self):
         aggregation = self.getAggregation()
@@ -367,8 +373,6 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
     def doRender(self, handlerId):
         self.handlerId = handlerId
         optionsTitle = self.camelCaseSplit(handlerId, True) + " Options"
-        if self.options.get("debug", None):
-            self.logStuff()
 
         # field names
         fieldNames = self.getFieldNames(True)
@@ -377,11 +381,15 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
         # go
         try:
             self.validateOptions()
+
+            if self.options.get("debug", None):
+                self.logStuff()
             keyFields = self.getKeyFields()
             valueFields = self.getValueFields()
         except ShowChartOptionDialog:
             self.dialogBody = self.renderTemplate(dialogTemplate, **dialogOptions)
-            self._addJavascriptTemplate("chartOptions.dialog", optionsDialogBody=self.dialogBody, optionsTitle=optionsTitle, inScript=True)
+            self._addJavascriptTemplate("chartOptions.dialog", optionsDialogBody=self.dialogBody, 
+                optionsTitle=optionsTitle, inScript=True, **dialogOptions)
             return
         
         # render
@@ -408,7 +416,8 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
             if self.options.get("nostore_figureOnly", None):
                 self._addHTML(chartFigure)
             else:
-                self._addHTMLTemplate("renderer.html", chartFigure=chartFigure, optionsDialogBody=self.dialogBody, optionsTitle=optionsTitle)
+                self._addHTMLTemplate("renderer.html", chartFigure=chartFigure, optionsDialogBody=self.dialogBody, 
+                    optionsTitle=optionsTitle, **dialogOptions)
         except Exception as e:
             self.exception("Unexpected error while trying to render BaseChartDisplay")
             errorHTML = """
@@ -419,7 +428,8 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
             if self.options.get("nostore_figureOnly", None):
                 self._addHTML(errorHTML)
             else:
-                self._addHTMLTemplate("renderer.html", chartFigure=errorHTML, optionsDialogBody=self.dialogBody, optionsTitle=optionsTitle)
+                self._addHTMLTemplate("renderer.html", chartFigure=errorHTML, optionsDialogBody=self.dialogBody, 
+                    optionsTitle=optionsTitle, **dialogOptions)
 
     def logStuff(self):
         try:
