@@ -3,7 +3,7 @@ Test
 
 PixieDust provides several `notebooks <https://github.com/ibm-cds-labs/pixiedust/tree/master/tests>`_ that you can run to test and check stability of various features. Tests are maintained using `Travis CI <https://travis-ci.org/ibm-cds-labs/pixiedust>`_.
 
-The test script, `runPixiedustNotebooks.py <https://github.com/ibm-cds-labs/pixiedust/blob/master/tests/runPixiedustNotebooks.py>`_, runs whenever an update is pushed to the repository or a pull request is made. The test script runs through each of the notebooks in the `tests <https://github.com/ibm-cds-labs/pixiedust/tree/master/tests>`_ directory. 
+The test script, `runPixiedustNotebooks.py <https://github.com/ibm-cds-labs/pixiedust/blob/master/tests/runPixiedustNotebooks.py>`_, runs whenever an update is pushed to the repository or a pull request is made. The test script runs through each of the notebooks in the `tests <https://github.com/ibm-cds-labs/pixiedust/tree/master/tests>`_ directory.  
 
 Locally Running the Tests
 -------------------------

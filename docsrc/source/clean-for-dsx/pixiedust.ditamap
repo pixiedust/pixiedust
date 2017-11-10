@@ -29,6 +29,11 @@
             <topicref format="html" scope="peer" navtitle="Creating a widget" href="create-widget-pixieapp.html"></topicref>
             <topicref format="html" scope="peer" navtitle="Hello World with data" href="hello-world-data-pixieapp.html"></topicref>
         </topicref>
+        <topicref format="html" scope="peer" navtitle="PixieGateway" href="pixiegateway.html">
+            <topicref format="html" scope="peer" navtitle="Install Gateway" href="install-pixiegateway.html"></topicref>
+            <topicref format="html" scope="peer" navtitle="Chart Sharing" href="chart-sharing.html"></topicref>
+            <topicref format="html" scope="peer" navtitle="PixieApp Publishing" href="pixieapp-publishing.html"></topicref>
+        </topicref>
         <topicref format="html" scope="peer" navtitle="Release notes" href="releasenotes.html">
             <topicref format="html" scope="peer" navtitle="1.0.4" href="1-0-4.html"></topicref>
             <topicref format="html" scope="peer" navtitle="1.0.5" href="1-0-5.html"></topicref>
