@@ -15,6 +15,7 @@
 # -------------------------------------------------------------------------------
 import pixiedust.utils.dataFrameMisc as dataFrameMisc
 from pyspark.sql import functions as F
+from pyspark.sql.functions import lit
 from pyspark.sql.types import DecimalType
 import time
 import pandas as pd
@@ -54,7 +55,7 @@ class PySparkDataFrameDataHandler(BaseDataHandler):
         if len(fieldNames) == 0:
             return []
         numericKeyField = False
-        if len(keyFields) == 1 and self.isNumericField(fieldNames[0]):
+        if len(fieldNames) == 1 and self.isNumericField(fieldNames[0]):
             numericKeyField = True
         df = self.entity.groupBy(fieldNames).count().dropna()
         for fieldName in fieldNames:
@@ -69,6 +70,13 @@ class PySparkDataFrameDataHandler(BaseDataHandler):
             else:
                 values.append(i)
         return values
+
+    def add_numerical_column(self):
+        """
+        Add a dummy numerical column to the underlying dataframe
+        """
+        self.entity = self.entity.withColumn("pd_count", lit(1))
+        return "pd_count"
 
     """
         Return a cleaned up Pandas Dataframe that will be used as working input to the chart

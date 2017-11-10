@@ -137,6 +137,9 @@
 					{%endfor%}
 					{%endif%}
 				</ul>
+				{%if keyFieldsSupported %}
+				<span style="font-size:smaller" id="warnEmptyValueFields{{prefix}}">PixieDust will automatically use count aggregation for each key</span>
+				{%endif%}
 			</div>
 		</div>
 	</div>
