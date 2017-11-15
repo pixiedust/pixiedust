@@ -12,7 +12,7 @@ To start, install the pixiegateway package from PyPi. On the command line, run t
 
   pip install pixiegateway
 
-Then you can start the PixieGateway will a simple command:
+Then you can start the PixieGateway with a simple command:
 
 ::
 

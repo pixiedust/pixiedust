@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>1.0.6 &#8212; PixieDust Documentation</title>
+    <title>1.1.2 &#8212; PixieDust Documentation</title>
     
     <link rel="stylesheet" href="_static/better.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -28,8 +28,7 @@
     <link rel="shortcut icon" href="_static/pd_icon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="1.0.7" href="1-0-7.html" />
-    <link rel="prev" title="1.0.5" href="1-0-5.html" />
+    <link rel="prev" title="1.1.1" href="1-1-1.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   </head>
   <body role="document">
@@ -43,19 +42,20 @@
           <div class="body" role="main">
             
   <div class="section" id="id1">
-<h1>1.0.6<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h1>
-<p>Here&#8217;s what&#8217;s new in Release 1.0.6 (5 June 2017):</p>
+<h1>1.1.2<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h1>
+<p>Here&#8217;s what&#8217;s new in Release 1.1.2 (8 November 2017):</p>
 <p><strong>Bug fixes</strong></p>
 <ul class="simple">
-<li>Data tables now respect the dimensions of their parent element, fixing an issue where large tables could overflow the dimensions of the div containing them (<a class="reference external" href="https://github.com/ibm-cds-labs/pixiedust/issues/337">#337</a>).</li>
-<li>PixieDust now properly supports the Spark SQL DateType class. Previously, even though PixieDust&#8217;s schema view would recognize date types, rendering a visualization containing them would produce a UI error (<a class="reference external" href="https://github.com/ibm-cds-labs/pixiedust/issues/349">#349</a>).</li>
+<li>Fixed an issue with duplicate requests when running the StockViewer sample PixieApp as a web application (<a class="reference external" href="https://github.com/ibm-watson-data-lab/pixiedust/issues/483">#483</a>).</li>
+<li>PixieDust can now run the same code in multiple notebooks locally with Spark. Previously, running the same code across multiple notebooks locally, such as PixieDust&#8217;s <code class="docutils literal"><span class="pre">sampleData()</span></code> API, generated an error (<a class="reference external" href="https://github.com/ibm-watson-data-lab/pixiedust/issues/496">#496</a>).</li>
+<li>Refactored PixieGateway into <a class="reference external" href="https://github.com/ibm-watson-data-lab/pixiegateway">its own GitHub repo</a> to run in IBM&#8217;s Data Science Experience environment and <a class="reference external" href="pixiegateway.html">updated PixieGateway documentation</a> (<a class="reference external" href="https://github.com/ibm-watson-data-lab/pixiedust/issues/498">#498</a> and <a class="reference external" href="https://github.com/ibm-watson-data-lab/pixiedust/issues/495">#495</a>).</li>
 </ul>
 <p><strong>Enhancements</strong></p>
 <ul class="simple">
-<li>Data tables now support an optional parameter (<code class="docutils literal"><span class="pre">showColumns</span></code>) that allows developers to select columns to display in a table, automatically hiding any columns not listed (<a class="reference external" href="https://github.com/ibm-cds-labs/pixiedust/issues/344">#344</a>).</li>
-<li>Developers can now define their own GeoJSON layers in Mapbox charts. Custom layers will now generate corresponding checkboxes in the option space of the Mapbox chart, allowing data to be toggled on the map (<a class="reference external" href="https://github.com/ibm-cds-labs/pixiedust/issues/339">#339</a>).</li>
-<li>PixieDust now runs in a plain Jupyter Notebook without Spark. Since PixieDust supports both Pandas DataFrames and PySpark DataFrames, developers can now use its package manager and <code class="docutils literal"><span class="pre">display()</span></code> API features&#8212;no Spark required. Any Spark-specific features will be disabled when using Pandas only (<a class="reference external" href="https://github.com/ibm-cds-labs/pixiedust/issues/340">#340</a>).</li>
-<li>The 1.0.6 release of PixieDust marks the introduction of <strong>PixieApps</strong>: Python classes for creating UI elements directly in Jupyter notebooks. The goal is to go from data to dashboard in minutes, using notebooks to easily share and reproduce work. More in the <a class="reference external" href="https://ibm-cds-labs.github.io/pixiedust/pixieapps.html">PixieApps documentation</a>.</li>
+<li>Released alpha version of PixieGateway admin dashboard, with a streamlined UI. DevOps users of PixieGateway can now access a list of PixieApps deployed to the gateway and a list of running kernels with real-time statistics (<a class="reference external" href="https://github.com/ibm-watson-data-lab/pixiedust/issues/487">#487</a> and <a class="reference external" href="https://github.com/ibm-watson-data-lab/pixiedust/issues/501">#501</a>).</li>
+<li>Added the ability to <code class="docutils literal"><span class="pre">display()</span></code> JSON directly. PixieDust now supports native rendering of data dictionaries, or an array of dictionaries, without having to first convert them into Pandas DataFrames (<a class="reference external" href="https://github.com/ibm-watson-data-lab/pixiedust/issues/489">#489</a>).</li>
+<li>Added functionality to embed PixieDust charts into a regular web application, such as a web app that was not generated via PixieApp web publishing (<a class="reference external" href="https://github.com/ibm-watson-data-lab/pixiedust/issues/493">#493</a>).</li>
+<li>Improved PixieApp web publishing to allow developers to publish to a specific kernel. Previously, all PixieApps were published into the default Python kernel (<a class="reference external" href="https://github.com/ibm-watson-data-lab/pixiedust/issues/486">#486</a>).</li>
 </ul>
 </div>
 
@@ -74,7 +74,7 @@
 <li class="toctree-l1 current"><a class="reference internal" href="releasenotes.html">Release Notes</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="1-0-4.html">1.0.4</a></li>
 <li class="toctree-l2"><a class="reference internal" href="1-0-5.html">1.0.5</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">1.0.6</a></li>
+<li class="toctree-l2"><a class="reference internal" href="1-0-6.html">1.0.6</a></li>
 <li class="toctree-l2"><a class="reference internal" href="1-0-7.html">1.0.7</a></li>
 <li class="toctree-l2"><a class="reference internal" href="1-0-8.html">1.0.8</a></li>
 <li class="toctree-l2"><a class="reference internal" href="1-0-9.html">1.0.9</a></li>
@@ -82,6 +82,7 @@
 <li class="toctree-l2"><a class="reference internal" href="1-0-11.html">1.0.11</a></li>
 <li class="toctree-l2"><a class="reference internal" href="1-1.html">1.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="1-1-1.html">1.1.1</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">1.1.2</a></li>
 </ul>
 </li>
 </ul>
