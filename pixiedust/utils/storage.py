@@ -147,8 +147,11 @@ class Storage(object):
             _conn.execute(sqlQuery)
         _conn.commit()
 
-    def update(self, sqlQuery):
-        _conn.execute(sqlQuery)
+    def update(self, sqlQuery, arguments=None):
+        if arguments is not None:
+            _conn.execute(sqlQuery, arguments)
+        else:
+            _conn.execute(sqlQuery)
         _conn.commit()
 
 DEPLOYMENT_TRACKER_TBL_NAME = "VERSION_TRACKER"
