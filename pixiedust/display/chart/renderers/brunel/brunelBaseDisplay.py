@@ -19,6 +19,7 @@ from pixiedust.display.chart.renderers import PixiedustRenderer
 from pixiedust.utils import Logger
 from pixiedust.utils.shellAccess import ShellAccess
 from six import with_metaclass
+from IPython.display import display as ipythonDisplay
 from IPython.utils.io import capture_output
 from IPython.core.getipython import get_ipython
 from ..baseChartDisplay import BaseChartDisplay
@@ -65,7 +66,9 @@ class BrunelBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
             with capture_output() as buf:
                 magic = "data('brunel_temp_df') {}".format(self.complete_magic(magic))
                 self.debug("Running brunel with magic {}".format(magic))
-                get_ipython().run_line_magic('brunel', magic)
+                data = get_ipython().run_line_magic('brunel', magic)
+                if data is not None:
+                    ipythonDisplay(data)
             brunel_html = "\n".join([self.convert_html(output) for output in buf.outputs])
             return brunel_html
         finally:

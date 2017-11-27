@@ -30,6 +30,6 @@ class BarChartRenderer(BrunelBaseDisplay):
         parts.append("y({})".format(",".join(self.getValueFields())))
         parts.append(self.get_sort())
         parts.append("color({})".format(self.getKeyFields()[0]))
-        parts.append("filter({})".format(",".join(self.getKeyFields())))
+        #parts.append("filter({})".format(",".join(self.getKeyFields())))
 
         return " ".join(parts)
