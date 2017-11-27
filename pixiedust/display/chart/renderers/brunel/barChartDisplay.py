@@ -21,15 +21,30 @@ from .brunelBaseDisplay import BrunelBaseDisplay
 @PixiedustRenderer(id="barChart")
 @Logger()
 class BarChartRenderer(BrunelBaseDisplay):
+    def isSubplot(self):
+        return self.options.get("charttype", "grouped") == "subplots"
+    
+    def getExtraFields(self):
+        if not self.isSubplot() and len(self.getValueFields())>1:
+            #no clusterby if we are grouped and multiValueFields
+            return []
+    
+        clusterby = self.options.get("clusterby")
+        return [clusterby] if clusterby is not None else []
+
     def compute_brunel_magic(self):
         parts = ["bar"]
+        if self.options.get("charttype", "grouped") == "stacked":
+            parts.append("stack")
         if self.options.get("orientation", "vertical") == "horizontal":
-            parts = ["transpose"] + parts
+            parts.append("transpose")
 
-        parts.append("x({})".format(",".join(self.getKeyFields())))
+        clusterby = filter(None, [self.options.get("clusterby", "")])
+
+        parts.append("x({})".format(",".join( self.getKeyFields() + clusterby)))
         parts.append("y({})".format(",".join(self.getValueFields())))
         parts.append(self.get_sort())
-        parts.append("color({})".format(self.getKeyFields()[0]))
+        parts.append("color({})".format( clusterby[0] if len(clusterby)>0 else self.getKeyFields()[0]))
         #parts.append("filter({})".format(",".join(self.getKeyFields())))
 
         return " ".join(parts)

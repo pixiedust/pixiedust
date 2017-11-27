@@ -13,8 +13,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # -------------------------------------------------------------------------------
-import brunel
-from .barChartDisplay import BarChartRenderer
-from .lineChartDisplay import LineChartRenderer
-from .scatterPlotDisplay import ScatterPlotRenderer
-from .pieChartDisplay import PieChartRenderer
+
+from pixiedust.display.chart.renderers import PixiedustRenderer
+from pixiedust.utils import Logger
+from .brunelBaseDisplay import BrunelBaseDisplay
+
+@PixiedustRenderer(id="scatterPlot")
+@Logger()
+class ScatterPlotRenderer(BrunelBaseDisplay):
+    def compute_brunel_magic(self):
+        parts = ["point"]
+
+        for index, key in enumerate(self.getKeyFields()):
+            if index > 0:
+                parts.append("+ point")
+            parts.append("x({})".format(key))
+            parts.append("y({})".format(",".join(self.getValueFields())))
+            parts.append(self.get_sort())
+            #parts.append("filter({})".format(key))
+
+        return " ".join(parts)

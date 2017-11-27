@@ -30,6 +30,6 @@ class LineChartRenderer(BrunelBaseDisplay):
             parts.append("x({})".format(key))
             parts.append("y({})".format(",".join(self.getValueFields())))
             parts.append(self.get_sort())
-            parts.append("filter({})".format(key))
+            #parts.append("filter({})".format(key))
 
         return " ".join(parts)
