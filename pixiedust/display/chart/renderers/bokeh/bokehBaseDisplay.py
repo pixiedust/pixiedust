@@ -16,7 +16,7 @@
 
 from pixiedust.display.display import CellHandshake
 from pixiedust.display.chart.renderers import PixiedustRenderer
-from pixiedust.utils import Logger,cache
+from pixiedust.utils import Logger, cache
 from ..baseChartDisplay import BaseChartDisplay
 from six import with_metaclass
 from abc import abstractmethod, ABCMeta
