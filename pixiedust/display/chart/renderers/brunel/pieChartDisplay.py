@@ -33,4 +33,4 @@ class PieChartRenderer(BrunelBaseDisplay):
             parts.append("legends(none)")
             parts.append("label({})".format(key))
 
-        return " ".join(parts)
+        return parts

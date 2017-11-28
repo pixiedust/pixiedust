@@ -145,14 +145,17 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
                 values = value.split(",")
                 self.debug("values: {0}".format(values))
                 for v in values:
-                    self.debug("Calling with {0}".format(v))
+                    self.debug("Calling validation for option {} with value {}".format(key, v))
                     passed, message = ord.get(key)(v)
                     if not passed:
-                        self.addMessage("Filtered option {0} with value {1}. Reason {2}".format(key, value, message))
+                        msg = "Filtered option {0} with value {1}. Reason {2}".format(key, value, message)
+                        self.debug(msg)
+                        self.addMessage(msg)
                         remKeys.append(key)
                         break
 
         for key in remKeys:
+            self.debug("deleting option: {}".format(key))
             del self.options[key]
 
     def getExtraFields(self):

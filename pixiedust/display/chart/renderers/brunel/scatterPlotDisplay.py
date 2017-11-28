@@ -32,4 +32,4 @@ class ScatterPlotRenderer(BrunelBaseDisplay):
             parts.append(self.get_sort())
             #parts.append("filter({})".format(key))
 
-        return " ".join(parts)
+        return parts
