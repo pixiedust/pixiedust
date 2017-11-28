@@ -23,12 +23,12 @@ from .brunelBaseDisplay import BrunelBaseDisplay
 class BarChartRenderer(BrunelBaseDisplay):
     def isSubplot(self):
         return self.options.get("charttype", "grouped") == "subplots"
-    
+
     def getExtraFields(self):
-        if not self.isSubplot() and len(self.getValueFields())>1:
+        if not self.isSubplot() and len(self.getValueFields()) > 1:
             #no clusterby if we are grouped and multiValueFields
             return []
-    
+
         clusterby = self.options.get("clusterby")
         return [clusterby] if clusterby is not None else []
 
@@ -39,12 +39,12 @@ class BarChartRenderer(BrunelBaseDisplay):
         if self.options.get("orientation", "vertical") == "horizontal":
             parts.append("transpose")
 
-        clusterby = filter(None, [self.options.get("clusterby", "")])
+        clusterby = list(filter(None, [self.options.get("clusterby", "")]))
 
-        parts.append("x({})".format(",".join( self.getKeyFields() + clusterby)))
+        parts.append("x({})".format(",".join(self.getKeyFields() + clusterby)))
         parts.append("y({})".format(",".join(self.getValueFields())))
         parts.append(self.get_sort())
-        parts.append("color({})".format( clusterby[0] if len(clusterby)>0 else self.getKeyFields()[0]))
+        parts.append("color({})".format(clusterby[0] if len(clusterby) > 0 else self.getKeyFields()[0]))
         #parts.append("filter({})".format(",".join(self.getKeyFields())))
 
         return " ".join(parts)

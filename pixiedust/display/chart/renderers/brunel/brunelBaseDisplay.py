@@ -19,7 +19,7 @@ from pixiedust.display.chart.renderers import PixiedustRenderer
 from pixiedust.utils import Logger
 from pixiedust.utils.shellAccess import ShellAccess
 from six import with_metaclass
-from IPython.display import display as ipythonDisplay
+from IPython.display import display as ipythonDisplay, HTML
 from IPython.utils.io import capture_output
 from IPython.core.getipython import get_ipython
 from ..baseChartDisplay import BaseChartDisplay
@@ -40,8 +40,10 @@ class BrunelBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
         pass
 
     def complete_magic(self, magic):
-        return magic + ":: width={}, height={}".format(
-            int(self.getPreferredOutputWidth()), int(self.getPreferredOutputHeight())
+        online_js = ", online_js=True" if self.getBooleanOption("chart_share", False) else ""
+        return magic + ":: width={}, height={} {}".format(
+            int(self.getPreferredOutputWidth()), int(self.getPreferredOutputHeight()),
+            online_js
         )
 
     def get_sort(self):
@@ -64,6 +66,11 @@ class BrunelBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
         ShellAccess['brunel_temp_df'] = pandas_df
         try:
             with capture_output() as buf:
+                if self.getBooleanOption("chart_share", False):
+                    ipythonDisplay(HTML("""
+                    <script src="https://code.jquery.com/jquery-3.2.1.js" integrity="sha256-DZAnKJ/6XZ9si04Hgrsxu/8s717jcIzLy3oi35EouyE=" crossorigin="anonymous"></script>
+                    <script src="http://requirejs.org/docs/release/2.2.0/minified/require.js" charset="utf-8"></script>
+                    """))
                 magic = "data('brunel_temp_df') {}".format(self.complete_magic(magic))
                 self.debug("Running brunel with magic {}".format(magic))
                 data = get_ipython().run_line_magic('brunel', magic)
