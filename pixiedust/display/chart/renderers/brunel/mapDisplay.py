@@ -26,9 +26,10 @@ class MapRenderer(BrunelBaseDisplay):
     def __init__(self, options, entity, dataHandler=None):
         super(MapRenderer, self).__init__(options, entity, dataHandler)
         self.types = OrderedDict([
-            ('Map', {'brunel_type': 'map', 'handler': self.compute_for_map}),
-            ('Tree Map', {'brunel_type': 'treemap', 'handler': self.compute_for_treemap}),
-            ('Chord', {'brunel_type': 'chord', 'handler': self.compute_for_chord}),
+            ('Map', {'handler': self.compute_for_map}),
+            ('Heat Map', {'handler': self.compute_for_heatmap}),
+            ('Tree Map', {'handler': self.compute_for_treemap}),
+            ('Chord', {'handler': self.compute_for_chord}),
         ])
 
     @commonChartOptions
@@ -48,13 +49,22 @@ class MapRenderer(BrunelBaseDisplay):
 
     def compute_brunel_magic(self):
         map_type = self.options.get('brunelMapType', list(self.types.keys())[0])
-        handler = self.types.get(map_type).get('handler')
+        handler = self.types.get(map_type, list(self.types.values())[0]).get('handler')
         return handler()
 
     def compute_for_map(self):
         parts = ['map']
         parts.append("key({0}) label({0})".format(",".join(self.getKeyFields())))
         parts.append("color({})".format(",".join(self.getValueFields())))
+        return parts
+
+    def compute_for_heatmap(self):
+        parts = []
+        parts.append("x({})".format(",".join(self.getKeyFields())))
+        parts.append("y({})".format(",".join(self.getValueFields())))
+        parts.append("color(#count)")
+        parts.append("style('symbol:rect; size:100%; stroke:none')")
+        parts.append("sort(#count)")
         return parts
     
     def compute_for_treemap(self):

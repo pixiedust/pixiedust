@@ -133,8 +133,9 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
         value_fields = self.getValueFields()
         if self.supportsKeyFields(self.handlerId) and len(value_fields) == 0:
             new_col_name = self.dataHandler.add_numerical_column()
-            self.valueFields = [new_col_name]
-            self.aggregation = "COUNT"
+            if new_col_name is not None:
+                self.valueFields = [new_col_name]
+                self.aggregation = "COUNT"
         #validate options
         chartOptions = self.getChartOptions()   
         self.debug("chartOptions {}".format(chartOptions)) 
