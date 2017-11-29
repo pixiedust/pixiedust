@@ -19,3 +19,4 @@ from .lineChartDisplay import LineChartRenderer
 from .scatterPlotDisplay import ScatterPlotRenderer
 from .pieChartDisplay import PieChartRenderer
 from .histogramDisplay import HistogramRenderer
+from .mapDisplay import MapRenderer
