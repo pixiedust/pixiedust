@@ -133,8 +133,9 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
         value_fields = self.getValueFields()
         if self.supportsKeyFields(self.handlerId) and len(value_fields) == 0:
             new_col_name = self.dataHandler.add_numerical_column()
-            self.valueFields = [new_col_name]
-            self.aggregation = "COUNT"
+            if new_col_name is not None:
+                self.valueFields = [new_col_name]
+                self.aggregation = "COUNT"
         #validate options
         chartOptions = self.getChartOptions()   
         self.debug("chartOptions {}".format(chartOptions)) 
@@ -145,14 +146,17 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
                 values = value.split(",")
                 self.debug("values: {0}".format(values))
                 for v in values:
-                    self.debug("Calling with {0}".format(v))
+                    self.debug("Calling validation for option {} with value {}".format(key, v))
                     passed, message = ord.get(key)(v)
                     if not passed:
-                        self.addMessage("Filtered option {0} with value {1}. Reason {2}".format(key, value, message))
+                        msg = "Filtered option {0} with value {1}. Reason {2}".format(key, value, message)
+                        self.debug(msg)
+                        self.addMessage(msg)
                         remKeys.append(key)
                         break
 
         for key in remKeys:
+            self.debug("deleting option: {}".format(key))
             del self.options[key]
 
     def getExtraFields(self):
