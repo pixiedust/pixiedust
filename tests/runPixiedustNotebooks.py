@@ -97,7 +97,7 @@ class PixieDustTestExecutePreprocessor( ExecutePreprocessor ):
     def skipCell(self, cell):
         m = re.search("#TARGET=(.*)", cell.source, re.IGNORECASE)
         if m is not None:
-            return (m.group(1).lower() == "spark") != self.useSpark
+            return (m.group(1).lower() == "spark") != self.useSpark or m.group(1) == "NO_RUN"
         return False
 
     def preprocess_cell(self, cell, resources, cell_index):
