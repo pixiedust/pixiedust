@@ -14,11 +14,22 @@
 # limitations under the License.
 # -------------------------------------------------------------------------------
 
-class BaseDataHandler(object):
-    def __init__(self, options, entity):
-        self.options = options
-        self.entity = entity
-        self.isStreaming = False
+from pixiedust.display.chart.renderers import PixiedustRenderer
+from pixiedust.utils import Logger
+from .brunelBaseDisplay import BrunelBaseDisplay
 
-    def add_numerical_column(self):
-        raise NotImplementedError()
+@PixiedustRenderer(id="scatterPlot")
+@Logger()
+class ScatterPlotRenderer(BrunelBaseDisplay):
+    def compute_brunel_magic(self):
+        parts = ["point"]
+
+        for index, key in enumerate(self.getKeyFields()):
+            if index > 0:
+                parts.append("+ point")
+            parts.append("x({})".format(key))
+            parts.append("y({})".format(",".join(self.getValueFields())))
+            parts.append(self.get_sort())
+            #parts.append("filter({})".format(key))
+
+        return parts
