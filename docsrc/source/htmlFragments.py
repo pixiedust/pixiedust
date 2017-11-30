@@ -10,9 +10,9 @@ for fn in os.listdir('.') :
         tmp = os.path.splitext(fn)
 
         # This if and corresponding HTML piece below are a quick fix to ignore 1.6 instructions I manually updated for Inge.
-        if tmp[0] == "loaddata" or tmp[0] == "download" or tmp[0] == "install":
-            print ("Skipped .rst: " + tmp[0])
-            continue
+        #if tmp[0] == "loaddata" or tmp[0] == "download" or tmp[0] == "install":
+        #    print ("Skipped .rst: " + tmp[0])
+        #    continue
         if tmp[1] == ".rst" :
             source = fn
             parsed = (tmp[0]+"-tmp.rst")
@@ -43,9 +43,9 @@ for fn in os.listdir('clean-for-dsx') :
     if os.path.isfile(filePath) :
         tmp = os.path.splitext(fn)
 
-        if tmp[0] == "loaddata" or tmp[0] == "download" or tmp[0] == "install":
-            print ("Skipped .html: " + tmp[0])
-            continue
+        #if tmp[0] == "loaddata" or tmp[0] == "download" or tmp[0] == "install":
+        #    print ("Skipped .html: " + tmp[0])
+        #   continue
         if tmp[1] == ".html" :
             fh = open(filePath)
             data=fh.read()
@@ -81,7 +81,7 @@ for fn in os.listdir('clean-for-dsx') :
             attribs.append({"name": "DC.Rights.Owner", "content": "&#xA9;Copyright IBM Corporation 2017"})
             attribs.append({"name": "dcterms.rights", "content": "&#xA9; Copyright IBM Corporation 2016, 2017"})
             # Update with date of last release note entry
-            attribs.append({"name": "DC.date", "content": "2017-06-05"})
+            attribs.append({"name": "DC.date", "content": "2017-11-30"})
             for entry in attribs :
                 new_tag = soup.new_tag("meta", content=entry["content"])
                 new_tag["name"] = entry["name"]
@@ -97,6 +97,8 @@ for fn in os.listdir('clean-for-dsx') :
             post_soup = fh.read()
             fh.close()
             updated_soup = post_soup.replace("&amp;#xA9;", "&#xA9;")
+            updated_soup = updated_soup.replace("&lt;", "<")
+            updated_soup = updated_soup.replace("&gt;", ">")
             fh = open(filePath, 'w')
             fh.write(updated_soup)
             fh.close()

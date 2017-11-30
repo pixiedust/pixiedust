@@ -7,7 +7,7 @@
   <meta content="&#xA9;Copyright IBM Corporation 2017" name="copyright"/>
   <meta content="&#xA9;Copyright IBM Corporation 2017" name="DC.Rights.Owner"/>
   <meta content="&#xA9; Copyright IBM Corporation 2016, 2017" name="dcterms.rights"/>
-  <meta content="2017-06-05" name="DC.date"/>
+  <meta content="2017-11-30" name="DC.date"/>
  </head>
  <body>
   <div>
@@ -186,6 +186,19 @@ SPARK_HOME will be set to /Users/USERNAME/spark/spark-2.1.0-bin-hadoop2.7
 Downloading Spark 2.1.0
 Extracting Spark 2.1.0 to /Users/USERNAME/spark</pre>
      <p>
+      <!-- START EXCLUDE -->
+      <em>
+       Tip: If you're using Spark 1.6, and you want to work with PixieDust's sample data (recommended!), manually add the following package when you run your notebook. (You need run these commands only once.):
+      </em>
+     </p>
+     <blockquote>
+      <pre>pixiedust.installPackage("com.databricks:spark-csv_2.10:1.5.0")
+pixiedust.installPackage("org.apache.commons:commons-csv:0")</pre>
+     </blockquote>
+     <p>
+      <!-- END EXCLUDE -->
+     </p>
+     <p>
       Next, the installer prompts you for the location of Scala.
 If you do not have Scala installed, or you do not have the version of Scala supported by your Apache Spark install, the installer downloads the appropriate version of Scala for you.
      </p>
@@ -254,7 +267,7 @@ Extracting Scala 2.11 to /Users/USERNAME/scala</pre>
      When starting a notebook for the first time, you may be prompted to select a kernel. Select the kernel you created using the installer.
 Alternatively, click
      <strong>
-      Kernel &gt; Change Kernel
+      Kernel > Change Kernel
      </strong>
      from the menu to select the appropriate kernel:
     </p>

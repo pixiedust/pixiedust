@@ -7,7 +7,7 @@
   <meta content="&#xA9;Copyright IBM Corporation 2017" name="copyright"/>
   <meta content="&#xA9;Copyright IBM Corporation 2017" name="DC.Rights.Owner"/>
   <meta content="&#xA9; Copyright IBM Corporation 2016, 2017" name="dcterms.rights"/>
-  <meta content="2017-06-05" name="DC.date"/>
+  <meta content="2017-11-30" name="DC.date"/>
  </head>
  <body>
   <div>
@@ -18,13 +18,13 @@
     In some cases, you might want to include values that depend on client-side user input (e.g., write a pd_script that executes a query provided as input by the user). To do that, you can use the
     <code>
      <span>
-      "$val(&lt;id&gt;)"
+      "$val(<id>)"
      </span>
     </code>
     directive, which acts as a macro that will be resolved at the time the kernel request is executed.
    </p>
    <p>
-    "$val(&lt;id&gt;)" takes one argument that can be one of the following:
+    "$val(<id>)" takes one argument that can be one of the following:
    </p>
    <ul>
     <li>
@@ -36,9 +36,9 @@
      </p>
     </li>
    </ul>
-   <pre>&lt;pd_script&gt;
+   <pre><pd_script>
 self.executeQuery("$val(inputId)")
-&lt;/pd_script&gt;</pre>
+</pd_script></pre>
    <ul>
     <li>
      <p>
@@ -49,17 +49,17 @@ self.executeQuery("$val(inputId)")
      </p>
     </li>
    </ul>
-   <pre>&lt;script&gt;
+   <pre><script>
 function resValue(){
   return "my_query";
 }
-&lt;/script&gt;
+</script>
 
 ...
 
-&lt;pd_script&gt;
+<pd_script>
 self.executeQuery("$val(resValue)")
-&lt;/pd_script&gt;</pre>
+</pd_script></pre>
    <div>
     <p>
      Note

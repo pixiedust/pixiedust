@@ -7,7 +7,7 @@
   <meta content="&#xA9;Copyright IBM Corporation 2017" name="copyright"/>
   <meta content="&#xA9;Copyright IBM Corporation 2017" name="DC.Rights.Owner"/>
   <meta content="&#xA9; Copyright IBM Corporation 2016, 2017" name="dcterms.rights"/>
-  <meta content="2017-06-05" name="DC.date"/>
+  <meta content="2017-11-30" name="DC.date"/>
  </head>
  <body>
   <div>
@@ -312,7 +312,7 @@ class TableDisplayMeta(DisplayHandlerMeta):
             return
 
         self._addHTML("""
-            &lt;b&gt;Unable to display object&lt;/b&gt;
+            <b>Unable to display object</b>
         """
         )</pre>
       </blockquote>
@@ -386,7 +386,7 @@ class TableDisplayMeta(DisplayHandlerMeta):
         </code>
         : loop over the fields and display each as a
         <code>
-         &lt;th&gt;
+         <th>
         </code>
        </p>
       </li>
@@ -397,7 +397,7 @@ class TableDisplayMeta(DisplayHandlerMeta):
         </code>
         : loop over the rows and display each as a
         <code>
-         &lt;tr&gt;
+         <tr>
         </code>
        </p>
       </li>
@@ -405,7 +405,7 @@ class TableDisplayMeta(DisplayHandlerMeta):
      <p>
       Also note the
       <code>
-       &lt;script&gt;
+       <script>
       </code>
       tag at the end of the file. This is where you can do some nifty extras like scrolling while keeping the table header in a fixed position and client-side search.
      </p>
@@ -492,7 +492,7 @@ class SimpleDisplayMeta(DisplayHandlerMeta):
     </div>
     <div>
      <h2>
-      DataFrame =&gt; HTML
+      DataFrame => HTML
      </h2>
      <p>
       Create the file SimpleDisplay.py in the directory
@@ -515,7 +515,7 @@ class SimpleDisplay(Display):
             return
 
         self._addHTML("""
-            &lt;b&gt;Unable to display object&lt;/b&gt;
+            <b>Unable to display object</b>
         """
         )</pre>
      </blockquote>
@@ -531,22 +531,22 @@ class SimpleDisplay(Display):
       directory -- for processing the data. Once you're working on the template, the sky's the limit for what you can do. But just to finish out this example, here's some extremely simple code you can add there:
      </p>
      <blockquote>
-      <pre>&lt;table class="table table-striped"&gt;
-   &lt;thead&gt;
+      <pre><table class="table table-striped">
+   <thead>
        {%for field in entity.schema.fields%}
-       &lt;th&gt;{{field.name}}&lt;/th&gt;
+       <th>{{field.name}}</th>
        {%endfor%}
-   &lt;/thead&gt;
-   &lt;tbody&gt;
+   </thead>
+   <tbody>
        {%for row in entity.take(100)%}
-       &lt;tr&gt;
+       <tr>
            {%for field in entity.schema.fields%}
-           &lt;td&gt;{{row[field.name]}}&lt;/td&gt;
+           <td>{{row[field.name]}}</td>
            {%endfor%}
-       &lt;/tr&gt;
+       </tr>
        {%endfor%}
-   &lt;/tbody&gt;
-&lt;/table&gt;</pre>
+   </tbody>
+</table></pre>
      </blockquote>
      <div>
       <h3>
@@ -564,7 +564,7 @@ class SimpleDisplay(Display):
         <span>
          -e
         </span>
-        &lt;your directory path to pixiedust code&gt;
+        <your directory path to pixiedust code>
        </code>
       </p>
       <p>

@@ -7,7 +7,7 @@
   <meta content="&#xA9;Copyright IBM Corporation 2017" name="copyright"/>
   <meta content="&#xA9;Copyright IBM Corporation 2017" name="DC.Rights.Owner"/>
   <meta content="&#xA9; Copyright IBM Corporation 2016, 2017" name="dcterms.rights"/>
-  <meta content="2017-06-05" name="DC.date"/>
+  <meta content="2017-11-30" name="DC.date"/>
  </head>
  <body>
   <div>
@@ -118,7 +118,13 @@
       Note
      </p>
      <p>
-      If you get an error that a library is missing, install the cloudant-spark library. This is a manual one-time step that requires a kernel restart. Download the cloudant-spark jar for your Spark version. For Spark 2.0:
+      If you get an error that a library is missing, install the cloudant-spark library. This is a manual one-time step that requires a kernel restart. Download the cloudant-spark jar for your Spark version. <!-- START EXCLUDE -->For Spark 1.6:
+      <code>
+       <span>
+        https://github.com/cloudant-labs/spark-cloudant/releases/download/v1.6.4/cloudant-spark-v1.6.4-167.jar
+       </span>
+      </code>
+      .<!-- END EXCLUDE --> For Spark 2.0:
       <code>
        <span>
         https://github.com/cloudant-labs/spark-cloudant/releases/download/v2.0.0/cloudant-spark-v2.0.0-185.jar
@@ -136,7 +142,7 @@
       <code>
        jupyter pixiedust list
       </code>
-      . Edit kernel.json file and update the variable PYSPARK_SUBMIT_ARGS under env by adding --jars &lt;local_home_directory&gt;/jars/cloudant-spark.jar.
+      . Edit kernel.json file and update the variable PYSPARK_SUBMIT_ARGS under env by adding --jars <local_home_directory>/jars/cloudant-spark.jar.
       <code>
        "PYSPARK_SUBMIT_ARGS":
        <span>
@@ -170,7 +176,8 @@
      You can export the data to a Cloudant database. A supporting library cloudant-spark jar is required for the export.
 This is a manual one-time step that requires a kernel restart. Download cloudant-spark jar file for respective Spark version from
     </p>
-    <pre>Spark 2.0: https://github.com/cloudant-labs/spark-cloudant/releases/download/v2.0.0/cloudant-spark-v2.0.0-185.jar</pre>
+    <pre><!-- START EXCLUDE -->Spark 1.6: https://github.com/cloudant-labs/spark-cloudant/releases/download/v1.6.4/cloudant-spark-v1.6.4-167.jar<!-- END EXCLUDE -->
+Spark 2.0: https://github.com/cloudant-labs/spark-cloudant/releases/download/v2.0.0/cloudant-spark-v2.0.0-185.jar</pre>
     <p>
      Create a directory of your choice for example jars under the home directory.
     </p>
@@ -183,7 +190,7 @@ This is a manual one-time step that requires a kernel restart. Download cloudant
     </p>
     <pre>jupyter pixiedust list</pre>
     <p>
-     Edit kernel.json file and update the variable PYSPARK_SUBMIT_ARGS under env by adding --jars &lt;local_home_directory&gt;/jars/cloudant-spark.jar.
+     Edit kernel.json file and update the variable PYSPARK_SUBMIT_ARGS under env by adding --jars <local_home_directory>/jars/cloudant-spark.jar.
     </p>
     <pre>"PYSPARK_SUBMIT_ARGS": "--jars /Users/USERNAME/jars/cloudant-spark-v1.6.4-167.jar ....</pre>
    </div>

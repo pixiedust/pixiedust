@@ -7,7 +7,7 @@
   <meta content="&#xA9;Copyright IBM Corporation 2017" name="copyright"/>
   <meta content="&#xA9;Copyright IBM Corporation 2017" name="DC.Rights.Owner"/>
   <meta content="&#xA9; Copyright IBM Corporation 2016, 2017" name="dcterms.rights"/>
-  <meta content="2017-06-05" name="DC.date"/>
+  <meta content="2017-11-30" name="DC.date"/>
  </head>
  <body>
   <div>
@@ -16,12 +16,12 @@
    </h1>
    <div>
     <h1>
-     &lt;target&gt;
+     <target>
     </h1>
     <p>
      Child element to the clickable source element.
      <code>
-      &lt;target&gt;
+      <target>
      </code>
      can have any of the
      <a href="html-attributes-pixieapps.html">
@@ -29,26 +29,26 @@
      </a>
      defined above. For example:
     </p>
-    <pre>&lt;button type="button"&gt;Multiple Targets
-      &lt;target pd_target="target{{prefix}}"
+    <pre><button type="button">Multiple Targets
+      <target pd_target="target{{prefix}}"
           pd_entity
-          pd_options="handlerId=dataFrame"/&gt;
-      &lt;target pd_target="target2{{prefix}}"
+          pd_options="handlerId=dataFrame"/>
+      <target pd_target="target2{{prefix}}"
           pd_entity
-          pd_options="keyFields=zone;aggregation=AVG;handlerId=barChart;valueFields=unique_customers;rowCount=100/"&gt;
-&lt;/button&gt;</pre>
+          pd_options="keyFields=zone;aggregation=AVG;handlerId=barChart;valueFields=unique_customers;rowCount=100/">
+</button></pre>
    </div>
    <div>
     <h1>
-     &lt;pd_script&gt;
+     <pd_script>
     </h1>
     <p>
      Contains Python code as child text. It has the same meaning as the pd_script attribute, except that it can contain multiple lines of Python code. Because indentation is important in Python, be careful to not have empty space in your code---regardless of the indentation level of your HTML markup. For example:
     </p>
-    <pre>  &lt;pd_script&gt;
+    <pre>  <pd_script>
 import json
 print(json.dumps(self.myJson)
-  &lt;/pd_script&gt;</pre>
+  </pd_script></pre>
    </div>
   </div>
  </body>
