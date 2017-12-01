@@ -34,14 +34,16 @@ class BarChartRenderer(BrunelBaseDisplay):
 
     def compute_brunel_magic(self):
         parts = ["bar"]
-        if self.options.get("charttype", "grouped") == "stacked":
-            parts.append("stack")
         if self.options.get("orientation", "vertical") == "horizontal":
             parts.append("transpose")
 
         clusterby = list(filter(None, [self.options.get("clusterby", "")]))
 
-        parts.append("x({})".format(",".join(self.getKeyFields() + clusterby)))
+        if self.options.get("charttype", "grouped") == "stacked":
+            parts.append("stack")
+            parts.append("x({})".format(",".join(self.getKeyFields())))
+        else:
+            parts.append("x({})".format(",".join(self.getKeyFields() + self.getValueFields())))
         parts.append("y({})".format(",".join(self.getValueFields())))
         parts.append(self.get_sort())
         parts.append("color({})".format(clusterby[0] if len(clusterby) > 0 else self.getKeyFields()[0]))
