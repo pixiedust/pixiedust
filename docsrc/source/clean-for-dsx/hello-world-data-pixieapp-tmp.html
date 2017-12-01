@@ -23,14 +23,11 @@ class HelloWorldPixieAppWithData:
     @route()
     def main(self):
         return"""
-        <div class="row">
-           <div class="col-sm-2">
-              <input pd_options="handlerId=dataframe"
-                     pd_entity
-                     pd_target="target{{prefix}}"
-                     type="button" value="Preview Data">
+        <div>
+           <div>
+              <input/>
            </div>
-           <div class="col-sm-10" id="target{{prefix}}"/>
+           <div></div>
         </div>
         """
 #Create dataframe

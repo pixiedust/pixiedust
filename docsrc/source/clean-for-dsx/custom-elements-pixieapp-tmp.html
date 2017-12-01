@@ -17,11 +17,13 @@
    <div>
     <h1>
      <target>
+     </target>
     </h1>
     <p>
      Child element to the clickable source element.
      <code>
       <target>
+      </target>
      </code>
      can have any of the
      <a href="html-attributes-pixieapps.html">
@@ -29,18 +31,15 @@
      </a>
      defined above. For example:
     </p>
-    <pre><button type="button">Multiple Targets
-      <target pd_target="target{{prefix}}"
-          pd_entity
-          pd_options="handlerId=dataFrame"/>
-      <target pd_target="target2{{prefix}}"
-          pd_entity
-          pd_options="keyFields=zone;aggregation=AVG;handlerId=barChart;valueFields=unique_customers;rowCount=100/">
-</button></pre>
+    <pre><button>Multiple Targets
+      <target></target>
+      <target>
+</target></button></pre>
    </div>
    <div>
     <h1>
      <pd_script>
+     </pd_script>
     </h1>
     <p>
      Contains Python code as child text. It has the same meaning as the pd_script attribute, except that it can contain multiple lines of Python code. Because indentation is important in Python, be careful to not have empty space in your code---regardless of the indentation level of your HTML markup. For example:

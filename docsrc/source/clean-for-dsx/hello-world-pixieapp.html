@@ -7,7 +7,7 @@
   <meta content="&#xA9;Copyright IBM Corporation 2017" name="copyright"/>
   <meta content="&#xA9;Copyright IBM Corporation 2017" name="DC.Rights.Owner"/>
   <meta content="&#xA9; Copyright IBM Corporation 2016, 2017" name="dcterms.rights"/>
-  <meta content="2017-06-05" name="DC.date"/>
+  <meta content="2017-12-01" name="DC.date"/>
  </head>
  <body>
   <div>
@@ -23,12 +23,12 @@ class HelloWorldPixieApp:
     @route()
     def main(self):
         return"""
-            &lt;input pd_options="clicked=true" type="button" value="Click Me"&gt;
+            <input pd_options="clicked=true" type="button" value="Click Me">
         """
     @route(clicked="true")
     def _clicked(self):
         return """
-            &lt;input pd_options="clicked=false" type="button" value="You Clicked, Now Go back"&gt;
+            <input pd_options="clicked=false" type="button" value="You Clicked, Now Go back">
         """
 #run the app
 HelloWorldPixieApp().run(runInDialog='false')</pre>
