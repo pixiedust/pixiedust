@@ -7,7 +7,7 @@
   <meta content="&#xA9;Copyright IBM Corporation 2017" name="copyright"/>
   <meta content="&#xA9;Copyright IBM Corporation 2017" name="DC.Rights.Owner"/>
   <meta content="&#xA9; Copyright IBM Corporation 2016, 2017" name="dcterms.rights"/>
-  <meta content="2017-06-05" name="DC.date"/>
+  <meta content="2017-12-01" name="DC.date"/>
  </head>
  <body>
   <div>
@@ -63,7 +63,7 @@ notebooks from a hosted cloud environment and do not have access to the configur
       <p>
        Click the link for your package and locate the code to run the package in spark-shell, pyspark, or spark-submit. For example, you would retrieve the following line:
       </p>
-      <pre>&gt; $SPARK_HOME/bin/spark-shell --packages graphframes:graphframes:0.1.0-spark1.6</pre>
+      <pre>> $SPARK_HOME/bin/spark-shell --packages graphframes:graphframes:0.1.0-spark1.6</pre>
      </li>
      <li>
       <p>
@@ -99,7 +99,7 @@ display:
 Downloaded 326112 of 326112 bytes (100.00%)
 Downloaded artifact graphframes:graphframes:0.1.0-spark1.6 to /Users/dtaieb/data/libs/graphframes-0.1.0-spark1.6.jar
 Artifact downloaded successfully graphframes:graphframes:0.1.0-spark1.6
-&gt;&gt;&gt;Please restart Kernel to complete installation of the new package
+>>>Please restart Kernel to complete installation of the new package
 Successfully added artifact graphframes:graphframes:0.1.0-spark1.6</pre>
     <p>
      Notice the line that instructs you to restart the kernel to complete
@@ -112,10 +112,10 @@ Restart the kernel by using the
 kernel is restarted, the library is added to the classpath and can be
 used from your Python notebook.
     </p>
-    <div>
-     <p>
+    <blockquote>
+     <strong>
       Note
-     </p>
+     </strong>
      <p>
       Some libraries, such as GraphFrames include a python module within it. PixieDust automatically adds the python file into the SparkContext. However, you must explicitly call
       <strong>
@@ -123,7 +123,7 @@ used from your Python notebook.
       </strong>
       at the beginning of every kernel session so that the python modules are added to the SparkContext.
      </p>
-    </div>
+    </blockquote>
    </div>
    <div>
     <h1>
@@ -160,7 +160,7 @@ used from your Python notebook.
      . If you use a custom maven repository, you can specify it by using the following base keyword argument:
     </p>
     <pre>import pixiedust
-pixiedust.installPackage("groupId:artifactId:0", base="&lt;&lt;url to my custom maven repo&gt;&gt;"</pre>
+pixiedust.installPackage("groupId:artifactId:0", base="<<url to my custom maven repo>>"</pre>
    </div>
    <div>
     <h1>
@@ -180,7 +180,7 @@ pixiedust.installPackage("https://github.com/ibm-cds-labs/spark.samples/raw/mast
      You can uninstall a package by using the following command:
     </p>
     <pre>import pixiedust
-pixiedust.uninstallPackage("&lt;&lt;mypackage&gt;&gt;")</pre>
+pixiedust.uninstallPackage("<<mypackage>>")</pre>
     <p>
      You can also list all the packages installed on your system:
     </p>

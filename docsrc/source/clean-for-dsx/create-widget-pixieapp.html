@@ -7,7 +7,7 @@
   <meta content="&#xA9;Copyright IBM Corporation 2017" name="copyright"/>
   <meta content="&#xA9;Copyright IBM Corporation 2017" name="DC.Rights.Owner"/>
   <meta content="&#xA9; Copyright IBM Corporation 2016, 2017" name="dcterms.rights"/>
-  <meta content="2017-06-05" name="DC.date"/>
+  <meta content="2017-12-01" name="DC.date"/>
  </head>
  <body>
   <div>
@@ -39,7 +39,7 @@
       <strong>
        To invoke a widget:
       </strong>
-      Apply the pd_widget custom attribute to a &lt;div&gt; element and set its value to the same widget value defined in the route. For example:
+      Apply the pd_widget custom attribute to a <div> element and set its value to the same widget value defined in the route. For example:
      </p>
     </li>
    </ul>
@@ -48,10 +48,10 @@
 class TestPixieAppWidget():
     @route(widget='myWidget')
     def myWidget(self):
-        return """&lt;div&gt;&lt;b&gt;Hello World Widget&lt;/b&gt;&lt;/div&gt;"""
+        return """<div><b>Hello World Widget</b></div>"""
     @route()
     def main(self):
-        return """&lt;div pd_widget="myWidget"/&gt;"""
+        return """<div pd_widget="myWidget"/>"""
 
 TestPixieAppWidget().run(runInDialog='false')</pre>
   </div>
