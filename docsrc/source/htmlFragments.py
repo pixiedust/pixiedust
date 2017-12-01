@@ -46,6 +46,9 @@ for fn in os.listdir('clean-for-dsx') :
         if tmp[0] == "install":
             print ("Skipped .html: " + tmp[0])
             continue
+        if tmp[1] == ".ditamap" :
+            subprocess.call(["find", "clean-for-dsx/", "-iname", "pixiedust.ditamap", "-exec", "cp", "{}", '../build/html', ";"])
+            print ("Copied " + filePath + " to ../build/html directory.")
         if tmp[1] == ".html" :
             fh = open(filePath)
             data=fh.read()
