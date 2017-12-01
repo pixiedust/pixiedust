@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+ <head>
+  <title>
+   Spark Progress Monitor
+  </title>
+  <meta content="&#xA9;Copyright IBM Corporation 2017" name="copyright"/>
+  <meta content="&#xA9;Copyright IBM Corporation 2017" name="DC.Rights.Owner"/>
+  <meta content="&#xA9; Copyright IBM Corporation 2016, 2017" name="dcterms.rights"/>
+  <meta content="2017-12-01" name="DC.date"/>
+ </head>
+ <body>
+  <div>
+   <h1>
+    Spark Progress Monitor
+   </h1>
+   <p>
+    When you run a Spark job within a Python or Scala notebook, you can't see how the job is progressing. Wouldn't it be nice to have a progress bar that shows you how your job is running and provides details? PixieDust includes a Spark Progress Monitor bar that lets you track the status of your Spark job. No more waiting in the dark. Notebook users can now see how a cell's code is running behind the scenes.
+   </p>
+   <p>
+    To invoke the Spark progress monitor, run the following command in your Python notebook:
+   </p>
+   <blockquote>
+    <pre>pixiedust.enableJobMonitor()</pre>
+   </blockquote>
+   <p>
+    Doing so invokes the progress monitor for the session. Each time you run a Spark job after that, the monitor appears.
+   </p>
+   <img alt="_images/sparkmonitor.png" src="https://raw.githubusercontent.com/ibm-cds-labs/pixiedust/master/docs/https://raw.githubusercontent.com/ibm-cds-labs/pixiedust/master/docs/https://raw.githubusercontent.com/ibm-cds-labs/pixiedust/master/docs/https://raw.githubusercontent.com/ibm-cds-labs/pixiedust/master/docs/https://raw.githubusercontent.com/ibm-cds-labs/pixiedust/master/docs/https://raw.githubusercontent.com/ibm-cds-labs/pixiedust/master/docs/https://raw.githubusercontent.com/ibm-cds-labs/pixiedust/master/docs/https://raw.githubusercontent.com/ibm-cds-labs/pixiedust/master/docs/https://raw.githubusercontent.com/ibm-cds-labs/pixiedust/master/docs/https://raw.githubusercontent.com/ibm-cds-labs/pixiedust/master/docs/_images/sparkmonitor.png"/>
+   <p>
+    To see details, click the blue > carat:
+   </p>
+   <img alt="_images/monitor_carat.png" src="https://raw.githubusercontent.com/ibm-cds-labs/pixiedust/master/docs/https://raw.githubusercontent.com/ibm-cds-labs/pixiedust/master/docs/https://raw.githubusercontent.com/ibm-cds-labs/pixiedust/master/docs/https://raw.githubusercontent.com/ibm-cds-labs/pixiedust/master/docs/https://raw.githubusercontent.com/ibm-cds-labs/pixiedust/master/docs/https://raw.githubusercontent.com/ibm-cds-labs/pixiedust/master/docs/https://raw.githubusercontent.com/ibm-cds-labs/pixiedust/master/docs/https://raw.githubusercontent.com/ibm-cds-labs/pixiedust/master/docs/https://raw.githubusercontent.com/ibm-cds-labs/pixiedust/master/docs/https://raw.githubusercontent.com/ibm-cds-labs/pixiedust/master/docs/_images/monitor_carat.png"/>
+   <p>
+    and PixieDust shows you more information about the job:
+   </p>
+   <img alt="_images/monitor_details.png" src="https://raw.githubusercontent.com/ibm-cds-labs/pixiedust/master/docs/https://raw.githubusercontent.com/ibm-cds-labs/pixiedust/master/docs/https://raw.githubusercontent.com/ibm-cds-labs/pixiedust/master/docs/https://raw.githubusercontent.com/ibm-cds-labs/pixiedust/master/docs/https://raw.githubusercontent.com/ibm-cds-labs/pixiedust/master/docs/https://raw.githubusercontent.com/ibm-cds-labs/pixiedust/master/docs/https://raw.githubusercontent.com/ibm-cds-labs/pixiedust/master/docs/https://raw.githubusercontent.com/ibm-cds-labs/pixiedust/master/docs/https://raw.githubusercontent.com/ibm-cds-labs/pixiedust/master/docs/https://raw.githubusercontent.com/ibm-cds-labs/pixiedust/master/docs/_images/monitor_details.png"/>
+  </div>
+ </body>
+</html>

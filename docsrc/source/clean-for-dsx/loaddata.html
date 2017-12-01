@@ -7,7 +7,7 @@
   <meta content="&#xA9;Copyright IBM Corporation 2017" name="copyright"/>
   <meta content="&#xA9;Copyright IBM Corporation 2017" name="DC.Rights.Owner"/>
   <meta content="&#xA9; Copyright IBM Corporation 2016, 2017" name="dcterms.rights"/>
-  <meta content="2017-11-30" name="DC.date"/>
+  <meta content="2017-12-01" name="DC.date"/>
  </head>
  <body>
   <div>
@@ -29,17 +29,18 @@
      You get a list of the data sets included with PixieDust.
     </p>
     <img alt="_images/sample_data_sets.png" src="https://raw.githubusercontent.com/ibm-cds-labs/pixiedust/master/docs/_images/sample_data_sets.png"/>
-    <p>
-     <!-- START EXCLUDE -->
-.. note:: If you get an error, and you're running Spark 1.6, run the following command to manually install packages missing in 1.6 (You need to do so only once.):
-    </p>
+    <!-- START EXCLUDE -->
     <blockquote>
+     <strong>
+      Note
+     </strong>
+     <p>
+      If you get an error, and you're running Spark 1.6, run the following command to manually install packages missing in 1.6 (You need to do so only once.):
+     </p>
      <pre>pixiedust.installPackage("com.databricks:spark-csv_2.10:1.5.0")
 pixiedust.installPackage("org.apache.commons:commons-csv:0")</pre>
     </blockquote>
-    <p>
-     <!-- END EXCLUDE -->
-    </p>
+    <!-- END EXCLUDE -->
     <p>
      To create a pySpark DataFrame for one of the samples, just enter its number in the following command. For example, to load Set 6, Million Dollar Home sales, run the command:
     </p>

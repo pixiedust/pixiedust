@@ -39,11 +39,11 @@
       <strong>
        To invoke a widget:
       </strong>
-      Apply the pd_widget custom attribute to a <div> element and set its value to the same widget value defined in the route. For example:
+      Apply the pd_widget custom attribute to a
      </p>
-    </li>
-   </ul>
-   <pre>from pixiedust.display.app import *
+     <div>
+      element and set its value to the same widget value defined in the route. For example:
+      <pre>from pixiedust.display.app import *
 @PixieApp
 class TestPixieAppWidget():
     @route(widget='myWidget')
@@ -51,9 +51,12 @@ class TestPixieAppWidget():
         return """<div><b>Hello World Widget</b></div>"""
     @route()
     def main(self):
-        return """<div pd_widget="myWidget"/>"""
+        return """<div></div>"""
 
 TestPixieAppWidget().run(runInDialog='false')</pre>
+     </div>
+    </li>
+   </ul>
   </div>
  </body>
 </html>
