@@ -19,15 +19,22 @@ You get a list of the data sets included with PixieDust.
 
 .. image:: _images/sample_data_sets.png
 
+.. raw:: html
 
-.. note:: If you get an error, and you're running Spark 1.6, run the following command to manually install packages missing in 1.6 (You need to do so only once.):
+    <!-- START EXCLUDE -->
+
+.. note::
+   If you get an error, and you're running Spark 1.6, run the following command to manually install packages missing in 1.6 (You need to do so only once.):
 
    ::
 
 
       pixiedust.installPackage("com.databricks:spark-csv_2.10:1.5.0")
       pixiedust.installPackage("org.apache.commons:commons-csv:0")
+      
+.. raw:: html
 
+   <!-- END EXCLUDE -->
 
 To create a pySpark DataFrame for one of the samples, just enter its number in the following command. For example, to load Set 6, Million Dollar Home sales, run the command:
 

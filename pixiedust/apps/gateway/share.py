@@ -77,6 +77,7 @@ class ShareChartApp(BaseGatewayApp):
                         if key == 'rendererId':
                             rendererid = value
                 command = self.update_command(command, "nostore_figureOnly", "true")
+                command = self.update_command(command, "chart_share", "true")
                 sys.modules['pixiedust.display'].pixiedust_display_callerText = command
                 for key in ShellAccess:
                     locals()[key] = ShellAccess[key]

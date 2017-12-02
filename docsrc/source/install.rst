@@ -10,7 +10,7 @@ System Requirements
 To join development or use pixiedust locally, you should:
 
 - work on a computer running Mac OS. Commands and programs may not all run as expected on a Microsoft Windows machine.
-- have the latest version of Java, which is 1.8. To check, open Terminal or other command-line interface and run the command `java -version`. If you need to, update your JDK at [Oracle Java Downloads](http://www.oracle.com/technetwork/java/javase/downloads/index-jsp-138363.html#javasejdk).
+- have the latest version of Java, which is 1.8. To check, open Terminal or other command-line interface and run the command `java -version`. If you need to, update your JDK at `Oracle Java Downloads <http://www.oracle.com/technetwork/java/javase/downloads/index-jsp-138363.html#javasejdk>`_.
 
 Install Anaconda
 ----------------
@@ -96,12 +96,18 @@ If you choose to download Apache Spark, the installer prompts you for the versio
     Downloading Spark 2.1.0
     Extracting Spark 2.1.0 to /Users/USERNAME/spark
 
+.. raw:: html
+    <!-- START EXCLUDE -->
+
 *Tip: If you're using Spark 1.6, and you want to work with PixieDust's sample data (recommended!), manually add the following package when you run your notebook. (You need run these commands only once.):*
 
    ::
 
       pixiedust.installPackage("com.databricks:spark-csv_2.10:1.5.0")
       pixiedust.installPackage("org.apache.commons:commons-csv:0")
+      
+.. raw:: html
+    <!-- END EXCLUDE -->
 
 Next, the installer prompts you for the location of Scala.
 If you do not have Scala installed, or you do not have the version of Scala supported by your Apache Spark install, the installer downloads the appropriate version of Scala for you.
