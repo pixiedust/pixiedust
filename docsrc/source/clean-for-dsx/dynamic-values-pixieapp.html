@@ -18,13 +18,13 @@
     In some cases, you might want to include values that depend on client-side user input (e.g., write a pd_script that executes a query provided as input by the user). To do that, you can use the
     <code>
      <span>
-      "$val(<id>)"
+      "$val(&lt;id&gt;)"
      </span>
     </code>
     directive, which acts as a macro that will be resolved at the time the kernel request is executed.
    </p>
    <p>
-    "$val(<id>)" takes one argument that can be one of the following:
+    "$val(&lt;id&gt;)" takes one argument that can be one of the following:
    </p>
    <ul>
     <li>
@@ -36,9 +36,9 @@
      </p>
     </li>
    </ul>
-   <pre><pd_script>
+   <pre>&lt;pd_script&gt;
 self.executeQuery("$val(inputId)")
-</pd_script></pre>
+&lt;/pd_script&gt;</pre>
    <ul>
     <li>
      <p>
@@ -49,17 +49,17 @@ self.executeQuery("$val(inputId)")
      </p>
     </li>
    </ul>
-   <pre><script>
+   <pre>&lt;script&gt;
 function resValue(){
   return "my_query";
 }
-</script>
+&lt;/script&gt;
 
 ...
 
-<pd_script>
+&lt;pd_script&gt;
 self.executeQuery("$val(resValue)")
-</pd_script></pre>
+&lt;/pd_script&gt;</pre>
    <blockquote>
     <strong>
      Note

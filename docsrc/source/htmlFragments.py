@@ -108,8 +108,6 @@ for fn in os.listdir('clean-for-dsx') :
             post_soup = fh.read()
             fh.close()
             updated_soup = post_soup.replace("&amp;#xA9;", "&#xA9;")
-            updated_soup = updated_soup.replace("&lt;", "<")
-            updated_soup = updated_soup.replace("&gt;", ">")
             fh = open(filePath, 'w')
             fh.write(updated_soup)
             fh.close()
