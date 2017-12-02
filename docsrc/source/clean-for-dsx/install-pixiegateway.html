@@ -28,7 +28,7 @@
     <p>
      Then you can start the PixieGateway with a simple command:
     </p>
-    <pre>jupyter pixiegateway --port <portnumber></pre>
+    <pre>jupyter pixiegateway --port &lt;portnumber&gt;</pre>
     <p>
      Example output:
     </p>
@@ -40,7 +40,7 @@ kernel client initialized
      Now, go to
      <code>
       <span>
-       http://localhost:<portnumber>/pixieapps
+       http://localhost:&lt;portnumber&gt;/pixieapps
       </span>
      </code>
      to review and use your apps.
@@ -105,11 +105,11 @@ kernel client initialized
         <span>
          -o
         </span>
-        <YOUR_ORG>
+        &lt;YOUR_ORG&gt;
         <span>
          -s
         </span>
-        <YOUR_SPACE>
+        &lt;YOUR_SPACE&gt;
        </code>
       </p>
      </li>
@@ -255,7 +255,7 @@ kernel client initialized
        To check that the install worked, enter the following URL in your browser:
        <code>
         <span>
-         http://<publicIP>:32222/pixieapps
+         http://&lt;publicIP&gt;:32222/pixieapps
         </span>
        </code>
        . You’ll be able to interact with your PixieApp-published web apps from there.
@@ -271,11 +271,11 @@ kernel client initialized
        </strong>
        In the future, if you need to update the PixieGateway version, you do not have to retrace the previous steps. Instead, simply delete the Kubernetes pod, which will cause Docker to restart and automatically pull down a new version of PixieDust, like so:
        <code>
-        kubectl delete pod <name>
+        kubectl delete pod &lt;name&gt;
        </code>
        . Here,
        <code>
-        <name>
+        &lt;name&gt;
        </code>
        is the pod’s name obtained with the command:
        <code>

@@ -312,7 +312,7 @@ class TableDisplayMeta(DisplayHandlerMeta):
             return
 
         self._addHTML("""
-            <b>Unable to display object</b>
+            &lt;b&gt;Unable to display object&lt;/b&gt;
         """
         )</pre>
       </blockquote>
@@ -386,7 +386,7 @@ class TableDisplayMeta(DisplayHandlerMeta):
         </code>
         : loop over the fields and display each as a
         <code>
-         <th>
+         &lt;th&gt;
         </code>
        </p>
       </li>
@@ -397,7 +397,7 @@ class TableDisplayMeta(DisplayHandlerMeta):
         </code>
         : loop over the rows and display each as a
         <code>
-         <tr>
+         &lt;tr&gt;
         </code>
        </p>
       </li>
@@ -405,7 +405,7 @@ class TableDisplayMeta(DisplayHandlerMeta):
      <p>
       Also note the
       <code>
-       <script>
+       &lt;script&gt;
       </code>
       tag at the end of the file. This is where you can do some nifty extras like scrolling while keeping the table header in a fixed position and client-side search.
      </p>
@@ -492,7 +492,7 @@ class SimpleDisplayMeta(DisplayHandlerMeta):
     </div>
     <div>
      <h2>
-      DataFrame => HTML
+      DataFrame =&gt; HTML
      </h2>
      <p>
       Create the file SimpleDisplay.py in the directory
@@ -515,7 +515,7 @@ class SimpleDisplay(Display):
             return
 
         self._addHTML("""
-            <b>Unable to display object</b>
+            &lt;b&gt;Unable to display object&lt;/b&gt;
         """
         )</pre>
      </blockquote>
@@ -531,22 +531,22 @@ class SimpleDisplay(Display):
       directory -- for processing the data. Once you're working on the template, the sky's the limit for what you can do. But just to finish out this example, here's some extremely simple code you can add there:
      </p>
      <blockquote>
-      <pre><table class="table table-striped">
-   <thead>
+      <pre>&lt;table class="table table-striped"&gt;
+   &lt;thead&gt;
        {%for field in entity.schema.fields%}
-       <th>{{field.name}}</th>
+       &lt;th&gt;{{field.name}}&lt;/th&gt;
        {%endfor%}
-   </thead>
-   <tbody>
+   &lt;/thead&gt;
+   &lt;tbody&gt;
        {%for row in entity.take(100)%}
-       <tr>
+       &lt;tr&gt;
            {%for field in entity.schema.fields%}
-           <td>{{row[field.name]}}</td>
+           &lt;td&gt;{{row[field.name]}}&lt;/td&gt;
            {%endfor%}
-       </tr>
+       &lt;/tr&gt;
        {%endfor%}
-   </tbody>
-</table></pre>
+   &lt;/tbody&gt;
+&lt;/table&gt;</pre>
      </blockquote>
      <div>
       <h3>
@@ -564,7 +564,7 @@ class SimpleDisplay(Display):
         <span>
          -e
         </span>
-        <your directory path to pixiedust code>
+        &lt;your directory path to pixiedust code&gt;
        </code>
       </p>
       <p>
