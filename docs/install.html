@@ -1,17 +1,14 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
     <title>Install PixieDust &#8212; PixieDust Documentation</title>
-    
     <link rel="stylesheet" href="_static/better.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="_static/custom.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
@@ -32,7 +29,7 @@
     <link rel="prev" title="Use PixieDust" href="use.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   </head>
-  <body role="document">
+  <body>
     <header id="pageheader"><h1><a href="index.html ">
         PixieDust Documentation
     </a></h1></header>  
@@ -69,7 +66,7 @@ Anaconda includes Python, pip, pandas, numpy, matpoltlib, and other libraries re
 </div>
 <div class="section" id="id1">
 <h2>Install PixieDust<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
-<p>Once you&#8217;ve installed Anaconda run the following commands in your Terminal or command-line interface to ensure your environment is configured properly:</p>
+<p>Once you’ve installed Anaconda run the following commands in your Terminal or command-line interface to ensure your environment is configured properly:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">pip</span>  <span class="o">--</span><span class="n">version</span>
 <span class="n">jupyter</span> <span class="o">--</span><span class="n">version</span>
 </pre></div>
@@ -100,7 +97,7 @@ If you plan on contributing to PixieDust we recommended that you install from so
 </ul>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">Do not include <code class="docutils literal"><span class="pre">--user</span></code> in your pip install command. Doing so installs the Jupyter PixieDust command in the wrong directory, and you won&#8217;t be able to follow the rest of the steps on this page.</p>
+<p class="last">Do not include <code class="docutils literal"><span class="pre">--user</span></code> in your pip install command. Doing so installs the Jupyter PixieDust command in the wrong directory, and you won’t be able to follow the rest of the steps on this page.</p>
 </div>
 </div>
 <div class="section" id="jupyter-kernels">
@@ -137,7 +134,7 @@ Downloading Spark 2.1.0
 Extracting Spark 2.1.0 to /Users/USERNAME/spark
 </pre></div>
 </div>
-<p><em>Tip: If you&#8217;re using Spark 1.6, and you want to work with PixieDust&#8217;s sample data (recommended!), manually add the following package when you run your notebook. (You need run these commands only once.):</em></p>
+<p><em>Tip: If you’re using Spark 1.6, and you want to work with PixieDust’s sample data (recommended!), manually add the following package when you run your notebook. (You need run these commands only once.):</em></p>
 <blockquote>
 <div><div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">pixiedust</span><span class="o">.</span><span class="n">installPackage</span><span class="p">(</span><span class="s2">&quot;com.databricks:spark-csv_2.10:1.5.0&quot;</span><span class="p">)</span>
 <span class="n">pixiedust</span><span class="o">.</span><span class="n">installPackage</span><span class="p">(</span><span class="s2">&quot;org.apache.commons:commons-csv:0&quot;</span><span class="p">)</span>
@@ -159,7 +156,7 @@ Extracting Scala 2.11 to /Users/USERNAME/scala
     Keep y/n [y]? y
 </pre></div>
 </div>
-<p>That&#8217;s it! You can now run a Jupyter notebook using Apache Spark and PixieDust.</p>
+<p>That’s it! You can now run a Jupyter notebook using Apache Spark and PixieDust.</p>
 <p>..note:: You can have more than one kernel for PixieDust. If you want to install a new kernel with a different version of Spark just re-run the installer and choose the appropriate version.</p>
 </div>
 <div class="section" id="list-existing-kernels">
@@ -178,7 +175,7 @@ Extracting Scala 2.11 to /Users/USERNAME/scala
 </div>
 <div class="section" id="try-it-out">
 <h2>Try It Out!<a class="headerlink" href="#try-it-out" title="Permalink to this headline">¶</a></h2>
-<p>The PixieDust GitHub repo includes sample notebooks that you can use to try out your PixieDust install. If you installed PixieDust from source, you will find a series of six getting started notebooks (<em>PixieDust 1</em> thru <em>PixieDust Contribute</em>). Otherwise, you can <a class="reference external" href="https://github.com/ibm-cds-labs/pixiedust/tree/master/notebook">download the notebooks</a>. To save a notebook from GitHub, hit the &#8220;raw&#8221; button and save the page from there, omitting the .txt extension.</p>
+<p>The PixieDust GitHub repo includes sample notebooks that you can use to try out your PixieDust install. If you installed PixieDust from source, you will find a series of six getting started notebooks (<em>PixieDust 1</em> thru <em>PixieDust Contribute</em>). Otherwise, you can <a class="reference external" href="https://github.com/ibm-cds-labs/pixiedust/tree/master/notebook">download the notebooks</a>. To save a notebook from GitHub, hit the “raw” button and save the page from there, omitting the .txt extension.</p>
 <p>To run a notebook, use the following command:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">jupyter</span> <span class="n">notebook</span> <span class="n">directory</span><span class="o">/</span><span class="n">containing</span><span class="o">/</span><span class="n">notebook</span>
 </pre></div>
@@ -231,7 +228,7 @@ Alternatively, click <strong>Kernel &gt; Change Kernel</strong> from the menu to
     </div>
   <footer id="pagefooter">&copy; 2017, IBM.
       Created using <a href="http://sphinx-doc.org/">Sphinx</a>
-      1.5.6.
+      1.6.3.
 
   </footer>
 

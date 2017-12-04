@@ -1,17 +1,14 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
     <title>Creating a Widget &#8212; PixieDust Documentation</title>
-    
     <link rel="stylesheet" href="_static/better.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="_static/custom.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
@@ -32,7 +29,7 @@
     <link rel="prev" title="Dynamic Values" href="dynamic-values-pixieapp.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   </head>
-  <body role="document">
+  <body>
     <header id="pageheader"><h1><a href="index.html ">
         PixieDust Documentation
     </a></h1></header>  
@@ -44,9 +41,9 @@
             
   <div class="section" id="creating-a-widget">
 <h1>Creating a Widget<a class="headerlink" href="#creating-a-widget" title="Permalink to this headline">¶</a></h1>
-<p>Sometimes, you&#8217;ll want to reuse complex UI constructs. In this case, you can package the HTML into a widget that can be easily called anywhere.</p>
+<p>Sometimes, you’ll want to reuse complex UI constructs. In this case, you can package the HTML into a widget that can be easily called anywhere.</p>
 <ul class="simple">
-<li><strong>To define a widget:</strong> Use a route with a special <code class="docutils literal"><span class="pre">widget</span></code> attribute. To establish a proper binding, the value of <code class="docutils literal"><span class="pre">pd_widget</span></code> must match the route&#8217;s widget value.</li>
+<li><strong>To define a widget:</strong> Use a route with a special <code class="docutils literal"><span class="pre">widget</span></code> attribute. To establish a proper binding, the value of <code class="docutils literal"><span class="pre">pd_widget</span></code> must match the route’s widget value.</li>
 <li><strong>To invoke a widget:</strong> Apply the pd_widget custom attribute to a &lt;div&gt; element and set its value to the same widget value defined in the route. For example:</li>
 </ul>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pixiedust.display.app</span> <span class="k">import</span> <span class="o">*</span>
@@ -104,7 +101,7 @@
     </div>
   <footer id="pagefooter">&copy; 2017, IBM.
       Created using <a href="http://sphinx-doc.org/">Sphinx</a>
-      1.5.1.
+      1.6.3.
 
   </footer>
 

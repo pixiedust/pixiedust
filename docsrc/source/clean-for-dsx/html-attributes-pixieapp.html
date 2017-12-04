@@ -67,8 +67,8 @@
     <p>
      You can now alternatively use JSON notation to configure pd_options. To do so, simply create a pd_options child element and directly store the JSON options as text. For example:
     </p>
-    <pre><div id="map{{prefix}}" pd_entity>
-    <pd_options>
+    <pre>&lt;div id="map{{prefix}}" pd_entity&gt;
+    &lt;pd_options&gt;
     {
         "mapboxtoken": "XXXXX",
         "chartsize": "90",
@@ -80,8 +80,8 @@
         "keyFields": "X,Y",
         "basemap": "light-v9"
     }
-    </pd_options>
-</div></pre>
+    &lt;/pd_options&gt;
+&lt;/div&gt;</pre>
    </div>
    <div>
     <h1>
@@ -136,8 +136,8 @@
      </code>
      to specify a target element that will receive the output. (Of course the elementId must exist in the current view.) For example:
     </p>
-    <pre><div id="myTarget{{prefix}}"/>
-<input type="button" pd_options="handlerId=dataframe" pd_entity pd_target="myTarget{{prefix}}" value="click me"/></pre>
+    <pre>&lt;div id="myTarget{{prefix}}"/&gt;
+&lt;input type="button" pd_options="handlerId=dataframe" pd_entity pd_target="myTarget{{prefix}}" value="click me"/&gt;</pre>
     <p>
      In the example above, we define a placeholder div with id
      <code>
@@ -165,7 +165,7 @@
      <p>
       You can define multiple targets for a particular kernel request. In this case, you'll want to create one or more
       <code>
-       <target>
+       &lt;target&gt;
       </code>
       elements as children (see the
       <strong>
@@ -192,8 +192,8 @@
      </code>
      . pd_script can be used even if pd_entity is used. In this case, the Python script will be executed before the display() call. This behavior can be useful, for example, in creating a sub entity that will be used in the display() call. For example:
     </p>
-    <pre><div id="myTarget{{prefix}}"/>
-<input type="button" pd_options="handlerId=dataframe" pd_entity="filteredDataFrame" pd_script="self.filteredDataFrame=self.createFilteredDataFrame()" pd_target="myTarget{{prefix}}" value="click me"/></pre>
+    <pre>&lt;div id="myTarget{{prefix}}"/&gt;
+&lt;input type="button" pd_options="handlerId=dataframe" pd_entity="filteredDataFrame" pd_script="self.filteredDataFrame=self.createFilteredDataFrame()" pd_target="myTarget{{prefix}}" value="click me"/&gt;</pre>
     <blockquote>
      <strong>
       Note
@@ -231,7 +231,7 @@
 class RenderOnLoad():
     @route()
     def mainScreen(self):
-        return """<div pd_render_onload pd_script="print('hello world rendered on load')"></div>"""
+        return """&lt;div pd_render_onload pd_script="print('hello world rendered on load')"&gt;&lt;/div&gt;"""
 
 RenderOnLoad().run()</pre>
    </div>
@@ -275,8 +275,8 @@ class Refresh():
     @route()
     def mainScreen(self):
         return """
-        <input type="button" pd_refresh="counter{{prefix}}" value="Refresh Counter">
-        <div id="counter{{prefix}}" pd_script="self.incrCounter()"/>
+        &lt;input type="button" pd_refresh="counter{{prefix}}" value="Refresh Counter"&gt;
+        &lt;div id="counter{{prefix}}" pd_script="self.incrCounter()"/&gt;
         """
 Refresh().run()</pre>
    </div>
@@ -315,7 +315,7 @@ Refresh().run()</pre>
      </code>
      attribute to repeat the execution at a specified interval expressed in milliseconds. This is useful for when you want to poll the state of a particular variable and show the result in the UI. For example:
     </p>
-    <pre><div pd_refresh_rate="3000" pd_script="print(self.get_status())"/></pre>
+    <pre>&lt;div pd_refresh_rate="3000" pd_script="print(self.get_status())"/&gt;</pre>
    </div>
   </div>
  </body>

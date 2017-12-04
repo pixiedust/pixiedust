@@ -63,7 +63,7 @@ notebooks from a hosted cloud environment and do not have access to the configur
       <p>
        Click the link for your package and locate the code to run the package in spark-shell, pyspark, or spark-submit. For example, you would retrieve the following line:
       </p>
-      <pre>> $SPARK_HOME/bin/spark-shell --packages graphframes:graphframes:0.1.0-spark1.6</pre>
+      <pre>&gt; $SPARK_HOME/bin/spark-shell --packages graphframes:graphframes:0.1.0-spark1.6</pre>
      </li>
      <li>
       <p>
@@ -99,7 +99,7 @@ display:
 Downloaded 326112 of 326112 bytes (100.00%)
 Downloaded artifact graphframes:graphframes:0.1.0-spark1.6 to /Users/dtaieb/data/libs/graphframes-0.1.0-spark1.6.jar
 Artifact downloaded successfully graphframes:graphframes:0.1.0-spark1.6
->>>Please restart Kernel to complete installation of the new package
+&gt;&gt;&gt;Please restart Kernel to complete installation of the new package
 Successfully added artifact graphframes:graphframes:0.1.0-spark1.6</pre>
     <p>
      Notice the line that instructs you to restart the kernel to complete
@@ -160,7 +160,7 @@ used from your Python notebook.
      . If you use a custom maven repository, you can specify it by using the following base keyword argument:
     </p>
     <pre>import pixiedust
-pixiedust.installPackage("groupId:artifactId:0", base="<<url to my custom maven repo>>"</pre>
+pixiedust.installPackage("groupId:artifactId:0", base="&lt;&lt;url to my custom maven repo&gt;&gt;"</pre>
    </div>
    <div>
     <h1>
@@ -180,7 +180,7 @@ pixiedust.installPackage("https://github.com/ibm-cds-labs/spark.samples/raw/mast
      You can uninstall a package by using the following command:
     </p>
     <pre>import pixiedust
-pixiedust.uninstallPackage("<<mypackage>>")</pre>
+pixiedust.uninstallPackage("&lt;&lt;mypackage&gt;&gt;")</pre>
     <p>
      You can also list all the packages installed on your system:
     </p>
