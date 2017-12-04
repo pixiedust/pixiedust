@@ -23,12 +23,12 @@ class HelloWorldPixieApp:
     @route()
     def main(self):
         return"""
-            <input pd_options="clicked=true" type="button" value="Click Me">
+            &lt;input pd_options="clicked=true" type="button" value="Click Me"&gt;
         """
     @route(clicked="true")
     def _clicked(self):
         return """
-            <input pd_options="clicked=false" type="button" value="You Clicked, Now Go back">
+            &lt;input pd_options="clicked=false" type="button" value="You Clicked, Now Go back"&gt;
         """
 #run the app
 HelloWorldPixieApp().run(runInDialog='false')</pre>

@@ -1,17 +1,14 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
     <title>1.1 &#8212; PixieDust Documentation</title>
-    
     <link rel="stylesheet" href="_static/better.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="_static/custom.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
@@ -32,7 +29,7 @@
     <link rel="prev" title="1.0.11" href="1-0-11.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   </head>
-  <body role="document">
+  <body>
     <header id="pageheader"><h1><a href="index.html ">
         PixieDust Documentation
     </a></h1></header>  
@@ -44,19 +41,19 @@
             
   <div class="section" id="id1">
 <h1>1.1<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h1>
-<p>Here&#8217;s what&#8217;s new in Release 1.1 (9 October 2017):</p>
+<p>Here’s what’s new in Release 1.1 (9 October 2017):</p>
 <p><strong>Bug fixes</strong></p>
 <ul class="simple">
-<li>Fixed an issue with datetime64 values. Previously, in the <code class="docutils literal"><span class="pre">display()</span></code> function&#8217;s table view, datetime64 values in Pandas appeared as Unix timestamps. These date values are now properly displayed (<a class="reference external" href="https://github.com/ibm-watson-data-lab/pixiedust/issues/279">#279</a>).</li>
-<li>When importing PixieDust, it will no longer override an existing function named &#8220;display.&#8221; In which case, users can still call PixieDust&#8217;s display function using <code class="docutils literal"><span class="pre">pixiedust.display()</span></code>. If no pre-existing functions named &#8220;display&#8221; are found, then PixieDust will work as usual, allowing users to call display directly. (<a class="reference external" href="https://github.com/ibm-watson-data-lab/pixiedust/issues/455">#455</a>).</li>
-<li>New behavior when calling the display function on an unsupported entity. Instead of telling users that &#8220;No PixieDust visualization was found&#8221; when attempting to call <code class="docutils literal"><span class="pre">display()</span></code> on a data object that&#8217;s not a PySpark or Pandas DataFrame, PixieDust now falls back to the IPython display method (<a class="reference external" href="https://github.com/ibm-watson-data-lab/pixiedust/issues/343">#343</a>).</li>
-<li>Mapbox user layers are fixed. Previously, PixieDust would break this feature because of changes to Python&#8217;s geojson package (<a class="reference external" href="https://github.com/ibm-watson-data-lab/pixiedust/issues/453">#453</a>).</li>
+<li>Fixed an issue with datetime64 values. Previously, in the <code class="docutils literal"><span class="pre">display()</span></code> function’s table view, datetime64 values in Pandas appeared as Unix timestamps. These date values are now properly displayed (<a class="reference external" href="https://github.com/ibm-watson-data-lab/pixiedust/issues/279">#279</a>).</li>
+<li>When importing PixieDust, it will no longer override an existing function named “display.” In which case, users can still call PixieDust’s display function using <code class="docutils literal"><span class="pre">pixiedust.display()</span></code>. If no pre-existing functions named “display” are found, then PixieDust will work as usual, allowing users to call display directly. (<a class="reference external" href="https://github.com/ibm-watson-data-lab/pixiedust/issues/455">#455</a>).</li>
+<li>New behavior when calling the display function on an unsupported entity. Instead of telling users that “No PixieDust visualization was found” when attempting to call <code class="docutils literal"><span class="pre">display()</span></code> on a data object that’s not a PySpark or Pandas DataFrame, PixieDust now falls back to the IPython display method (<a class="reference external" href="https://github.com/ibm-watson-data-lab/pixiedust/issues/343">#343</a>).</li>
+<li>Mapbox user layers are fixed. Previously, PixieDust would break this feature because of changes to Python’s geojson package (<a class="reference external" href="https://github.com/ibm-watson-data-lab/pixiedust/issues/453">#453</a>).</li>
 <li>Map visualizations no longer aggregate latitude-longitude data. Previously, PixieDust expected an aggregation function in this situation, making it difficult to simply explore points on a map (<a class="reference external" href="https://github.com/ibm-watson-data-lab/pixiedust/issues/410">#410</a>).</li>
 <li>Better handling of invalid API keys for map visualizations. Previously, if a maps API key was missing or invalid, PixieDust would display a black map. Now, it surfaces an error message to the user (<a class="reference external" href="https://github.com/ibm-watson-data-lab/pixiedust/issues/367">#367</a>).</li>
 </ul>
 <p><strong>Enhancements</strong></p>
 <ul class="simple">
-<li>An alpha release of <strong>PixieApps web publishing</strong> is now live. Introduced in <a class="reference external" href="1-0-8.html">release 1.0.8</a>, PixieApps allow developers to run interactive UI elements, directly from notebook cells. Now with PixieApps&#8217; web publishing feature, the same interactive UI elements developed to run in-notebook can now be published as a web application at the click of a button. <a class="reference external" href="https://medium.com/ibm-watson-data-lab/deploy-your-analytics-as-web-apps-using-pixiedusts-1-1-release-d08067584a14">See the announcement blog</a> for more details (<a class="reference external" href="https://github.com/ibm-watson-data-lab/pixiedust/issues/450">#450</a>).</li>
+<li>An alpha release of <strong>PixieApps web publishing</strong> is now live. Introduced in <a class="reference external" href="1-0-8.html">release 1.0.8</a>, PixieApps allow developers to run interactive UI elements, directly from notebook cells. Now with PixieApps’ web publishing feature, the same interactive UI elements developed to run in-notebook can now be published as a web application at the click of a button. <a class="reference external" href="https://medium.com/ibm-watson-data-lab/deploy-your-analytics-as-web-apps-using-pixiedusts-1-1-release-d08067584a14">See the announcement blog</a> for more details (<a class="reference external" href="https://github.com/ibm-watson-data-lab/pixiedust/issues/450">#450</a>).</li>
 <li>Mapbox is now the default option for visualizing geospatial data on a map. Previously, PixieDust would choose Google maps by default, which requires additional configuration (<a class="reference external" href="https://github.com/ibm-watson-data-lab/pixiedust/issues/451">#451</a>).</li>
 </ul>
 </div>
@@ -106,7 +103,7 @@
     </div>
   <footer id="pagefooter">&copy; 2017, IBM.
       Created using <a href="http://sphinx-doc.org/">Sphinx</a>
-      1.5.6.
+      1.6.3.
 
   </footer>
 

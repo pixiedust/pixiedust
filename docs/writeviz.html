@@ -1,17 +1,14 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
     <title>Write a new PixieDust Visualization &#8212; PixieDust Documentation</title>
-    
     <link rel="stylesheet" href="_static/better.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="_static/custom.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
@@ -32,7 +29,7 @@
     <link rel="prev" title="Contribute" href="contribute.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   </head>
-  <body role="document">
+  <body>
     <header id="pageheader"><h1><a href="index.html ">
         PixieDust Documentation
     </a></h1></header>  
@@ -57,11 +54,11 @@
 <blockquote>
 <div><code class="docutils literal"><span class="pre">jupyter</span> <span class="pre">pixiedust</span> <span class="pre">generate</span></code></div></blockquote>
 <ol class="arabic" start="3">
-<li><p class="first">Respond to the questions/prompts to complete setup. Here&#8217;s the entire exchange including the command you&#8217;ll run in Step 4:</p>
+<li><p class="first">Respond to the questions/prompts to complete setup. Here’s the entire exchange including the command you’ll run in Step 4:</p>
 <img alt="_images/generate_vis.png" src="_images/generate_vis.png" />
 </li>
 <li><p class="first">Install your new visualization.</p>
-<p>If you&#8217;re not already there, cd into your project directory and run the following command:</p>
+<p>If you’re not already there, cd into your project directory and run the following command:</p>
 <p><code class="docutils literal"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-e</span> <span class="pre">.</span></code></p>
 </li>
 <li><p class="first">Go to your notebook, and restart the kernel.</p>
@@ -78,20 +75,20 @@
 </li>
 </ol>
 <blockquote>
-<div><p>You see your new visualization menu item! Here&#8217;s one named <strong>Sampleviz</strong>:</p>
+<div><p>You see your new visualization menu item! Here’s one named <strong>Sampleviz</strong>:</p>
 <img alt="_images/sample_viz_menu.png" src="_images/sample_viz_menu.png" />
 </div></blockquote>
-<p>Explore the code in your new project directory. We&#8217;ve commented in some guidance that should help you understand what you&#8217;re looking at.</p>
+<p>Explore the code in your new project directory. We’ve commented in some guidance that should help you understand what you’re looking at.</p>
 </div>
 <div class="section" id="code-walk-through-display-a-dataframe-as-a-table">
 <h2>Code walk-through: Display a DataFrame as a table<a class="headerlink" href="#code-walk-through-display-a-dataframe-as-a-table" title="Permalink to this headline">¶</a></h2>
-<p>Here&#8217;s a run-down of what goes into a PixieDust visualization:</p>
+<p>Here’s a run-down of what goes into a PixieDust visualization:</p>
 <div class="section" id="hook-into-the-display-menu">
 <h3>Hook into the display menu<a class="headerlink" href="#hook-into-the-display-menu" title="Permalink to this headline">¶</a></h3>
 <p>First, for a user to invoke a graph or visualization, it must appear on the PixieDust menu.</p>
 <div class="section" id="class-tabledisplaymeta">
 <h4>class TableDisplayMeta<a class="headerlink" href="#class-tabledisplaymeta" title="Permalink to this headline">¶</a></h4>
-<p>The first thing you&#8217;ll want to do is get your tool presented in the menu. Since you&#8217;re building a tool to display a DataFrame as an HTML table, look at <code class="docutils literal"><span class="pre">display/table/__init__.py</span></code>:</p>
+<p>The first thing you’ll want to do is get your tool presented in the menu. Since you’re building a tool to display a DataFrame as an HTML table, look at <code class="docutils literal"><span class="pre">display/table/__init__.py</span></code>:</p>
 <blockquote>
 <div><div class="highlight-default"><div class="highlight"><pre><span></span><span class="nd">@PixiedustDisplay</span><span class="p">(</span><span class="n">isDefault</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">TableDisplayMeta</span><span class="p">(</span><span class="n">DisplayHandlerMeta</span><span class="p">):</span>
@@ -118,9 +115,9 @@
 <div class="section" id="def-getmenuinfo">
 <h4>def getMenuInfo<a class="headerlink" href="#def-getmenuinfo" title="Permalink to this headline">¶</a></h4>
 <p>In the <code class="docutils literal"><span class="pre">getMenuInfo</span></code> method of class <code class="docutils literal"><span class="pre">TableDisplayMeta</span></code> you check for the type of the entity. Pixiedust currently supports <code class="docutils literal"><span class="pre">GraphFrame</span></code> and <code class="docutils literal"><span class="pre">PySparkDataFrame</span></code> (currently only 2-dimensional matrix Pandas DataFrames are supported, so you can consider them to be the same as <code class="docutils literal"><span class="pre">PySparkDataFrame</span></code> for the purposes of Pixiedust development).</p>
-<p>If it&#8217;s a Pandas or PySpark DataFrame, return an array of menu definition objects. A menu definition object consists of 4 properties:</p>
+<p>If it’s a Pandas or PySpark DataFrame, return an array of menu definition objects. A menu definition object consists of 4 properties:</p>
 <ol class="arabic simple">
-<li><code class="docutils literal"><span class="pre">categoryId</span></code>: a unique string that identifies the menu &#8220;category&#8221; or group</li>
+<li><code class="docutils literal"><span class="pre">categoryId</span></code>: a unique string that identifies the menu “category” or group</li>
 <li><code class="docutils literal"><span class="pre">title</span></code>: an arbitrary string that describes the menu</li>
 <li><code class="docutils literal"><span class="pre">icon</span></code>: the name of a fontawesome icon, or a URL for an image</li>
 <li><code class="docutils literal"><span class="pre">id</span></code>: a unique string that identifies your tool</li>
@@ -129,7 +126,7 @@
 </div>
 <div class="section" id="def-newdisplayhandler">
 <h4>def newDisplayHandler<a class="headerlink" href="#def-newdisplayhandler" title="Permalink to this headline">¶</a></h4>
-<p>The other method you must implement is <code class="docutils literal"><span class="pre">newDisplayHandler</span></code>, which is called when the menu item is selected. This is where the DataFrame is actually processed. In this case, return a new <code class="docutils literal"><span class="pre">TableDisplay</span></code> object, which does all the heavy lifting that we&#8217;ll talk about next.</p>
+<p>The other method you must implement is <code class="docutils literal"><span class="pre">newDisplayHandler</span></code>, which is called when the menu item is selected. This is where the DataFrame is actually processed. In this case, return a new <code class="docutils literal"><span class="pre">TableDisplay</span></code> object, which does all the heavy lifting that we’ll talk about next.</p>
 </div>
 </div>
 <div class="section" id="data-processing">
@@ -174,7 +171,7 @@
 </div>
 <div class="section" id="build-your-own-table-display-plugin">
 <h2>Build your own table display plugin<a class="headerlink" href="#build-your-own-table-display-plugin" title="Permalink to this headline">¶</a></h2>
-<p>Now that you&#8217;ve seen how PixieDust works, let&#8217;s build a very simple second table display tool. You&#8217;ll need to do 3 things:</p>
+<p>Now that you’ve seen how PixieDust works, let’s build a very simple second table display tool. You’ll need to do 3 things:</p>
 <p>1. Add a menu item and hook it to your code
 3. Transform the DataFrame into something a web browser can display (HTML in our case, but it could be SVG, a PDF or something more exotic) using Jinja2 HTML templating</p>
 <div class="section" id="add-a-menu-item-and-hook-it-to-your-code">
@@ -202,7 +199,7 @@
 </pre></div>
 </div>
 </div></blockquote>
-<p>As described earlier, the method <code class="docutils literal"><span class="pre">getMenuInfo</span></code> provides the hook to add a menu item to the user interface. You specify &#8220;Table&#8221; as the <code class="docutils literal"><span class="pre">categoryID</span></code> to add this tool to the existing Table menu. Give it any <cite>title</cite> and <code class="docutils literal"><span class="pre">icon</span></code> you want. And finally, give it a unique id, such as &#8220;simpleTest&#8221;.</p>
+<p>As described earlier, the method <code class="docutils literal"><span class="pre">getMenuInfo</span></code> provides the hook to add a menu item to the user interface. You specify “Table” as the <code class="docutils literal"><span class="pre">categoryID</span></code> to add this tool to the existing Table menu. Give it any <cite>title</cite> and <code class="docutils literal"><span class="pre">icon</span></code> you want. And finally, give it a unique id, such as “simpleTest”.</p>
 <p>The <code class="docutils literal"><span class="pre">newDisplayHandler</span></code> method specifies the code used to do the data processing work. That looks like this:</p>
 </div>
 <div class="section" id="dataframe-html">
@@ -228,7 +225,7 @@
 </pre></div>
 </div>
 </div></blockquote>
-<p>All you&#8217;re really doing here is defining a mechanism to call the right Jinja template &#8211; <code class="docutils literal"><span class="pre">simpleTable.html</span></code> found in the <code class="docutils literal"><span class="pre">templates</span></code> directory &#8211; for processing the data. Once you&#8217;re working on the template, the sky&#8217;s the limit for what you can do. But just to finish out this example, here&#8217;s some extremely simple code you can add there:</p>
+<p>All you’re really doing here is defining a mechanism to call the right Jinja template – <code class="docutils literal"><span class="pre">simpleTable.html</span></code> found in the <code class="docutils literal"><span class="pre">templates</span></code> directory – for processing the data. Once you’re working on the template, the sky’s the limit for what you can do. But just to finish out this example, here’s some extremely simple code you can add there:</p>
 <blockquote>
 <div><div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">table</span> <span class="n">class</span><span class="o">=</span><span class="s2">&quot;table table-striped&quot;</span><span class="o">&gt;</span>
    <span class="o">&lt;</span><span class="n">thead</span><span class="o">&gt;</span>
@@ -251,12 +248,12 @@
 </div></blockquote>
 <div class="section" id="what-you-get">
 <h4>What you get<a class="headerlink" href="#what-you-get" title="Permalink to this headline">¶</a></h4>
-<p>Now that the code is complete. Let&#8217;s update PixieDust in our notebook and see the results. Shut down your Jupyter environment, run the below command from your terminal, and restart Jupyter to get the new code.</p>
+<p>Now that the code is complete. Let’s update PixieDust in our notebook and see the results. Shut down your Jupyter environment, run the below command from your terminal, and restart Jupyter to get the new code.</p>
 <p><code class="docutils literal"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">--user</span> <span class="pre">-e</span> <span class="pre">&lt;your</span> <span class="pre">directory</span> <span class="pre">path</span> <span class="pre">to</span> <span class="pre">pixiedust</span> <span class="pre">code&gt;</span></code></p>
 <p>You should now see something resembling the screenshot below. The table menu is now a dropdown with two options, <strong>DataFrame Table</strong> and your new <strong>Simple Table</strong>. Choosing <strong>Simple Table</strong> displays the data using the template you defined in simpleTable.html!</p>
 <img src="_images/pixiedustnewtableoption.png" width="615"><div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">PixieDust provides a higher level framework built on top of the <code class="docutils literal"><span class="pre">display()</span></code> API that lets you contribute more tightly to the chart menus. When you use the renderer API you contribute to the list renderers that can display a particular type of chart. For example, let notebook users choose Mapbox to display a map. At the lowest level you can create only a visualization and don’t need to specify a renderer. But if you&#8217;re interested in learning more, read how to <a class="reference external" href="renderer.html">build a renderer</a>.</p>
+<p class="last">PixieDust provides a higher level framework built on top of the <code class="docutils literal"><span class="pre">display()</span></code> API that lets you contribute more tightly to the chart menus. When you use the renderer API you contribute to the list renderers that can display a particular type of chart. For example, let notebook users choose Mapbox to display a map. At the lowest level you can create only a visualization and don’t need to specify a renderer. But if you’re interested in learning more, read how to <a class="reference external" href="renderer.html">build a renderer</a>.</p>
 </div>
 </div>
 </div>
@@ -300,7 +297,7 @@
     </div>
   <footer id="pagefooter">&copy; 2017, IBM.
       Created using <a href="http://sphinx-doc.org/">Sphinx</a>
-      1.5.6.
+      1.6.3.
 
   </footer>
 
