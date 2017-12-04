@@ -343,7 +343,7 @@ function getAttribute(element, name, defValue, defValueIfKeyAlone){
 
 function readExecInfo(pd_controls, element, searchParents, fromExecInfo){
     if (searchParents === null || searchParents === undefined ){
-        searchParents = true;
+        searchParents = !element.hasAttribute("pd_stop_propagation");
     }
     var execInfo = {"options":{}};
     $.extend(execInfo, fromExecInfo || {});
@@ -458,7 +458,7 @@ function readExecInfo(pd_controls, element, searchParents, fromExecInfo){
                     + ",parent_pixieapp=" + makePythonStringOrNone(pd_controls.options.nostore_pixieapp)
                     + ",cell_metadata=" + getCellMetadata()
                     + ")";
-            }else if ( ( execInfo.refresh || execInfo.entity || execInfo.options.widget) && 
+            }else if ( ( hasOptions || execInfo.refresh || execInfo.entity || execInfo.options.widget) && 
                     !execInfo.norefresh && $(element).children("target[pd_target]").length == 0){
                 {#include a refresh of the whole screen#}
                 execInfo.script += "\n" + applyEntity(pd_controls.command, execInfo.entity, execInfo.options)
@@ -515,6 +515,7 @@ function readExecInfo(pd_controls, element, searchParents, fromExecInfo){
     {#special case pd_refresh points to another element #}
     var refreshTarget = element.getAttribute("pd_refresh");
     if (refreshTarget){
+        debugger;
         var retQueue = [execInfo];
         var targets = refreshTarget.split(",");
         $.each( targets, function(index){
@@ -584,7 +585,9 @@ function processEvent(event){
     });
 }
 $(document).on( "click", "[pixiedust]", function(event){
-    if (event.target.tagName == "SELECT" || $(event.target).is(':checkbox')){
+    if (event.target.tagName == "SELECT" || 
+        (event.target.tagName == "INPUT" && (getAttribute(event.target, "type", "").toLowerCase() != "button")) || 
+        $(event.target).is(':checkbox')){
         return;
     }
     processEvent(event)
@@ -628,7 +631,6 @@ $(document).on("pd_event", function(event, eventInfo){
             if (accept(this)){
                 var thisId = $(this).uniqueId().attr('id');
                 this.setAttribute( "id", thisId );
-                $(this).addClass("no_loading_msg");
                 if (!this.hasAttribute("pd_target") ){
                     this.setAttribute("pd_target", this.getAttribute("id") );
                 }

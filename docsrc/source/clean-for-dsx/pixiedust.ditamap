@@ -5,7 +5,6 @@
     <title>PixieDust</title>
     <topicref format="html" scope="peer" navtitle="PixieDust helper library" href="index.html">
         <topicref format="html" scope="peer" navtitle="Use PixieDust" href="use.html">
-            <topicref format="html" scope="peer" navtitle="Install PixieDust" href="install.html"></topicref>
             <topicref format="html" scope="peer" navtitle="Load data" href="loaddata.html"></topicref>
             <topicref format="html" scope="peer" navtitle="Display data" href="displayapi.html"></topicref>
             <topicref format="html" scope="peer" navtitle="Package manager" href="packagemanager.html"></topicref>
@@ -29,6 +28,11 @@
             <topicref format="html" scope="peer" navtitle="Creating a widget" href="create-widget-pixieapp.html"></topicref>
             <topicref format="html" scope="peer" navtitle="Hello World with data" href="hello-world-data-pixieapp.html"></topicref>
         </topicref>
+        <topicref format="html" scope="peer" navtitle="PixieGateway" href="pixiegateway.html">
+            <topicref format="html" scope="peer" navtitle="Install Gateway" href="install-pixiegateway.html"></topicref>
+            <topicref format="html" scope="peer" navtitle="Chart Sharing" href="chart-sharing.html"></topicref>
+            <topicref format="html" scope="peer" navtitle="PixieApp Publishing" href="pixieapp-publishing.html"></topicref>
+        </topicref>
         <topicref format="html" scope="peer" navtitle="Release notes" href="releasenotes.html">
             <topicref format="html" scope="peer" navtitle="1.0.4" href="1-0-4.html"></topicref>
             <topicref format="html" scope="peer" navtitle="1.0.5" href="1-0-5.html"></topicref>
@@ -40,6 +44,8 @@
             <topicref format="html" scope="peer" navtitle="1.0.11" href="1-0-11.html"></topicref>
             <topicref format="html" scope="peer" navtitle="1.1" href="1-1.html"></topicref>
             <topicref format="html" scope="peer" navtitle="1.1.1" href="1-1-1.html"></topicref>
+            <topicref format="html" scope="peer" navtitle="1.1.2" href="1-1-2.html"></topicref>
+            <topicref format="html" scope="peer" navtitle="1.1.3" href="1-1-3.html"></topicref>
         </topicref>
   </topicref>
 </map>

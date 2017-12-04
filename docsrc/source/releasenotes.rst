@@ -1,7 +1,7 @@
 Release Notes
 =============
 
-Here are the latest releases, with notes on improvements and bug fixes. 
+Here are the latest releases, with notes on improvements and bug fixes.  
 
 .. toctree::
    :maxdepth: 2
@@ -17,3 +17,5 @@ Here are the latest releases, with notes on improvements and bug fixes.
    1-0-11
    1-1
    1-1-1
+   1-1-2
+   1-1-3

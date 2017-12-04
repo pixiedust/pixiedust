@@ -53,6 +53,14 @@ class PandasDataFrameDataHandler(BaseDataHandler):
     def schema(self):
         return PandasDataFrameAdapter(self.entity).schema
 
+    def add_numerical_column(self):
+        """
+        Add a dummy numerical column to the underlying dataframe
+        """
+        self.entity = self.entity.copy()
+        self.entity["pd_count"] = 1
+        return "pd_count"
+
     """
         Return a cleaned up Pandas Dataframe that will be used as working input to the chart
     """

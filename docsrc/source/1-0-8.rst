@@ -1,7 +1,7 @@
 1.0.8
 =====
 
-Here's what's new in Release 1.0.8 (14 July 2017):     
+Here's what's new in Release 1.0.8 (14 July 2017):       
 
 **Bug fixes**
 
