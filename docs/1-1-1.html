@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>1.0.10 &#8212; PixieDust Documentation</title>
+    <title>1.1.1 &#8212; PixieDust Documentation</title>
     
     <link rel="stylesheet" href="_static/better.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -28,8 +28,7 @@
     <link rel="shortcut icon" href="_static/pd_icon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="1.0.11" href="1-0-11.html" />
-    <link rel="prev" title="1.0.9" href="1-0-9.html" />
+    <link rel="prev" title="1.1" href="1-1.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   </head>
   <body role="document">
@@ -43,15 +42,15 @@
           <div class="body" role="main">
             
   <div class="section" id="id1">
-<h1>1.0.10<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h1>
-<p>Here&#8217;s what&#8217;s new in Release 1.0.10 (23 August 2017):</p>
+<h1>1.1.1<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h1>
+<p>Here&#8217;s what&#8217;s new in Release 1.1.1 (20 October 2017):</p>
 <p><strong>Bug fixes</strong></p>
 <ul class="simple">
-<li>Using the <code class="docutils literal"><span class="pre">sampleData</span></code> API with a Spark 2.0 kernel previously threw a runtime exception. Now, calls to the API will run successfully with Spark 2.0 (<a class="reference external" href="https://github.com/ibm-watson-data-lab/pixiedust/issues/434">#434</a>).</li>
+<li>Fixed a bug with apostrophe characters. PixieApps can now publish to the web with aposthrophes in the the page&#8217;s title. Previously, using an apostrophe within the page title field of a PixieApp&#8217;s Publish Configuration dialog (<a class="reference external" href="https://user-images.githubusercontent.com/3170980/31344598-1e0f6f8c-ace1-11e7-97c4-e30480ee87b6.png">example</a>) would cause the web publishing process to fail (<a class="reference external" href="https://github.com/ibm-watson-data-lab/pixiedust/issues/464">#464</a>).</li>
 </ul>
 <p><strong>Enhancements</strong></p>
 <ul class="simple">
-<li>PixieDust contains a <code class="docutils literal"><span class="pre">sampleData</span></code> API for loading CSV data from a URL. In the 1.0.10 update, the API now supports loading of JSON data via URL, making it easier to load test data sets from various web APIs (<a class="reference external" href="https://github.com/ibm-watson-data-lab/pixiedust/issues/408">#408</a>).</li>
+<li>An alpha release of <strong>PixieDust chart sharing</strong> is now live. PixieDust&#8217;s <code class="docutils literal"><span class="pre">display()</span></code> function has long been a key feature of the library, allowing developers to automatically render charts from DataFrames. Now, PixieDust-rendered charts have been extended to automatically publish as web pages at the click of a button. <a class="reference external" href="https://medium.com/ibm-watson-data-lab/share-your-jupyter-notebook-charts-on-the-web-43e190df4adb">See the announcement blog</a> for more details (<a class="reference external" href="https://github.com/ibm-watson-data-lab/pixiedust/issues/474">#474</a>).</li>
 </ul>
 </div>
 
@@ -73,10 +72,10 @@
 <li class="toctree-l2"><a class="reference internal" href="1-0-7.html">1.0.7</a></li>
 <li class="toctree-l2"><a class="reference internal" href="1-0-8.html">1.0.8</a></li>
 <li class="toctree-l2"><a class="reference internal" href="1-0-9.html">1.0.9</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">1.0.10</a></li>
+<li class="toctree-l2"><a class="reference internal" href="1-0-10.html">1.0.10</a></li>
 <li class="toctree-l2"><a class="reference internal" href="1-0-11.html">1.0.11</a></li>
 <li class="toctree-l2"><a class="reference internal" href="1-1.html">1.1</a></li>
-<li class="toctree-l2"><a class="reference internal" href="1-1-1.html">1.1.1</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">1.1.1</a></li>
 </ul>
 </li>
 </ul>
