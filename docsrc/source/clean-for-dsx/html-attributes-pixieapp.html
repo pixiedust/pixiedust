@@ -7,7 +7,7 @@
   <meta content="&#xA9;Copyright IBM Corporation 2017" name="copyright"/>
   <meta content="&#xA9;Copyright IBM Corporation 2017" name="DC.Rights.Owner"/>
   <meta content="&#xA9; Copyright IBM Corporation 2016, 2017" name="dcterms.rights"/>
-  <meta content="2017-06-05" name="DC.date"/>
+  <meta content="2017-12-01" name="DC.date"/>
  </head>
  <body>
   <div>
@@ -38,10 +38,10 @@
      </code>
      API options (more details below).
     </p>
-    <div>
-     <p>
+    <blockquote>
+     <strong>
       Note
-     </p>
+     </strong>
      <p>
       You can also use a shorter syntax to define options using the following attribute pattern:
       <code>
@@ -51,11 +51,11 @@
       </code>
       .
      </p>
-    </div>
-    <div>
-     <p>
+    </blockquote>
+    <blockquote>
+     <strong>
       Note
-     </p>
+     </strong>
      <p>
       To build the pd_options value for display(), use the display() API in a separate cell. When the correct chart is created, simply copy the options from the cell metadata. (You'll need to use the
       <em>
@@ -63,7 +63,7 @@
       </em>
       menu to show the "edit metadata" button.) You will also need to transform the JSON to the pd_options attribute format, e.g., no quote in the value, semi-colon separator, and "key=value" format.
      </p>
-    </div>
+    </blockquote>
     <p>
      You can now alternatively use JSON notation to configure pd_options. To do so, simply create a pd_options child element and directly store the JSON options as text. For example:
     </p>
@@ -100,10 +100,10 @@
      </code>
      , and requires that the PixieApp instance has a field named filteredDataFrame. If the field is not present, then an error will be raised.
     </p>
-    <div>
-     <p>
+    <blockquote>
+     <strong>
       Note
-     </p>
+     </strong>
      <p>
       the entity passed by the caller in the run method is stored in a special field called
       <code>
@@ -117,7 +117,7 @@
       </code>
       will direct PixieDust to use the entity passed by the caller. For convenience, the user can also simply use pd_entity (without any value) to do the same thing.
      </p>
-    </div>
+    </blockquote>
    </div>
    <div>
     <h1>
@@ -147,21 +147,21 @@
      </code>
      and use it as a target in the input button.
     </p>
-    <div>
-     <p>
+    <blockquote>
+     <strong>
       Note
-     </p>
+     </strong>
      <p>
       <code>
        {{prefix}}
       </code>
       is a Jinja2 notation that means "use the value of the prefix variable, which PixieDust automatically creates to provide a unique id." We need this value to avoid a conflict in case a user calls the PixieApp multiple times within the same notebook.
      </p>
-    </div>
-    <div>
-     <p>
+    </blockquote>
+    <blockquote>
+     <strong>
       Note
-     </p>
+     </strong>
      <p>
       You can define multiple targets for a particular kernel request. In this case, you'll want to create one or more
       <code>
@@ -173,7 +173,7 @@
       </strong>
       section for more info).
      </p>
-    </div>
+    </blockquote>
    </div>
    <div>
     <h1>
@@ -194,10 +194,10 @@
     </p>
     <pre>&lt;div id="myTarget{{prefix}}"/&gt;
 &lt;input type="button" pd_options="handlerId=dataframe" pd_entity="filteredDataFrame" pd_script="self.filteredDataFrame=self.createFilteredDataFrame()" pd_target="myTarget{{prefix}}" value="click me"/&gt;</pre>
-    <div>
-     <p>
+    <blockquote>
+     <strong>
       Note
-     </p>
+     </strong>
      <p>
       You can use the
       <code>
@@ -205,15 +205,15 @@
       </code>
       keyword, which points at the current PixieApp instance.
      </p>
-    </div>
-    <div>
-     <p>
+    </blockquote>
+    <blockquote>
+     <strong>
       Note
-     </p>
+     </strong>
      <p>
       You can only use one-line Python code (similar to Python lambda). If you need to run more than one line of code, then you'll need to use the pd_script element as a child (see the Custom PixieApp Elements section for more info).
      </p>
-    </div>
+    </blockquote>
    </div>
    <div>
     <h1>

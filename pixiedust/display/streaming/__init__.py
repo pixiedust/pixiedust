@@ -58,6 +58,8 @@ class StreamingDataAdapter(with_metaclass(ABCMeta)):
                 raise AttributeError("{0} attribute not found".format(name))
             def accept(self, handlerId):
                 return this.accept(handlerId)
+            def add_numerical_column(self):
+                pass
         return StreamingDisplayDataHandler(options, entity)
 
     @abstractmethod

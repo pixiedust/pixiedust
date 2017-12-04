@@ -10,7 +10,7 @@ for fn in os.listdir('.') :
         tmp = os.path.splitext(fn)
 
         # This if and corresponding HTML piece below are a quick fix to ignore 1.6 instructions I manually updated for Inge.
-        if tmp[0] == "loaddata" or tmp[0] == "download" or tmp[0] == "install":
+        if tmp[0] == "install":
             print ("Skipped .rst: " + tmp[0])
             continue
         if tmp[1] == ".rst" :
@@ -22,7 +22,7 @@ for fn in os.listdir('.') :
 
             for line in fh :
                 words = line.split()
-                if ("container::" or "raw::") in words :
+                if ("container::" or "raw::" or "note::") in words :
                     continue
                 if source == "index.rst" and (("Get" in words and "Started" in words) or "-----------" in words) :
                     continue
@@ -43,9 +43,12 @@ for fn in os.listdir('clean-for-dsx') :
     if os.path.isfile(filePath) :
         tmp = os.path.splitext(fn)
 
-        if tmp[0] == "loaddata" or tmp[0] == "download" or tmp[0] == "install":
+        if tmp[0] == "install":
             print ("Skipped .html: " + tmp[0])
             continue
+        if tmp[1] == ".ditamap" :
+            subprocess.call(["find", "clean-for-dsx/", "-iname", "pixiedust.ditamap", "-exec", "cp", "{}", '../build/html', ";"])
+            print ("Copied " + filePath + " to ../build/html directory.")
         if tmp[1] == ".html" :
             fh = open(filePath)
             data=fh.read()
@@ -60,9 +63,17 @@ for fn in os.listdir('clean-for-dsx') :
             # Remove all tag attributes except for src and href; except for <span> edge-case for code blocks
             for tag in soup.findAll(True) :
                 if tag.get("class") and ("docutils" in tag.get("class") and "literal" in tag.get("class")) :
-                        tag.name = "code"
-                        tag.attrs = {}
-                        continue
+                    tag.name = "code"
+                    tag.attrs = {}
+                    continue
+                if tag.get("class") and ("admonition" in tag.get("class") and "note" in tag.get("class")) :
+                    tag.name = "blockquote"
+                    tag.attrs = {}
+                    continue
+                if tag.get("class") and ("admonition-title" in tag.get("class")) :
+                    tag.name = "strong"
+                    tag.attrs = {}
+                    continue
                 if tag is not None and (tag.get("src") or tag.get("href")) :
                     if tag.name == "img" :
                         prePath = "https://raw.githubusercontent.com/ibm-cds-labs/pixiedust/master/docs/"
@@ -81,7 +92,7 @@ for fn in os.listdir('clean-for-dsx') :
             attribs.append({"name": "DC.Rights.Owner", "content": "&#xA9;Copyright IBM Corporation 2017"})
             attribs.append({"name": "dcterms.rights", "content": "&#xA9; Copyright IBM Corporation 2016, 2017"})
             # Update with date of last release note entry
-            attribs.append({"name": "DC.date", "content": "2017-06-05"})
+            attribs.append({"name": "DC.date", "content": "2017-12-01"})
             for entry in attribs :
                 new_tag = soup.new_tag("meta", content=entry["content"])
                 new_tag["name"] = entry["name"]

@@ -19,3 +19,6 @@ class BaseDataHandler(object):
         self.options = options
         self.entity = entity
         self.isStreaming = False
+
+    def add_numerical_column(self):
+        raise NotImplementedError()
