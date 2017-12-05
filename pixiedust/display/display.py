@@ -203,6 +203,10 @@ class Display(with_metaclass(ABCMeta)):
             return defValue
         return value == "true"
 
+    @property
+    def is_gateway(self):
+        return "gateway" in self.options
+
     def getDPI(self):
         return int(self.options.get("nostore_dpi", 96))
 
