@@ -31,10 +31,22 @@ def route(**kw):
     return route_dec
 
 class templateArgs(object):
+    """
+    Decorator that enables using local variable in a Jinja template.
+    Must be used in conjonction with route
+        from pixiedust.display.app import *
+        @PixieApp
+        class Test():
+            @route()
+            @templateArgs
+            def mainScreen(self):
+                var1 = 'something computed'
+                return "<div>Accessing local variable {{var1}} from a jinja template"
+        Test().run()
+    """
     TemplateRetValue = namedtuple('TemplateRetValue', ['ret_value', 'locals'])
     def __init__(self, fn):
         self.fn = fn
-        self.locals = {}
 
     def __get__(self, instance, instance_type):
         wrapper_fn = partial(self.wrapper, instance)
@@ -42,15 +54,16 @@ class templateArgs(object):
         return wrapper_fn
 
     def wrapper(self, instance, *args, **kwargs):
+        locals = [{}]
         def tracer(frame, event, arg):
             if event == "return":
-                self.locals = frame.f_locals.copy()
-                if 'self' in self.locals:
-                    del self.locals['self']
+                locals[0] = frame.f_locals.copy()
+                if 'self' in locals[0]:
+                    del locals[0]['self']
         sys.setprofile(tracer)
         try:
             ret_value = self.fn(instance, *args, **kwargs)
-            return templateArgs.TemplateRetValue(ret_value, self.locals)
+            return templateArgs.TemplateRetValue(ret_value, locals[0])
         finally:
             sys.setprofile(None)
 
