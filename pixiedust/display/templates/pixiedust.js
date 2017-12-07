@@ -395,7 +395,7 @@ function readExecInfo(pd_controls, element, searchParents, fromExecInfo){
     if (scriptAttr){
         execInfo.script = (execInfo.script || "") + "\n" + scriptAttr;
     }
-    execInfo.refresh = execInfo.refresh || (getAttribute(element, "pd_refresh", "false", "true") != 'false');
+    execInfo.refresh = execInfo.refresh || (getAttribute(element, "pd_refresh", "false", "true") == 'true');
     execInfo.norefresh = element.hasAttribute("pd_norefresh");
     execInfo.entity = element.hasAttribute("pd_entity") ? element.getAttribute("pd_entity") || "pixieapp_entity" : null;
 
@@ -417,7 +417,10 @@ function readExecInfo(pd_controls, element, searchParents, fromExecInfo){
         return addOptions(c, doptions);
     }
 
-    if ( (!hasOptions && (execInfo.refresh || execInfo.options.widget) && !execInfo.script) 
+    var hasRefreshTarget = element.hasAttribute("pd_refresh") && 
+                           element.getAttribute("pd_refresh") != "true" &&
+                           element.getAttribute("pd_refresh") != "false";
+    if ( (!hasOptions && (execInfo.refresh || hasRefreshTarget || execInfo.options.widget) && !execInfo.script) 
         || (!execInfo.script && execInfo.pixieapp)){
         execInfo.script = "#refresh";
     }
