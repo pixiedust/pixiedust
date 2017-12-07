@@ -18,16 +18,41 @@ from pixiedust.display.display import *
 from pixiedust.utils.shellAccess import ShellAccess
 from pixiedust.utils import Logger
 from six import iteritems, string_types
-from collections import OrderedDict
+from collections import OrderedDict, namedtuple
 import inspect
 import sys
+from functools import partial
 from six import string_types
 
 def route(**kw):
     def route_dec(fn):
-        fn.pixiedust_route=kw
+        fn.pixiedust_route = kw
         return fn
     return route_dec
+
+class templateArgs(object):
+    TemplateRetValue = namedtuple('TemplateRetValue', ['ret_value', 'locals'])
+    def __init__(self, fn):
+        self.fn = fn
+        self.locals = {}
+
+    def __get__(self, instance, instance_type):
+        wrapper_fn = partial(self.wrapper, instance)
+        wrapper_fn.org_fn = self.fn
+        return wrapper_fn
+
+    def wrapper(self, instance, *args, **kwargs):
+        def tracer(frame, event, arg):
+            if event == "return":
+                self.locals = frame.f_locals.copy()
+                if 'self' in self.locals:
+                    del self.locals['self']
+        sys.setprofile(tracer)
+        try:
+            ret_value = self.fn(instance, *args, **kwargs)
+            return templateArgs.TemplateRetValue(ret_value, self.locals)
+        finally:
+            sys.setprofile(None)
 
 #Global object enables system wide customization of PixieApp run option
 pixieAppRunCustomizer = None
@@ -64,9 +89,12 @@ class PixieDustApp(Display):
         return True
 
     def injectArgs(self, method, route):
+        if isinstance(method, partial):
+            method = method.org_fn
         argspec = inspect.getargspec(method)
         args = argspec.args
-        args = args[1:] if hasattr(method, "__self__") else args
+        if len(args)>0:
+            args = args[1:] if hasattr(method, "__self__") or args[0] == 'self' else args
         return OrderedDict(zip([a for a in args],[ self.getOptionValue(arg) for arg in args] ) )
 
     def doRender(self, handlerId):
@@ -90,6 +118,9 @@ class PixieDustApp(Display):
                     retValue = getattr(self, defRoute)()
                     return
             finally:
+                if isinstance(retValue, templateArgs.TemplateRetValue):
+                    injectedArgs.update(retValue.locals)
+                    retValue = retValue.ret_value
                 if isinstance(retValue, string_types):
                     self._addHTMLTemplateString(retValue, **injectedArgs )
                 elif isinstance(retValue, dict):
