@@ -17,7 +17,7 @@ Sometimes, you'll want to reuse complex UI constructs. In this case, you can pac
           return """<div><b>Hello World Widget</b></div>"""
       @route()
       def main(self):
-          return """<div pd_widget="myWidget"/>"""
+          return """<div pd_widget="myWidget"></div>"""
   
   TestPixieAppWidget().run(runInDialog='false')
 

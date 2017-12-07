@@ -83,7 +83,7 @@
 <div class="section" id="pd-target">
 <h2>pd_target<a class="headerlink" href="#pd-target" title="Permalink to this headline">¶</a></h2>
 <p>By default, the output of a kernel request takes over the entire UI–or output cell or dialog depending on the <code class="docutils literal"><span class="pre">runInDialog</span></code> option). However, you can use <code class="docutils literal"><span class="pre">pd_target=&quot;elementId&quot;</span></code> to specify a target element that will receive the output. (Of course the elementId must exist in the current view.) For example:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">div</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;myTarget{{prefix}}&quot;</span><span class="o">/&gt;</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">div</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;myTarget{{prefix}}&quot;</span><span class="o">&gt;&lt;/</span><span class="n">div</span><span class="o">&gt;</span>
 <span class="o">&lt;</span><span class="nb">input</span> <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;button&quot;</span> <span class="n">pd_options</span><span class="o">=</span><span class="s2">&quot;handlerId=dataframe&quot;</span> <span class="n">pd_entity</span> <span class="n">pd_target</span><span class="o">=</span><span class="s2">&quot;myTarget{{prefix}}&quot;</span> <span class="n">value</span><span class="o">=</span><span class="s2">&quot;click me&quot;</span><span class="o">/&gt;</span>
 </pre></div>
 </div>
@@ -100,7 +100,7 @@
 <div class="section" id="pd-script">
 <h2>pd_script<a class="headerlink" href="#pd-script" title="Permalink to this headline">¶</a></h2>
 <p>PixieDust lets you run arbitrary Python code using the <code class="docutils literal"><span class="pre">pd_script</span></code> attribute. For example: <code class="docutils literal"><span class="pre">pd_script=&quot;self.filteredDataFrame=self.createFilteredDataFrame()&quot;</span></code>. pd_script can be used even if pd_entity is used. In this case, the Python script will be executed before the display() call. This behavior can be useful, for example, in creating a sub entity that will be used in the display() call. For example:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">div</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;myTarget{{prefix}}&quot;</span><span class="o">/&gt;</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">div</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;myTarget{{prefix}}&quot;</span><span class="o">&gt;&lt;/</span><span class="n">div</span><span class="o">&gt;</span>
 <span class="o">&lt;</span><span class="nb">input</span> <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;button&quot;</span> <span class="n">pd_options</span><span class="o">=</span><span class="s2">&quot;handlerId=dataframe&quot;</span> <span class="n">pd_entity</span><span class="o">=</span><span class="s2">&quot;filteredDataFrame&quot;</span> <span class="n">pd_script</span><span class="o">=</span><span class="s2">&quot;self.filteredDataFrame=self.createFilteredDataFrame()&quot;</span> <span class="n">pd_target</span><span class="o">=</span><span class="s2">&quot;myTarget{{prefix}}&quot;</span> <span class="n">value</span><span class="o">=</span><span class="s2">&quot;click me&quot;</span><span class="o">/&gt;</span>
 </pre></div>
 </div>
@@ -146,7 +146,7 @@
     <span class="k">def</span> <span class="nf">mainScreen</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">        &lt;input type=&quot;button&quot; pd_refresh=&quot;counter{{prefix}}&quot; value=&quot;Refresh Counter&quot;&gt;</span>
-<span class="s2">        &lt;div id=&quot;counter{{prefix}}&quot; pd_script=&quot;self.incrCounter()&quot;/&gt;</span>
+<span class="s2">        &lt;div id=&quot;counter{{prefix}}&quot; pd_script=&quot;self.incrCounter()&quot;&gt;&lt;/div&gt;</span>
 <span class="s2">        &quot;&quot;&quot;</span>
 <span class="n">Refresh</span><span class="p">()</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
 </pre></div>
@@ -163,7 +163,7 @@
 <div class="section" id="pd-refresh-rate">
 <h2>pd_refresh_rate<a class="headerlink" href="#pd-refresh-rate" title="Permalink to this headline">¶</a></h2>
 <p>Use the <code class="docutils literal"><span class="pre">pd_refresh_rate</span></code> attribute to repeat the execution at a specified interval expressed in milliseconds. This is useful for when you want to poll the state of a particular variable and show the result in the UI. For example:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">div</span> <span class="n">pd_refresh_rate</span><span class="o">=</span><span class="s2">&quot;3000&quot;</span> <span class="n">pd_script</span><span class="o">=</span><span class="s2">&quot;print(self.get_status())&quot;</span><span class="o">/&gt;</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">div</span> <span class="n">pd_refresh_rate</span><span class="o">=</span><span class="s2">&quot;3000&quot;</span> <span class="n">pd_script</span><span class="o">=</span><span class="s2">&quot;print(self.get_status())&quot;</span><span class="o">&gt;&lt;/</span><span class="n">div</span><span class="o">&gt;</span>
 </pre></div>
 </div>
 </div>
