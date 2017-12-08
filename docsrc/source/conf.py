@@ -14,6 +14,7 @@
 
 import sys
 import os
+import subprocess
 from better import better_theme_path
 import sphinxmark
 
@@ -107,7 +108,6 @@ pygments_style = 'sphinx'
 
 # If true, `todo` and `todoList` produce output, else they produce nothing.
 todo_include_todos = False
-
 
 # -- Options for HTML output ----------------------------------------------
 
@@ -305,5 +305,7 @@ watermark_debug = False
 
 html_sidebars = { '**': ['globaltoc.html', 'searchbox.html'], }
 
-
+# Find currently-running script and kick off the clean DSX HTML generation for their separate docs site -Broberg
+current_dir = os.path.dirname(__file__)
+subprocess.call(['python', os.path.join(current_dir, 'htmlFragments.py')])
 

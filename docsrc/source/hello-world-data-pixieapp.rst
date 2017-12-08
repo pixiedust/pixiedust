@@ -18,7 +18,7 @@ The following sample PixieApp simplifies the mechanics of loading and visualizin
                        pd_target="target{{prefix}}" 
                        type="button" value="Preview Data">
              </div>
-             <div class="col-sm-10" id="target{{prefix}}"/>
+             <div class="col-sm-10" id="target{{prefix}}"></div>
           </div>
           """
   #Create dataframe
