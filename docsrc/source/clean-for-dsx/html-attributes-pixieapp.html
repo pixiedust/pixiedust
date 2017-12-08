@@ -136,7 +136,7 @@
      </code>
      to specify a target element that will receive the output. (Of course the elementId must exist in the current view.) For example:
     </p>
-    <pre>&lt;div id="myTarget{{prefix}}"/&gt;
+    <pre>&lt;div id="myTarget{{prefix}}"&gt;&lt;/div&gt;
 &lt;input type="button" pd_options="handlerId=dataframe" pd_entity pd_target="myTarget{{prefix}}" value="click me"/&gt;</pre>
     <p>
      In the example above, we define a placeholder div with id
@@ -192,7 +192,7 @@
      </code>
      . pd_script can be used even if pd_entity is used. In this case, the Python script will be executed before the display() call. This behavior can be useful, for example, in creating a sub entity that will be used in the display() call. For example:
     </p>
-    <pre>&lt;div id="myTarget{{prefix}}"/&gt;
+    <pre>&lt;div id="myTarget{{prefix}}"&gt;&lt;/div&gt;
 &lt;input type="button" pd_options="handlerId=dataframe" pd_entity="filteredDataFrame" pd_script="self.filteredDataFrame=self.createFilteredDataFrame()" pd_target="myTarget{{prefix}}" value="click me"/&gt;</pre>
     <blockquote>
      <strong>
@@ -276,7 +276,7 @@ class Refresh():
     def mainScreen(self):
         return """
         &lt;input type="button" pd_refresh="counter{{prefix}}" value="Refresh Counter"&gt;
-        &lt;div id="counter{{prefix}}" pd_script="self.incrCounter()"/&gt;
+        &lt;div id="counter{{prefix}}" pd_script="self.incrCounter()"&gt;&lt;/div&gt;
         """
 Refresh().run()</pre>
    </div>
@@ -315,7 +315,7 @@ Refresh().run()</pre>
      </code>
      attribute to repeat the execution at a specified interval expressed in milliseconds. This is useful for when you want to poll the state of a particular variable and show the result in the UI. For example:
     </p>
-    <pre>&lt;div pd_refresh_rate="3000" pd_script="print(self.get_status())"/&gt;</pre>
+    <pre>&lt;div pd_refresh_rate="3000" pd_script="print(self.get_status())"&gt;&lt;/div&gt;</pre>
    </div>
   </div>
  </body>
