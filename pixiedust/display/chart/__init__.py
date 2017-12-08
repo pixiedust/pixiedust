@@ -23,7 +23,7 @@ import pixiedust
 myLogger = pixiedust.getLogger(__name__ )
 
 #bootstrap all the renderers
-renderers = ["matplotlib", "bokeh", "seaborn", "mapbox", "google", "brunel"]
+renderers = ["matplotlib", "bokeh", "seaborn", "mapbox", "google", "brunel", "bokehnew"]
 
 for renderer in renderers:
     try:
