@@ -44,7 +44,7 @@ By default, the output of a kernel request takes over the entire UI--or output c
 
 ::
   
-      <div id="myTarget{{prefix}}"/>
+      <div id="myTarget{{prefix}}"></div>
       <input type="button" pd_options="handlerId=dataframe" pd_entity pd_target="myTarget{{prefix}}" value="click me"/>
 
 In the example above, we define a placeholder div with id ``"myTarget{{prefix}}"`` and use it as a target in the input button.
@@ -59,7 +59,7 @@ PixieDust lets you run arbitrary Python code using the ``pd_script`` attribute. 
 
 ::
   
-      <div id="myTarget{{prefix}}"/>
+      <div id="myTarget{{prefix}}"></div>
       <input type="button" pd_options="handlerId=dataframe" pd_entity="filteredDataFrame" pd_script="self.filteredDataFrame=self.createFilteredDataFrame()" pd_target="myTarget{{prefix}}" value="click me"/>
 
 .. Note:: You can use the ``self`` keyword, which points at the current PixieApp instance.
@@ -102,7 +102,7 @@ There are two ways of using the ``pd_refresh`` attribute:
         def mainScreen(self):
             return """
             <input type="button" pd_refresh="counter{{prefix}}" value="Refresh Counter">
-            <div id="counter{{prefix}}" pd_script="self.incrCounter()"/>
+            <div id="counter{{prefix}}" pd_script="self.incrCounter()"></div>
             """
     Refresh().run()
 
@@ -120,4 +120,4 @@ Use the ``pd_refresh_rate`` attribute to repeat the execution at a specified int
 
 ::
 
-  <div pd_refresh_rate="3000" pd_script="print(self.get_status())"/>
+  <div pd_refresh_rate="3000" pd_script="print(self.get_status())"></div>
