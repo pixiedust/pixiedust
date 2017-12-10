@@ -8,9 +8,14 @@
             if (this.tagName.toLowerCase().startsWith("pd_")){
                 pd_elements.push($(this).clone());
             }
-        })
+        });
         targetNode.html(contents);
         if (pd_elements.length > 0 ){
+            if (!targetNode.attr("pd_stop_propagation")){
+                targetNode.children().each(function(){
+                    $(this).attr('pd_stop_propagation','');
+                });
+            }
             targetNode.append(pd_elements);
         }
         return true;
