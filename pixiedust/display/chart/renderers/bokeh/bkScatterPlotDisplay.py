@@ -16,18 +16,16 @@
 
 from pixiedust.display.chart.renderers import PixiedustRenderer
 from pixiedust.display.chart.renderers.baseChartDisplay import commonChartOptions
-from .bokehBaseDisplay import BokehBaseDisplay
 from pixiedust.utils import Logger
 
-try:
-    from bkcharts import Scatter
-except ImportError:
-    from bokeh.charts import Scatter
+from .bokehBaseDisplay import BokehBaseDisplay
+from bokeh.plotting import figure
+import sys
+
 
 @PixiedustRenderer(id="scatterPlot")
 @Logger()
-class ScatterPlotRenderer(BokehBaseDisplay):
-
+class BKScatterPlotRenderer(BokehBaseDisplay):
     def supportsAggregation(self, handlerId):
         return False
 
@@ -62,8 +60,26 @@ class ScatterPlotRenderer(BokehBaseDisplay):
         color = self.options.get("color")
         return [color] if color is not None else []
 
-    def createBokehChart(self):        
-        data = self.getWorkingPandasDataFrame()
-        return Scatter(data, 
-            x = self.getKeyFields()[0], y = self.getValueFields()[0],
-            xlabel=self.getKeyFields()[0],ylabel=self.getValueFields()[0],legend=self.showLegend(), color=self.options.get("color"))
+    def createBokehChart(self):
+        keyFields = self.getKeyFields()
+        valueFields = self.getValueFields()
+        color = self.options.get("color")
+        xlabel = keyFields[0]
+        ylabel = valueFields[0]
+
+        wpdf = self.getWorkingPandasDataFrame().copy()
+        colors = self.colorPalette(None if color is None else len(wpdf[color].unique()))
+        
+        p = figure(y_axis_label=ylabel, x_axis_label=xlabel)
+
+        for i,c in enumerate(list(wpdf[color].unique())) if color else enumerate([None]):
+            wpdf2 = wpdf[wpdf[color] == c] if c else wpdf
+            p.circle(list(wpdf2[xlabel]), list(wpdf2[ylabel]), color=colors[i], legend=str(c) if c and self.showLegend() else None, fill_alpha=0.5, size=8)
+
+
+        p.xaxis.axis_label = xlabel
+        p.yaxis.axis_label = ylabel
+        p.legend.location = "top_left"
+
+        return p
+
