@@ -8,8 +8,8 @@
             if (this.tagName.toLowerCase().startsWith("pd_")){
                 pd_elements.push($(this).clone());
             }
-        })
-        targetNode.html(contents);
+        });
+        targetNode.html("<div pd_stop_propagation>" + contents + "</div>");
         if (pd_elements.length > 0 ){
             targetNode.append(pd_elements);
         }
