@@ -15,9 +15,8 @@
 # -------------------------------------------------------------------------------
 
 import bokeh
-from .bokehBaseDisplay import *
-from .barChartDisplay import *
-from .lineChartDisplay import *
-from .scatterPlotDisplay import *
-from .histogramDisplay import *
-from .streaming import *
+
+from .bkBarChartDisplay import *
+from .bkLineChartDisplay import *
+from .bkScatterPlotDisplay import *
+from .bkHistogramDisplay import *
