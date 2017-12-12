@@ -99,6 +99,17 @@ for fn in os.listdir('clean-for-dsx') :
                 new_tag["name"] = entry["name"]
                 header.append(new_tag)
 
+            print("TEST:", soup.body.h1.string)
+            if soup.body.h1.contents[0] == "PixieApps" :
+                soup.body.h1.string = "PixieApps: Use PixieDust to generate UI elements"
+                #print("Replaced", tmp, "<h1> with", soup.body.h1.string)
+            if soup.body.h1.string == "Load Data" :
+                soup.body.h1.string = "Load data with PixieDust"
+            if soup.body.h1.string == "Display Data" :
+                soup.body.h1.string = "Display data using PixieDust"
+            if soup.body.h1.string == "Package Manager" :
+                soup.body.h1.string = "Use PixieDust to manage packages"
+
             # Write the updated soup
             fh = open(filePath, 'w')
             fh.write(soup.prettify().encode("utf-8"))
