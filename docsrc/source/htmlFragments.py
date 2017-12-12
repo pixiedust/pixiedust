@@ -3,6 +3,7 @@ import os
 import subprocess
 from bs4 import BeautifulSoup
 
+print ("Generating clean HTML files for IBM DSX docs site...")
 
 # Grab only .rst files in current directory
 for fn in os.listdir('.') :
@@ -112,4 +113,4 @@ for fn in os.listdir('clean-for-dsx') :
             fh.write(updated_soup)
             fh.close()
 
-print ("Yeah, dog!")
+print ("Yeah, dog! Clean HTML.")

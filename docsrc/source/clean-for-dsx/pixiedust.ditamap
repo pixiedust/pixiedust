@@ -5,47 +5,47 @@
     <title>PixieDust</title>
     <topicref format="html" scope="peer" navtitle="PixieDust helper library" href="index.html">
         <topicref format="html" scope="peer" navtitle="Use PixieDust" href="use.html">
-            <topicref format="html" scope="peer" navtitle="Load data" href="loaddata.html"></topicref>
-            <topicref format="html" scope="peer" navtitle="Display data" href="displayapi.html"></topicref>
-            <topicref format="html" scope="peer" navtitle="Package manager" href="packagemanager.html"></topicref>
-            <topicref format="html" scope="peer" navtitle="Use Scala in a Python notebook" href="scalabridge.html"></topicref>
-            <topicref format="html" scope="peer" navtitle="Spark Progress Monitor" href="sparkmonitor.html"></topicref>
-            <topicref format="html" scope="peer" navtitle="Download data" href="download.html"></topicref>
-            <topicref format="html" scope="peer" navtitle="Logging" href="logging.html"></topicref>
+            <topicref format="html" scope="peer" navtitle="Load data with PixieDust" href="loaddata.html"></topicref>
+            <topicref format="html" scope="peer" navtitle="Display data using PixieDust" href="displayapi.html"></topicref>
+            <topicref format="html" scope="peer" navtitle="Use PixieDust to manage packages" href="packagemanager.html"></topicref>
+            <topicref format="html" scope="peer" navtitle="Use Scala in a Python notebook via PixieDust" href="scalabridge.html"></topicref>
+            <topicref format="html" scope="peer" navtitle="PixieDust's Spark progress monitor" href="sparkmonitor.html"></topicref>
+            <topicref format="html" scope="peer" navtitle="Download data via PixieDust" href="download.html"></topicref>
+            <topicref format="html" scope="peer" navtitle="PixieDust logging" href="logging.html"></topicref>
         </topicref>
         <topicref format="html" scope="peer" navtitle="Develop for PixieDust" href="develop.html">
-            <topicref format="html" scope="peer" navtitle="Contribute" href="contribute.html"></topicref>
+            <topicref format="html" scope="peer" navtitle="Contribute to PixieDust" href="contribute.html"></topicref>
             <topicref format="html" scope="peer" navtitle="Write a new PixieDust visualization" href="writeviz.html"></topicref>
-            <topicref format="html" scope="peer" navtitle="Build a renderer" href="renderer.html"></topicref>
-            <topicref format="html" scope="peer" navtitle="Test" href="test.html"></topicref>
+            <topicref format="html" scope="peer" navtitle="Build a PixieDust renderer" href="renderer.html"></topicref>
+            <topicref format="html" scope="peer" navtitle="Test PixieDust features in development" href="test.html"></topicref>
         </topicref>
-        <topicref format="html" scope="peer" navtitle="PixieApps" href="pixieapps.html">
-            <topicref format="html" scope="peer" navtitle="Hello World" href="hello-world-pixieapp.html"></topicref>
-            <topicref format="html" scope="peer" navtitle="Reference" href="reference-pixieapp.html"></topicref>
-            <topicref format="html" scope="peer" navtitle="Custom HTML attributes" href="html-attributes-pixieapp.html"></topicref>
-            <topicref format="html" scope="peer" navtitle="Custom elements" href="custom-elements-pixieapp.html"></topicref>
-            <topicref format="html" scope="peer" navtitle="Dynamic values" href="dynamic-values-pixieapp.html"></topicref>
-            <topicref format="html" scope="peer" navtitle="Creating a widget" href="create-widget-pixieapp.html"></topicref>
-            <topicref format="html" scope="peer" navtitle="Hello World with data" href="hello-world-data-pixieapp.html"></topicref>
+        <topicref format="html" scope="peer" navtitle="PixieApps: Use PixieDust to generate UI elements" href="pixieapps.html">
+            <topicref format="html" scope="peer" navtitle="Hello World PixieApp" href="hello-world-pixieapp.html"></topicref>
+            <topicref format="html" scope="peer" navtitle="PixieApp routes" href="reference-pixieapp.html"></topicref>
+            <topicref format="html" scope="peer" navtitle="Custom HTML attributes for PixieApps" href="html-attributes-pixieapp.html"></topicref>
+            <topicref format="html" scope="peer" navtitle="Custom elements for PixieDust" href="custom-elements-pixieapp.html"></topicref>
+            <topicref format="html" scope="peer" navtitle="Dynamic values and user input with PixieApps" href="dynamic-values-pixieapp.html"></topicref>
+            <topicref format="html" scope="peer" navtitle="Creating a PixieApp widget to reuse UI elements" href="create-widget-pixieapp.html"></topicref>
+            <topicref format="html" scope="peer" navtitle="Hello World PixieApp with data" href="hello-world-data-pixieapp.html"></topicref>
         </topicref>
-        <topicref format="html" scope="peer" navtitle="PixieGateway" href="pixiegateway.html">
-            <topicref format="html" scope="peer" navtitle="Install Gateway" href="install-pixiegateway.html"></topicref>
-            <topicref format="html" scope="peer" navtitle="Chart Sharing" href="chart-sharing.html"></topicref>
+        <topicref format="html" scope="peer" navtitle="PixieGateway: A web server for PixieApps and PixieDust charts" href="pixiegateway.html">
+            <topicref format="html" scope="peer" navtitle="Install PixieGateway" href="install-pixiegateway.html"></topicref>
+            <topicref format="html" scope="peer" navtitle="PixieDust Chart Sharing" href="chart-sharing.html"></topicref>
             <topicref format="html" scope="peer" navtitle="PixieApp Publishing" href="pixieapp-publishing.html"></topicref>
         </topicref>
-        <topicref format="html" scope="peer" navtitle="Release notes" href="releasenotes.html">
-            <topicref format="html" scope="peer" navtitle="1.0.4" href="1-0-4.html"></topicref>
-            <topicref format="html" scope="peer" navtitle="1.0.5" href="1-0-5.html"></topicref>
-            <topicref format="html" scope="peer" navtitle="1.0.6" href="1-0-6.html"></topicref>
-            <topicref format="html" scope="peer" navtitle="1.0.7" href="1-0-7.html"></topicref>
-            <topicref format="html" scope="peer" navtitle="1.0.8" href="1-0-8.html"></topicref>
-            <topicref format="html" scope="peer" navtitle="1.0.9" href="1-0-9.html"></topicref>
-            <topicref format="html" scope="peer" navtitle="1.0.10" href="1-0-10.html"></topicref>
-            <topicref format="html" scope="peer" navtitle="1.0.11" href="1-0-11.html"></topicref>
-            <topicref format="html" scope="peer" navtitle="1.1" href="1-1.html"></topicref>
-            <topicref format="html" scope="peer" navtitle="1.1.1" href="1-1-1.html"></topicref>
-            <topicref format="html" scope="peer" navtitle="1.1.2" href="1-1-2.html"></topicref>
-            <topicref format="html" scope="peer" navtitle="1.1.3" href="1-1-3.html"></topicref>
+        <topicref format="html" scope="peer" navtitle="PixieDust release notes" href="releasenotes.html">
+            <topicref format="html" scope="peer" navtitle="PixieDust release notes 1.0.4" href="1-0-4.html"></topicref>
+            <topicref format="html" scope="peer" navtitle="PixieDust release notes 1.0.5" href="1-0-5.html"></topicref>
+            <topicref format="html" scope="peer" navtitle="PixieDust release notes 1.0.6" href="1-0-6.html"></topicref>
+            <topicref format="html" scope="peer" navtitle="PixieDust release notes 1.0.7" href="1-0-7.html"></topicref>
+            <topicref format="html" scope="peer" navtitle="PixieDust release notes 1.0.8" href="1-0-8.html"></topicref>
+            <topicref format="html" scope="peer" navtitle="PixieDust release notes 1.0.9" href="1-0-9.html"></topicref>
+            <topicref format="html" scope="peer" navtitle="PixieDust release notes 1.0.10" href="1-0-10.html"></topicref>
+            <topicref format="html" scope="peer" navtitle="PixieDust release notes 1.0.11" href="1-0-11.html"></topicref>
+            <topicref format="html" scope="peer" navtitle="PixieDust release notes 1.1" href="1-1.html"></topicref>
+            <topicref format="html" scope="peer" navtitle="PixieDust release notes 1.1.1" href="1-1-1.html"></topicref>
+            <topicref format="html" scope="peer" navtitle="PixieDust release notes 1.1.2" href="1-1-2.html"></topicref>
+            <topicref format="html" scope="peer" navtitle="PixieDust release notes 1.1.3" href="1-1-3.html"></topicref>
         </topicref>
   </topicref>
 </map>
