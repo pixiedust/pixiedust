@@ -228,8 +228,12 @@ class Display(with_metaclass(ABCMeta)):
 
     def getPreferredOutputHeight(self):
         ch = self.options.get("nostore_ch", None)
+        vh = self.options.get("nostore_vh", None) # viewport height
+        indialog = self.options.get('runInDialog', 'false') == 'true' # running in dialog
         if ch is not None:
             return float(ch)
+        elif vh is not None and not indialog:
+            return max(400, (float(vh) * 0.5)) # height set to 400px or 50% of viewport
         else:
             return float(self.getPreferredOutputWidth() * self.getHeightWidthRatio())
 

@@ -28,7 +28,14 @@
                     console.log(e)
                 }
             }
-            var snifferOptions = [{'nostore_cw':getCellWidth()},{'nostore_pixiedust':(typeof pixiedust != "undefined")}];
+            function getViewportHeight(){
+                try {
+                    return document.documentElement.clientHeight
+                } catch(e) {
+                    console.log(e)
+                }
+            }
+            var snifferOptions = [{'nostore_cw':getCellWidth()},{'nostore_vh':getViewportHeight()},{'nostore_pixiedust':(typeof pixiedust != "undefined")}];
             {%if org_params%}
                 snifferOptions.push({'org_params':'{{org_params}}'});
             {%endif%}
