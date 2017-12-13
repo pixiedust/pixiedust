@@ -9,6 +9,8 @@ print ("Generating clean HTML files for IBM DSX docs site...")
 for fn in os.listdir('.') :
     if os.path.isfile(fn) :
         tmp = os.path.splitext(fn)
+        ditaSoup = None
+        dsxFormat = {}
 
         # This if and corresponding HTML piece below are a quick fix to ignore 1.6 instructions I manually updated for Inge.
         if tmp[0] == "install":
@@ -50,12 +52,34 @@ for fn in os.listdir('clean-for-dsx') :
         if tmp[1] == ".ditamap" :
             subprocess.call(["find", "clean-for-dsx/", "-iname", "pixiedust.ditamap", "-exec", "cp", "{}", '../build/html', ";"])
             print ("Copied " + filePath + " to ../build/html directory.")
+
+            # Build a dictionary from the ditamap, of the format:
+            # dsxFormat : { parent-page.html : { children : [...]},
+            #               child-page.html : { parent : "parent-page.html"}
+            #               ...
+            #              }  
+            fh = open(filePath)
+            data=fh.read()
+            fh.close()
+            ditaSoup = BeautifulSoup(data, "lxml")
+            navHeads = ditaSoup.topicref
+            for child in navHeads.children :
+                if child == '\n' :
+                    continue
+                ditaParent = child['href']
+                dsxFormat[ditaParent] = {"children" : []}
+                for grandChild in child.contents :
+                    if grandChild == '\n' :
+                        continue
+                    #dsxFormat[grandChild['href']] = {"parent" : ditaParent}
+                    dsxFormat[ditaParent]["children"].append(grandChild['href'])
+
         if tmp[1] == ".html" :
             fh = open(filePath)
             data=fh.read()
             fh.close()
-
             soup = BeautifulSoup(data, "lxml")
+
             # Remove <style> and <meta>
             to_delete = soup.findAll(['style', 'meta'])
             for element in to_delete :
@@ -99,16 +123,61 @@ for fn in os.listdir('clean-for-dsx') :
                 new_tag["name"] = entry["name"]
                 header.append(new_tag)
 
-            print("TEST:", soup.body.h1.string)
-            if soup.body.h1.contents[0] == "PixieApps" :
-                soup.body.h1.string = "PixieApps: Use PixieDust to generate UI elements"
-                #print("Replaced", tmp, "<h1> with", soup.body.h1.string)
-            if soup.body.h1.string == "Load Data" :
-                soup.body.h1.string = "Load data with PixieDust"
-            if soup.body.h1.string == "Display Data" :
-                soup.body.h1.string = "Display data using PixieDust"
-            if soup.body.h1.string == "Package Manager" :
-                soup.body.h1.string = "Use PixieDust to manage packages"
+            # Replace short doc page titles with longer-form titles for DSX to improve searchability.
+            ##origHeading = soup.body.h1.string
+            dsxHeadings = {
+                "index.html" : "Welcome to PixieDust",
+                # Use PixieDust section
+                "use.html" : "Use PixieDust",
+                "loaddata.html" : "Load Data with PixieDust",
+                "displayapi.html" : "Display Data Using PixieDust",
+                "packagemanager.html" : "Use PixieDust to Manage Packages",
+                "scalabridge.html" : "Use Scala in a Python Notebook via PixieDust",
+                "sparkmonitor.html" : "PixieDust's Spark Progress Monitor",
+                "download.html" : "Download Data via PixieDust",
+                "logging.html" : "PixieDust Logging",
+                # Develop for PixieDust section
+                "develop.html" : "Develop for PixieDust",
+                "contribute.html" : "Contribute to PixieDust",
+                "writeviz.html" : "Write a New PixieDust Visualization",
+                "renderer.html" : "Build a PixieDust Renderer",
+                "test.html" : "Test PixieDust In-Development Features",
+                # PixieApps section
+                "pixieapps.html" : "PixieApps: Use PixieDust to Generate UI Elements",
+                "hello-world-pixieapp.html" : "Hello World PixieApp",
+                "reference-pixieapp.html" : "Configuring PixieApp Routes",
+                "html-attributes-pixieapp.html" : "Custom HTML Attributes for PixieApps",
+                "custom-elements-pixieapp.html" : "Custom Elements for PixieApps",
+                "dynamic-values-pixieapp.html" : "Dynamic Values and User Input with PixieApps",
+                "create-widget-pixieapp.html" : "Creating a PixieApp Widget to Reuse UI Elements",
+                "hello-world-data-pixieapp.html" : "Hello World PixieApp with Data",
+                # PixieGateway section
+                "pixiegateway.html" : "PixieGateway: A Web Server for PixieApps and PixieDust Charts",
+                "install-pixiegateway.html" : "Install PixieGateway",
+                "chart-sharing.html" : "PixieDust Chart Sharing",
+                "pixieapp-publishing.html" : "PixieApp Publishing to the Web",
+                # Release Notes section
+                "releasenotes.html" : "PixieDust Release Notes",
+                "1-0-4.html" : "PixieDust release notes 1.0.4",
+                "1-0-5.html" : "PixieDust release notes 1.0.5",
+                "1-0-6.html" : "PixieDust release notes 1.0.6",
+                "1-0-7.html" : "PixieDust release notes 1.0.7",
+                "1-0-8.html" : "PixieDust release notes 1.0.8",
+                "1-0-9.html" : "PixieDust release notes 1.0.9",
+                "1-0-10.html" : "PixieDust release notes 1.0.10",
+                "1-0-11.html" : "PixieDust release notes 1.0.11",
+                "1-1.html" : "PixieDust release notes 1.1",
+                "1-1-1.html" : "PixieDust release notes 1.1.1",
+                "1-1-2.html" : "PixieDust release notes 1.1.2",
+                "1-1-3.html" : "PixieDust release notes 1.1.3"
+            }
+            if fn in dsxHeadings :
+                soup.body.h1.string = dsxHeadings[fn]
+                soup.head.title.string = dsxHeadings[fn]
+            elif fn not in dsxHeadings : 
+                print("Error:", fn, "does not yet have its own entry in dsxHeadings dict.")
+
+# TODO: append links to child topics within parent-topic HTML pages.
 
             # Write the updated soup
             fh = open(filePath, 'w')
