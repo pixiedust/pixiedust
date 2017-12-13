@@ -1,5 +1,5 @@
 1.1
-=====
+===
 
 Here's what's new in Release 1.1 (9 October 2017):      
 
