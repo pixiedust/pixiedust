@@ -16,15 +16,19 @@
 
 from pixiedust.display.display import CellHandshake
 from pixiedust.display.chart.renderers import PixiedustRenderer
-from pixiedust.utils import Logger, cache
+from pixiedust.utils import Logger,cache
 from ..baseChartDisplay import BaseChartDisplay
 from six import with_metaclass
 from abc import abstractmethod, ABCMeta
 from bokeh.plotting import figure, output_notebook
-from bokeh.util.notebook import _load_notebook_html
 from bokeh.models.tools import *
-from bokeh.io import notebook_div
 import pkg_resources
+from bokeh.palettes import viridis, magma, plasma, linear_palette, Spectral9, d3
+
+try:
+    from bokeh.embed import components as notebook_div
+except ImportError:
+    from bokeh.io import notebook_div
 
 @PixiedustRenderer(rendererId="bokeh")
 @Logger()
@@ -54,11 +58,27 @@ class BokehBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
 
     @cache(fieldName="_loadJS")
     def getLoadJS(self):
-        html, loadJS = _load_notebook_html(hide_banner=True)
+        loadJS = self._load_notebook_html(hide_banner=True)
         return loadJS
+
+    def colorPalette(self, size=None):
+        # https://bokeh.pydata.org/en/latest/docs/reference/palettes.html
+        # https://bokeh.pydata.org/en/latest/docs/reference/colors.html
+        color = list(d3['Category10'][10]) # [ 'orangered', 'cornflowerblue',  ]
+        # color = list(Spectral9).reverse()
+        if size is None:
+            return color
+        elif size <= len(color):
+            return color[0:size]
+        elif size <= 256:
+            return linear_palette(plasma(256), size)
+        else:
+            return linear_palette(plasma(256) + viridis(256) + magma(256), size)
 
     def doRenderChart(self):        
         def genMarkup(chartFigure):
+            s = chartFigure[0] if isinstance(chartFigure, tuple) else chartFigure
+            d = chartFigure[1] if isinstance(chartFigure, tuple) else ''
             return self.env.from_string("""
                     <script class="pd_save">
                     if ( !window.Bokeh && !window.autoload){{
@@ -66,25 +86,26 @@ class BokehBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
                         {loadJS}  
                     }}
                     </script>
-                    {chartFigure}
+                    {chartScript}
+                    {chartDiv}
                     {{%for message in messages%}}
                         <div>{{{{message}}}}</div>
                     {{%endfor%}}
-                """.format(chartFigure=chartFigure, loadJS=self.getLoadJS())
+                """.format(chartScript=s, chartDiv=d, loadJS=self.getLoadJS())
             ).render(messages=self.messages)
 
-        if BokehBaseDisplay.bokeh_version < (0,12):
+        if BokehBaseDisplay.bokeh_version < (0,12,7):
             raise Exception("""
-                <div>Incorrect version of Bokeh detected. Expected {0}, got {1}</div>
+                <div>Incorrect version of Bokeh detected. Expected {0} or greater, got {1}</div>
                 <div>Please upgrade by using the following command: <b>!pip install --user --upgrade bokeh</b></div>
-            """.format((0,12), BokehBaseDisplay.bokeh_version))
+            """.format((0,12,7), BokehBaseDisplay.bokeh_version))
         clientHasBokeh = self.options.get("nostore_bokeh", "false") == "true"
         if not clientHasBokeh:          
             output_notebook(hide_banner=True)
         charts = self.createBokehChart()
 
         if not isinstance(charts, list):
-            charts.add_tools(ResizeTool())
+            # charts.add_tools(ResizeTool())
             #bokeh 0.12.5 has a non backward compatible change on the title field. It is now of type Title
             #following line is making sure that we are still working with 0.12.4 and below
             if hasattr(charts, "title") and hasattr(charts.title, "text"):
@@ -107,3 +128,31 @@ class BokehBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
                 chart.plot_height = int (h - 5)
 
             return genMarkup(notebook_div(gridplot(charts, ncols=ncols, nrows=nrows)))
+
+
+    # no longer part of bokeh
+    #  https://github.com/bokeh/bokeh/pull/6928#issuecomment-329040653
+    #  https://www.bvbcode.com/code/9xhgwcsf-2674609
+    def _load_notebook_html(self, resources=None, hide_banner=False, load_timeout=5000):
+        FINALIZE_JS = 'Bokeh.$("#%s").text("BokehJS is loading...");'
+
+        from bokeh.core.templates import AUTOLOAD_NB_JS, NOTEBOOK_LOAD
+        from bokeh.util.serialization import make_id
+        from bokeh.resources import CDN
+    
+        if resources is None:
+            resources = CDN
+    
+        element_id = make_id()
+    
+        js = AUTOLOAD_NB_JS.render(
+            elementid = '' if hide_banner else element_id,
+            js_urls  = resources.js_files,
+            css_urls = resources.css_files,
+            js_raw   = resources.js_raw + [FINALIZE_JS % element_id],
+            css_raw  = resources.css_raw_str,
+            force    = 1,
+            timeout  = load_timeout
+        )
+    
+        return js
