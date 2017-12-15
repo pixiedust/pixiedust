@@ -19,10 +19,12 @@ from pixiedust.utils.shellAccess import ShellAccess
 from pixiedust.utils import Logger
 from six import iteritems, string_types
 from collections import OrderedDict, namedtuple
+import base64
 import inspect
 import sys
 from functools import partial
 from six import string_types
+from IPython.utils.io import capture_output
 
 def route(**kw):
     def route_dec(fn):
@@ -30,10 +32,63 @@ def route(**kw):
         return fn
     return route_dec
 
+@Logger()
+class captureOutput(object):
+    """
+    Decorator used for routes that allows using external libraries for generating
+    the html fragment. 
+    When using this decorator the route doesn't need to return a string. If it does
+    it will be ignored.
+    Must be declared in after the route decorator. 
+    captureOutput and templateArgs should not be used together
+        from pixiedust.display.app import *
+        import matplotlib.pyplot as plt
+        import numpy as np
+        @PixieApp
+        class Test():
+            @route()
+            @captureOutput
+            def mainScreen(self):
+                t = np.arange(0.0, 2.0, 0.01)
+                s = 1 + np.sin(2*np.pi*t)
+                plt.plot(t, s)
+
+                plt.xlabel('time (s)')
+                plt.ylabel('voltage (mV)')
+                plt.title('About as simple as it gets, folks')
+                plt.grid(True)
+                plt.savefig("test.png")
+                plt.show()
+        Test().run()
+    
+    """
+    def __init__(self, fn):
+        self.fn = fn
+
+    def convert_html(self, output):
+        if "text/html" in output.data:
+            return output._repr_html_()
+        elif "image/png" in output.data:
+            return """<img alt="image" src="data:image/png;base64,{}"><img>""".format(
+                base64.b64encode(output._repr_png_()).decode("ascii")
+            )
+        elif "application/javascript" in output.data:
+            return """<script type="text/javascript">{}</script>""".format(output._repr_javascript_())
+        self.debug("Unused output: {}".format(output.data.keys()))
+        return ""
+
+    def __get__(self, instance, instance_type):
+        return partial(self.wrapper, instance)
+
+    def wrapper(self, instance, *args, **kwargs):
+        with capture_output() as buf:
+            self.fn(instance, *args, **kwargs)
+        return "\n".join([self.convert_html(output) for output in buf.outputs])
+
 class templateArgs(object):
     """
     Decorator that enables using local variable in a Jinja template.
-    Must be used in conjonction with route
+    Must be used in conjunction with route decorator and declared after
         from pixiedust.display.app import *
         @PixieApp
         class Test():
