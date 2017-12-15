@@ -1,6 +1,7 @@
 from .connectionWidget import ConnectionWidget
 from pixiedust.display.app import *
 from pixiedust.services.serviceManager import *
+from pixiedust.utils import Logger
 from pyspark import *
 from pyspark.sql import *
 from xml.sax.saxutils import escape
@@ -28,6 +29,7 @@ view_generate_dataframe_view = '16'
 
 
 @PixieApp
+@Logger()
 class CloudantBrowser(ConnectionWidget):
 
     def get_data_frame(self):
@@ -254,7 +256,7 @@ self.""" + type_var_name + """='""" + key + """'</pd_script>
         <textarea rows="6" class="form-control" id="query{{prefix}}" style="font-family: monospace;">""" + self.query + """</textarea>
     </div>
     <div class="form-group">  
-        <button type="submit" class="btn btn-primary">Go
+        <button type="submit" class="btn btn-primary" pd_refresh>Go
             <target pd_target="target2{{prefix}}" pd_options="view=""" + view_db_query_results + """" />
             <pd_script>self.query="$val(query{{prefix}})"</pd_script>
         </button>
@@ -325,7 +327,7 @@ self.""" + type_var_name + """='""" + key + """'</pd_script>
         <input type="text" class="form-control" id="search{{prefix}}" value="{{self.search_query}}" />
     </div>
     <div class="form-group">
-        <button type="submit" class="btn btn-primary">Go
+        <button type="submit" class="btn btn-primary" pd_refresh>Go
             <target pd_target="target2{{prefix}}" pd_options="view=""" + view_db_search_results + """" />
             <pd_script>self.search_query="$val(search{{prefix}})"</pd_script>
         </button>
