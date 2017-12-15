@@ -10,7 +10,7 @@ for fn in os.listdir('.') :
     if os.path.isfile(fn) :
         tmp = os.path.splitext(fn)
         ditaSoup = None
-        dsxFormat = {}
+        docsStructure = {}
 
         # This if and corresponding HTML piece below are a quick fix to ignore 1.6 instructions I manually updated for Inge.
         if tmp[0] == "install":
@@ -39,6 +39,29 @@ for fn in os.listdir('.') :
             subprocess.call(['rst2html5.py', parsed, dest])
             subprocess.call(['rm', parsed])
 
+# Build a dictionary from the ditamap, of the format:
+            # docsStructure : { parent-page.html : { children : [...]},
+            #               child-page.html : { parent : "parent-page.html"}
+            #               ...
+            #              }  
+fh = open('clean-for-dsx/pixiedust.ditamap')
+data=fh.read()
+fh.close()
+ditaSoup = BeautifulSoup(data, "lxml")
+navHeads = ditaSoup.topicref
+for child in navHeads.children :
+    if child == '\n' :
+        continue
+    ditaParent = child['href']
+    docsStructure[ditaParent] = {"children" : []}
+    for grandChild in child.contents :
+        if grandChild == '\n' :
+            continue
+        docsStructure[grandChild['href']] = {"parent" : ditaParent}
+        docsStructure[ditaParent]["children"].append(grandChild['href'])
+# Add index, just so it's there to represent the full structure
+docsStructure['index.html'] = {}
+
 # Fix the HTML files, stripping away <style> tag and extra tag attributes
 for fn in os.listdir('clean-for-dsx') :
     filePath = 'clean-for-dsx/'+fn
@@ -46,33 +69,13 @@ for fn in os.listdir('clean-for-dsx') :
     if os.path.isfile(filePath) :
         tmp = os.path.splitext(fn)
 
+        # Skip processing the install page entirely for DSX (already installed there), so doc page never appears
         if tmp[0] == "install":
             print ("Skipped .html: " + tmp[0])
             continue
         if tmp[1] == ".ditamap" :
             subprocess.call(["find", "clean-for-dsx/", "-iname", "pixiedust.ditamap", "-exec", "cp", "{}", '../build/html', ";"])
             print ("Copied " + filePath + " to ../build/html directory.")
-
-            # Build a dictionary from the ditamap, of the format:
-            # dsxFormat : { parent-page.html : { children : [...]},
-            #               child-page.html : { parent : "parent-page.html"}
-            #               ...
-            #              }  
-            fh = open(filePath)
-            data=fh.read()
-            fh.close()
-            ditaSoup = BeautifulSoup(data, "lxml")
-            navHeads = ditaSoup.topicref
-            for child in navHeads.children :
-                if child == '\n' :
-                    continue
-                ditaParent = child['href']
-                dsxFormat[ditaParent] = {"children" : []}
-                for grandChild in child.contents :
-                    if grandChild == '\n' :
-                        continue
-                    #dsxFormat[grandChild['href']] = {"parent" : ditaParent}
-                    dsxFormat[ditaParent]["children"].append(grandChild['href'])
 
         if tmp[1] == ".html" :
             fh = open(filePath)
@@ -178,6 +181,23 @@ for fn in os.listdir('clean-for-dsx') :
                 print("Error:", fn, "does not yet have its own entry in dsxHeadings dict.")
 
 # TODO: append links to child topics within parent-topic HTML pages.
+            new_p = soup.new_tag('p')
+            new_h3 = soup.new_tag('h3')
+            new_list = soup.new_tag('ul')
+
+            new_h3.append("In This Section:")
+            new_p.insert(0, new_h3)
+
+            if 'parent' in docsStructure[fn].keys() :
+                new_a = soup.new_tag('a', href=docsStructure[fn]["parent"])
+                new_a.append(dsxHeadings[docsStructure[fn]["parent"]])
+                new_li = soup.new_tag('li')
+                new_li.insert(0, "Return to main topic for")
+                new_li.insert(1, new_a)
+                new_list.insert(0, new_li)
+
+            new_p.insert(1, new_list)
+            soup.body.div.append(new_p)
 
             # Write the updated soup
             fh = open(filePath, 'w')
