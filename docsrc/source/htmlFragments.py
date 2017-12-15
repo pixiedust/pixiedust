@@ -49,9 +49,11 @@ data=fh.read()
 fh.close()
 ditaSoup = BeautifulSoup(data, "lxml")
 navHeads = ditaSoup.topicref
+docsStructure['index.html'] = {'children' : []}
 for child in navHeads.children :
     if child == '\n' :
         continue
+    docsStructure['index.html']['children'].append(child['href'])
     ditaParent = child['href']
     docsStructure[ditaParent] = {"children" : []}
     for grandChild in child.contents :
@@ -59,8 +61,6 @@ for child in navHeads.children :
             continue
         docsStructure[grandChild['href']] = {"parent" : ditaParent}
         docsStructure[ditaParent]["children"].append(grandChild['href'])
-# Add index, just so it's there to represent the full structure
-docsStructure['index.html'] = {}
 
 # Fix the HTML files, stripping away <style> tag and extra tag attributes
 for fn in os.listdir('clean-for-dsx') :
@@ -180,22 +180,48 @@ for fn in os.listdir('clean-for-dsx') :
             elif fn not in dsxHeadings : 
                 print("Error:", fn, "does not yet have its own entry in dsxHeadings dict.")
 
-# TODO: append links to child topics within parent-topic HTML pages.
+            # Write in simple ToC/nav for DSX docs pages.
+            # Appends links to child topics within parent-topic HTML pages; likewise, children point back up to their parent.
             new_p = soup.new_tag('p')
             new_h3 = soup.new_tag('h3')
             new_list = soup.new_tag('ul')
 
-            new_h3.append("In This Section:")
-            new_p.insert(0, new_h3)
-
+            # Add nav from child back to parent topic section
             if 'parent' in docsStructure[fn].keys() :
+                new_h3.append("Return to main topic for:")
                 new_a = soup.new_tag('a', href=docsStructure[fn]["parent"])
                 new_a.append(dsxHeadings[docsStructure[fn]["parent"]])
                 new_li = soup.new_tag('li')
-                new_li.insert(0, "Return to main topic for")
-                new_li.insert(1, new_a)
+                new_li.insert(0, new_a)
                 new_list.insert(0, new_li)
 
+            # Add nav from parent down to child sections. As always, "index.html" is a special case.
+            if 'children' in docsStructure[fn].keys() :
+                if fn == "index.html" :
+                    new_h3.append("Documentation main topics:")
+                else :
+                    new_h3.append("In this PixieDust docs topic:")
+
+                section_children = docsStructure[fn]['children']
+                i = 0
+                for child in section_children :
+                    new_a = soup.new_tag('a', href=section_children[i])
+                    new_a.append(dsxHeadings[section_children[i]])
+                    new_li = soup.new_tag('li')
+                    new_li.insert(0, new_a)
+                    new_list.insert(i, new_li)
+                    i += 1
+
+                if fn != "index.html" :
+                    new_a = soup.new_tag('a', href="index.html")
+                    new_em = soup.new_tag('em')
+                    new_em.append('Docs home for PixieDust')
+                    new_a.append(new_em)
+                    new_li = soup.new_tag('li')
+                    new_li.insert(0, new_a)
+                    new_list.insert(i+1, new_li)
+
+            new_p.insert(0, new_h3)
             new_p.insert(1, new_list)
             soup.body.div.append(new_p)
 
@@ -213,4 +239,4 @@ for fn in os.listdir('clean-for-dsx') :
             fh.write(updated_soup)
             fh.close()
 
-print ("Yeah, dog! Clean HTML.")
+print ("Yeah, dog! Clean HTML for DSX docs.")
