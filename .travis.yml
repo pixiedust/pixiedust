@@ -25,7 +25,7 @@ before_install:
 - conda install -y nomkl
 - pip install jupyter 
 - pip install matplotlib 
-- pip install pandas=0.19.2 
+- pip install pandas==0.19.2 
 - conda install -y seaborn 
 - conda install -y bokeh 
 - conda install -y requests 
