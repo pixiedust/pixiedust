@@ -3,16 +3,18 @@ import os
 import subprocess
 from bs4 import BeautifulSoup
 
+
+release_date = "2017-12-18"
 print ("Generating clean HTML files for IBM DSX docs site...")
+print ("OK with release date of", release_date + "?")
+
 
 # Grab only .rst files in current directory
 for fn in os.listdir('.') :
     if os.path.isfile(fn) :
         tmp = os.path.splitext(fn)
-        ditaSoup = None
-        docsStructure = {}
 
-        # This if and corresponding HTML piece below are a quick fix to ignore 1.6 instructions I manually updated for Inge.
+        # DSX doesn't need th install documentation.
         if tmp[0] == "install":
             print ("Skipped .rst: " + tmp[0])
             continue
@@ -49,6 +51,7 @@ data=fh.read()
 fh.close()
 ditaSoup = BeautifulSoup(data, "lxml")
 navHeads = ditaSoup.topicref
+docsStructure = {}
 docsStructure['index.html'] = {'children' : []}
 for child in navHeads.children :
     if child == '\n' :
@@ -69,7 +72,6 @@ for fn in os.listdir('clean-for-dsx') :
     if os.path.isfile(filePath) :
         tmp = os.path.splitext(fn)
 
-        # Skip processing the install page entirely for DSX (already installed there), so doc page never appears
         if tmp[0] == "install":
             print ("Skipped .html: " + tmp[0])
             continue
@@ -120,14 +122,13 @@ for fn in os.listdir('clean-for-dsx') :
             attribs.append({"name": "DC.Rights.Owner", "content": "&#xA9;Copyright IBM Corporation 2017"})
             attribs.append({"name": "dcterms.rights", "content": "&#xA9; Copyright IBM Corporation 2016, 2017"})
             # Update with date of last release note entry
-            attribs.append({"name": "DC.date", "content": "2017-12-01"})
+            attribs.append({"name": "DC.date", "content": release_date})
             for entry in attribs :
                 new_tag = soup.new_tag("meta", content=entry["content"])
                 new_tag["name"] = entry["name"]
                 header.append(new_tag)
 
             # Replace short doc page titles with longer-form titles for DSX to improve searchability.
-            ##origHeading = soup.body.h1.string
             dsxHeadings = {
                 "index.html" : "Welcome to PixieDust",
                 # Use PixieDust section
@@ -195,7 +196,7 @@ for fn in os.listdir('clean-for-dsx') :
                 new_li.insert(0, new_a)
                 new_list.insert(0, new_li)
 
-            # Add nav from parent down to child sections. As always, "index.html" is a special case.
+            # Add nav from parent down to child sections. "index.html" is a special case.
             if 'children' in docsStructure[fn].keys() :
                 if fn == "index.html" :
                     new_h3.append("Documentation main topics:")
