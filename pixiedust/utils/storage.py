@@ -18,6 +18,7 @@ import sqlite3
 import os
 
 import json
+import getpass
 import sys
 import time
 from pixiedust.utils.constants import PIXIEDUST_REPO_URL
@@ -171,13 +172,9 @@ def _trackDeployment():
 def _trackDeploymentIfVersionChange(deploymenTrackerStorage, existingVersion):
     # Get version and repository URL from 'setup.py'
     version = None
-    repo_url = None
     try:
         app = get_distribution("pixiedust")
         version = app.version
-        repo_url = PIXIEDUST_REPO_URL
-        notebook_tenant_id = os.environ.get("NOTEBOOK_TENANT_ID")
-        notebook_kernel = os.environ.get("NOTEBOOK_KERNEL")
         # save last tracked version in the db
         if existingVersion is None:
             deploymenTrackerStorage.insert("INSERT INTO {0} (VERSION) VALUES ('{1}')".format(DEPLOYMENT_TRACKER_TBL_NAME,version))
@@ -190,24 +187,41 @@ def _trackDeploymentIfVersionChange(deploymenTrackerStorage, existingVersion):
                 printWithLogo("Pixiedust version {0}".format(version))
             else:
                 printWithLogo("Pixiedust version upgraded from {0} to {1}".format(existingVersion,version))
-            # create dictionary and register
-            event = dict()
-            event['date_sent'] = time.strftime("%Y-%m-%dT%H:%M:%S.000Z", time.gmtime())
-            if version is not None:
-                event['code_version'] = version
-            if repo_url is not None:
-                event['repository_url'] = repo_url
-            if notebook_tenant_id is not None:
-                event['notebook_tenant_id'] = notebook_tenant_id
-            if notebook_kernel is not None:
-                event['notebook_kernel'] = notebook_kernel
-            event['runtime'] = 'python'
-            # Create and format request to Deployment Tracker
-            url = 'https://deployment-tracker.mybluemix.net/api/v1/track'
-            headers = {'content-type': "application/json"}
-            response = post(url, data=json.dumps(event), headers=headers)
+            # register
+            track(version)
         else:
             myLogger.info("No change in version: {0} -> {1}.".format(existingVersion,version))
             printWithLogo("Pixiedust version {0}".format(version)) 
     except:
         myLogger.error("Error registering with deployment tracker:\n" + str(sys.exc_info()[0]) + "\n" + str(sys.exc_info()[1]))
+
+def track(version):
+    event = dict()
+    event['date_sent'] = time.strftime("%Y-%m-%dT%H:%M:%S.000Z", time.gmtime())
+    event['runtime'] = 'python'
+    if version is not None:
+        event['code_version'] = version
+    try:
+        notebook_tenant_id = os.environ.get("NOTEBOOK_TENANT_ID")
+        if onotebook_tenant_id is not None:
+            event['notebook_tenant_id'] = notebook_tenant_id
+        notebook_kernel = os.environ.get("NOTEBOOK_KERNEL")
+        if notebook_kernel is not None:
+            event['notebook_kernel'] = notebook_kernel
+    except:
+        pass
+    try:
+        event['space_id'] = getpass.getuser()
+    except:
+        pass
+    event['config'] = {}
+    event['config']['repository_id'] = PIXIEDUST_REPO_URL
+    event['config']['target_runtimes'] = ['Data Science Experience']
+    event['config']['event_id'] = 'web'
+    event['config']['event_organizer'] = 'dev-journeys'
+    url = 'https://metrics-tracker.mybluemix.net/api/v1/track'
+    headers = {'content-type': "application/json"}
+    try:
+        response = post(url, data=json.dumps(event), headers=headers)
+    except Exception as e:
+        print('Deployment Tracker upload error: %s' % str(e))
