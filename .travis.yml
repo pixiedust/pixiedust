@@ -22,15 +22,15 @@ before_install:
 - export PIXIEDUST_HOME=~/pixiedust-test-$TRAVIS_PYTHON_VERSION
 #- conda create -y -q -n pixiedust-travis-test python=$TRAVIS_PYTHON_VERSION
 #- source activate pixiedust-travis-test
-- conda install -y nomkl
+#- conda install -y nomkl
 - pip install jupyter 
 - pip install matplotlib 
 - pip install pandas==0.19.2 
-- conda install -y seaborn 
-- conda install -y bokeh 
-- conda install -y requests 
-- conda install -y pyyaml 
-- conda install -y nose
+- pip install seaborn 
+- pip install bokeh 
+- pip install requests 
+- pip install pyyaml 
+- pip install nose
 - pip install pandas_datareader
 - cd $TRAVIS_BUILD_DIR
 - python setup.py install
