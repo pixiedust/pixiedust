@@ -20,7 +20,6 @@ before_install:
 - tar -xvf spark-1.6.0-bin-hadoop2.6.tgz
 - export SPARK_HOME=~/spark-1.6.0-bin-hadoop2.6
 - export PIXIEDUST_HOME=~/pixiedust-test-$TRAVIS_PYTHON_VERSION
-install:
 #- conda create -y -q -n pixiedust-travis-test python=$TRAVIS_PYTHON_VERSION
 #- source activate pixiedust-travis-test
 - conda install -y nomkl
@@ -35,6 +34,7 @@ install:
 - pip install pandas_datareader
 - cd $TRAVIS_BUILD_DIR
 - python setup.py install
+install:
 script:
 - echo Starting Test with pyspark kernel
 - python $TRAVIS_BUILD_DIR/tests/runPixiedustNotebooks.py -t spark
