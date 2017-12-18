@@ -40,6 +40,9 @@ class BrunelBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
     def compute_brunel_magic(self):
         pass
 
+    def use_online_js(self):
+        return self.getBooleanOption("chart_share", False) or self.is_gateway
+
     def complete_magic(self, magic_parts):
         dynamicfilter = self.options.get("dynamicfilter")
         if dynamicfilter is not None:
@@ -47,7 +50,7 @@ class BrunelBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
         magic_parts.append(":: width={}, height={}".format(
             int(self.getPreferredOutputWidth()), int(self.getPreferredOutputHeight())
         ))
-        if self.getBooleanOption("chart_share", False):
+        if self.use_online_js():
             magic_parts.append(", online_js=True")
         return " ".join(magic_parts)
 
@@ -89,12 +92,12 @@ class BrunelBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
         ShellAccess['brunel_temp_df'] = pandas_df
         try:
             with capture_output() as buf:
-                if self.getBooleanOption("chart_share", False):
+                if self.use_online_js() and not self.is_gateway:
                     ipythonDisplay(HTML("""
-                    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.0/themes/smoothness/jquery-ui.min.css" type="text/css" />
-                    <script src="https://code.jquery.com/jquery-3.2.1.js" integrity="sha256-DZAnKJ/6XZ9si04Hgrsxu/8s717jcIzLy3oi35EouyE=" crossorigin="anonymous"></script>
-                    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js" integrity="sha256-T0Vest3yCU7pafRw9r+settMBX6JkKN06dqBnpQ8d30=" crossorigin="anonymous"></script>
-                    <script src="http://requirejs.org/docs/release/2.2.0/minified/require.js" charset="utf-8"></script>
+                        <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.0/themes/smoothness/jquery-ui.min.css" type="text/css" />
+                        <script src="https://code.jquery.com/jquery-3.2.1.js" integrity="sha256-DZAnKJ/6XZ9si04Hgrsxu/8s717jcIzLy3oi35EouyE=" crossorigin="anonymous"></script>
+                        <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js" integrity="sha256-T0Vest3yCU7pafRw9r+settMBX6JkKN06dqBnpQ8d30=" crossorigin="anonymous"></script>
+                        <script src="http://requirejs.org/docs/release/2.2.0/minified/require.js" charset="utf-8"></script>
                     """))
                 magic = "data('brunel_temp_df') {}".format(self.complete_magic(magic_parts))
                 self.debug("Running brunel with magic {}".format(magic))

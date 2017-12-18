@@ -18,16 +18,109 @@ from pixiedust.display.display import *
 from pixiedust.utils.shellAccess import ShellAccess
 from pixiedust.utils import Logger
 from six import iteritems, string_types
-from collections import OrderedDict
+from collections import OrderedDict, namedtuple
+import base64
 import inspect
 import sys
+from functools import partial
 from six import string_types
+from IPython.utils.io import capture_output
 
 def route(**kw):
     def route_dec(fn):
-        fn.pixiedust_route=kw
+        fn.pixiedust_route = kw
         return fn
     return route_dec
+
+@Logger()
+class captureOutput(object):
+    """
+    Decorator used for routes that allows using external libraries for generating
+    the html fragment. 
+    When using this decorator the route doesn't need to return a string. If it does
+    it will be ignored.
+    Must be declared in after the route decorator. 
+    captureOutput and templateArgs should not be used together
+        from pixiedust.display.app import *
+        import matplotlib.pyplot as plt
+        import numpy as np
+        @PixieApp
+        class Test():
+            @route()
+            @captureOutput
+            def mainScreen(self):
+                t = np.arange(0.0, 2.0, 0.01)
+                s = 1 + np.sin(2*np.pi*t)
+                plt.plot(t, s)
+
+                plt.xlabel('time (s)')
+                plt.ylabel('voltage (mV)')
+                plt.title('About as simple as it gets, folks')
+                plt.grid(True)
+                plt.savefig("test.png")
+                plt.show()
+        Test().run()
+    
+    """
+    def __init__(self, fn):
+        self.fn = fn
+
+    def convert_html(self, output):
+        if "text/html" in output.data:
+            return output._repr_html_()
+        elif "image/png" in output.data:
+            return """<img alt="image" src="data:image/png;base64,{}"><img>""".format(
+                base64.b64encode(output._repr_png_()).decode("ascii")
+            )
+        elif "application/javascript" in output.data:
+            return """<script type="text/javascript">{}</script>""".format(output._repr_javascript_())
+        self.debug("Unused output: {}".format(output.data.keys()))
+        return ""
+
+    def __get__(self, instance, instance_type):
+        return partial(self.wrapper, instance)
+
+    def wrapper(self, instance, *args, **kwargs):
+        with capture_output() as buf:
+            self.fn(instance, *args, **kwargs)
+        return "\n".join([self.convert_html(output) for output in buf.outputs])
+
+class templateArgs(object):
+    """
+    Decorator that enables using local variable in a Jinja template.
+    Must be used in conjunction with route decorator and declared after
+        from pixiedust.display.app import *
+        @PixieApp
+        class Test():
+            @route()
+            @templateArgs
+            def mainScreen(self):
+                var1 = 'something computed'
+                return "<div>Accessing local variable {{var1}} from a jinja template"
+        Test().run()
+    """
+    TemplateRetValue = namedtuple('TemplateRetValue', ['ret_value', 'locals'])
+    def __init__(self, fn):
+        self.fn = fn
+
+    def __get__(self, instance, instance_type):
+        wrapper_fn = partial(self.wrapper, instance)
+        wrapper_fn.org_fn = self.fn
+        return wrapper_fn
+
+    def wrapper(self, instance, *args, **kwargs):
+        locals = [{}]
+        def tracer(frame, event, arg):
+            if event == "return":
+                locals[0] = frame.f_locals.copy()
+                if 'self' in locals[0]:
+                    del locals[0]['self']
+        sys.setprofile(tracer)
+        try:
+            ret_value = self.fn(instance, *args, **kwargs)
+            return templateArgs.TemplateRetValue(ret_value, locals[0])
+        finally:
+            sys.setprofile(None)
 
 #Global object enables system wide customization of PixieApp run option
 pixieAppRunCustomizer = None
@@ -64,9 +157,12 @@ class PixieDustApp(Display):
         return True
 
     def injectArgs(self, method, route):
+        if isinstance(method, partial):
+            method = method.org_fn
         argspec = inspect.getargspec(method)
         args = argspec.args
-        args = args[1:] if hasattr(method, "__self__") else args
+        if len(args)>0:
+            args = args[1:] if hasattr(method, "__self__") or args[0] == 'self' else args
         return OrderedDict(zip([a for a in args],[ self.getOptionValue(arg) for arg in args] ) )
 
     def doRender(self, handlerId):
@@ -90,6 +186,9 @@ class PixieDustApp(Display):
                     retValue = getattr(self, defRoute)()
                     return
             finally:
+                if isinstance(retValue, templateArgs.TemplateRetValue):
+                    injectedArgs.update(retValue.locals)
+                    retValue = retValue.ret_value
                 if isinstance(retValue, string_types):
                     self._addHTMLTemplateString(retValue, **injectedArgs )
                 elif isinstance(retValue, dict):

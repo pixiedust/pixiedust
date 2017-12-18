@@ -28,8 +28,8 @@ renderers = ["matplotlib", "bokeh", "seaborn", "mapbox", "google", "brunel"]
 for renderer in renderers:
     try:
         __import__("pixiedust.display.chart.renderers." + renderer)
-    except ImportError as e:
-        myLogger.warn("Unable to import renderer {0}: {1}".format(renderer, str(e)))
+    except Exception as exc:
+        myLogger.warn("Unable to import renderer {0}: {1}".format(renderer, str(exc)))
 
 @PixiedustDisplayMeta()
 class ChartDisplayMeta(DisplayHandlerMeta):
