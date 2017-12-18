@@ -42,7 +42,7 @@ for fn in os.listdir('.') :
             subprocess.call(['rm', parsed])
 
 # Build a dictionary from the ditamap, of the format:
-  # docsStructure : { parent-page.html : { children : [...]},
+  # docsStructure : { parent-page.html : { children : ["child-page.html", ...]},
   #                   child-page.html : { parent : "parent-page.html"},
   #                   ...
   #                 }  
