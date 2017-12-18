@@ -23,7 +23,7 @@ before_install:
 #- conda create -y -q -n pixiedust-travis-test python=$TRAVIS_PYTHON_VERSION
 #- source activate pixiedust-travis-test
 - conda install -y nomkl
-- conda install -y jupyter 
+- pip install -y jupyter 
 - conda install -y matplotlib 
 - conda install -y pandas=0.19.2 
 - conda install -y seaborn 
