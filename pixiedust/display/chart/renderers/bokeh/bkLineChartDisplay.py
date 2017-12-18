@@ -88,7 +88,7 @@ class BKLineChartRenderer(BokehBaseDisplay):
                     row[k] = row[k].replace(':', '.')
             wpdf.loc[index] = row
 
-        wpdf.sort(xlabel, ascending=[True], inplace=True)
+        wpdf.sort_values(xlabel, ascending=[True], inplace=True)
 
         if self.isSubplot():
             colors = self.colorPalette(len(valueFields)) if len(valueFields) > 1 else self.colorPalette(len(valueFields) * (len(wpdf[clusterby].unique()) if clusterby else len(valueFields)))
