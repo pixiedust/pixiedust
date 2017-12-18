@@ -24,7 +24,14 @@ install:
 - conda create -y -q -n pixiedust-travis-test python=$TRAVIS_PYTHON_VERSION
 - source activate pixiedust-travis-test
 - conda install -y nomkl
-- conda install -y jupyter matplotlib pandas=0.19.2 seaborn bokeh requests pyyaml nose
+- conda install -y jupyter 
+- conda install -y matplotlib 
+- conda install -y pandas=0.19.2 
+- conda install -y seaborn 
+- conda install -y bokeh 
+- conda install -y requests 
+- conda install -y pyyaml 
+- conda install -y nose
 - pip install pandas_datareader
 - cd $TRAVIS_BUILD_DIR
 - python setup.py install
