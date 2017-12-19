@@ -237,10 +237,14 @@ class Display(with_metaclass(ABCMeta)):
 
     def getPreferredOutputHeight(self):
         ch = self.options.get("nostore_ch", None)
+        vh = self.options.get("nostore_vh", None) # viewport height
+        cappedheight = 500 if vh is None else max(500, float(vh) * 0.5) # capped max height
         if ch is not None:
             return float(ch)
         else:
-            return float(self.getPreferredOutputWidth() * self.getHeightWidthRatio())
+            return min(cappedheight, float(self.getPreferredOutputWidth() * self.getHeightWidthRatio()))
+
+
 
 
     def _getTemplateArgs(self, **kwargs):

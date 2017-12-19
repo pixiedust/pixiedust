@@ -61,7 +61,7 @@ class CFBrowser:
         <select class="form-control" id="org{{prefix}}">""" + options + """</select>
       </div>
       <div class="col-sm-1">
-        <button type="submit" class="btn btn-primary">Go
+        <button type="submit" class="btn btn-primary" pd_refresh>Go
           <pd_script>
 self.org_id="$val(org{{prefix}})"
 self.login="false"
@@ -89,7 +89,7 @@ self.select_org="true"
         <select class="form-control" id="space{{prefix}}">""" + options + """</select>
       </div>
       <div class="col-sm-1">
-        <button type="submit" class="btn btn-primary">Go
+        <button type="submit" class="btn btn-primary" pd_refresh>Go
           <pd_script>
 self.space_id="$val(space{{prefix}})"
 self.select_org="false"
@@ -101,33 +101,6 @@ self.select_space="true"
   </div>
 </div>
 """)
-        
-#     # @route(select_space="true")
-#     def _select_space(self):
-#         self._addHTMLTemplateString("""
-# <div class="row" pixiedust="{{pd_controls|htmlAttribute}}">
-#     <div class="form-group col-sm-2" style="padding-right:10px;">
-#         <p>
-#             <button type="submit" class="btn btn-primary" pd_target="target{{prefix}}">Get Apps
-#                 <pd_script>self.print_apps()</pd_script>
-#             </button>
-#         </p>
-#         <p>
-#             <button type="submit" class="btn btn-primary" pd_target="target{{prefix}}">Get Services
-#                 <pd_script>self.print_services()</pd_script>
-#             </button>
-#         </p>
-#     </div>
-#     <div class="form-group col-sm-10">
-#         <div id="target{{prefix}}"></div>
-#     </div>
-# </div>
-# """)
-#
-#     def print_apps(self):
-#         apps = self.get_apps(self.access_token, self.space_id)
-#         for app in apps:
-#             print('<p>{}</p>'.format(app['entity']['name']))
 
     @route(select_space="true")
     def _select_space(self):
@@ -152,7 +125,7 @@ self.select_space="true"
     <div class="col-sm-5">
         <b>""" + svc['entity']['name'] + """</b><br>
         """ + svc_key_entity['credentials']['host'] + """<br>
-        <button type="submit" class="btn btn-primary" data-dismiss="modal">Select
+        <button type="submit" class="btn btn-primary" data-dismiss="modal" pd_refresh>Select
             <pd_script>self.service_name=\"""" + svc['entity']['name'].replace('"', '\\"') + """\"
 self.credentials=\"""" + credentials_str + """\"
 self.select_space="false"
@@ -283,8 +256,7 @@ self.select_credentials="true"</pd_script>
         <input type="text" class="form-control" id="passcode{{prefix}}">
       </div>
       <div class="col-sm-1">
-        <button type="submit" class="btn btn-primary">
-          Go
+        <button type="submit" class="btn btn-primary" pd_refresh>Go
           <pd_script>
 self.passcode="$val(passcode{{prefix}})"
 self.login="true"
