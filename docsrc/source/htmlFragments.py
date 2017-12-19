@@ -14,7 +14,7 @@ for fn in os.listdir('.') :
     if os.path.isfile(fn) :
         tmp = os.path.splitext(fn)
 
-        # DSX doesn't need th install documentation.
+        # DSX doesn't need the install documentation.
         if tmp[0] == "install":
             print ("Skipped .rst: " + tmp[0])
             continue
@@ -42,10 +42,10 @@ for fn in os.listdir('.') :
             subprocess.call(['rm', parsed])
 
 # Build a dictionary from the ditamap, of the format:
-            # docsStructure : { parent-page.html : { children : [...]},
-            #               child-page.html : { parent : "parent-page.html"}
-            #               ...
-            #              }  
+  # docsStructure : { parent-page.html : { children : ["child-page.html", ...]},
+  #                   child-page.html : { parent : "parent-page.html"},
+  #                   ...
+  #                 }  
 fh = open('clean-for-dsx/pixiedust.ditamap')
 data=fh.read()
 fh.close()
