@@ -78,7 +78,9 @@ class captureOutput(object):
         return ""
 
     def __get__(self, instance, instance_type):
-        return partial(self.wrapper, instance)
+        wrapper_fn = partial(self.wrapper, instance)
+        wrapper_fn.org_fn = self.fn
+        return wrapper_fn
 
     def wrapper(self, instance, *args, **kwargs):
         with capture_output() as buf:
@@ -157,7 +159,7 @@ class PixieDustApp(Display):
         return True
 
     def injectArgs(self, method, route):
-        if isinstance(method, partial):
+        if isinstance(method, partial) and hasattr(method, "org_fn"):
             method = method.org_fn
         argspec = inspect.getargspec(method)
         args = argspec.args
