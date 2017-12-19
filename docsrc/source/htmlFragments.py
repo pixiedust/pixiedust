@@ -4,7 +4,7 @@ import subprocess
 from bs4 import BeautifulSoup
 
 
-release_date = "2017-12-18"
+release_date = "2017-12-19"
 print ("Generating clean HTML files for IBM DSX docs site...")
 print ("OK with release date of", release_date + "?")
 
@@ -173,7 +173,8 @@ for fn in os.listdir('clean-for-dsx') :
                 "1-1.html" : "PixieDust release notes 1.1",
                 "1-1-1.html" : "PixieDust release notes 1.1.1",
                 "1-1-2.html" : "PixieDust release notes 1.1.2",
-                "1-1-3.html" : "PixieDust release notes 1.1.3"
+                "1-1-3.html" : "PixieDust release notes 1.1.3",
+                "1-1-4.html" : "PixieDust release notes 1.1.4"
             }
             if fn in dsxHeadings :
                 soup.body.h1.string = dsxHeadings[fn]
