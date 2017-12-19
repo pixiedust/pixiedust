@@ -45,6 +45,7 @@
 <ul class="simple">
 <li>PixieDust now properly renders chart dimensions. Previously, in some situations with wide cell lengths, PixieDust would calculate a chart height value that was too tall for certain screen resolutions (<a class="reference external" href="https://github.com/ibm-watson-data-lab/pixiedust/issues/530">#530</a>).</li>
 <li>PixieApps, as well as PixieDust’s <code class="docutils literal"><span class="pre">display()</span></code> function, now properly support the filtering capabilities of Brunel-rendered charts. Previously, in both instances, the Brunel visualizations would render correctly, but filtering data had no effect on the charts (<a class="reference external" href="https://github.com/ibm-watson-data-lab/pixiedust/issues/522">#522</a>).</li>
+<li>Newer versions of Bokeh now work correctly in PixieDust. A recent bug surfaced where Bokeh chart rendering broke for Bokeh versions 0.12.7 or newer. The 1.1.4 Release of PixieDust fixes this issue (<a class="reference external" href="https://github.com/ibm-watson-data-lab/pixiedust/issues/523">#523</a>).</li>
 </ul>
 <p><strong>Enhancements</strong></p>
 <ul class="simple">

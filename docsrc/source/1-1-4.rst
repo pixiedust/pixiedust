@@ -9,6 +9,8 @@ Here's what's new in Release 1.1.4 (19 December 2017):
 
 - PixieApps, as well as PixieDust's ``display()`` function, now properly support the filtering capabilities of Brunel-rendered charts. Previously, in both instances, the Brunel visualizations would render correctly, but filtering data had no effect on the charts (`#522 <https://github.com/ibm-watson-data-lab/pixiedust/issues/522>`_).
 
+- Newer versions of Bokeh now work correctly in PixieDust. A recent bug surfaced where Bokeh chart rendering broke for Bokeh versions 0.12.7 or newer. The 1.1.4 Release of PixieDust fixes this issue (`#523 <https://github.com/ibm-watson-data-lab/pixiedust/issues/523>`_).
+
 **Enhancements**
 
 - PixieApps can now use any third-party plotting library (like Matplotlib) with a route method. By adding a ``@captureOutput`` decorator, PixieApp routes can work with libraries that write output directly, instead of only working with libraries that write output as a string. ``@captureOutput`` must be declared directly after ``@route()``, and the decorator cannot be used in combination with ``@templateArgs``. See (`#532 <https://github.com/ibm-watson-data-lab/pixiedust/issues/532>`_) for example usage.
