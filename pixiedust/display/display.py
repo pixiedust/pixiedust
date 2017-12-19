@@ -17,6 +17,7 @@
 from abc import ABCMeta,abstractmethod
 from IPython.display import display as ipythonDisplay, HTML, Javascript
 from pixiedust.utils import Logger
+from pixiedust.utils.astParse import parse_function_call
 from pixiedust.utils.template import *
 import sys
 import uuid
@@ -207,6 +208,14 @@ class Display(with_metaclass(ABCMeta)):
     def is_gateway(self):
         return "gateway" in self.options
 
+    def get_options_dialog_pixieapp(self):
+        """
+        Return the fully qualified path to a PixieApp used to display the dialog options
+        PixieApp must inherit from pixiedust.display.chart.options.baseOptions.BaseOptions
+        """
+        # return "pixiedust.display.chart.options.testOptions.TestOptions"
+        return None
+
     def getDPI(self):
         return int(self.options.get("nostore_dpi", 96))
 
@@ -235,6 +244,8 @@ class Display(with_metaclass(ABCMeta)):
 
 
     def _getTemplateArgs(self, **kwargs):
+        menuInfo = kwargs.get("menuInfo", None)
+        command = self._genDisplayScript(menuInfo=menuInfo)
         args = {
             "this": self, 
             "entity": self.entity, 
@@ -243,9 +254,10 @@ class Display(with_metaclass(ABCMeta)):
             "gateway": self.options.get("gateway", None),
             "pd_controls": json.dumps({
                 "prefix": self.getPrefix(),
-                "command": self._genDisplayScript(menuInfo=kwargs.get("menuInfo", None) ),
-                "options": self.options,
-                "sniffers": [cb() for cb in CellHandshake.snifferCallbacks]
+                "command": command,
+                "options": parse_function_call(command)['kwargs'],
+                "sniffers": [cb() for cb in CellHandshake.snifferCallbacks],
+                "avoidMetadata": menuInfo is not None
             })
         }
 
@@ -364,8 +376,7 @@ class Display(with_metaclass(ABCMeta)):
         return self.prefix if menuInfo is None else (self.prefix + "-" + menuInfo['id'])
     
     def _getExecutePythonDisplayScript(self, menuInfo=None):
-        if ("gateway" in self.options):
-            return self.renderTemplateString("""
+        return self.renderTemplateString("""
             {% set targetId=divId if divId and divId.startswith("$") else ("'"+divId+"'") if divId else "'wrapperHTML" + prefix + "'" %}
             function(){
                 pixiedust.executeDisplay(
@@ -373,8 +384,7 @@ class Display(with_metaclass(ABCMeta)):
                     {'targetDivId': {{targetId}} }
                 );
             }
-            """)
-        return self.renderTemplate('executePythonDisplayScript.js',menuInfo=menuInfo)
+            """, menuInfo=menuInfo)
         
     def _getMenuHandlerScript(self, menuInfo):
         return """
@@ -486,7 +496,7 @@ class RunInDialog(Display):
         # del self.options['runInDialog']
         ipythonDisplay(Javascript("pixiedust.executeInDialog({0},{1});".format(
             json.dumps({
-                "prefix": self.getPrefix(),
+                "prefix": self.options.get("prefix", self.getPrefix()),
                 "command": self.callerText.replace(",runInDialog='true'",""),
                 "options": self.options
             }),

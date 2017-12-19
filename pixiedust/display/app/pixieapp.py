@@ -238,11 +238,6 @@ def PixieApp(cls):
 
     def __init__(self, options=None, entity=None, dataHandler=None):
         PixieDustApp.__init__(self, options or {}, entity, dataHandler)
-        if not hasattr(self, "pd_initialized"):
-            if hasattr(self, "setup"):
-                self.setup()
-            self.nostore_params = True
-            self.pd_initialized = True
 
     def getPixieAppEntity(self):
         return self.pixieapp_entity if hasattr(self, "pixieapp_entity") else None
@@ -263,6 +258,12 @@ def PixieApp(cls):
         for key in ShellAccess:
             if ShellAccess[key] is self:
                 var = key
+
+        if not hasattr(self, "pd_initialized"):
+            if hasattr(self, "setup"):
+                self.setup()
+            self.nostore_params = True
+            self.pd_initialized = True
 
         if not var:
             #If we're here, the user must have created the instance inline, assign a variable dynamically
