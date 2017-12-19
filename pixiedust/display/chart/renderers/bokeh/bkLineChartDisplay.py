@@ -35,14 +35,6 @@ class BKLineChartRenderer(BokehBaseDisplay):
         clusterby = self.options.get("clusterby")
         return [clusterby] if clusterby is not None else []
 
-    def canRenderChart(self):
-        #Verify that all key field are numericals
-        for keyField in self.getKeyFields():
-            if not self.dataHandler.isNumericField(keyField):
-                return (False, "Column {0} is not numerical".format(keyField))
-        
-        return (True, None)
-
     def createBokehChart(self):
         keyFields = self.getKeyFields()
         valueFields = self.getValueFields()
@@ -53,7 +45,10 @@ class BKLineChartRenderer(BokehBaseDisplay):
         def lineChart(df, xlabel, vFields, color=None, clustered=None, title=None):
             ylabel = ','.join(v for v in vFields)
             x = list(df[xlabel].values)
-            p = figure(y_axis_label=ylabel, x_axis_label=xlabel, title=title)
+            if df[xlabel].dtype == object:
+                p = figure(y_axis_label=ylabel, x_axis_label=xlabel, title=title, x_range=x)
+            else:
+                p = figure(y_axis_label=ylabel, x_axis_label=xlabel, title=title)
 
             if clustered is not None:
                 colors = self.colorPalette(len(df[clustered].unique())) if color is None else color
