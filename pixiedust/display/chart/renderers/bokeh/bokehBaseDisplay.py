@@ -81,17 +81,30 @@ class BokehBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
             d = chartFigure[1] if isinstance(chartFigure, tuple) else ''
             return self.env.from_string("""
                     <script class="pd_save">
-                    if ( !window.Bokeh && !window.autoload){{
-                        window.autoload=true;
-                        {loadJS}  
+                    function setChartScript() {{
+                        if (!window.Bokeh) {{
+                            setTimeout(setChartScript, 250)
+                        }} else {{
+                            var d = document.getElementById("pd-bkchartdiv-{p}")
+                            var el = document.createElement('div')
+                            el.innerHTML = `{chartScript}`
+                            var chartscript = el.childNodes[1]
+                            var s = document.createElement("script")
+                            s.innerHTML = chartscript.innerHTML
+                            d.parentNode.insertBefore(s, d)
+                        }}
                     }}
+                    if (!window.Bokeh && !window.autoload){{
+                        window.autoload=true;
+                        {loadJS}
+                    }}
+                    setChartScript()
                     </script>
-                    {chartScript}
-                    {chartDiv}
+                    <div style="padding:5px" id="pd-bkchartdiv-{p}">{chartDiv}</div>
                     {{%for message in messages%}}
                         <div>{{{{message}}}}</div>
                     {{%endfor%}}
-                """.format(chartScript=s, chartDiv=d, loadJS=self.getLoadJS())
+                """.format(chartScript=s.replace('</script>', '<\/script>'), chartDiv=d, loadJS=self.getLoadJS(), p=self.getPrefix())
             ).render(messages=self.messages)
 
         if BokehBaseDisplay.bokeh_version < (0,12,7):
