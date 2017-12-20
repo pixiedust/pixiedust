@@ -211,6 +211,9 @@ class PixieDustApp(Display):
 
         print("Didn't find any routes for {}".format(self))
 
+    def get_custom_options(self):
+        return {}
+
     def getDialogOptions(self):
         return {}
 
@@ -272,6 +275,9 @@ def PixieApp(cls):
 
         self.runInDialog = kwargs.get("runInDialog", "false") is "true"
         options = {"nostore_pixieapp": var, "nostore_ispix":"true", "runInDialog": "true" if self.runInDialog else "false"}
+        #update with any custom options that the pixieapp may have
+        options.update(self.get_custom_options())
+
         if self.runInDialog:
             options.update(self.getDialogOptions())
 

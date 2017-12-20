@@ -13,17 +13,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # -------------------------------------------------------------------------------
+from abc import abstractmethod, ABCMeta
 from six import iteritems
 from pixiedust.display.app import *
 from pixiedust.utils.astParse import parse_function_call
 from pixiedust.utils import Logger
-from IPython.core.getipython import get_ipython
 from pixiedust.display.datahandler import getDataHandler
 from pixiedust.utils.shellAccess import ShellAccess
+from IPython.core.getipython import get_ipython
 
 @PixieApp
 @Logger()
-class BaseOptions():
+class BaseOptions(with_metaclass(ABCMeta)):
     def setup(self):
         self.parsed_command = parse_function_call(self.parent_command) #pylint: disable=E1101,W0201
         self.parent_entity = self.parsed_command['args'][0] if len(self.parsed_command['args'])>0 else None
@@ -34,6 +35,14 @@ class BaseOptions():
                 self.exception(exc)
                 self.entity = None
 
+    def get_custom_options(self):
+        "Options for this base dialog"
+        return {
+            "runInDialog":"true",
+            "title":"Test",
+            "showFooter":"true"
+        }
+
     def on_ok(self):
         try:
             #reconstruct the parent command with the new options
@@ -41,6 +50,9 @@ class BaseOptions():
                 locals()[key] = ShellAccess[key]
             entity = eval(self.parsed_command['args'][0], globals(), locals())
             run_options = self.run_options
+            #update with the new options
+            run_options.update(self.get_new_options())
+
             command = "{}({},{})".format(
                 self.parsed_command['func'],
                 self.parsed_command['args'][0],
@@ -63,3 +75,8 @@ class BaseOptions():
         return getDataHandler(
             self.parsed_command['kwargs'], self.parent_entity
         ) if self.parent_entity is not None else None
+
+    @abstractmethod
+    def get_new_options(self):
+        "return a dictionary of the new options selected by the user"
+        pass

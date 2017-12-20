@@ -38,3 +38,6 @@ class TestOptions(BaseOptions):
     </div>
 </div>
     """
+
+    def get_new_options(self):
+        return {}
