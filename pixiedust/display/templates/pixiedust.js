@@ -540,6 +540,10 @@ function readExecInfo(pd_controls, element, searchParents, fromExecInfo){
     {#special case pd_refresh points to another element #}
     var refreshTarget = element.getAttribute("pd_refresh");
     if (refreshTarget){
+        if (execInfo.targetDivId == "pixiedust_dummy"){
+            {#in case we're in pd_event_handler and refresh targets are set #}
+            execInfo.targetDivId = "pixiedust_dummy2";
+        }
         var retQueue = [execInfo];
         var targets = refreshTarget.split(",");
         $.each( targets, function(index){
@@ -636,7 +640,7 @@ $(document).on("pd_event", function(event, eventInfo){
             }).length > 0;
         });
         eventHandlers.each(function(){
-            execQueue = runElement(this);
+            execQueue = runElement(this, false);
             $.each( execQueue, function(index, value){
                 if (value){
                     if (value.targetDivId == "pixiedust_dummy"){
