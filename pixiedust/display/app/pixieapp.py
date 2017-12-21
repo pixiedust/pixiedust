@@ -74,6 +74,9 @@ class captureOutput(object):
             )
         elif "application/javascript" in output.data:
             return """<script type="text/javascript">{}</script>""".format(output._repr_javascript_())
+        elif "text/markdown" in output.data:
+            import markdown
+            return markdown.markdown(output._repr_mime_("text/markdown"))
         self.debug("Unused output: {}".format(output.data.keys()))
         return ""
 
