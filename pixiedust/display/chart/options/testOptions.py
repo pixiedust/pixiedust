@@ -13,10 +13,31 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # -------------------------------------------------------------------------------
-import brunel
-from .barChartDisplay import BarChartRenderer
-from .lineChartDisplay import LineChartRenderer
-from .scatterPlotDisplay import ScatterPlotRenderer
-#from .pieChartDisplay import PieChartRenderer
-from .histogramDisplay import HistogramRenderer
-from .mapDisplay import MapRenderer
+from pixiedust.display.app import *
+from .baseOptions import BaseOptions
+from pixiedust.display import display
+from pixiedust.utils.shellAccess import ShellAccess
+from IPython.core.getipython import get_ipython
+from pixiedust.utils import Logger
+
+@PixieApp
+@Logger()
+class TestOptions(BaseOptions):
+    @route()
+    def main_screen(self):
+        return """
+<div class="field-container row">
+    <div class="col-sm-6" style="padding: 0px 5px 0px 0px;">
+        <ul>
+            {%for field in this.data_handler.getFieldNames(True)%}
+            <li>
+                {{field}}
+            </li>
+            {%endfor%}
+        </ul>
+    </div>
+</div>
+    """
+
+    def get_new_options(self):
+        return {}

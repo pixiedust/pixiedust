@@ -74,6 +74,9 @@ class captureOutput(object):
             )
         elif "application/javascript" in output.data:
             return """<script type="text/javascript">{}</script>""".format(output._repr_javascript_())
+        elif "text/markdown" in output.data:
+            import markdown
+            return markdown.markdown(output._repr_mime_("text/markdown"))
         self.debug("Unused output: {}".format(output.data.keys()))
         return ""
 
@@ -211,6 +214,9 @@ class PixieDustApp(Display):
 
         print("Didn't find any routes for {}".format(self))
 
+    def get_custom_options(self):
+        return {}
+
     def getDialogOptions(self):
         return {}
 
@@ -238,11 +244,6 @@ def PixieApp(cls):
 
     def __init__(self, options=None, entity=None, dataHandler=None):
         PixieDustApp.__init__(self, options or {}, entity, dataHandler)
-        if not hasattr(self, "pd_initialized"):
-            if hasattr(self, "setup"):
-                self.setup()
-            self.nostore_params = True
-            self.pd_initialized = True
 
     def getPixieAppEntity(self):
         return self.pixieapp_entity if hasattr(self, "pixieapp_entity") else None
@@ -264,6 +265,12 @@ def PixieApp(cls):
             if ShellAccess[key] is self:
                 var = key
 
+        if not hasattr(self, "pd_initialized"):
+            if hasattr(self, "setup"):
+                self.setup()
+            self.nostore_params = True
+            self.pd_initialized = True
+
         if not var:
             #If we're here, the user must have created the instance inline, assign a variable dynamically
             var = cls.__name__ + "_instance"
@@ -271,6 +278,9 @@ def PixieApp(cls):
 
         self.runInDialog = kwargs.get("runInDialog", "false") is "true"
         options = {"nostore_pixieapp": var, "nostore_ispix":"true", "runInDialog": "true" if self.runInDialog else "false"}
+        #update with any custom options that the pixieapp may have
+        options.update(self.get_custom_options())
+
         if self.runInDialog:
             options.update(self.getDialogOptions())
 

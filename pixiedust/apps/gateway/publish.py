@@ -25,6 +25,7 @@ from pixiedust.apps.gateway import BaseGatewayApp
 import warnings
 import pkg_resources
 from jupyter_client.manager import KernelManager
+from IPython.core.getipython import get_ipython
 
 import ast
 class ImportsLookup(ast.NodeVisitor):
@@ -245,23 +246,12 @@ class PublishApp(BaseGatewayApp):
     
     def ast_parse(self, code):
         try:
-            #Do we even need to sanitize
             return ast.parse(code)
         except SyntaxError:
-            pass
-
-        def translateMagicLine(line):
-            index = line.find('%')
-            if index >= 0:
-                try:
-                    ast.parse(line)
-                except SyntaxError:
-                    magic_line = line[index+1:].split()
-                    line= """{} get_ipython().run_line_magic("{}", "{}")""".format(
-                        line[:index], magic_line[0], ' '.join(magic_line[1:])
-                        ).strip()
-            return line
-        return ast.parse('\n'.join([translateMagicLine(p) for p in code.split('\n') if not p.strip().startswith('!')]))
+            #transform the code first to handle notebook syntactic sugar like magic and system
+            return ast.parse(
+                get_ipython().input_transformer_manager.transform_cell(code)
+            )
 
     def compute_imports(self):
         if self.lookup is None:
