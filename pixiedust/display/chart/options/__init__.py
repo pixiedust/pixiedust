@@ -13,10 +13,5 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # -------------------------------------------------------------------------------
-import brunel
-from .barChartDisplay import BarChartRenderer
-from .lineChartDisplay import LineChartRenderer
-from .scatterPlotDisplay import ScatterPlotRenderer
-#from .pieChartDisplay import PieChartRenderer
-from .histogramDisplay import HistogramRenderer
-from .mapDisplay import MapRenderer
+
+from .baseOptions import BaseOptions

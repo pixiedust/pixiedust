@@ -8,6 +8,12 @@
             <button id="downloadSVG{{prefix}}" class="btn btn-default">Download SVG</button>
         {% endif %}
         <button pd_app="pixiedust.apps.gateway.share.ShareChartApp" pd_options="runInDialog=true;title=Share Chart" class="btn btn-default no_loading_msg">Share</button>
+        {% if this.get_options_dialog_pixieapp() %}
+        <button pd_app="{{this.get_options_dialog_pixieapp()}}" class="btn btn-default no_loading_msg">
+            <pd_event_handler pd_source="*" pd_script="ShellAccess[eventInfo['entity']].on_ok()"></pd_event_handler>
+            Options (New)
+        </button>
+        {%endif%}
     </div>
     {% if this.getRendererList() and this._rendererId %}
     <div class="form-group col-sm-3">

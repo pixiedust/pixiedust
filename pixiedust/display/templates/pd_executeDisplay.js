@@ -2,13 +2,16 @@
     function getTargetNode(){
         return $('#' + ($targetDivId || ("wrapperHTML"+ pd_prefix)));
     }
-    function setHTML(targetNode, contents){
+    function setHTML(targetNode, contents, pdCtl = null){
         var pd_elements = []
         targetNode.children().each(function(){
             if (this.tagName.toLowerCase().startsWith("pd_")){
                 pd_elements.push($(this).clone());
             }
         });
+        if (targetNode.attr("pixiedust") && pdCtl){
+            targetNode.attr("pixiedust", JSON.stringify(pdCtl));
+        }
         targetNode.html("<div pd_stop_propagation>" + contents + "</div>");
         if (pd_elements.length > 0 ){
             targetNode.append(pd_elements);
@@ -25,7 +28,7 @@
             reply : function(){
                 if ( !callbacks.response ){
                     if (!user_controls.partialUpdate){
-                        setHTML(getTargetNode(), "");
+                        setHTML(getTargetNode(), "",pd_controls);
                         if (user_controls.onDisplayDone){
                             user_controls.onDisplayDone(getTargetNode());
                         }
@@ -60,7 +63,7 @@
                     if (user_controls.onSuccess){
                         user_controls.onSuccess(content.text);
                     }else{
-                        targetNodeUpdated = setHTML(getTargetNode(), content.text);
+                        targetNodeUpdated = setHTML(getTargetNode(), content.text, pd_controls);
                     }
                 }else if (msg_type==="display_data" || msg_type==="execute_result"){
                     var html=null;
@@ -85,50 +88,25 @@
                             if (user_controls.onSuccess){
                                 user_controls.onSuccess(html);
                             }else{
-                                targetNodeUpdated = setHTML(getTargetNode(), html);
+                                targetNodeUpdated = setHTML(getTargetNode(), html, pd_controls);
                             }
                         }catch(e){
                             console.log("Invalid html output", e, html);
                             targetNodeUpdated = setHTML(getTargetNode(),  "Invalid html output: " + e.message + "<pre>" 
-                                + html.replace(/>/g,'&gt;').replace(/</g,'&lt;').replace(/"/g,'&quot;') + "<pre>");
+                                + html.replace(/>/g,'&gt;').replace(/</g,'&lt;').replace(/"/g,'&quot;') + "<pre>",
+                                pd_controls);
                         }
-
-                        if(curCell&&curCell.output_area&&curCell.output_area.outputs){
-                            var data = JSON.parse(JSON.stringify(content.data));
-                            if(!!data["text/html"])data["text/html"]=html;
-                            function savedData(data){
-                                {#hide the output when displayed with nbviewer on github, use the is-viewer-good class which is only available on github#}
-                                var markup='<style type="text/css">.pd_warning{display:none;}</style>';
-                                markup+='<div class="pd_warning"><em>Hey, there\'s something awesome here! To see it, open this notebook outside GitHub, in a viewer like Jupyter</em></div>';
-                                nodes = $.parseHTML(data["text/html"], null, true);
-                                var s = $(nodes).wrap("<div>").parent().find(".pd_save").not(".pd_save .pd_save")
-                                s.each(function(){
-                                    var found = false;
-                                    if ( $(this).attr("id") ){
-                                        var n = $("#" + $(this).attr("id"));
-                                        if (n.length>0){
-                                            found=true;
-                                            n.each(function(){
-                                                $(this).addClass("is-viewer-good");
-                                            });
-                                            markup+=n.wrap("<div>").parent().html();
-                                        }
-                                    }else{
-                                        $(this).addClass("is-viewer-good");
-                                    }
-                                    if (!found){
-                                        markup+=$(this).parent().html();
-                                    }
-                                });
-                                data["text/html"] = markup;
-                                return data;
-                            }
-                            curCell.output_area.outputs.push({"data": savedData(data),"metadata":content.metadata,"output_type":msg_type});
+                        if (callbacks.options && callbacks.options.nostore_delaysave){
+                            setTimeout(function(){
+                                pixiedust.saveOutputInCell(curCell, content, html, msg_type);
+                            }, 1000);
+                        }else{
+                            pixiedust.saveOutputInCell(curCell, content, html, msg_type);
                         }
                     }
                 }else if (msg_type === "error") {
                     {% if gateway %}
-                    targetNodeUpdated = setHTML(getTargetNode(), content.traceback);
+                    targetNodeUpdated = setHTML(getTargetNode(), content.traceback, pd_controls);
                     {%else%}
                     require(['base/js/utils'], function(utils) {
                         var tb = content.traceback;
@@ -142,7 +120,7 @@
                             if (user_controls.onError){
                                 user_controls.onError(data);
                             }else{
-                                targetNodeUpdated = setHTML(getTargetNode(), "<pre>" + data +"</pre>");
+                                targetNodeUpdated = setHTML(getTargetNode(), "<pre>" + data +"</pre>", pd_controls);
                             }
                         }
                     });
@@ -190,7 +168,7 @@
             if(typeof cellMetadata != "undefined" && cellMetadata.displayParams){
                 addOptions(cellMetadata.displayParams);
                 addOptions({"showchrome":"true"});
-            }else if (curCell && curCell._metadata.pixiedust ){
+            }else if (curCell && curCell._metadata.pixiedust && !pd_controls.avoidMetadata ){
                 ignoreKeys = pd_controls.options.nostore_pixieapp?["handlerId"]:[];
                 addOptions(curCell._metadata.pixiedust.displayParams || {}, pd_controls.useCellMetadata, ignoreKeys);
             }
@@ -226,6 +204,15 @@
                 return '("' + b + '","' + c.substring(1, c.length-1) + '")';
             })
             {% endif %}
+
+            {# update the pd_control with the new command #}
+            var rpattern=/,(.*?)='(.*?)'/g;
+            var newOptions = {};
+            for (var match = rpattern.exec(command); match != null; match = rpattern.exec(command)){
+                newOptions[match[1]] = match[2];
+            }
+            pd_controls.options = newOptions;
+            pd_controls.command = command;
         }
         if(curCell&&curCell.output_area){            
             if ( !user_controls.nostoreMedatadata ){
@@ -248,7 +235,8 @@
                 '</div>'+
                 '<div style="text-align:center">' +
                     (getTargetNode().attr("pd_loading_msg") || "Loading your data. Please wait...") +
-                '</div>'
+                '</div>',
+                pd_controls
             );
         }
         console.log("Running command2",command);
