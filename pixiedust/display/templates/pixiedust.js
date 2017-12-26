@@ -20,9 +20,9 @@ var pixiedust = (function(){
                 targetDivId: id of div that will receive the output html, none means the default output
             }
         #}
-        executeDisplay:function(pd_controls, user_controls){
-            pd_controls = pd_controls || {};
-            user_controls = user_controls || {"options":{}};
+        executeDisplay:function(pd_ctls, user_ctls){
+            var pd_controls = pd_ctls || {};
+            var user_controls = user_ctls || {"options":{}};
             if (user_controls.inFlight){
                 console.log("Ignoring request to execute Display that is already being executed");
                 return;
@@ -66,12 +66,15 @@ var pixiedust = (function(){
                     maximize_modal: (displayOptions.maximize === "true"),
                     custom_class: (displayOptions.customClass || ''),
                     hide_header: (displayOptions.hideHeader === 'true'),
+                    hide_footer: (displayOptions.showFooter === undefined || displayOptions.showFooter !== 'true'),
                     buttons: {
                         OK: {
                             class : "btn-primary btn-ok",
                             click: function() {
                                 var dlg = $("#" + dialogRoot + " > pd_dialog");
                                 try{
+                                    pixiedust.dialogRoot = null;
+                                    $(document).trigger('pd_event', {targetDivId: dialogRoot, entity: pd_controls.options.nostore_pixieapp});
                                     return new Function('global', 'modal_obj', dlg.find("> pd_ok").text().trim())(global, modal_obj);
                                 }catch(e){
                                     console.error(e);
@@ -91,7 +94,10 @@ var pixiedust = (function(){
                     global.modalBodyStyle = $('.pixiedust .modal-body').attr('style');
                     global.modalFooterStyle = $('.pixiedust .modal-footer').attr('style');
                     $('.pixiedust .modal-body').attr('style', global.modalBodyStyle ? global.modalBodyStyle + ';padding:5px 20px !important;' : 'padding:5px 20px !important;');
-                    $('.pixiedust .modal-footer').attr('style', 'display:none !important;');
+                    if (options.hide_footer){
+                        $('.pixiedust .modal-footer').attr('style', 'display:none !important;');
+                    }
+                    $(".pixiedust .modal-footer").find("> button:contains('OK')").attr("pd_options", "toto=true");
                     if (options.hide_header) {
                         global.modalHeaderStyle = $('.pixiedust .modal-header').attr('style');
                         $('.pixiedust .modal-header').attr('style', 'display:none !important;');
@@ -341,6 +347,16 @@ function getAttribute(element, name, defValue, defValueIfKeyAlone){
     return retValue || defValueIfKeyAlone;
 }
 
+function convertToBoolean(value, def){
+    if (value === undefined){
+        return def;
+    }
+    if (typeof(value) == "string"){
+        return value.toLowerCase() == "true";
+    }
+    return value;
+}
+
 function readExecInfo(pd_controls, element, searchParents, fromExecInfo){
     if (searchParents === null || searchParents === undefined ){
         searchParents = !element.hasAttribute("pd_stop_propagation");
@@ -377,7 +393,11 @@ function readExecInfo(pd_controls, element, searchParents, fromExecInfo){
             console.log("Error parsing pd_options, invalid json", e);
         }
     })
-    execInfo.options.nostore_figureOnly = true;
+    if (convertToBoolean(execInfo.options.nostore_figureOnly, true)){
+        execInfo.options.nostore_figureOnly = true;
+    }else{
+        delete execInfo.options.nostore_figureOnly;
+    }
     execInfo.options.targetDivId = execInfo.targetDivId = pd_controls.refreshTarget || element.getAttribute("pd_target");
     if (execInfo.options.targetDivId){
         execInfo.options.no_margin=true;
@@ -405,6 +425,7 @@ function readExecInfo(pd_controls, element, searchParents, fromExecInfo){
         if (match){
             doptions.nostore_pixieapp = match[1];
         }
+        doptions.prefix = pd_controls.prefix;
 
         pd_controls.sniffers = pd_controls.sniffers || [];
         pd_controls.sniffers.forEach(function(sniffer){
@@ -445,6 +466,7 @@ function readExecInfo(pd_controls, element, searchParents, fromExecInfo){
             if ( execInfo.pixieapp){
                 var locOptions = execInfo.options;
                 locOptions.cell_id = pd_controls.options.cell_id;
+                locOptions.prefix = pd_controls.prefix;
                 function makePythonStringOrNone(s){
                     return !s?"None":('"""' + s + '"""')
                 }
@@ -457,7 +479,7 @@ function readExecInfo(pd_controls, element, searchParents, fromExecInfo){
                     "\ntrue=True\nfalse=False\nnull=None" +
                     "\nrunPixieApp('" + 
                     execInfo.pixieapp + "', options=" + JSON.stringify(locOptions) 
-                    + ",parent_command=" + makePythonStringOrNone(pd_controls.command)
+                    + ",parent_command=" + makePythonStringOrNone(applyEntity(pd_controls.command, execInfo.entity, execInfo.options))
                     + ",parent_pixieapp=" + makePythonStringOrNone(pd_controls.options.nostore_pixieapp)
                     + ",cell_metadata=" + getCellMetadata()
                     + ")";
@@ -604,7 +626,8 @@ $(document).on("pd_event", function(event, eventInfo){
     targetDivId = eventInfo.targetDivId;
     if (targetDivId){
         eventHandlers = $("pd_event_handler").filter(function(){
-            if (this.getAttribute("pd_origin") == targetDivId){
+            source = this.getAttribute("pd_source");
+            if (source == "*" || source == targetDivId){
                 return true;
             }
             {#Find a parent with pd_target attribute#}
@@ -616,6 +639,9 @@ $(document).on("pd_event", function(event, eventInfo){
             execQueue = runElement(this);
             $.each( execQueue, function(index, value){
                 if (value){
+                    if (value.targetDivId == "pixiedust_dummy"){
+                        value.targetDivId = null;
+                    }
                     {#Inject eventInfo#}
                     if (value.script){
                         value.script = "true=True\nfalse=False\neventInfo="+JSON.stringify(eventInfo) + "\n" + value.script;
