@@ -55,6 +55,17 @@ You can also replace the number with a URL. If you have a CSV file online, acces
   home_df = pixiedust.sampleData("https://openobjectstore.mybluemix.net/misc/milliondollarhomes.csv")     
 
 
+Load data from your local system
+--------------------------------
+
+Loading a CSV from your local file system is equally simple. Drop in the file path, like so:
+
+::
+
+
+  pixiedust.sampleData('file:///Users/bradfordnoble/pixiedust/data/nz.csv')    
+
+
 Other Data Sources
 ------------------
 
