@@ -467,6 +467,9 @@ function readExecInfo(pd_controls, element, searchParents, fromExecInfo){
                 var locOptions = execInfo.options;
                 locOptions.cell_id = pd_controls.options.cell_id;
                 locOptions.prefix = pd_controls.prefix;
+                if (pd_controls.options.nostore_cw){
+                    locOptions.nostore_cw = pd_controls.options.nostore_cw
+                }
                 function makePythonStringOrNone(s){
                     return !s?"None":('"""' + s + '"""')
                 }
