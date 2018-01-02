@@ -13,10 +13,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # -------------------------------------------------------------------------------
-
+import inspect
 import warnings
 from IPython.core.getipython import get_ipython
 from pixiedust.utils.environment import Environment as PD_Environment
+from pixiedust.utils.astParse import get_caller_text
 
 __all__ = ['addDisplayRunListener', 'display']
 
@@ -75,7 +76,7 @@ def display(entity, **kwargs):
         if 'pixiedust_display_callerText' in globals():
             callerText = globals()['pixiedust_display_callerText']
         else:
-            callerText = traceback.extract_stack(limit=2)[0][3]
+            callerText = get_caller_text(inspect.currentframe())
         if callerText is None or callerText == "":
             raise Exception("Unable to get caller text")
 

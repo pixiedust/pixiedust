@@ -12,7 +12,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '1.1.3',
+        VERSION:     '1.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -67,6 +67,13 @@
 <h2>Load a CSV using its URL<a class="headerlink" href="#load-a-csv-using-its-url" title="Permalink to this headline">¶</a></h2>
 <p>You can also replace the number with a URL. If you have a CSV file online, access it by entering the URL in the parentheses, like this:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">home_df</span> <span class="o">=</span> <span class="n">pixiedust</span><span class="o">.</span><span class="n">sampleData</span><span class="p">(</span><span class="s2">&quot;https://openobjectstore.mybluemix.net/misc/milliondollarhomes.csv&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="load-data-from-your-local-system">
+<h2>Load data from your local system<a class="headerlink" href="#load-data-from-your-local-system" title="Permalink to this headline">¶</a></h2>
+<p>Loading a CSV from your local file system is equally simple. Drop in the file path, like so:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">pixiedust</span><span class="o">.</span><span class="n">sampleData</span><span class="p">(</span><span class="s1">&#39;file:///Users/bradfordnoble/pixiedust/data/nz.csv&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
