@@ -41,6 +41,10 @@
   <div class="section" id="id1">
 <h1>1.1.5<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h1>
 <p>Here’s what’s new in Release 1.1.5 (5 January 2018):</p>
+<p><strong>Known issues</strong></p>
+<ul class="simple">
+<li>The minimum requirement for Bokeh is 0.12.9. Older versions will experience interactivity problems with charts rendered using Bokeh in PixieDust–most notably lack of zoom controls.</li>
+</ul>
 <p><strong>Bug fixes</strong></p>
 <ul class="simple">
 <li>PixieDust now properly supports Python’s string format operator: <code class="docutils literal"><span class="pre">%</span></code> (percent symbol). Previously when publishing PixieApps, Python statements using <code class="docutils literal"><span class="pre">%</span></code> to format strings were not properly resolved (<a class="reference external" href="https://github.com/ibm-watson-data-lab/pixiedust/issues/510">#510</a>).</li>
