@@ -15,12 +15,14 @@
 # -------------------------------------------------------------------------------
 from pixiedust.display.app import *
 from pixiedust.apps.gateway import BaseGatewayApp
+from pixiedust.utils import Logger
 from pixiedust.utils.shellAccess import ShellAccess
 from pixiedust.utils.userPreferences import setUserPreference
 from IPython.utils.io import capture_output
 import requests
 
 @PixieApp
+@Logger()
 class ShareChartApp(BaseGatewayApp):
     def setup(self):
         BaseGatewayApp.setup(self)
@@ -78,6 +80,8 @@ class ShareChartApp(BaseGatewayApp):
                             rendererid = value
                 command = self.update_command(command, "nostore_figureOnly", "true")
                 command = self.update_command(command, "chart_share", "true")
+                command = self.update_command(command, "runInDialog", "false")
+                self.debug("Share command: {}".format(command))
                 sys.modules['pixiedust.display'].pixiedust_display_callerText = command
                 for key in ShellAccess:
                     locals()[key] = ShellAccess[key]

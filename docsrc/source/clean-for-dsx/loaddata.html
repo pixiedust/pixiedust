@@ -4,10 +4,10 @@
   <title>
    Load Data with PixieDust
   </title>
-  <meta content="&#xA9;Copyright IBM Corporation 2017" name="copyright"/>
-  <meta content="&#xA9;Copyright IBM Corporation 2017" name="DC.Rights.Owner"/>
-  <meta content="&#xA9; Copyright IBM Corporation 2016, 2017" name="dcterms.rights"/>
-  <meta content="2017-12-19" name="DC.date"/>
+  <meta content="&#xA9;Copyright IBM Corporation 2018" name="copyright"/>
+  <meta content="&#xA9;Copyright IBM Corporation 2018" name="DC.Rights.Owner"/>
+  <meta content="&#xA9; Copyright IBM Corporation 2016, 2017, 2018" name="dcterms.rights"/>
+  <meta content="2018-01-05" name="DC.date"/>
  </head>
  <body>
   <div>
@@ -54,6 +54,15 @@ pixiedust.installPackage("org.apache.commons:commons-csv:0")</pre>
      You can also replace the number with a URL. If you have a CSV file online, access it by entering the URL in the parentheses, like this:
     </p>
     <pre>home_df = pixiedust.sampleData("https://openobjectstore.mybluemix.net/misc/milliondollarhomes.csv")</pre>
+   </div>
+   <div>
+    <h1>
+     Load data from your local system
+    </h1>
+    <p>
+     Loading a CSV from your local file system is equally simple. Drop in the file path, like so:
+    </p>
+    <pre>pixiedust.sampleData('file:///Users/bradfordnoble/pixiedust/data/nz.csv')</pre>
    </div>
    <div>
     <h1>
