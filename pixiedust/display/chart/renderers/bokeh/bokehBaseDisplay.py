@@ -107,11 +107,12 @@ class BokehBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
                 """.format(chartScript=s.replace('</script>', '<\/script>'), chartDiv=d, loadJS=self.getLoadJS(), p=self.getPrefix())
             ).render(messages=self.messages)
 
-        if BokehBaseDisplay.bokeh_version < (0,12,7):
+        minBkVer = (0,12,9)
+        if BokehBaseDisplay.bokeh_version < minBkVer:
             raise Exception("""
                 <div>Incorrect version of Bokeh detected. Expected {0} or greater, got {1}</div>
                 <div>Please upgrade by using the following command: <b>!pip install --user --upgrade bokeh</b></div>
-            """.format((0,12,7), BokehBaseDisplay.bokeh_version))
+            """.format(minBkVer, BokehBaseDisplay.bokeh_version))
         clientHasBokeh = self.options.get("nostore_bokeh", "false") == "true"
         if not clientHasBokeh:          
             output_notebook(hide_banner=True)
