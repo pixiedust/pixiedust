@@ -3,6 +3,10 @@
 
 Here's what's new in Release 1.1.5 (5 January 2018):           
 
+**Known issues**
+
+- The minimum requirement for Bokeh is 0.12.9. Older versions will experience interactivity problems with charts rendered using Bokeh in PixieDust--most notably lack of zoom controls.
+
 **Bug fixes**
 
 - PixieDust now properly supports Python's string format operator: ``%`` (percent symbol). Previously when publishing PixieApps, Python statements using ``%`` to format strings were not properly resolved (`#510 <https://github.com/ibm-watson-data-lab/pixiedust/issues/510>`_).
