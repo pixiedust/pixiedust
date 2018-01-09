@@ -4,7 +4,7 @@ import subprocess
 from bs4 import BeautifulSoup
 
 
-release_date = "2017-12-19"
+release_date = "2018-01-05"
 print ("Generating clean HTML files for IBM DSX docs site...")
 print ("OK with release date of", release_date + "?")
 
@@ -118,9 +118,9 @@ for fn in os.listdir('clean-for-dsx') :
             # Add DSX metadata to <head>
             header = soup.head
             attribs = []
-            attribs.append({"name": "copyright", "content": "&#xA9;Copyright IBM Corporation 2017"})
-            attribs.append({"name": "DC.Rights.Owner", "content": "&#xA9;Copyright IBM Corporation 2017"})
-            attribs.append({"name": "dcterms.rights", "content": "&#xA9; Copyright IBM Corporation 2016, 2017"})
+            attribs.append({"name": "copyright", "content": "&#xA9;Copyright IBM Corporation 2018"})
+            attribs.append({"name": "DC.Rights.Owner", "content": "&#xA9;Copyright IBM Corporation 2018"})
+            attribs.append({"name": "dcterms.rights", "content": "&#xA9; Copyright IBM Corporation 2016, 2017, 2018"})
             # Update with date of last release note entry
             attribs.append({"name": "DC.date", "content": release_date})
             for entry in attribs :
@@ -174,7 +174,8 @@ for fn in os.listdir('clean-for-dsx') :
                 "1-1-1.html" : "PixieDust release notes 1.1.1",
                 "1-1-2.html" : "PixieDust release notes 1.1.2",
                 "1-1-3.html" : "PixieDust release notes 1.1.3",
-                "1-1-4.html" : "PixieDust release notes 1.1.4"
+                "1-1-4.html" : "PixieDust release notes 1.1.4",
+                "1-1-5.html" : "PixieDust release notes 1.1.5"
             }
             if fn in dsxHeadings :
                 soup.body.h1.string = dsxHeadings[fn]
