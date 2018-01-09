@@ -170,6 +170,11 @@ class PixieDustApp(Display):
             args = args[1:] if hasattr(method, "__self__") or args[0] == 'self' else args
         return OrderedDict(zip([a for a in args],[ self.getOptionValue(arg) for arg in args] ) )
 
+    def __getattr__(self, name):
+        if ShellAccess[name] is not None:
+            return ShellAccess[name]
+        raise AttributeError("{} attribute not found".format(name))
+
     def doRender(self, handlerId):
         if self.__class__.__name__ in PixieDustApp.routesByClass:
             defRoute = None
