@@ -606,11 +606,14 @@ function filterNonTargetElements(element){
 
 {#Dynamically add click handler on the pixiedust chrome menus#}
 function processEvent(event){
+    if (event.pd_processed){
+        return;
+    }
     execQueue = runElement(filterNonTargetElements(event.target));
     {#execute#}
     $.each( execQueue, function(index, value){
         if (value){
-            event.stopImmediatePropagation();
+            event.pd_processed = true;
             value.execute();
         }
     });

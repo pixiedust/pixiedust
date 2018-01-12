@@ -47,6 +47,7 @@
             output:function(msg){
                 callbacks.response = true;
                 console.log("msg", msg);
+                {% if not gateway %}
                 if (cellId == ""){
                     if (curCell){
                         curCell.output_area.handle_output.apply(curCell.output_area, arguments);
@@ -56,6 +57,7 @@
                     }
                     return;
                 }
+                {% endif %}
                 var msg_type=msg.header.msg_type;
                 var content = msg.content;
                 var targetNodeUpdated = false;
