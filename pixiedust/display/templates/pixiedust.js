@@ -417,7 +417,7 @@ function readExecInfo(pd_controls, element, searchParents, fromExecInfo){
     }
     execInfo.refresh = execInfo.refresh || (getAttribute(element, "pd_refresh", "false", "true") == 'true');
     execInfo.norefresh = element.hasAttribute("pd_norefresh");
-    execInfo.entity = element.hasAttribute("pd_entity") ? element.getAttribute("pd_entity") || "pixieapp_entity" : null;
+    execInfo.entity = element.hasAttribute("pd_entity") ? resolveScriptMacros(element.getAttribute("pd_entity")) || "pixieapp_entity" : null;
 
     function applyEntity(c, e, doptions){
         {#add pixieapp info #}
