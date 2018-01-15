@@ -107,11 +107,12 @@ class BokehBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
                 """.format(chartScript=s.replace('</script>', '<\/script>'), chartDiv=d, loadJS=self.getLoadJS(), p=self.getPrefix())
             ).render(messages=self.messages)
 
-        if BokehBaseDisplay.bokeh_version < (0,12,7):
+        minBkVer = (0,12,9)
+        if BokehBaseDisplay.bokeh_version < minBkVer:
             raise Exception("""
                 <div>Incorrect version of Bokeh detected. Expected {0} or greater, got {1}</div>
                 <div>Please upgrade by using the following command: <b>!pip install --user --upgrade bokeh</b></div>
-            """.format((0,12,7), BokehBaseDisplay.bokeh_version))
+            """.format(minBkVer, BokehBaseDisplay.bokeh_version))
         clientHasBokeh = self.options.get("nostore_bokeh", "false") == "true"
         if not clientHasBokeh:          
             output_notebook(hide_banner=True)
@@ -147,9 +148,7 @@ class BokehBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
     #  https://github.com/bokeh/bokeh/pull/6928#issuecomment-329040653
     #  https://www.bvbcode.com/code/9xhgwcsf-2674609
     def _load_notebook_html(self, resources=None, hide_banner=False, load_timeout=5000):
-        FINALIZE_JS = 'Bokeh.$("#%s").text("BokehJS is loading...");'
-
-        from bokeh.core.templates import AUTOLOAD_NB_JS, NOTEBOOK_LOAD
+        from bokeh.core.templates import AUTOLOAD_NB_JS
         from bokeh.util.serialization import make_id
         from bokeh.resources import CDN
     
@@ -162,7 +161,7 @@ class BokehBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
             elementid = '' if hide_banner else element_id,
             js_urls  = resources.js_files,
             css_urls = resources.css_files,
-            js_raw   = resources.js_raw + [FINALIZE_JS % element_id],
+            js_raw   = resources.js_raw,
             css_raw  = resources.css_raw_str,
             force    = 1,
             timeout  = load_timeout

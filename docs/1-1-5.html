@@ -5,7 +5,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>1.1.3 &#8212; PixieDust Documentation</title>
+    <title>1.1.5 &#8212; PixieDust Documentation</title>
     <link rel="stylesheet" href="_static/better.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="_static/custom.css" type="text/css" />
@@ -25,8 +25,8 @@
     <link rel="shortcut icon" href="_static/pd_icon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="1.1.4" href="1-1-4.html" />
-    <link rel="prev" title="1.1.2" href="1-1-2.html" />
+    <link rel="next" title="1.1.6" href="1-1-6.html" />
+    <link rel="prev" title="1.1.4" href="1-1-4.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   </head>
   <body>
@@ -40,12 +40,38 @@
           <div class="body" role="main">
             
   <div class="section" id="id1">
-<h1>1.1.3<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h1>
-<p>Here’s what’s new in Release 1.1.3 (1 December 2017):</p>
+<h1>1.1.5<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h1>
+<p>Here’s what’s new in Release 1.1.5 (5 January 2018):</p>
+<p><strong>Known issues</strong></p>
+<ul class="simple">
+<li>The minimum requirement for Bokeh is 0.12.9. Older versions will experience interactivity problems with charts rendered using Bokeh in PixieDust–most notably lack of zoom controls.</li>
+</ul>
+<p><strong>Bug fixes</strong></p>
+<ul class="simple">
+<li>PixieDust now properly supports Python’s string format operator: <code class="docutils literal"><span class="pre">%</span></code> (percent symbol). Previously when publishing PixieApps, Python statements using <code class="docutils literal"><span class="pre">%</span></code> to format strings were not properly resolved (<a class="reference external" href="https://github.com/ibm-watson-data-lab/pixiedust/issues/510">#510</a>).</li>
+</ul>
 <p><strong>Enhancements</strong></p>
 <ul class="simple">
-<li>PixieDust now supports Brunel as an additional chart-rendering option for feature-rich interactive data visualizations (see: <a class="reference external" href="http://brunel.mybluemix.net/docs/">http://brunel.mybluemix.net/docs/</a> for more details). The Brunel renderer for PixieDust supports all charts types: bar, line, scatter, pie, histogram, and maps. Maps, however, support extra visualization options: heatmap, treemap, and chords (<a class="reference external" href="https://github.com/ibm-watson-data-lab/pixiedust/issues/326">#326</a>).</li>
+<li>PixieApps can now render Markdown syntax using the <code class="docutils literal"><span class="pre">&#64;captureOutput</span></code> decorator (introduced in <a class="reference external" href="1-1-4.html">release 1.1.4</a>). When defining PixieApp views, users can choose between HTML or Markdown syntax in order to build apps as quickly and as easily as possible (<a class="reference external" href="https://github.com/ibm-watson-data-lab/pixiedust/pull/542">#542</a>). Example usage for PixieApp Markdown rendering:</li>
 </ul>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pixiedust.display.app</span> <span class="k">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">IPython.display</span> <span class="k">import</span> <span class="n">display_markdown</span>
+
+<span class="nd">@PixieApp</span>
+<span class="k">class</span> <span class="nc">TestMarkdown</span><span class="p">():</span>
+    <span class="nd">@route</span><span class="p">()</span>
+    <span class="nd">@captureOutput</span>
+    <span class="k">def</span> <span class="nf">main_screen</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="n">display_markdown</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2"># Section Header</span>
+<span class="s2">## Second *bullet*</span>
+<span class="s2">1. item1</span>
+<span class="s2">2. item2</span>
+<span class="s2">3. item3</span>
+<span class="s2">            &quot;&quot;&quot;</span><span class="p">,</span> <span class="n">raw</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">TestMarkdown</span><span class="p">()</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre></div>
+</div>
 </div>
 
 
@@ -72,9 +98,9 @@
 <li class="toctree-l2"><a class="reference internal" href="1-1.html">1.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="1-1-1.html">1.1.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="1-1-2.html">1.1.2</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">1.1.3</a></li>
+<li class="toctree-l2"><a class="reference internal" href="1-1-3.html">1.1.3</a></li>
 <li class="toctree-l2"><a class="reference internal" href="1-1-4.html">1.1.4</a></li>
-<li class="toctree-l2"><a class="reference internal" href="1-1-5.html">1.1.5</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">1.1.5</a></li>
 <li class="toctree-l2"><a class="reference internal" href="1-1-6.html">1.1.6</a></li>
 </ul>
 </li>
