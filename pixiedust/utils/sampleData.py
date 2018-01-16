@@ -15,6 +15,7 @@
 # -------------------------------------------------------------------------------
 from six import iteritems
 import pixiedust
+import ast
 from pixiedust.utils.shellAccess import ShellAccess
 from pixiedust.utils.template import PixiedustTemplateEnvironment
 from pixiedust.utils.environment import Environment,scalaGateway
@@ -165,7 +166,18 @@ class SampleData(object):
                 return ShellAccess.spark.read.json(dataRDD)
         else:
             print("Loading file using 'pandas'")
-            data = json.loads(res)
+            def load_json(text, stop = False):
+                try:
+                    return json.loads(text)
+                except json.JSONDecodeError:
+                    try:
+                        return ast.literal_eval(text)
+                    except SyntaxError:
+                        if stop:
+                            raise
+                        return load_json("[" + ",".join(text.strip().split("\n")) + "]", True)
+
+            data = load_json(res)
             df = json_normalize(data)
             return df
 
@@ -212,7 +224,7 @@ class Downloader(object):
             print("Downloading '{0}' from {1}".format(displayName, url))
             with tempfile.NamedTemporaryFile(delete=False) as f:
                 bytesDownloaded = self.write(urlopen(req), f)
-                path = f.name            
+                path = f.name   
             if url.endswith(".zip"):
                 #unzip first and get the first file in it
                 print("Extracting first item in zip file...")
@@ -226,7 +238,15 @@ class Downloader(object):
                         print("File extracted: {}".format(first_file.name))
                         shutil.copyfileobj( first_file, zf)
                     path = zf.name
-                
+            elif url.endswith(".gz"):
+                import gzip
+                import shutil
+                with tempfile.NamedTemporaryFile(delete=False) as zf:
+                    with gzip.open(path, 'rb') as first_file:
+                        print("File extracted: {}".format(first_file.name))
+                        shutil.copyfileobj( first_file, zf)
+                    path = zf.name
+
             self.dataDef["path"] = path
             self.dataDef["transient"] = True
             global dataDefs
