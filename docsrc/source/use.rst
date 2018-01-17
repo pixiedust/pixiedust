@@ -13,7 +13,17 @@ PixieDust brings you the power to create compelling visuals fast, no coding nece
     | https://github.com/ibm-cds-labs/pixiedust/raw/master/notebook/DSX/Welcome%20to%20PixieDust.ipynb
       
 
-PixieDust can save you tons of work. <!-- START EXCLUDE --> If you're working locally, start by `installing PixieDust <install.html>`_ and check out some of its great features. <!-- END EXCLUDE -->
+PixieDust can save you tons of work. See what it can do for your notebook.
+
+.. raw:: html
+
+    <!-- START EXCLUDE -->
+
+If you're working locally, start by `installing PixieDust <install.html>`_ and check out some of its great features.
+
+.. raw:: html
+
+   <!-- END EXCLUDE -->
 
 
 
