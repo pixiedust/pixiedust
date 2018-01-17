@@ -173,6 +173,10 @@ class PixieDustApp(Display):
     def __getattr__(self, name):
         if ShellAccess[name] is not None:
             return ShellAccess[name]
+        if name != "__pd_gateway_namespace__" and hasattr(self, "__pd_gateway_namespace__"):
+            name = self.__pd_gateway_namespace__ + name
+            if ShellAccess[name] is not None:
+                return ShellAccess[name]
         raise AttributeError("{} attribute not found".format(name))
 
     def doRender(self, handlerId):
