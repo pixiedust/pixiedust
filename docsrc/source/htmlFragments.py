@@ -92,6 +92,8 @@ for fn in os.listdir('clean-for-dsx') :
 
             # Remove all tag attributes except for src and href; except for <span> edge-case for code blocks
             for tag in soup.findAll(True) :
+                if tag.get("style") :
+                    del tag["style"]
                 if tag.get("class") and ("docutils" in tag.get("class") and "literal" in tag.get("class")) :
                     tag.name = "code"
                     tag.attrs = {}
