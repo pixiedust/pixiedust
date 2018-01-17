@@ -18,6 +18,10 @@ You get a list of the data sets included with PixieDust.
 
 
 .. image:: _images/sample_data_sets.png
+   :height: 522 px
+   :width: 1384 px
+   :scale: 50 %
+   :alt: Screenshot of PixieDust's sampleData() method.
 
 .. raw:: html
 
