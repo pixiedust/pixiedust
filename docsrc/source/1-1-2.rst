@@ -1,7 +1,7 @@
 1.1.2
 =====
 
-Here's what's new in Release 1.1.2 (8 November 2017):        
+Here's what's new in Release 1.1.2 (8 November 2017):         
 
 **Bug fixes**
 
