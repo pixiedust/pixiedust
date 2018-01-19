@@ -27,6 +27,13 @@ myLogger = pixiedust.getLogger(__name__)
 class GoogleBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
     pass
 
+    def get_options_dialog_pixieapp(self):
+        """
+        Return the fully qualified path to a PixieApp used to display the dialog options
+        PixieApp must inherit from pixiedust.display.chart.options.baseOptions.BaseOptions
+        """
+        return "pixiedust.display.chart.renderers.google.googleMapOptions.GoogleMapOptions"
+
     def getChartOptions(self):
         return [
             {
@@ -41,18 +48,18 @@ class GoogleBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
             },
             { 'name': 'mapDisplayMode',
               'description': 'Display Mode',
-			  'metadata': {
-					'type': "dropdown",
-					'values': ["region", "markers", "text"],
-					'default': "region"
-				}
+              'metadata': {
+                    'type': "dropdown",
+                    'values': ["region", "markers", "text"],
+                    'default': "region"
+                }
             },
             { 'name': 'mapRegion',
               'description': 'Region',
-			  'metadata': {
-					'type': "dropdown",
-					'values': ["world", "US"],
-					'default': "world"
+              'metadata': {
+                    'type': "dropdown",
+                    'values': ["world", "US"],
+                    'default': "world"
               }
             }
         ]

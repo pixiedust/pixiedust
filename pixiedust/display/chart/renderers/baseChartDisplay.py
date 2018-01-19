@@ -359,20 +359,7 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
 
     @cache(fieldName="fieldNamesAndTypes")
     def getFieldNamesAndTypes(self, expandNested=True, sorted=False):
-        fieldNames = self.getFieldNames(True)
-        fieldNamesAndTypes = []
-        for fieldName in fieldNames:
-            fieldType = "unknown/unsupported"
-            if self.dataHandler.isNumericField(fieldName):
-                fieldType = "numeric"
-            elif self.dataHandler.isDateField(fieldName):
-                fieldType = "date/time"
-            elif self.dataHandler.isStringField(fieldName):
-                fieldType = "string"
-            fieldNamesAndTypes.append((fieldName, fieldType))
-        if sorted:
-            fieldNamesAndTypes.sort(key=lambda x: x[0])
-        return fieldNamesAndTypes
+        return self.dataHandler.getFieldNamesAndTypes(expandNested, sorted)
 
     def doRender(self, handlerId):
         self.handlerId = handlerId
