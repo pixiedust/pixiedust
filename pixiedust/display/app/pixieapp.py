@@ -166,9 +166,22 @@ class PixieDustApp(Display):
             method = method.org_fn
         argspec = inspect.getargspec(method)
         args = argspec.args
-        if len(args)>0:
+        if len(args) > 0:
             args = args[1:] if hasattr(method, "__self__") or args[0] == 'self' else args
-        return OrderedDict(zip([a for a in args],[ self.getOptionValue(arg) for arg in args] ) )
+        return OrderedDict(zip([a for a in args], [self.getOptionValue(arg) for arg in args]))
+
+    def invoke_route(self, class_method, **kwargs):
+        "Programmatically invoke a route from arguments"
+        try:
+            injectedArgs = kwargs
+            retValue = class_method(*list(injectedArgs.values()))
+        finally:
+            if isinstance(retValue, templateArgs.TemplateRetValue):
+                injectedArgs.update(retValue.locals)
+                retValue = retValue.ret_value
+            if isinstance(retValue, string_types):
+                retValue = self.renderTemplateString(retValue, **injectedArgs)
+        return retValue
 
     def __getattr__(self, name):
         if ShellAccess[name] is not None:
@@ -204,7 +217,7 @@ class PixieDustApp(Display):
                     injectedArgs.update(retValue.locals)
                     retValue = retValue.ret_value
                 if isinstance(retValue, string_types):
-                    self._addHTMLTemplateString(retValue, **injectedArgs )
+                    self._addHTMLTemplateString(retValue, **injectedArgs)
                 elif isinstance(retValue, dict):
                     body = self.renderTemplateString(retValue.get("body", ""))
                     jsOnLoad = self.renderTemplateString(retValue.get("jsOnLoad", ""))
