@@ -92,6 +92,8 @@ for fn in os.listdir('clean-for-dsx') :
 
             # Remove all tag attributes except for src and href; except for <span> edge-case for code blocks
             for tag in soup.findAll(True) :
+                if tag.get("style") :
+                    del tag["style"]
                 if tag.get("class") and ("docutils" in tag.get("class") and "literal" in tag.get("class")) :
                     tag.name = "code"
                     tag.attrs = {}
@@ -106,7 +108,7 @@ for fn in os.listdir('clean-for-dsx') :
                     continue
                 if tag is not None and (tag.get("src") or tag.get("href")) :
                     if tag.name == "img" :
-                        prePath = "https://raw.githubusercontent.com/ibm-cds-labs/pixiedust/master/docs/"
+                        prePath = "https://raw.githubusercontent.com/ibm-watson-data-lab/pixiedust/master/docs/"
                         fixedURL = prePath + tag.get("src")
                         tag["src"] = fixedURL
                     if tag.get("class") :
