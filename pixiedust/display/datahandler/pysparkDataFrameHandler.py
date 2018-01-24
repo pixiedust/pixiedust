@@ -33,22 +33,6 @@ class PySparkDataFrameDataHandler(BaseDataHandler):
     def getFieldNames(self, expandNested=False):
         return dataFrameMisc.getFieldNames(self.entity, expandNested)
 
-    def getFieldNamesAndTypes(self, expandNested=True, sorted=False):
-        fieldNames = self.getFieldNames(expandNested)
-        fieldNamesAndTypes = []
-        for fieldName in fieldNames:
-            fieldType = "unknown/unsupported"
-            if self.isNumericField(fieldName):
-                fieldType = "numeric"
-            elif self.isDateField(fieldName):
-                fieldType = "date/time"
-            elif self.isStringField(fieldName):
-                fieldType = "string"
-            fieldNamesAndTypes.append((fieldName, fieldType))
-        if sorted:
-            fieldNamesAndTypes.sort(key=lambda x: x[0])
-        return fieldNamesAndTypes
-
     def isNumericField(self, fieldName):
         return dataFrameMisc.isNumericField(self.entity, fieldName)
 

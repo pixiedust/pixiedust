@@ -25,8 +25,6 @@ myLogger = pixiedust.getLogger(__name__)
 
 @PixiedustRenderer(rendererId="mapbox")
 class MapBoxBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
-    pass
-
     def get_options_dialog_pixieapp(self):
             """
             Return the fully qualified path to a PixieApp used to display the dialog options

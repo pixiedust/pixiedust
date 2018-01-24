@@ -22,13 +22,10 @@ from pixiedust.display.datahandler import getDataHandler
 from pixiedust.display.chart.renderers import PixiedustRenderer
 from pixiedust.utils.shellAccess import ShellAccess
 from IPython.core.getipython import get_ipython
-from pixiedust.utils.template import PixiedustTemplateEnvironment
 
 @PixieApp
 @Logger()
 class BaseOptions(with_metaclass(ABCMeta)):
-    tmpenv = PixiedustTemplateEnvironment()
-
     def setup(self):
         self.parsed_command = parse_function_call(self.parent_command) #pylint: disable=E1101,W0201
         self.parent_entity = self.parsed_command['args'][0] if len(self.parsed_command['args'])>0 else None
@@ -96,6 +93,3 @@ class BaseOptions(with_metaclass(ABCMeta)):
     def get_new_options(self):
         "return a dictionary of the new options selected by the user"
         pass
-
-    def getTemplate(self, templateName, **kwargs):
-        return self.tmpenv.getTemplate(templateName).render(self._getTemplateArgs(**kwargs))
