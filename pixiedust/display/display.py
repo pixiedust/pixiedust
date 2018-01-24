@@ -250,6 +250,7 @@ class Display(with_metaclass(ABCMeta)):
     def _getTemplateArgs(self, **kwargs):
         menuInfo = kwargs.get("menuInfo", None)
         command = self._genDisplayScript(menuInfo=menuInfo)
+        parsed_command = parse_function_call(command)
         args = {
             "this": self, 
             "entity": self.entity, 
@@ -259,7 +260,8 @@ class Display(with_metaclass(ABCMeta)):
             "pd_controls": json.dumps({
                 "prefix": self.getPrefix(),
                 "command": command,
-                "options": parse_function_call(command)['kwargs'],
+                "entity": parsed_command['args'],
+                "options": parsed_command['kwargs'],
                 "sniffers": [cb() for cb in CellHandshake.snifferCallbacks],
                 "avoidMetadata": menuInfo is not None
             })
@@ -479,7 +481,11 @@ class CellHandshake(Display):
     def render(self):
         self._checkPixieDustJS()
         ipythonDisplay(HTML(
-            self.renderTemplate("handshake.html", org_params = ','.join(list(self.options.keys())))
+            self.renderTemplate(
+                "handshake.html", 
+                org_params = ','.join(list(self.options.keys())),
+                pixiedust_js = self.renderTemplate("pixiedust.js")
+            )
         ))
         
     def doRender(self, handlerId):
