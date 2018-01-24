@@ -104,9 +104,22 @@
                             }else{
                                 targetNodeUpdated = setHTML(getTargetNode(), html, pd_controls);
                             }
-                            if (curCell && content.metadata && content.metadata.pixieapp_metadata){
-                                curCell._metadata.pixiedust.pixieapp = content.metadata.pixieapp_metadata;
-                            }
+                            if (content.metadata && content.metadata.pixieapp_metadata){
+                                {% if gateway %}
+                                var groups = []
+                                for (var key in content.metadata.pixieapp_metadata) {
+                                    groups.push(key + "=" + content.metadata.pixieapp_metadata[key]);
+                                }
+                                var query = groups.join("&")
+                                if (query){
+                                    window.history.pushState("PixieApp", "", "?" + query);
+                                }
+                                {%else%}
+                                if (curCell){
+                                    curCell._metadata.pixiedust.pixieapp = content.metadata.pixieapp_metadata;
+                                }
+                                {%endif%}
+                            }                            
                         }catch(e){
                             console.log("Invalid html output", e, html);
                             targetNodeUpdated = setHTML(getTargetNode(),  "Invalid html output: " + e.message + "<pre>" 

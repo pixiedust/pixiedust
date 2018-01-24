@@ -149,9 +149,14 @@ class PixieDustApp(Display):
         super(PixieDustApp, self).__init__(options, entity, dataHandler)
         if not hasattr(self, "metadata"):
             self.metadata = None
+            self.empty_metadata = False
 
     def append_metadata(self, value):
-        self.metadata = self.metadata or {}
+        if self.empty_metadata:
+            self.metadata = {}
+            self.empty_metadata = False
+        else:
+            self.metadata = self.metadata or {}
         self.metadata.update(value)
 
     def getOptionValue(self, optionName):
@@ -213,7 +218,7 @@ class PixieDustApp(Display):
 
     def hook_msg(self, msg):
         msg['content']['metadata']['pixieapp_metadata'] = self.metadata
-        self.metadata = None
+        self.empty_metadata = True
         return msg
 
     def render(self):
