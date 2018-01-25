@@ -17,7 +17,6 @@
 from pixiedust.display.app import *
 from pixiedust.utils import Logger
 from .baseOptions import BaseOptions
-from six import iteritems
 
 @Logger()
 class ChartOptionTitle(object):
@@ -82,7 +81,7 @@ class OptionsShell(BaseOptions, ChartOptionTitle):
     def main_screen(self):
         self.fieldNamesAndTypes = self.get_field_names_and_types(True, True)
         self.fieldNames = self.get_field_names(True)
-        self._addHTMLTemplate("optionsshell.html", iteritems=iteritems)
+        self._addHTMLTemplate("optionsshell.html")
 
     def get_new_options(self):
         return self.new_options

@@ -34,7 +34,7 @@
 <div class="container col-sm-12">
   {% for opts in this.chart_options %}
   <div pd_widget="{{opts['widget']}}" class="pd-chart-option {% if opts['classname'] %}{{opts['classname']}}{% endif %}"
-    pd_options="{% for k,v in iteritems(opts) %}{{k}}={% if v is callable %}{{v()}}{% else %}{{v}}{% endif %}{% if not loop.last %};{% endif %}{% endfor %}"> </div>
+    pd_options="{% for k,v in opts|iteritems %}{{k}}={% if v is callable %}{{v()}}{% else %}{{v}}{% endif %}{% if not loop.last %};{% endif %}{% endfor %}"> </div>
   {% endfor %}
 </div>
 </form>
