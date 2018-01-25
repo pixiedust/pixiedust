@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------------
-# Copyright IBM Corp. 2017
+# Copyright IBM Corp. 2018
 # 
 # Licensed under the Apache License, Version 2.0 (the 'License');
 # you may not use this file except in compliance with the License.
@@ -213,8 +213,7 @@ class Display(with_metaclass(ABCMeta)):
         Return the fully qualified path to a PixieApp used to display the dialog options
         PixieApp must inherit from pixiedust.display.chart.options.baseOptions.BaseOptions
         """
-        # return "pixiedust.display.chart.options.testOptions.TestOptions"
-        return None
+        return "pixiedust.display.chart.options.defaultOptions.DefaultOptions"
 
     def getDPI(self):
         return int(self.options.get("nostore_dpi", 96))

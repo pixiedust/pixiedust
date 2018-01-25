@@ -226,6 +226,14 @@ pd_script,pd_dialog,pd_options,pd_target{
     height: 100%;
     position: relative;
 }
+.pixiedust-app.pixiedust-default-dialog .modal-dialog {
+  max-width: 1000px !important;
+  min-width: 600px !important;
+  width: 50% !important;
+}
+.pixiedust-app.pixiedust-default-dialog .modal-dialog .pixiedust {
+  height: auto !important;
+}
 .pixiedust-app.pixiedust-maximize.modal {
     border: 0 none;
     margin: 0;

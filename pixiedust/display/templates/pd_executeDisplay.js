@@ -20,7 +20,7 @@
         if (targetNode.attr("pixiedust") && pdCtl){
             targetNode.attr("pixiedust", JSON.stringify(pdCtl));
         }
-        targetNode.html("<div pd_stop_propagation>" + contents + "</div>");
+        targetNode.html("<div pd_stop_propagation style='height:100%;'>" + contents + "</div>");
         if (pd_elements.length > 0 ){
             targetNode.append(pd_elements);
         }
