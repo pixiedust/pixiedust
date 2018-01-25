@@ -112,7 +112,20 @@
                                 }
                                 var query = groups.join("&")
                                 if (query){
-                                    window.history.pushState("PixieApp", "", "?" + query);
+                                    var queryPos = window.location.href.indexOf("?");
+                                    newUrl = "?" + query;
+                                    if (queryPos > 0){
+                                        var existingQuery = window.location.href.substring(queryPos+1);
+                                        var args = existingQuery.split("&");
+                                        {#Keep only the token argument#}
+                                        for (i in args){
+                                            var parts = args[i].split("=");
+                                            if (parts.length > 1 && parts[0] == "token"){
+                                                newUrl += "&token=" + parts[1];
+                                            }
+                                        }
+                                    }
+                                    window.history.pushState("PixieApp", "", newUrl);
                                 }
                                 {%else%}
                                 if (curCell){
