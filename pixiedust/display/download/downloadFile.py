@@ -21,6 +21,17 @@ import time
 DELIMITER="@#$DELIMITER@#$"
 
 class DownloadFileHandler(Display):
+
+    # modify a string so it suitable to be exported to a CSV file
+    def csvify(self, s):
+        # replace LF/CR with space and " with ""
+        s = s.replace("\n"," ").replace("\r"," ").replace('"','""')
+        # if the string contains a , or "
+        if ',' in s or '"' in s:
+            # excape the whole string in double quotes
+            s = '"' + s + '"'
+        return s
+
     def doRender(self, handlerId):
         entity=self.entity
         self.addProfilingTime = False
@@ -95,7 +106,7 @@ class DownloadFileHandler(Display):
             print(DELIMITER)
             print(reduce(lambda s,f: s + ("," if s!="" else "") + f.name, schema.fields,""))                
             for row in entity.take(doDownloadCount):
-                print(reduce(lambda s,f: s+("," if s!="" else "")+self._safeString(row[f.name]), schema.fields, ""))
+                print(reduce(lambda s,f: s+("," if s!="" else "")+self.csvify(self._safeString(row[f.name])), schema.fields, ""))
             print(DELIMITER)
         elif doDownload == "json":
             print(DELIMITER)
