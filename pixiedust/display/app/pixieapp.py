@@ -317,6 +317,15 @@ def PixieApp(cls):
     def decoName(cls, suffix):
         return "{}_{}_{}".format(cls.__module__, cls.__name__, suffix)
 
+    def run_method_with_super_classes(cls, instance, method_name):
+        fctSet = set()
+        for cl in reversed(inspect.getmro(cls)):
+            if hasattr(cl, 'setup'):
+                f = getattr(cl, 'setup')
+                if f not in fctSet and callable(f):
+                    fctSet.add(f)
+                    f(instance)
+
     def run(self, entity=None, **kwargs):
         for key,value in iteritems(kwargs):
             setattr(self, key, value)
@@ -328,8 +337,7 @@ def PixieApp(cls):
                 var = key
 
         if not hasattr(self, "pd_initialized"):
-            if hasattr(self, "setup"):
-                self.setup()
+            run_method_with_super_classes(cls, self, "setup")
             self.nostore_params = True
             self.pd_initialized = True
 

@@ -243,27 +243,43 @@ class Display(with_metaclass(ABCMeta)):
         else:
             return min(cappedheight, float(self.getPreferredOutputWidth() * self.getHeightWidthRatio()))
 
+    def get_pd_controls(self, **kwargs):
+        menuInfo = kwargs.pop("menuInfo", None)
+        black_list = kwargs.pop("black_list", [])
+        command = kwargs.pop("command", self._genDisplayScript(menuInfo=menuInfo))
+        parsed_command = parse_function_call(command)
+        controls = {
+            "prefix": kwargs.pop("prefix", self.getPrefix()),
+            "command": command,
+            "entity": parsed_command['args'],
+            "options": parsed_command['kwargs'],
+            "sniffers": [cb() for cb in CellHandshake.snifferCallbacks],
+            "avoidMetadata": menuInfo is not None
+        }
+        for key,value in iteritems(kwargs):
+            if key in controls and isinstance(controls[key], dict) and isinstance(value, dict):
+                self.debug("Updating")
+                controls[key].update(value)
+            else:
+                self.debug("Not UPdateing")
+                controls[key] = value
 
-
+        for key in black_list:
+            controls["options"].pop(key, None)
+        return controls
 
     def _getTemplateArgs(self, **kwargs):
-        menuInfo = kwargs.get("menuInfo", None)
-        command = self._genDisplayScript(menuInfo=menuInfo)
-        parsed_command = parse_function_call(command)
         args = {
             "this": self, 
             "entity": self.entity, 
             "prefix": self.getPrefix(),
             "module": self.__module__,
             "gateway": self.options.get("gateway", None),
-            "pd_controls": json.dumps({
-                "prefix": self.getPrefix(),
-                "command": command,
-                "entity": parsed_command['args'],
-                "options": parsed_command['kwargs'],
-                "sniffers": [cb() for cb in CellHandshake.snifferCallbacks],
-                "avoidMetadata": menuInfo is not None
-            })
+            "pd_controls": json.dumps(
+                self.get_pd_controls(
+                    menuInfo=kwargs.get("menuInfo", None)
+                )
+            )
         }
 
         args.update(self.extraTemplateArgs)
