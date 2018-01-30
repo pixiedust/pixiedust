@@ -53,26 +53,22 @@ class BaseOptions(with_metaclass(ABCMeta)):
         }
 
     def on_ok(self):
-        try:
-            #reconstruct the parent command with the new options
-            for key in ShellAccess:
-                locals()[key] = ShellAccess[key]
-            entity = eval(self.parsed_command['args'][0], globals(), locals())
-            run_options = self.run_options
-            #update with the new options
-            run_options.update(self.get_new_options())
-
-            command = "{}({},{})".format(
-                self.parsed_command['func'],
-                self.parsed_command['args'][0],
-                ",".join(
-                    ["{}='{}'".format(k, v) for k, v in iteritems(run_options)]
-                )
+        run_options = self.run_options
+        #update with the new options
+        run_options.update(self.get_new_options())
+        command = "{}({},{})".format(
+            self.parsed_command['func'],
+            self.parsed_command['args'][0],
+            ",".join(
+                ["{}='{}'".format(k, v) for k, v in iteritems(run_options)]
             )
-            sys.modules['pixiedust.display'].pixiedust_display_callerText = command
-            display(entity, **run_options)
-        finally:
-            del sys.modules['pixiedust.display'].pixiedust_display_callerText
+        )
+        js = self.env.from_string("""
+            pixiedust.executeDisplay(
+                {{this.get_pd_controls(command=command, avoidMetadata=True, options=run_options, black_list=['nostore_figureOnly']) | tojson}}
+            );
+        """).render(this=self, run_options=run_options, command=command)
+        return self._addJavascript(js)
 
     @property
     def run_options(self):

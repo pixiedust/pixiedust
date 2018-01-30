@@ -1,5 +1,3 @@
-{%import "executePythonDisplayMacro.js" as display with context%}
-{%import "commonExecuteCallback.js" as commons with context%}
 var pixiedust = (function(){
     return {
         getCell: function(cell_id){

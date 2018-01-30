@@ -1,0 +1,10 @@
+<div class="form-horizontal">
+    <div class="form-group">
+        <div class="radio" pd_script="self.security='none'">
+            <label><input type="radio" name="security" {%if this.security=='none'%}checked{%endif%}>No Security</label>
+        </div>
+        <div class="radio" pd_script="self.security='token'">
+            <label><input type="radio" name="security" {%if this.security=='token'%}checked{%endif%}>Generate a Token (the security token will be added as a parameter to the URL)</label>
+        </div>
+    </div>
+</div>
