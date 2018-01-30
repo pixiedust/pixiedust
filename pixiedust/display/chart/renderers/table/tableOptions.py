@@ -34,14 +34,6 @@ class TableOptions(OptionsShell, KeyValueSelector, AggregationSelector, RowCount
             "widget": "pdKeyValueSelector"
         })
 
-        if self.aggregation_supported():
-            self.chart_options.append({
-                "optid": "aggregation",
-                "classname": "field-width-50 no_loading_msg",
-                "aggregation": lambda: self.options.get("aggregation") or "",
-                "widget": "pdAggregationSelector"
-            })
-
         self.chart_options.append({
             "optid": "rowCount",
             "classname": "field-width-50 no_loading_msg",
