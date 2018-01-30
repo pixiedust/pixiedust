@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------------
-# Copyright IBM Corp. 2017
+# Copyright IBM Corp. 2018
 # 
 # Licensed under the Apache License, Version 2.0 (the 'License');
 # you may not use this file except in compliance with the License.
@@ -17,8 +17,9 @@ from abc import abstractmethod, ABCMeta
 from six import iteritems
 from pixiedust.display.app import *
 from pixiedust.utils.astParse import parse_function_call
-from pixiedust.utils import Logger
+from pixiedust.utils import cache, Logger
 from pixiedust.display.datahandler import getDataHandler
+from pixiedust.display.chart.renderers import PixiedustRenderer
 from pixiedust.utils.shellAccess import ShellAccess
 from IPython.core.getipython import get_ipython
 
@@ -34,6 +35,14 @@ class BaseOptions(with_metaclass(ABCMeta)):
             except Exception as exc:
                 self.exception(exc)
                 self.entity = None
+
+    @cache(fieldName="fieldNames")
+    def get_field_names(self, expandNested=True):
+        return self.data_handler.getFieldNames(expandNested)
+
+    @cache(fieldName="fieldNamesAndTypes")
+    def get_field_names_and_types(self, expandNested=True, sorted=False):
+        return self.data_handler.getFieldNamesAndTypes(expandNested, sorted)
 
     def get_custom_options(self):
         "Options for this base dialog"
@@ -75,6 +84,10 @@ class BaseOptions(with_metaclass(ABCMeta)):
         return getDataHandler(
             self.parsed_command['kwargs'], self.parent_entity
         ) if self.parent_entity is not None else None
+
+    @property
+    def get_renderer(self):
+        return PixiedustRenderer.getRenderer(self.parsed_command['kwargs'], self.parent_entity, False) if self.parent_entity is not None else None
 
     @abstractmethod
     def get_new_options(self):

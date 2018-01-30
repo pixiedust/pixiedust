@@ -14,4 +14,6 @@
 # limitations under the License.
 # -------------------------------------------------------------------------------
 
-from .baseOptions import BaseOptions
+from .KeyValueSelector import KeyValueSelector
+from .AggregationSelector import AggregationSelector
+from .RowCount import RowCount
