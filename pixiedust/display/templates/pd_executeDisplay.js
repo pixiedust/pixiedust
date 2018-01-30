@@ -2,6 +2,14 @@
     function getTargetNode(){
         return $('#' + ($targetDivId || ("wrapperHTML"+ pd_prefix)));
     }
+    function checkRootInit(){
+        node = getTargetNode();
+        var retValue = node.is("[pd_init]");
+        if (retValue){
+            node.removeAttr("pd_init");
+        }
+        return retValue;
+    }
     function setHTML(targetNode, contents, pdCtl = null){
         var pd_elements = []
         targetNode.children().each(function(){
@@ -45,6 +53,10 @@
         },
         iopub:{
             output:function(msg){
+                if (curCell && !$targetDivId && getTargetNode().length == 0){
+                    curCell.output_area.handle_output.apply(curCell.output_area, arguments);
+                    return;
+                }
                 callbacks.response = true;
                 console.log("msg", msg);
                 {% if not gateway %}
@@ -92,6 +104,35 @@
                             }else{
                                 targetNodeUpdated = setHTML(getTargetNode(), html, pd_controls);
                             }
+                            if (content.metadata && content.metadata.pixieapp_metadata){
+                                {% if gateway %}
+                                var groups = []
+                                for (var key in content.metadata.pixieapp_metadata) {
+                                    groups.push(key + "=" + content.metadata.pixieapp_metadata[key]);
+                                }
+                                var query = groups.join("&")
+                                if (query){
+                                    var queryPos = window.location.href.indexOf("?");
+                                    newUrl = "?" + query;
+                                    if (queryPos > 0){
+                                        var existingQuery = window.location.href.substring(queryPos+1);
+                                        var args = existingQuery.split("&");
+                                        {#Keep only the token argument#}
+                                        for (i in args){
+                                            var parts = args[i].split("=");
+                                            if (parts.length > 1 && parts[0] == "token"){
+                                                newUrl += "&token=" + parts[1];
+                                            }
+                                        }
+                                    }
+                                    window.history.pushState("PixieApp", "", newUrl);
+                                }
+                                {%else%}
+                                if (curCell){
+                                    curCell._metadata.pixiedust.pixieapp = content.metadata.pixieapp_metadata;
+                                }
+                                {%endif%}
+                            }                            
                         }catch(e){
                             console.log("Invalid html output", e, html);
                             targetNodeUpdated = setHTML(getTargetNode(),  "Invalid html output: " + e.message + "<pre>" 
@@ -216,7 +257,7 @@
             pd_controls.options = newOptions;
             pd_controls.command = command;
         }
-        if(curCell&&curCell.output_area){            
+        if(curCell&&curCell.output_area){ 
             if ( !user_controls.nostoreMedatadata ){
                 curCell._metadata.pixiedust = curCell._metadata.pixiedust || {}
                 curCell._metadata.pixiedust.displayParams=displayParams
@@ -241,7 +282,6 @@
                 pd_controls
             );
         }
-        console.log("Running command2",command);
         {% if gateway %}
         $.post({
             url: "/executeCode/" + pd_controls.options.gateway,
@@ -258,7 +298,17 @@
             }
         });
         {%else%}
+        if (curCell && checkRootInit() && curCell._metadata.pixiedust && curCell._metadata.pixiedust.pixieapp){
+            pd_controls.entity = pd_controls.entity || []
+            if (pd_controls.entity.length == 1 && (pd_controls.options.nostore_pixieapp == pd_controls.entity[0])){
+                console.log("Initializing pixieapp metadata");
+                command = pd_controls.options.nostore_pixieapp + ".append_metadata(" + 
+                JSON.stringify(curCell._metadata.pixiedust.pixieapp) + ")\n" + command
+            }
+        }
         IPython.notebook.session.kernel.execute(command, callbacks, {silent:true,store_history:false,stop_on_error:true});
         {%endif%}
+
+        console.log("Running command2:\n",command);
     }
 }()

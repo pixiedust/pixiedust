@@ -1,9 +1,11 @@
 <div class="form-group">
-    <label for="kernel{{prefix}}" class="<control-label></control-label>">Select a kernel to publish into:</label>
-    <div id="kernel{{prefix}}" pd_render_onload pd_options="kernel_list=true">
-        <select class="form-control">
-            {%for kernel in this.kernels %}
-                <option {%if loop.first%}selected{%endif%} value="{{kernel|escape}}">{{kernel|escape}}</option>
+    <label for="kernel{{prefix}}" class="control-label">Select a kernel to publish into:</label>
+    <div id="kernel{{prefix}}">
+        <select id="sel_kernel{{prefix}}" class="form-control">
+            {%for kernel, default_value in this.kernels %}
+                <option {%if default_value%}selected{%endif%} value="{{kernel|escape}}">
+                    {{kernel|escape}}
+                </option>
             {%endfor%}
         </select>
     </div>

@@ -23,12 +23,13 @@ import base64
 import inspect
 import sys
 from functools import partial
-from six import string_types
 from IPython.utils.io import capture_output
 
 def route(**kw):
     def route_dec(fn):
         fn.pixiedust_route = kw
+        if hasattr(fn, "fn"):
+            fn.fn.persist_args = kw.pop("persist_args", None)
         return fn
     return route_dec
 
@@ -144,31 +145,67 @@ class PixieDustApp(Display):
 
     routesByClass = {}
 
+    def __init__(self, options=None, entity=None, dataHandler=None):
+        super(PixieDustApp, self).__init__(options, entity, dataHandler)
+        if not hasattr(self, "metadata"):
+            self.metadata = None
+            self.empty_metadata = False
+
+    def append_metadata(self, value):
+        if self.empty_metadata:
+            self.metadata = {}
+            self.empty_metadata = False
+        else:
+            self.metadata = self.metadata or {}
+        self.metadata.update(value)
+
     def getOptionValue(self, optionName):
-        #first check if the key is an field of the class
-        option = getattr(self.entity, optionName) if self.entity is not None and hasattr(self.entity, optionName) else None
-        #make sure we don't have a conflict with an existing function
-        if callable(option):
-            option = None
+        option = None
+        if self.metadata:
+            option = self.metadata.get(optionName, None)
+        if option is None:
+            #check if the key is an field of the class
+            option = getattr(self.entity, optionName) if self.entity is not None and hasattr(self.entity, optionName) else None
+            #make sure we don't have a conflict with an existing function
+            if callable(option):
+                option = None
         if option is None:
             option = self.options.get(optionName, None)
         return option
 
     def matchRoute(self, route):
-        for key,value in iteritems(route):
+        for key, value in iteritems(route):
             option = self.getOptionValue(key)
-            if  (option is None and value=="*") or (value != "*" and option != value):
+            if  (option is None and value == "*") or (value != "*" and option != value):
                 return False
         return True
+
+    def has_persist_args(self, method):
+        if isinstance(method, partial) and hasattr(method, "org_fn"):
+            method = method.org_fn
+        return getattr(method, "persist_args", None) is not None
 
     def injectArgs(self, method, route):
         if isinstance(method, partial) and hasattr(method, "org_fn"):
             method = method.org_fn
         argspec = inspect.getargspec(method)
         args = argspec.args
-        if len(args)>0:
+        if len(args) > 0:
             args = args[1:] if hasattr(method, "__self__") or args[0] == 'self' else args
-        return OrderedDict(zip([a for a in args],[ self.getOptionValue(arg) for arg in args] ) )
+        return OrderedDict(zip([a for a in args], [self.getOptionValue(arg) for arg in args]))
+
+    def invoke_route(self, class_method, **kwargs):
+        "Programmatically invoke a route from arguments"
+        try:
+            injectedArgs = kwargs
+            retValue = class_method(*list(injectedArgs.values()))
+        finally:
+            if isinstance(retValue, templateArgs.TemplateRetValue):
+                injectedArgs.update(retValue.locals)
+                retValue = retValue.ret_value
+            if isinstance(retValue, string_types):
+                retValue = self.renderTemplateString(retValue, **injectedArgs)
+        return retValue
 
     def __getattr__(self, name):
         if ShellAccess[name] is not None:
@@ -178,6 +215,20 @@ class PixieDustApp(Display):
             if ShellAccess[name] is not None:
                 return ShellAccess[name]
         raise AttributeError("{} attribute not found".format(name))
+
+    def hook_msg(self, msg):
+        msg['content']['metadata']['pixieapp_metadata'] = self.metadata
+        self.empty_metadata = True
+        return msg
+
+    def render(self):
+        from IPython.core.interactiveshell import InteractiveShell
+        display_pub = InteractiveShell.instance().display_pub
+        try:
+            display_pub.register_hook(self.hook_msg)      
+            super(PixieDustApp, self).render()
+        finally:
+            display_pub.unregister_hook(self.hook_msg)
 
     def doRender(self, handlerId):
         if self.__class__.__name__ in PixieDustApp.routesByClass:
@@ -194,6 +245,8 @@ class PixieDustApp(Display):
                         meth = getattr(self, t[1])
                         injectedArgs = self.injectArgs(meth, t[0])
                         self.debug("Injected args: {}".format(injectedArgs))
+                        if self.metadata is None and self.has_persist_args(meth):
+                            self.metadata = {key:self.getOptionValue(key) for key,_ in iteritems(t[0])}
                         retValue = meth(*list(injectedArgs.values()))
                         return
                 if defRoute:
@@ -204,7 +257,7 @@ class PixieDustApp(Display):
                     injectedArgs.update(retValue.locals)
                     retValue = retValue.ret_value
                 if isinstance(retValue, string_types):
-                    self._addHTMLTemplateString(retValue, **injectedArgs )
+                    self._addHTMLTemplateString(retValue, **injectedArgs)
                 elif isinstance(retValue, dict):
                     body = self.renderTemplateString(retValue.get("body", ""))
                     jsOnLoad = self.renderTemplateString(retValue.get("jsOnLoad", ""))
@@ -221,7 +274,7 @@ class PixieDustApp(Display):
                         </pd_dialog>
                         """, body=body, jsOnLoad=jsOnLoad, jsOK=jsOK)
 
-        print("Didn't find any routes for {}".format(self))
+        print("Didn't find any routes for {}. Did you forget to define a default route?".format(self))
 
     def get_custom_options(self):
         return {}
@@ -264,6 +317,15 @@ def PixieApp(cls):
     def decoName(cls, suffix):
         return "{}_{}_{}".format(cls.__module__, cls.__name__, suffix)
 
+    def run_method_with_super_classes(cls, instance, method_name):
+        fctSet = set()
+        for cl in reversed(inspect.getmro(cls)):
+            if hasattr(cl, 'setup'):
+                f = getattr(cl, 'setup')
+                if f not in fctSet and callable(f):
+                    fctSet.add(f)
+                    f(instance)
+
     def run(self, entity=None, **kwargs):
         for key,value in iteritems(kwargs):
             setattr(self, key, value)
@@ -275,8 +337,7 @@ def PixieApp(cls):
                 var = key
 
         if not hasattr(self, "pd_initialized"):
-            if hasattr(self, "setup"):
-                self.setup()
+            run_method_with_super_classes(cls, self, "setup")
             self.nostore_params = True
             self.pd_initialized = True
 
@@ -303,9 +364,11 @@ def PixieApp(cls):
         s = "display({}{})".format(var, reduce(lambda k,v: k + "," + v[0] + "='" + str(v[1]) + "'", opts, ""))
         try:
             sys.modules['pixiedust.display'].pixiedust_display_callerText = s
+            self._app_starting = True   #App lifecycle flag
             locals()[var] = self
             return eval(s, globals(), locals())
         finally:
+            self._app_starting = False
             del sys.modules['pixiedust.display'].pixiedust_display_callerText
         
     displayClass = type( decoName(cls, "Display"), (cls,PixieDustApp, ),{
