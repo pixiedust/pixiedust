@@ -23,7 +23,7 @@ import pixiedust
 myLogger = pixiedust.getLogger(__name__ )
 
 #bootstrap all the renderers
-renderers = ["matplotlib", "bokeh", "seaborn", "mapbox", "google", "brunel"]
+renderers = ["matplotlib", "bokeh", "seaborn", "mapbox", "google", "brunel", "table"]
 
 for renderer in renderers:
     try:
@@ -42,7 +42,8 @@ class ChartDisplayMeta(DisplayHandlerMeta):
                 {"categoryId": "Chart", "title": "Scatter Plot", "icon": "fa-circle", "id": "scatterPlot"},
                 {"categoryId": "Chart", "title": "Pie Chart", "icon": "fa-pie-chart", "id": "pieChart"},
                 {"categoryId": "Chart", "title": "Map", "icon": "fa-globe", "id": "mapView"},
-                {"categoryId": "Chart", "title": "Histogram", "icon": "fa-table", "id": "histogram"}
+                {"categoryId": "Chart", "title": "Histogram", "icon": "fa-area-chart", "id": "histogram"},
+                {"categoryId": "Chart", "title": "Table", "icon": "fa-table", "id": "tableView"}
             ]
 
             infos = [info for info in infos if info["id"] in PixiedustRenderer.getHandlerIdList(dataHandler.isStreaming)]
