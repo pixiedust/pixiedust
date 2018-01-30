@@ -131,12 +131,22 @@ class templateArgs(object):
 #Global object enables system wide customization of PixieApp run option
 pixieAppRunCustomizer = None
 
-def runPixieApp(app, parentApp=None, entity=None, **kwargs):
+def runPixieApp(app, parent_pixieapp=None, entity=None, **kwargs):
+    kwargs.get("options", {}).pop("prefix", None)  #child pixieapp should have its own prefix
     if isinstance(app, PixieDustApp):
         app.run(entity, **kwargs)
     elif isinstance(app, string_types):
         parts = app.split('.')
-        getattr(__import__('.'.join(parts[:-1]), None, None, [parts[-1]], 0), parts[-1])().run(entity, **kwargs)
+        instance_app = None
+        if len(parts) > 1:
+            instance_app = getattr(__import__('.'.join(parts[:-1]), None, None, [parts[-1]], 0), parts[-1])()
+        else:
+            instance_app = ShellAccess[parts[-1]]()
+        if parent_pixieapp is not None:
+            instance_app.parent_pixieapp = ShellAccess[parent_pixieapp]
+            instance_app.parent_pixieapp.add_child(instance_app)
+        kwargs["is_running_child_pixieapp"] = True
+        instance_app.run(entity, **kwargs)
     else:
         raise ValueError("Invalid argument to runPixieApp. Only PixieApp or String allowed")
 
@@ -147,6 +157,7 @@ class PixieDustApp(Display):
 
     def __init__(self, options=None, entity=None, dataHandler=None):
         super(PixieDustApp, self).__init__(options, entity, dataHandler)
+        self.parent_pixieapp = None
         if not hasattr(self, "metadata"):
             self.metadata = None
             self.empty_metadata = False
@@ -257,6 +268,9 @@ class PixieDustApp(Display):
                     injectedArgs.update(retValue.locals)
                     retValue = retValue.ret_value
                 if isinstance(retValue, string_types):
+                    if self.getBooleanOption("nostore_isrunningchildpixieapp", False):
+                        self.options.pop("nostore_isrunningchildpixieapp", None)
+                        retValue = """<div id="wrapperHTML{{prefix}}" pixiedust="{{pd_controls|htmlAttribute}}">""" + retValue + """</div>"""
                     self._addHTMLTemplateString(retValue, **injectedArgs)
                 elif isinstance(retValue, dict):
                     body = self.renderTemplateString(retValue.get("body", ""))
@@ -275,6 +289,18 @@ class PixieDustApp(Display):
                         """, body=body, jsOnLoad=jsOnLoad, jsOK=jsOK)
 
         print("Didn't find any routes for {}. Did you forget to define a default route?".format(self))
+
+    pixieapp_child_prefix = "__pixieapp_child__"
+    @property
+    def pixieapp_children(self):
+        return {var:getattr(self, var) for var in dir(self) if var.startswith(PixieDustApp.pixieapp_child_prefix)}
+
+    def add_child(self, instance_app):
+        var_name = "{}{}".format(
+            PixieDustApp.pixieapp_child_prefix,
+            len([var for var in dir(self) if var.startswith(PixieDustApp.pixieapp_child_prefix)])
+        )
+        setattr(self, var_name, instance_app)
 
     def get_custom_options(self):
         return {}
@@ -327,14 +353,29 @@ def PixieApp(cls):
                     f(instance)
 
     def run(self, entity=None, **kwargs):
-        for key,value in iteritems(kwargs):
+        is_running_child_pixieapp = kwargs.pop("is_running_child_pixieapp", False)
+        for key, value in iteritems(kwargs):
             setattr(self, key, value)
         if entity is not None:
             self.pixieapp_entity = entity
         var = None
-        for key in ShellAccess:
-            if ShellAccess[key] is self:
-                var = key
+        if self.parent_pixieapp is not None:
+            parent_key = None
+            for key in ShellAccess.keys():
+                notebook_var = ShellAccess[key]
+                if notebook_var is self.parent_pixieapp and key != "self":
+                    parent_key = key
+                    break
+            for child_key, child in iteritems(notebook_var.pixieapp_children):
+                if child is self:
+                    var = "{}.{}".format(parent_key, child_key)
+                    break
+        else:
+            for key in ShellAccess.keys():
+                notebook_var = ShellAccess[key]
+                if notebook_var is self:
+                    var = key
+                    break
 
         if not hasattr(self, "pd_initialized"):
             run_method_with_super_classes(cls, self, "setup")
@@ -347,7 +388,14 @@ def PixieApp(cls):
             ShellAccess[var] = self
 
         self.runInDialog = kwargs.get("runInDialog", "false") is "true"
-        options = {"nostore_pixieapp": var, "nostore_ispix":"true", "runInDialog": "true" if self.runInDialog else "false"}
+        options = {
+            "nostore_pixieapp": var,
+            "nostore_ispix":"true",
+            "runInDialog": "true" if self.runInDialog else "false"
+        }
+        if is_running_child_pixieapp:
+            options["nostore_isrunningchildpixieapp"] = "true"
+    
         #update with any custom options that the pixieapp may have
         options.update(self.get_custom_options())
 
@@ -365,7 +413,9 @@ def PixieApp(cls):
         try:
             sys.modules['pixiedust.display'].pixiedust_display_callerText = s
             self._app_starting = True   #App lifecycle flag
-            locals()[var] = self
+            parts = var.split(".")
+            locals()[parts[0]] = ShellAccess[parts[0]]
+            self.debug("Running with command: {} and var {}".format(s, var))
             return eval(s, globals(), locals())
         finally:
             self._app_starting = False
