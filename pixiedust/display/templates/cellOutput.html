@@ -9,6 +9,10 @@
     border: 0 none;font-size: 15px;padding: 0; position: relative; right: 0; text-align: right;top: 0;" title="Publish PixieApp">
     <i class="fa fa-plug no_loading_msg"></i>
   </button>
+  <button pd_refresh class="btn btn-default btn-sm no_loading_msg" style="z-index:999;float:right;width: initial;background-color:transparent;
+    border: 0 none;font-size: 15px;padding: 0; position: relative; right: 0; text-align: right;top: 0;" title="Restart PixieApp">
+    <i class="fa fa-home no_loading_msg"></i>
+  </button>
   {%endif%}
   {%endif%}
   <div id="pixiedust-output-wrapper-{{this.getPrefix()}}" class="pixiedust-output-wrapper collapse in">
@@ -52,6 +56,7 @@
       </div>
     {%endif%}
     <div id="wrapperJS{{this.getPrefix()}}"></div>
-    <div id="wrapperHTML{{this.getPrefix()}}" class="pixiedustWrapperHTML" pixiedust="{{pd_controls|htmlAttribute}}" style="min-height:100px"></div>
+    <div id="wrapperHTML{{this.getPrefix()}}" class="pixiedustWrapperHTML" pd_init
+        pixiedust="{{pd_controls|htmlAttribute}}" style="min-height:100px"></div>
   </div>
 </div>
