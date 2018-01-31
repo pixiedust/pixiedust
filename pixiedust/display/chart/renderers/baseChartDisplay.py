@@ -235,6 +235,9 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
     def isMap(self, handlerId):
         return False
 
+    def supportsNonNumericValueFields(self, handlerId):
+        return False
+
     def supportsKeyFields(self, handlerId):
         return True
 
@@ -303,6 +306,9 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
         if valueFieldStr is not None:
             valueFields = valueFieldStr.split(",")
             valueFields = [val for val in valueFields if val in fieldNames]
+        if self.supportsNonNumericValueFields(self.handlerId) and len(valueFields) > 0:
+            return valueFields
+
         numericValueFields = []
         for valueField in valueFields:
             if self.dataHandler.isNumericField(valueField) or aggregation == "COUNT":

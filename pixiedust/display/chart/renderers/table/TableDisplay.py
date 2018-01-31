@@ -12,4 +12,4 @@ class TableDisplay(TableBaseDisplay):
     #     return (diagTemplate, {})
     
     def doRenderChart(self):
-        return self.renderTemplate("table.html", tdf=self.getWorkingPandasDataFrame())
+        return self.renderTemplate("table.html", wpdf=self.getWorkingPandasDataFrame())

@@ -37,6 +37,9 @@ class TableBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
     def getChartOptions(self): 
         return []
 
+    def supportsNonNumericValueFields(self, handlerId):
+        return True
+    
     def supportsKeyFields(self, handlerId):
         return False
 
