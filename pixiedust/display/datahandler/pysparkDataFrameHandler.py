@@ -81,7 +81,7 @@ class PySparkDataFrameDataHandler(BaseDataHandler):
     """
         Return a cleaned up Pandas Dataframe that will be used as working input to the chart
     """
-    def getWorkingPandasDataFrame(self, xFields, yFields, extraFields=[], aggregation=None, maxRows = 100):
+    def getWorkingPandasDataFrame(self, xFields, yFields, extraFields=[], aggregation=None, maxRows = 100, supportsNaN=False):
         if xFields is None or len(xFields)==0:
             #swap the yFields with xFields
             xFields = yFields
@@ -98,7 +98,8 @@ class PySparkDataFrameDataHandler(BaseDataHandler):
             for yField in yFields:
                 workingDF = workingDF.withColumnRenamed("{0}({1})".format(aggregation,yField), yField)
 
-        # workingDF = workingDF.dropna()
+        if not supportsNaN:
+            workingDF = workingDF.dropna()
         count = workingDF.count()
         if count > maxRows:
             workingDF = workingDF.sample(False, (float(maxRows) / float(count)))

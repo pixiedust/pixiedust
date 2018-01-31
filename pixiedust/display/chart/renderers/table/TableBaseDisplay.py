@@ -33,13 +33,29 @@ class TableBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
             """
             return "pixiedust.display.chart.renderers.table.tableOptions.TableOptions"
 
-    @commonChartOptions
-    def getChartOptions(self): 
-        return []
+    ## overrides empty method in baseChartDisplay
+    def getExtraFields(self):
+        fieldNames = self.getFieldNames()
+        if len(fieldNames) == 0:
+            return []
+        tableFields = []
+        tableFieldStr = self.options.get("tableFields")
+        if tableFieldStr is None:
+            return fieldNames
+        else:
+            tableFields = tableFieldStr.split(",")
+            tableFields = [val for val in tableFields if val in fieldNames]
+        return tableFields
+
+    def canRenderChart(self):
+        return (True, None)
 
     def supportsNonNumericValueFields(self, handlerId):
         return True
     
+    def supportsNaN(self, handlerId):
+        return True
+
     def supportsKeyFields(self, handlerId):
         return False
 

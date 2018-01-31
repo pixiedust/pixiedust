@@ -117,7 +117,7 @@
     }
   </style>
   
-  {% set fieldNames = tdf.columns %}
+  {% set fieldNames = wpdf.columns %}
   <div class="df-table-wrapper df-table-wrapper-{{prefix}} panel-group pd_save">
     <!-- dataframe schema -->
     {% if table_noschema != 'true' %}
@@ -131,7 +131,7 @@
         <div class="panel-body" style="font-family: monospace;">
           <div class="df-schema-fields">
             <div>Field types:</div>
-            {% for colname, coltype in tdf.dtypes.iteritems() %}
+            {% for colname, coltype in wpdf.dtypes.iteritems() %}
               <div class="df-schema-field"><strong>{{colname}}: </strong> {{coltype}}</div>
             {% endfor %}
           </div>
@@ -171,7 +171,7 @@
                 </tr>
               </thead>
               <tbody>
-                {% for rowindex, row in tdf.iterrows() %}
+                {% for rowindex, row in wpdf.iterrows() %}
                 <tr>
                   {% for field in fieldNames %}
                   <td>{{row[field]}}</td>

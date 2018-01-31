@@ -172,13 +172,14 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
         extraFields = self.getExtraFields()
         aggregation = self.getAggregation()
         maxRows = self.getMaxRows()
+        supportsNaN = self.supportsNaN(self.handlerId)
         timeseries = self.options.get("timeseries", 'false')
         #remember the constraints for this cache, they are the list of variables
         constraints = locals()
 
         workingDF = WorkingDataCache.getFromCache(self.options, constraints )
         if workingDF is None:
-            workingDF = self.dataHandler.getWorkingPandasDataFrame(xFields, yFields, extraFields = extraFields, aggregation=aggregation, maxRows = maxRows )
+            workingDF = self.dataHandler.getWorkingPandasDataFrame(xFields, yFields, extraFields = extraFields, aggregation=aggregation, maxRows = maxRows, supportsNaN = supportsNaN )
             WorkingDataCache.putInCache(self.options, workingDF, constraints)
         
         if self.options.get("sortby", None):
@@ -235,7 +236,12 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
     def isMap(self, handlerId):
         return False
 
+    """ Set to true for table rendering """
     def supportsNonNumericValueFields(self, handlerId):
+        return False
+
+    """ Set to true for table rendering """
+    def supportsNaN(self, handlerId):
         return False
 
     def supportsKeyFields(self, handlerId):

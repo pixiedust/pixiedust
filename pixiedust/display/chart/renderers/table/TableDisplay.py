@@ -7,9 +7,5 @@ from pixiedust.utils import Logger
 @Logger()
 class TableDisplay(TableBaseDisplay):
 
-    # def getChartContext(self, handlerId):
-    #     diagTemplate = TableDisplay.__module__ + ":tableOptionsDialogBody.html"
-    #     return (diagTemplate, {})
-    
     def doRenderChart(self):
         return self.renderTemplate("table.html", wpdf=self.getWorkingPandasDataFrame())

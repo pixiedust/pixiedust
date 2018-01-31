@@ -17,22 +17,22 @@
 from pixiedust.display.app import *
 from pixiedust.utils import Logger
 from pixiedust.display.chart.options.optionsShell import *
-from pixiedust.display.chart.options.components.KeyValueSelector import *
+from pixiedust.display.chart.options.components.TableValueSelector import *
 from pixiedust.display.chart.options.components.AggregationSelector import *
 from pixiedust.display.chart.options.components.RowCount import *
 
 @PixieApp
 @Logger()
-class TableOptions(OptionsShell, KeyValueSelector, AggregationSelector, RowCount):
+class TableOptions(OptionsShell, TableValueSelector, AggregationSelector, RowCount):
     def setup(self):
         OptionsShell.setup(self)
-        self.chart_options.append({
-            "optid": "keyvalue",
-            "classname": "no_loading_msg",
-            "keyFields": None,
-            "valueFields": lambda: self.options.get("valueFields") or "",
-            "widget": "pdKeyValueSelector"
-        })
+        # self.chart_options.append({
+        #     "optid": "keyvalue",
+        #     "classname": "no_loading_msg",
+        #     "keyFields": None,
+        #     "valueFields": lambda: self.options.get("valueFields") or "",
+        #     "widget": "pdTableValueSelector"
+        # })
 
         self.chart_options.append({
             "optid": "rowCount",
