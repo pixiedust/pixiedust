@@ -26,13 +26,12 @@ from pixiedust.display.chart.options.components.RowCount import *
 class TableOptions(OptionsShell, TableValueSelector, AggregationSelector, RowCount):
     def setup(self):
         OptionsShell.setup(self)
-        # self.chart_options.append({
-        #     "optid": "keyvalue",
-        #     "classname": "no_loading_msg",
-        #     "keyFields": None,
-        #     "valueFields": lambda: self.options.get("valueFields") or "",
-        #     "widget": "pdTableValueSelector"
-        # })
+        self.chart_options.append({
+            "optid": "tablevalue",
+            "classname": "no_loading_msg",
+            "tableFields": lambda: self.options.get("tableFields") or "",
+            "widget": "pdTableValueSelector"
+        })
 
         self.chart_options.append({
             "optid": "rowCount",
