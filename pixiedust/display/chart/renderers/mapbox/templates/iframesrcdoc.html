@@ -49,7 +49,7 @@
   }();
   {%endif%}
 </script>
-<iframe id="mapframe{{prefix}}" style='width:{{prefwidth}}px;height:{{prefheight}}px' srcdoc='{{body|btoa}}' onload="iframeLoaded(this)"></iframe>
+<iframe id="mapframe{{prefix}}" style='width:{{prefwidth}}px;height:{{prefheight}}px' srcdoc='' onload="iframeLoaded(this)"></iframe>
 <script>
   var iframe = document.getElementById('mapframe{{prefix}}');
   iframe.setAttribute('srcdoc', atob('{{body|btoa}}'));
