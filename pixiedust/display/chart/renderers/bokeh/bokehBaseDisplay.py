@@ -56,6 +56,20 @@ class BokehBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
     def getPreferredOutputWidth(self):
         return super(BokehBaseDisplay,self).getPreferredOutputWidth() * 0.92
 
+    def get_common_figure_options(self):
+        options = {}
+        x_fields = self.getKeyFields()
+        if len(x_fields) == 1 and (
+            self.options.get("timeseries", 'false') == 'true' or self.dataHandler.isDateField(x_fields[0])
+            ):
+            options["x_axis_type"] = "datetime"
+        elif self.getBooleanOption("logx", False):
+            options["x_axis_type"] = "log"
+
+        if self.getBooleanOption("logy", False):
+            options["y_axis_type"] = "log"        
+        return options
+
     @cache(fieldName="_loadJS")
     def getLoadJS(self):
         loadJS = self._load_notebook_html(hide_banner=True)
