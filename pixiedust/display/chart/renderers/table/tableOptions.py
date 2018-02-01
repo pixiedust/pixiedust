@@ -39,6 +39,3 @@ class TableOptions(OptionsShell, TableValueSelector, AggregationSelector, RowCou
             "count": lambda: self.options.get("rowCount") or 500,
             "widget": "pdRowCount"
         })
-
-    def get_new_options(self):
-        return self.new_options
