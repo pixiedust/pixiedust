@@ -25,9 +25,13 @@ class LineChartRenderer(BrunelBaseDisplay):
         parts = ["line"]
 
         for index, key in enumerate(self.getKeyFields()):
-            if index > 0:
-                parts.append("+ line")
+            #if index > 0:
+            #    parts.append("+ line")
             parts.append("x({})".format(key))
+            fieldNames = self.getValueFields()
+            if len(fieldNames) > 1:
+                parts.append("color(#series)")
             parts.append("y({})".format(",".join(self.getValueFields())))
             parts.append(self.get_sort())
+            #self.debug(str(len(fieldNames)))
         return parts
