@@ -88,8 +88,12 @@ class PySparkDataFrameDataHandler(BaseDataHandler):
             yFields = []
             aggregation = None
 
-        extraFields = [a for a in extraFields if a not in xFields]
-        workingDF = self.entity.select(xFields + extraFields + yFields)
+        if isTableRenderer:
+            workingDF = self.entity.select(extraFields)
+        else:
+            extraFields = [a for a in extraFields if a not in xFields]
+            workingDF = self.entity.select(xFields + extraFields + yFields)
+
         if aggregation and len(yFields)>0:
             aggMapper = {"SUM":"sum", "AVG": "avg", "MIN": "min", "MAX": "max"}
             aggregation = aggMapper.get(aggregation, "count")
@@ -113,8 +117,9 @@ class PySparkDataFrameDataHandler(BaseDataHandler):
             except:
                 self.exception("Unable to convert field {} to datetime".format(field))
 
-        #sort by xFields
-        pdf.sort_values(xFields + extraFields, inplace=True)
+        if not isTableRenderer:
+            #sort by xFields
+            pdf.sort_values(xFields + extraFields, inplace=True)
         return pdf
 
     """

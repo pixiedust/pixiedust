@@ -71,8 +71,11 @@ class PandasDataFrameDataHandler(BaseDataHandler):
             yFields = []
             aggregation = None
 
-        extraFields = [a for a in extraFields if a not in xFields and a not in yFields]
-        workingDF = self.entity[xFields + extraFields + yFields]
+        if isTableRenderer:
+            workingDF = self.entity[extraFields]
+        else:
+            extraFields = [a for a in extraFields if a not in xFields and a not in yFields]
+            workingDF = self.entity[xFields + extraFields + yFields]
 
         if aggregation and len(yFields)>0:
             aggMapper = {"SUM":"sum", "AVG": "mean", "MIN": "min", "MAX": "max"}
@@ -113,7 +116,8 @@ class PandasDataFrameDataHandler(BaseDataHandler):
             except:
                 self.exception("Unable to convert field {} to datetime".format(field))
         
-        #sort by xFields
-        workingDF.sort_values(extraFields + xFields, inplace=True)
+        if not isTableRenderer:
+            #sort by xFields
+            workingDF.sort_values(extraFields + xFields, inplace=True)
         
         return workingDF
