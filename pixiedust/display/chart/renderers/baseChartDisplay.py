@@ -160,7 +160,7 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
             del self.options[key]
 
     def getExtraFields(self):
-        return []
+        return self.getNonNumericValueFields()
 
     def addMessage(self, message):
         self.messages.append(message)
@@ -311,7 +311,22 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
         if not self.supportsKeyFields(self.handlerId) and len(numericValueFields) == 0:
             raise ShowChartOptionDialog()
         return numericValueFields
-    
+      
+    def getNonNumericValueFields(self):
+        fieldNames = self.getFieldNames()
+        if len(fieldNames) == 0:
+            return []
+        valueFields = []
+        valueFieldStr = self.options.get("valueFields")
+        if valueFieldStr is not None:
+            valueFields = valueFieldStr.split(",")
+            valueFields = [val for val in valueFields if val in fieldNames]
+        nonNumericValueFields = []
+        for valueField in valueFields:
+            if not self.dataHandler.isNumericField(valueField):
+                nonNumericValueFields.append(valueField)
+        return nonNumericValueFields
+
     def canRenderChart(self):
         aggregation = self.getAggregation()
         if (aggregation == "COUNT"):

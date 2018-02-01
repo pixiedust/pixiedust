@@ -100,13 +100,17 @@ class MapViewDisplay(MapBoxBaseDisplay):
                 self.options["mapBounds"] = json.dumps([min,max], default=defaultJSONEncoding)
 
         valueFields = self.getValueFields()
-
+        
         #check if we have a preserveCols
         preserveCols = self.options.get("preserveCols", None)
         preserveCols = [a for a in preserveCols.split(",") if a not in keyFields and a not in valueFields] if preserveCols is not None else []
 
+        # check if we have any non-numeric value fields
+        nonNumericValueFields = self.getNonNumericValueFields()
+
+        # calculate indexes of all the fields we need render
         valueFieldIdxs = []
-        allProps = valueFields + preserveCols
+        allProps = valueFields + preserveCols + nonNumericValueFields
         for j, valueField in enumerate( allProps ):
             valueFieldIdxs.append(df.columns.get_loc(valueField))
 
