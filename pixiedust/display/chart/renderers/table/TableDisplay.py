@@ -8,4 +8,4 @@ from pixiedust.utils import Logger
 class TableDisplay(TableBaseDisplay):
 
     def doRenderChart(self):
-        return self.renderTemplate("table.html", wpdf=self.getWorkingPandasDataFrame())
+        return self.renderTemplate("table.html", wpdf=self.getWorkingPandasDataFrame(), table_noschema=self.options.get("table_noschema", "false"))
