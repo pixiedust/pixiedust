@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------------
-# Copyright IBM Corp. 2017
+# Copyright IBM Corp. 2018
 # 
 # Licensed under the Apache License, Version 2.0 (the 'License');
 # you may not use this file except in compliance with the License.
@@ -17,8 +17,9 @@ from abc import abstractmethod, ABCMeta
 from six import iteritems
 from pixiedust.display.app import *
 from pixiedust.utils.astParse import parse_function_call
-from pixiedust.utils import Logger
+from pixiedust.utils import cache, Logger
 from pixiedust.display.datahandler import getDataHandler
+from pixiedust.display.chart.renderers import PixiedustRenderer
 from pixiedust.utils.shellAccess import ShellAccess
 from IPython.core.getipython import get_ipython
 
@@ -35,6 +36,14 @@ class BaseOptions(with_metaclass(ABCMeta)):
                 self.exception(exc)
                 self.entity = None
 
+    @cache(fieldName="fieldNames")
+    def get_field_names(self, expandNested=True):
+        return self.data_handler.getFieldNames(expandNested)
+
+    @cache(fieldName="fieldNamesAndTypes")
+    def get_field_names_and_types(self, expandNested=True, sorted=False):
+        return self.data_handler.getFieldNamesAndTypes(expandNested, sorted)
+
     def get_custom_options(self):
         "Options for this base dialog"
         return {
@@ -44,26 +53,22 @@ class BaseOptions(with_metaclass(ABCMeta)):
         }
 
     def on_ok(self):
-        try:
-            #reconstruct the parent command with the new options
-            for key in ShellAccess:
-                locals()[key] = ShellAccess[key]
-            entity = eval(self.parsed_command['args'][0], globals(), locals())
-            run_options = self.run_options
-            #update with the new options
-            run_options.update(self.get_new_options())
-
-            command = "{}({},{})".format(
-                self.parsed_command['func'],
-                self.parsed_command['args'][0],
-                ",".join(
-                    ["{}='{}'".format(k, v) for k, v in iteritems(run_options)]
-                )
+        run_options = self.run_options
+        #update with the new options
+        run_options.update(self.get_new_options())
+        command = "{}({},{})".format(
+            self.parsed_command['func'],
+            self.parsed_command['args'][0],
+            ",".join(
+                ["{}='{}'".format(k, v) for k, v in iteritems(run_options)]
             )
-            sys.modules['pixiedust.display'].pixiedust_display_callerText = command
-            display(entity, **run_options)
-        finally:
-            del sys.modules['pixiedust.display'].pixiedust_display_callerText
+        )
+        js = self.env.from_string("""
+            pixiedust.executeDisplay(
+                {{this.get_pd_controls(command=command, avoidMetadata=True, options=run_options, black_list=['nostore_figureOnly']) | tojson}}
+            );
+        """).render(this=self, run_options=run_options, command=command)
+        return self._addJavascript(js)
 
     @property
     def run_options(self):
@@ -75,6 +80,10 @@ class BaseOptions(with_metaclass(ABCMeta)):
         return getDataHandler(
             self.parsed_command['kwargs'], self.parent_entity
         ) if self.parent_entity is not None else None
+
+    @property
+    def get_renderer(self):
+        return PixiedustRenderer.getRenderer(self.parsed_command['kwargs'], self.parent_entity, False) if self.parent_entity is not None else None
 
     @abstractmethod
     def get_new_options(self):

@@ -46,9 +46,9 @@ class BKLineChartRenderer(BokehBaseDisplay):
             ylabel = ','.join(v for v in vFields)
             x = list(df[xlabel].values)
             if df[xlabel].dtype == object:
-                p = figure(y_axis_label=ylabel, x_axis_label=xlabel, title=title, x_range=x)
+                p = figure(y_axis_label=ylabel, x_axis_label=xlabel, title=title, x_range=x, **self.get_common_figure_options())
             else:
-                p = figure(y_axis_label=ylabel, x_axis_label=xlabel, title=title)
+                p = figure(y_axis_label=ylabel, x_axis_label=xlabel, title=title, **self.get_common_figure_options())
 
             if clustered is not None:
                 colors = self.colorPalette(len(df[clustered].unique())) if color is None else color

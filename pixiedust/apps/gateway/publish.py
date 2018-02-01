@@ -19,7 +19,7 @@ import os
 import requests
 import json
 import nbformat
-from pixiedust.utils.userPreferences import getUserPreference, setUserPreference
+from pixiedust.utils.userPreferences import getUserPreference, setUserPreference, user_preferences
 from pixiedust.utils import Logger
 from pixiedust.apps.gateway import BaseGatewayApp
 import warnings
@@ -104,6 +104,7 @@ class ImportsLookup(ast.NodeVisitor):
 
 @PixieApp
 @Logger()
+@user_preferences(security='token')
 class PublishApp(BaseGatewayApp):
     """
     Publish a PixieApp as a web app
@@ -121,19 +122,22 @@ class PublishApp(BaseGatewayApp):
             "id": "options",
             "name": "Options",
             "contents": lambda: self.renderTemplate("publishBasicOptions.html")
-        }
-        ,{
+        }, {
+            "title": "Security",
+            "id": "security",
+            "name": "Security",
+            "contents": lambda: self.renderTemplate("publishSecurityOptions.html")
+        }, {
             "title": "Package dependencies",
             "id": "imports",
             "name": "Imports",
             "contents": lambda: self.renderTemplate("publishImportOptions.html")
-        },{
+        }, {
             "title": "Kernel Specification",
             "id": "kernelspec",
             "name": "Kernel Spec",
             "contents": lambda: self.renderTemplate("publishKernelSpecOptions.html")
-        }
-        ]
+        }]
         self.gateway_buttons = [{
             "title": "Publish",
             "options": ["server", "title", "icon", "sel_kernel"]
@@ -170,18 +174,6 @@ class PublishApp(BaseGatewayApp):
                     </span>
                 """.format(icon, message))
 
-    @route(kernel_list="*")
-    def kernel_list(self):
-        return """
-        <select pd_stop_propagation id="sel_kernel{{prefix}}" class="form-control">
-            {%for kernel, default_value in this.kernels %}
-                <option {%if default_value%}selected{%endif%} value="{{kernel|escape}}">
-                    {{kernel|escape}}
-                </option>
-            {%endfor%}
-        </select>
-        """
-   
     def set_contents(self, contents):
         self.contents = json.loads(contents)
         self.contents['notebook']['metadata']['pixiedust'] = {}
@@ -195,7 +187,9 @@ class PublishApp(BaseGatewayApp):
     @route(gateway_server="*")
     def publish(self, gateway_server, gateway_title, gateway_icon, gateway_sel_kernel):
         self.server = gateway_server.strip("/ ")
-        self.contents['notebook']['metadata']['pixiedust'].update({"title":gateway_title, "icon":gateway_icon})
+        self.contents['notebook']['metadata']['pixiedust'].update({
+            "title":gateway_title, "icon":gateway_icon, "security": self.security
+        })
         if gateway_sel_kernel != "Default":
             self.contents['notebook']['metadata']['pixiedust'].update({"kernel":gateway_sel_kernel})
         self.compute_imports()
@@ -233,7 +227,7 @@ class PublishApp(BaseGatewayApp):
     <div class="summary">
         <div>Notebook Successfully published</div>
         <div>
-            <a href="{{this.server}}/pixieapp/{{this.pixieapp_model['name']}}" target="blank">
+            <a href="{{this.pixieapp_model['url']}}" target="blank">
                 {{this.contents['name']}}
             </a>
         </div>

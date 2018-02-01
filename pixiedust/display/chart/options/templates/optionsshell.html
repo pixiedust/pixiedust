@@ -1,0 +1,41 @@
+<style type="text/css">
+  .pd-chart-option {
+    margin: 0 0 15px 0;
+  }
+  .field-width-50 {
+    display: inline-block;
+    width: calc(50% - 5px);
+    vertical-align: top;
+  }
+  .field-width-50:first-of-type {
+    padding-right: 5px;
+  }
+  .field-width-50:last-of-type {
+    padding-left: 5px;
+  }
+</style>
+<script>
+  function chartOptionsOKStatus{{prefix}}(disabled) {
+    var chartOptionsOKBtn = $('#chart-options-{{prefix}}')
+      .closest('.pixiedust-app.modal')
+      .find('.modal-footer .btn-ok')
+    var count = chartOptionsOKBtn.attr('data-options-invalid')
+    count = isNaN(count) ? 0 : Number(count)
+    if (disabled === true) {
+      count++
+    } else {
+      count--
+    }
+    chartOptionsOKBtn.attr('data-options-invalid', count < 1 ? 0 : count)
+    chartOptionsOKBtn.attr('disabled', count < 1 ? null : 'disabled')
+  }
+</script>
+<form id="chart-options-{{prefix}}"></form>
+<div class="container col-sm-12">
+  {% for opts in this.chart_options %}
+  <div pd_widget="{{opts['widget']}}" class="pd-chart-option {% if opts['classname'] %}{{opts['classname']}}{% endif %}"
+    pd_options="{% for k,v in opts|iteritems %}{{k}}={% if v is callable %}{{v()}}{% else %}{{v}}{% endif %}{% if not loop.last %};{% endif %}{% endfor %}"> </div>
+  {% endfor %}
+</div>
+</form>
+<div class="bootbox-body row"></div>

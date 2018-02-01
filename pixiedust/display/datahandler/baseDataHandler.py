@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------------
-# Copyright IBM Corp. 2017
+# Copyright IBM Corp. 2018
 # 
 # Licensed under the Apache License, Version 2.0 (the 'License');
 # you may not use this file except in compliance with the License.
@@ -22,3 +22,19 @@ class BaseDataHandler(object):
 
     def add_numerical_column(self):
         raise NotImplementedError()
+
+    def getFieldNamesAndTypes(self, expandNested=True, sorted=False):
+        fieldNames = self.getFieldNames(expandNested)
+        fieldNamesAndTypes = []
+        for fieldName in fieldNames:
+            fieldType = "unknown/unsupported"
+            if self.isNumericField(fieldName):
+                fieldType = "numeric"
+            elif self.isDateField(fieldName):
+                fieldType = "date/time"
+            elif self.isStringField(fieldName):
+                fieldType = "string"
+            fieldNamesAndTypes.append((fieldName, fieldType))
+        if sorted:
+            fieldNamesAndTypes.sort(key=lambda x: x[0])
+        return fieldNamesAndTypes
