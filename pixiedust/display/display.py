@@ -258,10 +258,8 @@ class Display(with_metaclass(ABCMeta)):
         }
         for key,value in iteritems(kwargs):
             if key in controls and isinstance(controls[key], dict) and isinstance(value, dict):
-                self.debug("Updating")
                 controls[key].update(value)
             else:
-                self.debug("Not UPdateing")
                 controls[key] = value
 
         for key in black_list:
