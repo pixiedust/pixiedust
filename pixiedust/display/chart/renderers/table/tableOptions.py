@@ -40,8 +40,5 @@ class TableOptions(OptionsShell, TableValueSelector, AggregationSelector, RowCou
             "widget": "pdRowCount"
         })
 
-    def value_fields_type(self):
-        return ['any']
-
-    def aggregation_supported(self):
-        return self.get_renderer.supportsAggregation(self.parsed_command['kwargs']['handlerId'])
+    def get_new_options(self):
+        return self.new_options

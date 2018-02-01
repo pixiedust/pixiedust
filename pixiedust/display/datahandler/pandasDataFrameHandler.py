@@ -64,7 +64,7 @@ class PandasDataFrameDataHandler(BaseDataHandler):
     """
         Return a cleaned up Pandas Dataframe that will be used as working input to the chart
     """
-    def getWorkingPandasDataFrame(self, xFields, yFields, extraFields=[], aggregation=None, maxRows = 100, supportsNaN=False):
+    def getWorkingPandasDataFrame(self, xFields, yFields, extraFields=[], aggregation=None, maxRows = 100, isTableRenderer=False):
         if xFields is None or len(xFields)==0:
             #swap the yFields with xFields
             xFields = yFields
@@ -79,7 +79,7 @@ class PandasDataFrameDataHandler(BaseDataHandler):
             aggFn = aggMapper.get(aggregation, "count")
             workingDF = workingDF.groupby(extraFields + xFields).agg(aggFn).reset_index()
 
-        if not supportsNaN:
+        if not isTableRenderer:
             workingDF = workingDF.dropna()
         count = len(workingDF.index)
         if count > maxRows:

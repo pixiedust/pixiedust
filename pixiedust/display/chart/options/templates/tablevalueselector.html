@@ -10,25 +10,25 @@
   .fieldslist-wrapper label {
     padding-left: 28px;
   }
-  .fieldslist-showlink {
+  .fieldslist-checklink-all, .fieldslist-checklink-none {
     color: #337ab7;
     cursor: pointer;
     display: inline-block;
-    font-size: 0.95em;
-    font-weight: 300;
     position: absolute;
-    right: 20px;
-    top: 3px;
+    top: 9px;
   }
-  .fieldslist-showlink:hover {
+  .fieldslist-checklink-all {
+    right: 48px;
+  }
+  .fieldslist-checklink-none {
+    right: 6px;
+  }
+  .fieldslist-checklink:hover {
     color: #286090;
     text-decoration: underline;
   }
   .fieldslist-allfields {
     height: calc(100% - 65px);
-  }
-  .fieldslist-allfields.numeric-only > [data-field-type="string"] {
-    display: none;
   }
   .fieldslist-wrapper .ui-draggable-dragging {
     width: 90%;
@@ -49,17 +49,44 @@
     font-style: italic;
   }
 </style>
+<script>
+  function getCheckedFields() {
+    var checkedfields = []
+    $('.fieldslist-wrapper input:checked')
+      .each(function () {
+        checkedfields.push($(this).data('field'))
+      })
+    return checkedfields.join(',')
+  }
+  function checkAll() {
+    console.log("Here in checkAll")
+    $('.fieldslist-wrapper input[type="checkbox"]')
+      .each(function () {
+        $(this).prop('checked', true)
+      })
+    return getCheckedFields()
+  }
+  function checkNone() {
+    console.log("Here in checkNone")
+    $('.fieldslist-wrapper input[type="checkbox"]')
+      .each(function () {
+        $(this).prop('checked', false)
+      })
+    return ""
+  }
+</script>
 
 <div class="fields-container row">
   <div class="col-sm-6" style="padding: 0px 5px 0px 0px; height: 365px;">
     <div class="fieldslist-wrapper" style="height:100%">
       <h5>Fields:</h5>
-      <span class="fieldslist-showlink">Show only numeric columns</span>
+      <button pd_script="self.options_callback('tableFields', '$val(checkAll)')" class="fieldslist-checklink-all btn btn-default btn-xs">All</button>
+      <button pd_script="self.options_callback('tableFields', '$val(checkNone)')" class="fieldslist-checklink-none btn btn-default btn-xs">None</button>
       <input type="text" class="fieldslist-filter form-control input-sm" placeholder="Search/Filter Fields">
       {% for field in this.fieldNamesAndTypes %}
         {% if field[0] in this.fieldNames %}
         <label class="checkbox fieldslist-field-{{prefix}}" data-field="{{field.0}}" data-field-type="{{field.1}}">
-          <input type="checkbox" {{"checked" if field.0 in this.tableFields}} id="fieldslist{{prefix}}-{{this.fieldNames.index(field.0)+1}}" value="{{field.0}}" data-field="{{field.0}}" data-field-type="{{field.1}}">
+          <input type="checkbox" {{"checked" if field.0 in this.tableFields}} id="fieldslist{{prefix}}-{{this.fieldNames.index(field.0)+1}}" value="{{field.0}}" data-field="{{field.0}}" data-field-type="{{field.1}}" pd_script="self.options_callback('tableFields', '$val(getCheckedFields)')">
           <span class="field-name">{{field.0}}</span>
           <span class="field-type">{{field.1}}</span>
         </label>

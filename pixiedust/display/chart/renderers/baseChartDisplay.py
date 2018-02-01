@@ -172,14 +172,14 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
         extraFields = self.getExtraFields()
         aggregation = self.getAggregation()
         maxRows = self.getMaxRows()
-        supportsNaN = self.supportsNaN(self.handlerId)
+        isTableRenderer = self.isTableRenderer()
         timeseries = self.options.get("timeseries", 'false')
         #remember the constraints for this cache, they are the list of variables
         constraints = locals()
 
         workingDF = WorkingDataCache.getFromCache(self.options, constraints )
         if workingDF is None:
-            workingDF = self.dataHandler.getWorkingPandasDataFrame(xFields, yFields, extraFields = extraFields, aggregation=aggregation, maxRows = maxRows, supportsNaN = supportsNaN )
+            workingDF = self.dataHandler.getWorkingPandasDataFrame(xFields, yFields, extraFields = extraFields, aggregation=aggregation, maxRows = maxRows, isTableRenderer = isTableRenderer )
             WorkingDataCache.putInCache(self.options, workingDF, constraints)
         
         if self.options.get("sortby", None):
@@ -237,11 +237,7 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
         return False
 
     """ Set to true for table rendering """
-    def supportsNonNumericValueFields(self, handlerId):
-        return False
-
-    """ Set to true for table rendering """
-    def supportsNaN(self, handlerId):
+    def isTableRenderer(self):
         return False
 
     def supportsKeyFields(self, handlerId):
@@ -312,8 +308,6 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
         if valueFieldStr is not None:
             valueFields = valueFieldStr.split(",")
             valueFields = [val for val in valueFields if val in fieldNames]
-        if self.supportsNonNumericValueFields(self.handlerId) and len(valueFields) > 0:
-            return valueFields
 
         numericValueFields = []
         for valueField in valueFields:

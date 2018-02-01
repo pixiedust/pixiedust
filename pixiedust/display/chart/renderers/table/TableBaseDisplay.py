@@ -50,12 +50,9 @@ class TableBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
     def canRenderChart(self):
         return (True, None)
 
-    def supportsNonNumericValueFields(self, handlerId):
+    def isTableRenderer(self):
         return True
     
-    def supportsNaN(self, handlerId):
-        return True
-
     def supportsKeyFields(self, handlerId):
         return False
 
