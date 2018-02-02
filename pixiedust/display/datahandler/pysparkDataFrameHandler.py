@@ -89,7 +89,10 @@ class PySparkDataFrameDataHandler(BaseDataHandler):
             aggregation = None
 
         if isTableRenderer:
-            workingDF = self.entity.select(extraFields)
+            if len(extraFields) < 1:
+                workingDF = self.entity
+            else:
+                workingDF = self.entity.select(extraFields)
         else:
             extraFields = [a for a in extraFields if a not in xFields]
             workingDF = self.entity.select(xFields + extraFields + yFields)

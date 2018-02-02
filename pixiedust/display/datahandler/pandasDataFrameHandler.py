@@ -72,7 +72,10 @@ class PandasDataFrameDataHandler(BaseDataHandler):
             aggregation = None
 
         if isTableRenderer:
-            workingDF = self.entity[extraFields]
+            if len(extraFields) < 1:
+                workingDF = self.entity
+            else:
+                workingDF = self.entity[extraFields]
         else:
             extraFields = [a for a in extraFields if a not in xFields and a not in yFields]
             workingDF = self.entity[xFields + extraFields + yFields]

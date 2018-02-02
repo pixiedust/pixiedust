@@ -282,7 +282,7 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
         if keyFieldStr is not None:
             keyFields = keyFieldStr.split(",")
             keyFields = [val for val in keyFields if val in fieldNames]
-        if len(keyFields) == 0:
+        if len(keyFields) == 0 and not self.isTableRenderer():
             raise ShowChartOptionDialog()
         else:
             return keyFields
@@ -314,11 +314,13 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
             if self.dataHandler.isNumericField(valueField) or aggregation == "COUNT":
                 numericValueFields.append(valueField)
 
-        if not self.supportsKeyFields(self.handlerId) and len(numericValueFields) == 0:
+        if not self.supportsKeyFields(self.handlerId) and len(numericValueFields) == 0 and not self.isTableRenderer():
             raise ShowChartOptionDialog()
         return numericValueFields
     
     def canRenderChart(self):
+        if self.isTableRenderer():
+            return (True, None)
         aggregation = self.getAggregation()
         if (aggregation == "COUNT"):
             return (True, None)

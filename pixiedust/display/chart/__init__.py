@@ -43,7 +43,7 @@ class ChartDisplayMeta(DisplayHandlerMeta):
                 {"categoryId": "Chart", "title": "Pie Chart", "icon": "fa-pie-chart", "id": "pieChart"},
                 {"categoryId": "Chart", "title": "Map", "icon": "fa-globe", "id": "mapView"},
                 {"categoryId": "Chart", "title": "Histogram", "icon": "fa-area-chart", "id": "histogram"},
-                {"categoryId": "Chart", "title": "Table", "icon": "fa-table", "id": "tableView"}
+                {"categoryId": "Table", "title": "Table.Next", "icon": "fa-table", "id": "tableView"}
             ]
 
             infos = [info for info in infos if info["id"] in PixiedustRenderer.getHandlerIdList(dataHandler.isStreaming)]
