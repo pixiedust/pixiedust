@@ -453,9 +453,14 @@ function readExecInfo(pd_controls, element, searchParents, fromExecInfo){
     if (execInfo.script){
         execInfo.script = execInfo.script.trim()
         {#set up the self variable#}
-        var match = pd_controls.command.match(/display\((\w*),/)
-        if (match){
-            var entity = match[1]
+        var entity = pd_controls.entity;
+        if (!entity){
+            var match = pd_controls.command.match(/display\((\w*),/);
+            if (match){
+                entity = match[1];
+            }
+        }
+        if (entity){
             console.log("Inject self with entity", entity)
             execInfo.script = "from pixiedust.utils.shellAccess import ShellAccess\n"+
                 "self=ShellAccess['" + entity + "']\n" +
