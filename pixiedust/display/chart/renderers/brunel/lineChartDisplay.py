@@ -21,17 +21,61 @@ from .brunelBaseDisplay import BrunelBaseDisplay
 @PixiedustRenderer(id="lineChart")
 @Logger()
 class LineChartRenderer(BrunelBaseDisplay):
+
+    def isSubplot(self):
+        return self.options.get("lineChartType", None) == "subplots"
+
     def compute_brunel_magic(self):
         parts = ["line"]
-
+        subplots = self.isSubplot()
+        valueFields = self.getValueFields()
+        clusterby = self.options.get("clusterby")
+        self.debug("clusterby: {}".format(clusterby))
+        self.debug("subplots: {}".format(subplots))
+        #self.debug("Fields: {}".format(fieldNames[1]))
+        
         for index, key in enumerate(self.getKeyFields()):
-            #if index > 0:
-            #    parts.append("+ line")
-            parts.append("x({})".format(key))
-            fieldNames = self.getValueFields()
-            if len(fieldNames) > 1:
-                parts.append("color(#series)")
-            parts.append("y({})".format(",".join(self.getValueFields())))
-            parts.append(self.get_sort())
-            #self.debug(str(len(fieldNames)))
+            if subplots is False:
+                if clusterby is None:
+                    parts.append("x({})".format(key))
+                    if len(valueFields) == 1:
+                        parts.append("y({})".format(valueFields[0]))
+                    elif len(valueFields) > 1:
+                        parts.append("y({})".format(",".join(valueFields)))
+                        parts.append("color(#series)")
+                elif clusterby is not None:
+                    if len(valueFields) > 1:
+                        self.addMessage("Warning: 'Cluster By' ignored when grouped option with multiple Value Fields is selected") 
+                    #else:    
+                        #for j, valueField in enumerate(valueFields):
+                        #    pivot = self.getWorkingPandasDataFrame().pivot(
+                        #    index=keyFields[0], columns=clusterby, values=valueField)
+                        #    pivot.index.name=keyFields[0]        
+            elif subplots is True:
+                if clusterby is None:
+                    parts.append("x({})".format(key))
+                    parts.append("y({})".format(valueFields[0]))   
+                    if len(valueFields) > 1:
+                         for panel in range(1,len(valueFields)):
+                            parts.append("| line x({})".format(key))
+                            parts.append("y({})".format(valueFields[panel]))
+                elif clusterby is not None:
+                    self.addMessage("Warning: 'Cluster By' not implemented for Brunel yet")
+
+
+                        
+                    
+        
+        # for index, key in enumerate(self.getKeyFields()):
+        #     if index > 0:
+        #         parts.append("+ line")
+        #     parts.append("x({})".format(key))
+        #     parts.append("y({})".format(",".join(self.getValueFields())))
+        #     fieldNames = self.getValueFields()
+        #     if len(fieldNames) > 1:
+        #         parts.append("color(#series)")
+        #     #elif  
+        #     parts.append(self.get_sort())
+        parts.append(self.get_sort())
+
         return parts
