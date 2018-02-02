@@ -77,10 +77,11 @@ class MapViewDisplay(MapBoxBaseDisplay):
 
         return self.renderTemplate("iframesrcdoc.html", body=body, prefwidth=self.getPreferredOutputWidth(), prefheight=self.getPreferredOutputHeight())
 
-    def renderMapView(self, mbtoken):
+    # override the default so that the non-numeric fields are collected as extra fields
+    def getExtraFields(self):
+        return self.getNonNumericValueFields()
 
-        # check if we have any non-numeric value fields
-        self.extraFields = self.getNonNumericValueFields()
+    def renderMapView(self, mbtoken):
 
         # generate a working pandas data frame using the fields we need
         df = self.getWorkingPandasDataFrame()
@@ -111,7 +112,7 @@ class MapViewDisplay(MapBoxBaseDisplay):
 
         # calculate indexes of all fiels
         valueFieldIdxs = []
-        allProps = valueFields + preserveCols + self.extraFields
+        allProps = valueFields + preserveCols + self.getExtraFields()
         for j, valueField in enumerate( allProps ):
             valueFieldIdxs.append(df.columns.get_loc(valueField))
 

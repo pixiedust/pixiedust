@@ -114,7 +114,6 @@ def commonChartOptions(func):
 class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
 
     commonOptions = co
-    extraFields = []
 
     def __init__(self, options, entity, dataHandler=None):
         super(BaseChartDisplay,self).__init__(options,entity,dataHandler)
@@ -161,7 +160,7 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
             del self.options[key]
 
     def getExtraFields(self):
-        return self.extraFields
+        return []
 
     def addMessage(self, message):
         self.messages.append(message)
