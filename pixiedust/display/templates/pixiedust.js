@@ -419,10 +419,11 @@ function readExecInfo(pd_controls, element, searchParents, fromExecInfo){
 
     function applyEntity(c, e, doptions){
         {#add pixieapp info #}
-        var match = c.match(/display\((\w*),/);
-        if (match){
-            doptions.nostore_pixieapp = match[1];
-        }
+        // var match = c.match(/display\((\w*),/);
+        // if (match){
+        //     debugger;
+        //     doptions.nostore_pixieapp = match[1];
+        // }
         doptions.prefix = pd_controls.prefix;
 
         pd_controls.sniffers = pd_controls.sniffers || [];
