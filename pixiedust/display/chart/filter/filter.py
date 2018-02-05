@@ -372,7 +372,7 @@ class FilterApp(BaseOptions):
             )
         )
         js = self.env.from_string("""
-            var pd_control = {{this.get_pd_controls(command=command, avoidMetadata=True, options=run_options, black_list=['nostore_figureOnly']) | tojson}}
+            var pd_control = {{this.get_pd_controls(command=command, avoidMetadata=True, options=run_options, black_list=['nostore_figureOnly'], prefix=this.run_options['prefix']) | tojson}}
             pixiedust.executeDisplay(
                 pd_control,
                 { "targetDivId": "wrapperHTML{{parent_prefix}}" }
