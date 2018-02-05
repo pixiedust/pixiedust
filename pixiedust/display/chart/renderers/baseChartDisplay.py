@@ -394,12 +394,6 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
             valueFields = self.getValueFields()
         except ShowChartOptionDialog:
             self._addHTMLTemplate("renderer.html", chartFigure="", optionsTitle=optionsTitle, show_options_dialog=True)
-            # options = dict(self.options)
-            # if 'handlerId' in options:
-            #     del options['handlerId']
-
-            # from pixiedust.display.app.pixieapp import runPixieApp
-            # runPixieApp(self.get_options_dialog_pixieapp(), entity=self.entity, parent_command=self._genDisplayScript(), parent_pixieapp=None, options=options)
             return
         
         # render

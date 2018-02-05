@@ -68,14 +68,14 @@ class FilterApp(BaseOptions):
         
         return """
         <style>
-        select.form-control { margin-left:0px }
+        #columnselect{{prefix}}, #constraintsselect{{prefix}} { margin:0px; width:calc(100% - 10px); }
         .div-inline { display:inline-block;vertical-align:top } 
         .filter-heading {vertical-align:top;font-weight:500;margin-bottom:10px;}
         .filter-heading > span:last-of-type { font-size: small;font-weight: 300;display: inline-block;padding-left: 10px; }
         .form-inline select {vertical-align:top !important}
         .new-line {display:block !important} 
-        .query-input { min-width:224px }
-        input.form-control, .filter-clear, .filter-control { margin-right: 12px;}
+        .query-input { min-width: calc(100% - 10px); }
+        input.form-control, .filter-clear { margin-right: 12px;}
         .stats .label {margin: 0 0.2em} 
         .filter-ui .label {font-weight:300} 
         .stats-table { width:356px; } 
@@ -84,8 +84,12 @@ class FilterApp(BaseOptions):
         .panel-heading .data-toggle:before { font-family:fontAwesome; content:"\\f0d7\\00a0\\00a0"; }
         .panel-heading .data-toggle.collapsed:before { font-family:fontAwesome; content:"\\f0da\\00a0\\00a0"; }
         a.data-toggle, a.data-toggle:link, a.data-toggle:visited { text-decoration: none }
-        #regex-help-panel .panel-body { max-height:240px;white-space:nowrap;overflow-y:scroll}
-        #regex-help-panel dd { margin-left: 40px}
+        #casematterscheck_{{prefix}}, regexcheck_{{prefix}} {margin: 0;}
+        #df-stats-panel{{prefix}}, #regex-help-panel{{prefix}} { margin-bottom: 0; }
+        #df-stats-panel{{prefix}} .panel-heading, #regex-help-panel{{prefix}} .panel-heading { font-size: 13px; padding: 9px 15px; }
+        #df-stats-panel{{prefix}} .panel-body, #regex-help-panel{{prefix}} .panel-body { padding:0;max-height:240px;white-space:nowrap;overflow-y:scroll}
+        #regex-help-panel{{prefix}} h3, #regex-help-panel{{prefix}} dt { margin-left: 10px}
+        #regex-help-panel{{prefix}} dd { margin-left: 25px}
         </style>
         <div class="filter-ui">
             <div class="filter-heading panel-title">
@@ -93,15 +97,16 @@ class FilterApp(BaseOptions):
                 <span id="results{{prefix}}" class="no_loading_msg"></span>
             </div>
             
-            <form class="form-inline">
-                <div class="form-group">
-                    <select id="columnselect{{prefix}}" pd_options="field=$val(columnselect{{prefix}})" pd_target="constraints{{prefix}}" class="form-control filter-select col-4" aria-label="select column">
+            <form class="form-inline row">
+                <div class="form-group col-sm-2">
+                    <select id="columnselect{{prefix}}" pd_options="field=$val(columnselect{{prefix}})" pd_target="constraints{{prefix}}" class="form-control filter-select" aria-label="select column">
                     {%for col in cols %}
                         <option value="{{col}}">{{col}}</option>
                     {%endfor%}
                     </select>
-                    
-                    <div id="constraints{{prefix}}" class="div-inline no_loading_msg"></div>
+                </div>
+                <div class="form-group col-sm-10">
+                    <div id="constraints{{prefix}}" class="no_loading_msg"></div>
                 </div>
             </form>
         </div>
@@ -160,9 +165,17 @@ class FilterApp(BaseOptions):
         stats = ""
         controls = ""
         manualvalue = """
+        <div class="form-group col-sm-4">
             <input class="form-control query-input" id="manualvalue_{{prefix}}" placeholder="Query">
+        </div>
         """
         script = """
+            $('#manualvalue_{{prefix}}').keydown(function(event){
+                if (event.keyCode == 13) {
+                    event.preventDefault()
+                    return false
+                }
+            })
             if ('{{filteredConstraint}}') {
                 $('#constraintsselect{{prefix}}').val('{{filteredConstraint}}')
             }
@@ -181,13 +194,14 @@ class FilterApp(BaseOptions):
                 }
             """
             controls = """
-                <div class="form-group div-inline filter-control">
-                    <input type="checkbox" id="casematterscheck_{{prefix}}" value="casematters"> Case-sensitive<br/>
-                    <input type="checkbox" id="regexcheck_{{prefix}}" value="regex"> Regex
-                </div>
+            <div class="form-group col-sm-2">
+                <input type="checkbox" id="casematterscheck_{{prefix}}" value="casematters"> Case-sensitive<br/>
+                <input type="checkbox" id="regexcheck_{{prefix}}" value="regex"> Regex
+            </div>
               """
             stats += """
-                <div id="regex-help-panel" class="panel panel-default div-inline">
+            <div class="form-group col-sm-4">
+                <div id="regex-help-panel{{prefix}}" class="panel panel-default">
                     <div class="panel-heading">
                         <h4 class="panel-title " style="margin:0px">
                             <a data-toggle="collapse" class="data-toggle" href="#regex-help-{{prefix}}">Regex help</a>
@@ -224,20 +238,24 @@ class FilterApp(BaseOptions):
                         </div>
                     </div>
                 </div>
+            </div>
             """
         
         else: # numeric field
             controls = """
+            <div class="form-group col-sm-1">
             <select id="constraintsselect{{prefix}}" class="form-control filter-select col-3">
                 <option value="less_than"> < </option>
                 <option value="equal_to"> = </option>
                 <option value="greater_than"> > </option>
             </select>
+            </div>
             """
 
             # GENERATE A TABLE OF STATISTICS
             stats += """
-                <div id="df-stats-panel" class="panel panel-default div-inline">
+            <div class="form-group col-sm-5">
+                <div id="df-stats-panel{{prefix}}" class="panel panel-default">
                     <div class="panel-heading">
                         <h4 class="panel-title " style="margin:0px">
                             <a data-toggle="collapse" class="data-toggle" href="#df-stats-{{prefix}}">Statistics</a>
@@ -250,6 +268,7 @@ class FilterApp(BaseOptions):
             stats += self.stats_table(field)
 
             stats += """
+                        </div>
                     </div>
                 </div>
             </div>
@@ -258,16 +277,27 @@ class FilterApp(BaseOptions):
         script += """
             filterInfo{{prefix}}()
         """
-        submit = """<button type="button" class="btn btn-default btn-primary filter-submit" pd_options="field={{field}};constraint=None;val=$val(valOnUpdate{{prefix}});casematters=$val(casematterscheck_{{prefix}});regex=$val(regexcheck_{{prefix}})" pd_target="results{{prefix}}">Update</button> """
+        submit = """
+        <div class="form-group col-sm-1">
+            <button type="button" class="btn btn-default btn-primary filter-submit" pd_options="field={{field}};constraint=None;val=$val(valOnUpdate{{prefix}});casematters=$val(casematterscheck_{{prefix}});regex=$val(regexcheck_{{prefix}})" pd_target="results{{prefix}}">Apply</button>
+        </div>
+        """
         if not self.dfh.isStringField(field):
-            submit = """<button type="button" class="btn btn-default btn-primary filter-submit" pd_options="field={{field}};constraint=$val(constraintsselect{{prefix}});val=$val(valOnUpdate{{prefix}});casematters=False;regex=False" pd_target="results{{prefix}}">Update</button> """
+            submit = """
+            <div class="form-group col-sm-1">
+                <button type="button" class="btn btn-default btn-primary filter-submit" pd_options="field={{field}};constraint=$val(constraintsselect{{prefix}});val=$val(valOnUpdate{{prefix}});casematters=False;regex=False" pd_target="results{{prefix}}">Apply</button>
+            </div>
+            """
         
-        clear = """<button type="button" class="btn btn-default filter-clear" pd_script="self.clear_filter('$val(clearFilterInfo{{prefix}})')">Clear</button>"""
+        clear = """
+        <div class="form-group col-sm-1">
+            <button type="button" class="btn btn-default filter-clear" pd_script="self.clear_filter('$val(clearFilterInfo{{prefix}})')">Clear</button>
+        </div>"""
 
         if self.dfh.isStringField(field):
-            return manualvalue + controls + submit + clear + stats + '<script>' + script + '</script>'
+            return '<div class="row">' + manualvalue + controls + submit + clear + stats + '<script>' + script + '</script></div>'
         else:
-            return controls + manualvalue + submit + clear + stats + '<script>' + script + '</script>'
+            return '<div class="row">' + controls + manualvalue + submit + clear + stats + '<script>' + script + '</script></div>'
 
     @route(field="*", constraint="*", casematters="*")
     def noqueryvalue(field, constraint, casematters): 
@@ -361,21 +391,4 @@ class FilterApp(BaseOptions):
             </table>""".format(summaryname, summaryvalue, quantname, quantvalue, freqvalue)
 
     def on_update(self):
-        run_options = self.run_options
-        #update with the new options
-        run_options.update(self.get_new_options())
-        command = "{}({},{})".format(
-            self.parsed_command['func'],
-            self.parsed_command['args'][0],
-            ",".join(
-                ["{}='{}'".format(k, v) for k, v in iteritems(run_options)]
-            )
-        )
-        js = self.env.from_string("""
-            var pd_control = {{this.get_pd_controls(command=command, avoidMetadata=True, options=run_options, black_list=['nostore_figureOnly'], prefix=this.run_options['prefix']) | tojson}}
-            pixiedust.executeDisplay(
-                pd_control,
-                { "targetDivId": "wrapperHTML{{parent_prefix}}" }
-            );
-        """).render(this=self, run_options=run_options, command=command,parent_prefix=self.parent_prefix)
-        return self._addJavascript(js)
+        return self.on_ok()
