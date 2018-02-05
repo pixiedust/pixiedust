@@ -90,7 +90,7 @@ class FilterApp(BaseOptions):
         <div class="filter-ui">
             <div class="filter-heading panel-title">
                 <span>Filter:</span>
-                <span id="results{{prefix}}"></span>
+                <span id="results{{prefix}}" class="no_loading_msg"></span>
             </div>
             
             <form class="form-inline">
