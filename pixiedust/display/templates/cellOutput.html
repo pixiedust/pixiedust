@@ -53,6 +53,16 @@
           </div>
         {%endif%}
       {%endfor%}
+        <a id="filterbutton{{prefix}}" href="#filter{{prefix}}" class="btn btn-small btn-default display-type-button" data-toggle="collapse" title="Filter">
+          <i class="fa fa-filter" aria-hidden="true"></i>
+        </a>
+      </div>
+      <div id="filter{{prefix}}" class="collapse no_loading_msg" style="margin-bottom:15px;padding:10px 15px;border: 1px solid #eaeaea;background-color: #fafafa;">
+        <div pd_render_onload pd_app="pixiedust.display.chart.filter.FilterApp" class="no_loading_msg">
+          <script>
+            $(document).trigger('pd_event', {type:"pd_load", targetNode: $("#filter{{prefix}}")});
+          </script>
+        </div>
       </div>
     {%endif%}
     <div id="wrapperJS{{this.getPrefix()}}"></div>

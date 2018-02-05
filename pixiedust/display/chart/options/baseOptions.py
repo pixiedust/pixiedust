@@ -65,7 +65,10 @@ class BaseOptions(with_metaclass(ABCMeta)):
         )
         js = self.env.from_string("""
             pixiedust.executeDisplay(
-                {{this.get_pd_controls(command=command, avoidMetadata=True, options=run_options, black_list=['nostore_figureOnly']) | tojson}}
+                {{this.get_pd_controls(
+                    command=command, avoidMetadata=True, options=run_options, black_list=['nostore_figureOnly'],
+                    prefix=this.run_options['prefix']
+                ) | tojson}}
             );
         """).render(this=self, run_options=run_options, command=command)
         return self._addJavascript(js)
