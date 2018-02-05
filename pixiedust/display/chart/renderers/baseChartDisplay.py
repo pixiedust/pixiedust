@@ -395,9 +395,12 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
             keyFields = self.getKeyFields()
             valueFields = self.getValueFields()
         except ShowChartOptionDialog:
-            self.dialogBody = self.renderTemplate(dialogTemplate, **dialogOptions)
-            self._addJavascriptTemplate("chartOptions.dialog", optionsDialogBody=self.dialogBody, 
-                optionsTitle=optionsTitle, inScript=True, **dialogOptions)
+            options = dict(self.options)
+            if 'handlerId' in options:
+                del options['handlerId']
+
+            from pixiedust.display.app.pixieapp import runPixieApp
+            runPixieApp(self.get_options_dialog_pixieapp(), entity=self.entity, parent_command=self._genDisplayScript(), parent_pixieapp=None, options=options)
             return
         
         # render

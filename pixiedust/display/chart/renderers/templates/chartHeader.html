@@ -2,18 +2,17 @@
 {% set flags={} %}
 <div class="row chart-button-group">
     <div class="form-group col-sm-9" style="padding-right:10px;">
-        <button id="mapOptions{{prefix}}" class="btn btn-default">Options</button>
+        {% if this.get_options_dialog_pixieapp() %}
+        <button pd_app="{{this.get_options_dialog_pixieapp()}}" class="btn btn-default no_loading_msg">
+            <pd_event_handler pd_source="*" pd_script="ShellAccess[eventInfo['entity']].on_ok()"></pd_event_handler>
+            Options
+        </button>
+        {%endif%}
         {% if this.options.get('mpld3') == 'true' %}
             {% if flags.update({'downloadSVG': True}) %} {% endif %}
             <button id="downloadSVG{{prefix}}" class="btn btn-default">Download SVG</button>
         {% endif %}
         <button pd_app="pixiedust.apps.gateway.share.ShareChartApp" pd_options="runInDialog=true;title=Share Chart" class="btn btn-default no_loading_msg">Share</button>
-        {% if this.get_options_dialog_pixieapp() %}
-        <button pd_app="{{this.get_options_dialog_pixieapp()}}" class="btn btn-default no_loading_msg">
-            <pd_event_handler pd_source="*" pd_script="ShellAccess[eventInfo['entity']].on_ok()"></pd_event_handler>
-            Options (New)
-        </button>
-        {%endif%}
     </div>
     {% if this.getRendererList() and this._rendererId %}
     <div class="form-group col-sm-3">
@@ -28,12 +27,6 @@
 </div>
 
 <script>
-$("#mapOptions{{prefix}}").click(function(){
-    {% with inScript = True %}
-    {%include resModule + ":chartOptions.dialog" %}
-    {% endwith %}
-});
-
 {%if flags.get("downloadSVG",False)%}
 setTimeout(function(){
     mpld3Node = $("#wrapperHTML{{prefix}} svg.mpld3-figure");
