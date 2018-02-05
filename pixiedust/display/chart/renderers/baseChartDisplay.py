@@ -29,6 +29,7 @@ import pandas as pd
 import time
 import inspect
 import re
+import json
 
 class ShowChartOptionDialog(Exception):
     pass
@@ -173,12 +174,13 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
         aggregation = self.getAggregation()
         maxRows = self.getMaxRows()
         timeseries = self.options.get("timeseries", 'false')
+        filter_options = json.loads(self.options.get("filter", '{}'))
         #remember the constraints for this cache, they are the list of variables
         constraints = locals()
 
         workingDF = WorkingDataCache.getFromCache(self.options, constraints )
         if workingDF is None:
-            workingDF = self.dataHandler.getWorkingPandasDataFrame(xFields, yFields, extraFields = extraFields, aggregation=aggregation, maxRows = maxRows )
+            workingDF = self.dataHandler.getWorkingPandasDataFrame(xFields, yFields, extraFields = extraFields, aggregation=aggregation, maxRows = maxRows, filterOptions=filter_options)
             WorkingDataCache.putInCache(self.options, workingDF, constraints)
         
         if self.options.get("sortby", None):
