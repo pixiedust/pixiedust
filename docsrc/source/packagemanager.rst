@@ -9,6 +9,10 @@ uninstall maven packages into your notebook kernel without editing
 configuration files. This component is essential when you run
 notebooks from a hosted cloud environment and do not have access to the configuration files.
 
+.. raw:: html
+
+    <!-- START EXCLUDE -->
+
 You can use this component in the following ways:
 
 - Install a spark package from spark-packages.org.
@@ -64,6 +68,10 @@ kernel is restarted, the library is added to the classpath and can be
 used from your Python notebook.
 
 .. note::  Some libraries, such as GraphFrames include a python module within it. PixieDust automatically adds the python file into the SparkContext. However, you must explicitly call **pixiedust.installPackage** at the beginning of every kernel session so that the python modules are added to the SparkContext.
+
+.. raw:: html
+
+    <!-- END EXCLUDE -->
 
 Install from maven search repository
 ------------------------------------
