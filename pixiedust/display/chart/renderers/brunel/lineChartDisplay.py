@@ -21,13 +21,47 @@ from .brunelBaseDisplay import BrunelBaseDisplay
 @PixiedustRenderer(id="lineChart")
 @Logger()
 class LineChartRenderer(BrunelBaseDisplay):
+
+    def isSubplot(self):
+        return self.options.get("lineChartType", None) == "subplots"
+
+    def getExtraFields(self):
+        if not self.isSubplot() and len(self.getValueFields())>1:
+            #no clusterby if we are grouped and multiValueFields
+            return []
+    
+        clusterby = self.options.get("clusterby")
+        return [clusterby] if clusterby is not None else []
+
     def compute_brunel_magic(self):
         parts = ["line"]
+        subplots = self.isSubplot()
+        valueFields = self.getValueFields()
+        keyFields = self.getKeyFields()
+        clusterby = self.options.get("clusterby")
+        
+        if subplots is False:
+            if clusterby is None:
+                parts.append("x({})".format(keyFields[0]))
+                if len(valueFields) == 1:
+                    parts.append("y({})".format(valueFields[0]))
+                elif len(valueFields) > 1:
+                    parts.append("y({})".format(",".join(valueFields)))
+                    parts.append("color(#series)")
+            elif clusterby is not None:
+                if len(valueFields) > 1:
+                    self.addMessage("Warning: 'Cluster By' ignored when grouped option with multiple Value Fields is selected") 
+        elif subplots is True:
+            if clusterby is None:
+                parts.append("x({})".format(keyFields[0]))
+                parts.append("y({})".format(valueFields[0]))   
+                if len(valueFields) > 1:
+                    for panel in range(1,len(valueFields)):
+                        parts.append("| line x({})".format(keyFields[0]))
+                        parts.append("y({})".format(valueFields[panel]))
+            elif clusterby is not None:
+                self.addMessage("Warning: 'Cluster By' not implemented for Brunel yet")
 
-        for index, key in enumerate(self.getKeyFields()):
-            if index > 0:
-                parts.append("+ line")
-            parts.append("x({})".format(key))
-            parts.append("y({})".format(",".join(self.getValueFields())))
-            parts.append(self.get_sort())
+        parts.append(self.get_sort())
+
         return parts
