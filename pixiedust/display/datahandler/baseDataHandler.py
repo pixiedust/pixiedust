@@ -38,3 +38,6 @@ class BaseDataHandler(object):
         if sorted:
             fieldNamesAndTypes.sort(key=lambda x: x[0])
         return fieldNamesAndTypes
+
+    def get_filtered_dataframe(self, filter_options):
+        return self.entity

@@ -16,38 +16,26 @@
 
 from pixiedust.display.app import *
 from pixiedust.utils import Logger
-from .optionsShell import OptionsShell
-from .components import KeyValueSelector
-from .components import AggregationSelector
-from .components import RowCount
+from pixiedust.display.chart.options.optionsShell import *
+from pixiedust.display.chart.options.components.TableValueSelector import *
+from pixiedust.display.chart.options.components.AggregationSelector import *
+from pixiedust.display.chart.options.components.RowCount import *
 
 @PixieApp
 @Logger()
-class DefaultOptions(OptionsShell, KeyValueSelector, AggregationSelector, RowCount):
+class TableOptions(OptionsShell, TableValueSelector, AggregationSelector, RowCount):
     def setup(self):
         OptionsShell.setup(self)
         self.chart_options.append({
-            "optid": "keyvalue",
+            "optid": "tablevalue",
             "classname": "no_loading_msg",
-            "keyFields": lambda: self.run_options.get("keyFields") or "",
-            "valueFields": lambda: self.options.get("valueFields") or "",
-            "widget": "pdKeyValueSelector"
+            "tableFields": lambda: self.options.get("tableFields") or "",
+            "widget": "pdTableValueSelector"
         })
-
-        if self.aggregation_supported():
-            self.chart_options.append({
-                "optid": "aggregation",
-                "classname": "field-width-50 no_loading_msg",
-                "aggregation": lambda: self.run_options.get("aggregation") or "",
-                "widget": "pdAggregationSelector"
-            })
 
         self.chart_options.append({
             "optid": "rowCount",
             "classname": "field-width-50 no_loading_msg",
-            "count": lambda: self.run_options.get("rowCount") or 500,
+            "count": lambda: self.options.get("rowCount") or 500,
             "widget": "pdRowCount"
         })
-
-    def aggregation_supported(self):
-        return self.get_renderer.supportsAggregation(self.parsed_command['kwargs']['handlerId'])

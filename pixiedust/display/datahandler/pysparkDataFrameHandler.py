@@ -78,18 +78,54 @@ class PySparkDataFrameDataHandler(BaseDataHandler):
         self.entity = self.entity.withColumn("pd_count", lit(1))
         return "pd_count"
 
+    def get_filtered_dataframe(self, filter_options):
+        df = self.entity
+        if filter_options is not None:
+            field = filter_options['field'] if 'field' in filter_options else ''
+            constraint = filter_options['constraint'] if 'constraint' in filter_options else ''
+            val = filter_options['value'] if 'value' in filter_options else ''
+            regex = filter_options['regex'] if 'regex' in filter_options else 'False'
+            casematters = filter_options['case_matter'] if 'case_matter' in filter_options else 'False'
+
+            if field and val:
+                if self.isStringField(field) and regex and casematters:
+                    df = df.filter(df[field].rlike(val))
+                elif self.isStringField(field) and regex and not casematters:
+                    df = df.filter(df[field].rlike("(?i)" + val))
+                elif self.isStringField(field) and not regex and casematters:
+                    df = df.filter(df[field].rlike("(.*)" + val + "(.*)"))
+                elif self.isStringField(field) and not regex and not casematters:
+                    df = df.filter(df[field].rlike("(?i)(.*)" + val + "(.*)"))
+                else: # a numeric SQL query
+                    c = "=="
+                    if constraint == "less_than":
+                        c = "<"
+                    if constraint == "greater_than":
+                        c = ">"
+                    df = df.filter(field + " " + c + " " + val)
+        return df
+
     """
         Return a cleaned up Pandas Dataframe that will be used as working input to the chart
     """
-    def getWorkingPandasDataFrame(self, xFields, yFields, extraFields=[], aggregation=None, maxRows = 100):
+    def getWorkingPandasDataFrame(self, xFields, yFields, extraFields=[], aggregation=None, maxRows = 100, filterOptions={}, isTableRenderer=False):
+        filteredDF = self.get_filtered_dataframe(filterOptions)
+
         if xFields is None or len(xFields)==0:
             #swap the yFields with xFields
             xFields = yFields
             yFields = []
             aggregation = None
 
-        extraFields = [a for a in extraFields if a not in xFields]
-        workingDF = self.entity.select(xFields + extraFields + yFields)
+        if isTableRenderer:
+            if len(extraFields) < 1:
+                workingDF = filteredDF
+            else:
+                workingDF = filteredDF.select(extraFields)
+        else:
+            extraFields = [a for a in extraFields if a not in xFields]
+            workingDF = filteredDF.select(xFields + extraFields + yFields)
+
         if aggregation and len(yFields)>0:
             aggMapper = {"SUM":"sum", "AVG": "avg", "MIN": "min", "MAX": "max"}
             aggregation = aggMapper.get(aggregation, "count")
@@ -98,7 +134,8 @@ class PySparkDataFrameDataHandler(BaseDataHandler):
             for yField in yFields:
                 workingDF = workingDF.withColumnRenamed("{0}({1})".format(aggregation,yField), yField)
 
-        workingDF = workingDF.dropna()
+        if not isTableRenderer:
+            workingDF = workingDF.dropna()
         count = workingDF.count()
         if count > maxRows:
             workingDF = workingDF.sample(False, (float(maxRows) / float(count)))
@@ -112,14 +149,15 @@ class PySparkDataFrameDataHandler(BaseDataHandler):
             except:
                 self.exception("Unable to convert field {} to datetime".format(field))
 
-        #sort by xFields
-        pdf.sort_values(xFields + extraFields, inplace=True)
+        if not isTableRenderer:
+            #sort by xFields
+            pdf.sort_values(xFields + extraFields, inplace=True)
         return pdf
 
     """
-    Custom implementation of toPandas. It checks the spark type of each column in the dataframe for DecimalType. If any are found, it check the 
-    corresponding pandas dataframe column to make sure it's not a python object type (which would cause issue during plotting). If that's the case, 
-    it cast them as float
+    Custom implementation of toPandas. It checks the spark type of each column in the dataframe for DecimalType. If any are found, it checks the 
+    corresponding pandas dataframe column to make sure it's not a python object type (which would cause an issue during plotting). If that's the case, 
+    it casts them as float
     """
     def toPandas(self, workingDF):        
         decimals = []

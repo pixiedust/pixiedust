@@ -1,112 +1,166 @@
 <style>
-  .fields-container ul {
-    overflow-y: auto;
-    border: 1px solid #ccc;
-    padding: 5px 0 0 0;
-    list-style-type: none;
-  }
-  .fields-container label {
-    color: #008571;
-    font-weight: bold;
-  }
-  .fields-container li {
-    margin: 0px 5px 5px 5px;
-    padding: 5px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    background-color: #daffff;
-    width: auto;
-    min-width: 150px;
-  }
-  .fields-container .keys-fields > label:nth-child(2),
-  .fields-container .values-fields > label:nth-child(2) {
-    display: none;
-  }
-  .fields-container.field-drag .keys-fields:not(.field-drag-acceptable) > ul,
-  .fields-container.field-drag .values-fields:not(.field-drag-acceptable) > ul {
-    opacity: 0.5;
-  }
-  .fields-container.field-drag .keys-fields:not(.field-drag-acceptable) > label:first-child,
-  .fields-container.field-drag .values-fields:not(.field-drag-acceptable) > label:first-child {
-    display: none;
-  }
-  .fields-container.field-drag .keys-fields:not(.field-drag-acceptable) > label:nth-child(2),
-  .fields-container.field-drag .values-fields:not(.field-drag-acceptable) > label:nth-child(2) {
-    color: #ff0000;
-    font-weight: 400;
-    display: inline-block;
-  }
-  .fieldslist-wrapper {
-    height: 100%;
-  }
-  .fieldslist-wrapper label {
-    color: #008571;
-    font-weight: bold;
-  }
-  .fieldslist-showlink {
-    color: #337ab7;
-    cursor: pointer;
-    display: inline-block;
-    font-size: 0.95em;
-    font-weight: 300;
-    position: absolute;
-    right: 20px;
-    top: 3px;
-  }
-  .fieldslist-showlink:hover {
-    color: #286090;
-    text-decoration: underline;
-  }
-  .fieldslist-allfields {
-    height: calc(100% - 65px);
-  }
-  .fieldslist-allfields.numeric-only > [data-field-type="string"] {
-    display: none;
-  }
-  .fieldslist-wrapper .ui-draggable-dragging {
-    width: 90%;
-  }
-  .field-remove {
-    color: #777;
-    font-size: 14px;
-    float: right;
-    margin: 0px;
-    cursor: pointer;
-  }
-  .field-remove:after {
-    content: "x";
-  }
-  .field-name {
-    font-weight: 600;
-  }
-  .field-type {
-    float: right;
-    font-style: italic;
-  }
-  .keys-fields > ul {
-    height: 147px;
-  }
-  .keys-fields .field-type,
-  .values-fields .field-type {
-    display: none;
-  }
-  .keys-fields {
-    height: 177px;
-    margin-bottom: 5px;
-  }
-  .values-fields {
-    height: 365px;
-  }
-  .keys-fields + .values-fields {
-    height: 177px;
-  }
-  .warnEmptyValueFields {
-    font-size: smaller;
-    display: inline-block;
-    top: -10px;
-    position: relative;
-  }
+    .fields-container ul {
+      overflow-y: auto;
+      border: 1px solid #ccc;
+      padding: 5px 0 0 0;
+      list-style-type: none;
+    }
+    .fields-container label {
+      color: #008571;
+      font-weight: bold;
+    }
+    .fields-container li {
+      margin: 0px 5px 5px 5px;
+      padding: 5px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      background-color: #daffff;
+      width: auto;
+      min-width: 150px;
+    }
+    .fields-container .keys-fields > label:nth-child(2),
+    .fields-container .values-fields > label:nth-child(2) {
+      display: none;
+    }
+    .fields-container.field-drag .keys-fields:not(.field-drag-acceptable) > ul,
+    .fields-container.field-drag .values-fields:not(.field-drag-acceptable) > ul {
+      opacity: 0.5;
+    }
+    .fields-container.field-drag .keys-fields:not(.field-drag-acceptable) > label:first-child,
+    .fields-container.field-drag .values-fields:not(.field-drag-acceptable) > label:first-child {
+      display: none;
+    }
+    .fields-container.field-drag .keys-fields:not(.field-drag-acceptable) > label:nth-child(2),
+    .fields-container.field-drag .values-fields:not(.field-drag-acceptable) > label:nth-child(2) {
+      color: #ff0000;
+      font-weight: 400;
+      display: inline-block;
+    }
+    .fieldslist-wrapper {
+      height: 100%;
+    }
+    .fieldslist-wrapper label {
+      color: #008571;
+      font-weight: bold;
+    }
+    .fieldslist-showlink {
+      color: #337ab7;
+      cursor: pointer;
+      display: inline-block;
+      font-size: 0.95em;
+      font-weight: 300;
+      position: absolute;
+      right: 20px;
+      top: 3px;
+    }
+    .fieldslist-showlink:hover {
+      color: #286090;
+      text-decoration: underline;
+    }
+    .fieldslist-allfields {
+      height: calc(100% - 65px);
+    }
+    .fieldslist-allfields.numeric-only > [data-field-type="string"] {
+      display: none;
+    }
+    .fieldslist-wrapper .ui-draggable-dragging {
+      width: 90%;
+    }
+    .field-remove {
+      color: #777;
+      font-size: 14px;
+      float: right;
+      margin: 0px;
+      cursor: pointer;
+    }
+    .field-remove:after {
+      content: "x";
+    }
+    .field-name {
+      font-weight: 600;
+    }
+    .field-type {
+      float: right;
+      font-style: italic;
+    }
+    .keys-fields > ul {
+      height: 147px;
+    }
+    .keys-fields .field-type,
+    .values-fields .field-type {
+      display: none;
+    }
+    .keys-fields {
+      height: 177px;
+      margin-bottom: 5px;
+    }
+    .values-fields {
+      height: 365px;
+    }
+    .keys-fields + .values-fields {
+      height: 177px;
+    }
+    .warnEmptyValueFields {
+      font-size: smaller;
+      display: inline-block;
+      top: -10px;
+      position: relative;
+    }
 </style>
+<div class="fields-container row">
+  <div class="col-sm-6" style="padding: 0px 5px 0px 0px; height: 365px;">
+    <div class="fieldslist-wrapper" style="height:100%">
+      <label>Fields:</label>
+      <span class="fieldslist-showlink">Show only numeric columns</span>
+      <input type="text" class="fieldslist-filter form-control input-sm" placeholder="Search/Filter Fields">
+      <ul class="fieldslist-allfields">
+      {% for field in this.fieldNamesAndTypes %}
+        {% if field[0] in this.fieldNames %}
+        <li id="fieldslist{{prefix}}-{{this.fieldNames.index(field.0)+1}}" class="fieldslist-field-{{prefix}}" data-field="{{field.0}}" data-field-type="{{field.1}}">
+          <span class="field-name">{{field.0}}</span>
+          <span class="field-type">{{field.1}}</span>
+        </li>
+        {% endif %}
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  <div class="col-sm-6" style="padding: 0px 0px 0px 5px;">
+    {%if this.keyFieldsSupported %}
+    <div class="keys-fields">
+      <label>Keys: <i class="fa fa-question-circle" title="Controls the X-Axis of the chart. Rows will be grouped by Key columns. Columns may be {% for kf in this.keyFieldsType %}{% if this.keyFieldsType|length > 1%}{% if loop.last %}or {% endif %}{% endif %}{{kf}}{% if not loop.last %}, {% endif %}{% endfor %}."></i></label>
+      <label>Keys: Only {% for kf in this.keyFieldsType %}{% if this.keyFieldsType|length > 1%}{% if loop.last %}or {% endif %}{% endif %}{{kf}}{% if not loop.last %}, {% endif %}{% endfor %} columns are supported <i class="fa fa-warning"></i></label>
+      <ul id="keys-fields-{{prefix}}" class="field-drop" style="height:calc(100% - 30px);" pd_script="self.options_callback('keyFields', '$val(updateSelectedKeysFields)')">
+      {% for fieldName in this.keyFields %}
+        {% if fieldName in this.fieldNames %}
+        <li id="fieldslist{{prefix}}-{{this.fieldNames.index(fieldName)+1}}-keys-fields-{{prefix}}" data-field="{{fieldName}}">
+          {{fieldName}}
+          <a class="field-remove" pd_script="if '{{fieldName}}' in self.keyFields: self.keyFields.remove('{{fieldName}}')"></a>
+        </li>
+        {% endif %}
+      {% endfor %}
+      </ul>
+    </div>
+    {%endif%}
+    <div class="values-fields">
+      <label>Values: <i class="fa fa-question-circle" title="Controls the Y-Axis of the chart. Values must be {% for vf in this.valueFieldsType %}{% if this.valueFieldsType|length > 1%}{% if loop.last %}or {% endif %}{% endif %}{{vf}}{% if not loop.last %}, {% endif %}{% endfor %} columns."></i></label>
+      <label>Values: Only {% for vf in this.valueFieldsType %}{% if this.valueFieldsType|length > 1%}{% if loop.last %}or {% endif %}{% endif %}{{vf}}{% if not loop.last %}, {% endif %}{% endfor %} columns are supported <i class="fa fa-warning"></i></label>
+      <ul id="values-fields-{{prefix}}" class="field-drop" style="height:calc(100% - 30px);" pd_script="self.options_callback('valueFields', '$val(updateSelectedValuesFields)')">
+      {% for fieldName in this.valueFields %}
+        {% if fieldName in this.fieldNames %}
+        <li id="fieldslist{{prefix}}-{{this.fieldNames.index(fieldName)+1}}-values-fields-{{prefix}}" data-field="{{fieldName}}">
+          {{fieldName}}
+          <a class="field-remove" pd_script="if '{{fieldName}}' in self.valueFields: self.valueFields.remove('{{fieldName}}')"></a>
+        </li>
+        {% endif %}
+      {% endfor %}
+      </ul>
+      {%if this.keyFieldsSupported %}
+      <span id="warnEmptyValueFields{{prefix}}" class="warnEmptyValueFields">PixieDust will automatically use count aggregation for each key</span>
+      {%endif%}
+    </div>
+  </div>
+</div>
 <script>
   var valueFieldsType = []
   {% for vf in this.valueFieldsType %}
@@ -202,8 +256,7 @@
     return false
   });
 
-  var updateSelectedKeysFieldsStatus = true
-  function updateSelectedFields(fieldid) {
+  function selectedFieldsListStr(fieldid) {
     var selected = []
     $('#' + fieldid + ' li')
       .each(function () {
@@ -212,18 +265,18 @@
     return selected.join(',')
   }
   function updateSelectedKeysFields() {
-    var selected = updateSelectedFields('keys-fields-{{prefix}}')
-    if (!selected && updateSelectedKeysFieldsStatus) {
-      updateSelectedKeysFieldsStatus = false
+    var selected = selectedFieldsListStr('keys-fields-{{prefix}}')
+    if (!selected && hasSelectedKeyFields) {
+      hasSelectedKeyFields = false
       chartOptionsOKStatus{{prefix}}(true)
-    } else if (selected && !updateSelectedKeysFieldsStatus) {
-      updateSelectedKeysFieldsStatus = true
+    } else if (selected && !hasSelectedKeyFields) {
+      hasSelectedKeyFields = true
       chartOptionsOKStatus{{prefix}}(false)
     }
     return selected
   }
   function updateSelectedValuesFields() {
-    var selected = updateSelectedFields('values-fields-{{prefix}}')
+    var selected = selectedFieldsListStr('values-fields-{{prefix}}')
     if (selected){
       $('#warnEmptyValueFields{{prefix}}').hide()
     } else {
@@ -232,60 +285,7 @@
     return selected
   }
 
+  var hasSelectedKeyFields = !!selectedFieldsListStr('keys-fields-{{prefix}}')
   updateSelectedValuesFields()
-  var updateSelectedKeysFieldsStatus = !!updateSelectedFields('keys-fields-{{prefix}}')
+  chartOptionsOKStatus{{prefix}}(!hasSelectedKeyFields)
 </script>
-<div class="fields-container row">
-  <div class="col-sm-6" style="padding: 0px 5px 0px 0px; height: 365px;">
-    <div class="fieldslist-wrapper" style="height:100%">
-      <label>Fields:</label>
-      <span class="fieldslist-showlink">Show only numeric columns</span>
-      <input type="text" class="fieldslist-filter form-control input-sm" placeholder="Search/Filter Fields">
-      <ul class="fieldslist-allfields">
-      {% for field in this.fieldNamesAndTypes %}
-        {% if field[0] in this.fieldNames %}
-        <li id="fieldslist{{prefix}}-{{this.fieldNames.index(field.0)+1}}" class="fieldslist-field-{{prefix}}" data-field="{{field.0}}" data-field-type="{{field.1}}">
-          <span class="field-name">{{field.0}}</span>
-          <span class="field-type">{{field.1}}</span>
-        </li>
-        {% endif %}
-       {% endfor %}
-      </ul>
-    </div>
-  </div>
-  <div class="col-sm-6" style="padding: 0px 0px 0px 5px;">
-    {%if this.keyFieldsSupported %}
-    <div class="keys-fields">
-      <label>Keys: <i class="fa fa-question-circle" title="Controls the X-Axis of the chart. Rows will be grouped by Key columns. Columns may be {% for kf in this.keyFieldsType %}{% if this.keyFieldsType|length > 1%}{% if loop.last %}or {% endif %}{% endif %}{{kf}}{% if not loop.last %}, {% endif %}{% endfor %}."></i></label>
-      <label>Keys: Only {% for kf in this.keyFieldsType %}{% if this.keyFieldsType|length > 1%}{% if loop.last %}or {% endif %}{% endif %}{{kf}}{% if not loop.last %}, {% endif %}{% endfor %} columns are supported <i class="fa fa-warning"></i></label>
-      <ul id="keys-fields-{{prefix}}" class="field-drop" style="height:calc(100% - 30px);" pd_script="self.options_callback('keyFields', '$val(updateSelectedKeysFields)')">
-      {% for fieldName in this.keyFields %}
-        {% if fieldName in this.fieldNames %}
-        <li id="fieldslist{{prefix}}-{{this.fieldNames.index(fieldName)+1}}-keys-fields-{{prefix}}" data-field="{{fieldName}}">
-          {{fieldName}}
-          <a class="field-remove" pd_script="if '{{fieldName}}' in self.keyFields: self.keyFields.remove('{{fieldName}}')"></a>
-        </li>
-        {% endif %}
-      {% endfor %}
-      </ul>
-    </div>
-    {%endif%}
-    <div class="values-fields">
-      <label>Values: <i class="fa fa-question-circle" title="Controls the Y-Axis of the chart. Values must be {% for vf in this.valueFieldsType %}{% if this.valueFieldsType|length > 1%}{% if loop.last %}or {% endif %}{% endif %}{{vf}}{% if not loop.last %}, {% endif %}{% endfor %} columns."></i></label>
-      <label>Values: Only {% for vf in this.valueFieldsType %}{% if this.valueFieldsType|length > 1%}{% if loop.last %}or {% endif %}{% endif %}{{vf}}{% if not loop.last %}, {% endif %}{% endfor %} columns are supported <i class="fa fa-warning"></i></label>
-      <ul id="values-fields-{{prefix}}" class="field-drop" style="height:calc(100% - 30px);" pd_script="self.options_callback('valueFields', '$val(updateSelectedValuesFields)')">
-      {% for fieldName in this.valueFields %}
-        {% if fieldName in this.fieldNames %}
-        <li id="fieldslist{{prefix}}-{{this.fieldNames.index(fieldName)+1}}-values-fields-{{prefix}}" data-field="{{fieldName}}">
-          {{fieldName}}
-          <a class="field-remove" pd_script="if '{{fieldName}}' in self.valueFields: self.valueFields.remove('{{fieldName}}')"></a>
-        </li>
-        {% endif %}
-      {% endfor %}
-      </ul>
-      {%if this.keyFieldsSupported %}
-      <span id="warnEmptyValueFields{{prefix}}" class="warnEmptyValueFields">PixieDust will automatically use count aggregation for each key</span>
-      {%endif%}
-    </div>
-  </div>
-</div>

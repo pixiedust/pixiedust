@@ -16,13 +16,14 @@
 
 from pixiedust.display.app import route
 from pixiedust.utils import Logger
+import six
 
 @Logger()
 class KeyValueSelector(object):
     @route(widget="pdKeyValueSelector")
     def chart_option_key_value_widget(self, optid, keyFields, valueFields):
-        self.keyFields = keyFields.split(",")
-        self.valueFields = valueFields.split(",") if valueFields else []
+        self.keyFields = keyFields.split(",") if isinstance(keyFields, six.string_types) else keyFields or []
+        self.valueFields = valueFields.split(",") if isinstance(valueFields, six.string_types) and valueFields else valueFields or []
         self.keyFieldsSupported = self.key_fields_supported()
         self.keyFieldsType = self.key_fields_type()
         self.valueFieldsType = self.value_fields_type()

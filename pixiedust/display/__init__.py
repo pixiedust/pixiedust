@@ -40,7 +40,7 @@ from .display import *
 from .chart import *
 if PD_Environment.hasSpark:
     from .graph import *
-from .table import *
+# from .table import * (commenting this out gets rid of the old table renderer)
 from .download import *
 from .datahandler import getDataHandler
 from pixiedust.utils.printEx import *
