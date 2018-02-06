@@ -17,9 +17,6 @@
                 pd_elements.push($(this).clone());
             }
         });
-        if (targetNode.attr("pixiedust") && pdCtl){
-            targetNode.attr("pixiedust", JSON.stringify(pdCtl));
-        }
         targetNode.html("<div pd_stop_propagation style='height:100%;'>" + contents + "</div>");
         if (pd_elements.length > 0 ){
             targetNode.append(pd_elements);
@@ -213,6 +210,9 @@
                 addOptions({"showchrome":"true"});
             }else if (curCell && curCell._metadata.pixiedust && !pd_controls.avoidMetadata ){
                 ignoreKeys = pd_controls.options.nostore_pixieapp?["handlerId"]:[];
+                if (pd_controls.override_keys){
+                    Array.prototype.push.apply(ignoreKeys,pd_controls.override_keys);
+                }
                 addOptions(curCell._metadata.pixiedust.displayParams || {}, pd_controls.useCellMetadata, ignoreKeys);
             }
             addOptions(user_controls.options||{});

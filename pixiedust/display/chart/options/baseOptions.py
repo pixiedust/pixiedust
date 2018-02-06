@@ -52,7 +52,7 @@ class BaseOptions(with_metaclass(ABCMeta)):
             "showFooter":"true"
         }
 
-    def on_ok(self):
+    def on_ok(self, **kwargs):
         run_options = self.run_options
         #update with the new options
         run_options.update(self.get_new_options())
@@ -66,11 +66,21 @@ class BaseOptions(with_metaclass(ABCMeta)):
         js = self.env.from_string("""
             pixiedust.executeDisplay(
                 {{this.get_pd_controls(
-                    command=command, avoidMetadata=True, options=run_options, black_list=['nostore_figureOnly'],
-                    prefix=this.run_options['prefix']
+                    command=command, 
+                    avoidMetadata=avoid_metadata, 
+                    override_keys=override_keys,
+                    options=run_options, 
+                    black_list=['nostore_figureOnly'],
+                    prefix=this.run_options['prefix'],
                 ) | tojson}}
             );
-        """).render(this=self, run_options=run_options, command=command)
+        """).render(
+            this=self, 
+            run_options=run_options, 
+            command=command, 
+            avoid_metadata=kwargs.get("avoid_metadata", True),
+            override_keys=kwargs.get("override_keys", [])
+        )
         return self._addJavascript(js)
 
     @property

@@ -386,4 +386,4 @@ class FilterApp(BaseOptions):
             </table>""".format(summaryname, summaryvalue, quantname, quantvalue, freqvalue)
 
     def on_update(self):
-        return self.on_ok()
+        return self.on_ok(avoid_metadata=False, override_keys=['filter'])
