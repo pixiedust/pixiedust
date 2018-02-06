@@ -81,8 +81,8 @@ class FilterApp(BaseOptions):
         .stats-table { width:356px; } 
         .stats-table td { vertical-align:top; }
         .stats-table th { text-align:center; }
-        .panel-heading .data-toggle:before { font-family:fontAwesome; content:"\\f0d7\\00a0\\00a0"; }
-        .panel-heading .data-toggle.collapsed:before { font-family:fontAwesome; content:"\\f0da\\00a0\\00a0"; }
+        .panel-heading .data-toggle:before { font-family:fontAwesome; content:"\\f0da\\00a0\\00a0"; }
+        .panel-heading .data-toggle[aria-expanded="true"]:before { font-family:fontAwesome; content:"\\f0d7\\00a0\\00a0"; }
         a.data-toggle, a.data-toggle:link, a.data-toggle:visited { text-decoration: none }
         #casematterscheck_{{prefix}}, regexcheck_{{prefix}} {margin: 0;}
         #df-stats-panel{{prefix}}, #regex-help-panel{{prefix}} { margin-bottom: 0; }
