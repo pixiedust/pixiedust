@@ -116,7 +116,7 @@ class BKBarChartRenderer(BokehBaseDisplay):
             p = figure(x_range=FactorRange(*x), y_axis_label=ylabel, x_axis_label=xlabel, title=title)
             p.vbar(x='x', top='counts', width=0.925, source=src, legend='l' if self.showLegend() else None, color=factor_cmap('x', palette=colors, factors=factors, start=1, end=2))
 
-            p.y_range.start = min(0, min(counts))
+            p.y_range.start = 0 if not counts else min(0, min(counts))
             p.axis.minor_tick_line_color = None
             p.outline_line_color = None
             p.x_range.range_padding = 0.1

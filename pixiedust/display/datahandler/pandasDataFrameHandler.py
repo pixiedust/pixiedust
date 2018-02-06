@@ -61,10 +61,38 @@ class PandasDataFrameDataHandler(BaseDataHandler):
         self.entity["pd_count"] = 1
         return "pd_count"
 
+    def get_filtered_dataframe(self, filter_options):
+        df = self.entity
+        if filter_options is not None:
+            field = filter_options['field'] if 'field' in filter_options else ''
+            constraint = filter_options['constraint'] if 'constraint' in filter_options else ''
+            val = filter_options['value'] if 'value' in filter_options else ''
+            regex = filter_options['regex'] if 'regex' in filter_options else 'False'
+            casematters = filter_options['case_matter'] if 'case_matter' in filter_options else 'False'
+
+            if field and val:
+                if self.isStringField(field) and regex and casematters:
+                    df = df[df[field].str.contains(val)]
+                elif self.isStringField(field) and regex and not casematters:
+                    df = df[df[field].str.contains("(?i)" + val)]
+                elif self.isStringField(field) and not regex and casematters:
+                    df = df[df[field].str.contains("(.*)" + val + "(.*)")]
+                elif self.isStringField(field) and not regex and not casematters:
+                    df = df[df[field].str.contains("(?i)(.*)" + val + "(.*)")]
+                elif constraint == "less_than":
+                    df = df.loc[df[field] < float(val)]
+                elif constraint == "greater_than":
+                    df = df.loc[df[field] > float(val)]
+                else: # constraint == "equal_to":
+                    df = df.loc[df[field] == float(val)]
+        return df
+
     """
         Return a cleaned up Pandas Dataframe that will be used as working input to the chart
     """
-    def getWorkingPandasDataFrame(self, xFields, yFields, extraFields=[], aggregation=None, maxRows = 100):
+    def getWorkingPandasDataFrame(self, xFields, yFields, extraFields=[], aggregation=None, maxRows = 100, filterOptions={}):
+        filteredDF = self.get_filtered_dataframe(filterOptions)
+
         if xFields is None or len(xFields)==0:
             #swap the yFields with xFields
             xFields = yFields
@@ -72,7 +100,7 @@ class PandasDataFrameDataHandler(BaseDataHandler):
             aggregation = None
 
         extraFields = [a for a in extraFields if a not in xFields and a not in yFields]
-        workingDF = self.entity[xFields + extraFields + yFields]
+        workingDF = filteredDF[xFields + extraFields + yFields]
 
         if aggregation and len(yFields)>0:
             aggMapper = {"SUM":"sum", "AVG": "mean", "MIN": "min", "MAX": "max"}

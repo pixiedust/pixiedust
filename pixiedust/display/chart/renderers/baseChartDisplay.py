@@ -29,6 +29,7 @@ import pandas as pd
 import time
 import inspect
 import re
+import json
 
 class ShowChartOptionDialog(Exception):
     pass
@@ -173,12 +174,13 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
         aggregation = self.getAggregation()
         maxRows = self.getMaxRows()
         timeseries = self.options.get("timeseries", 'false')
+        filter_options = json.loads(self.options.get("filter", '{}'))
         #remember the constraints for this cache, they are the list of variables
         constraints = locals()
 
         workingDF = WorkingDataCache.getFromCache(self.options, constraints )
         if workingDF is None:
-            workingDF = self.dataHandler.getWorkingPandasDataFrame(xFields, yFields, extraFields = extraFields, aggregation=aggregation, maxRows = maxRows )
+            workingDF = self.dataHandler.getWorkingPandasDataFrame(xFields, yFields, extraFields = extraFields, aggregation=aggregation, maxRows = maxRows, filterOptions=filter_options)
             WorkingDataCache.putInCache(self.options, workingDF, constraints)
         
         if self.options.get("sortby", None):
@@ -311,7 +313,22 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
         if not self.supportsKeyFields(self.handlerId) and len(numericValueFields) == 0:
             raise ShowChartOptionDialog()
         return numericValueFields
-    
+      
+    def getNonNumericValueFields(self):
+        fieldNames = self.getFieldNames()
+        if len(fieldNames) == 0:
+            return []
+        valueFields = []
+        valueFieldStr = self.options.get("valueFields")
+        if valueFieldStr is not None:
+            valueFields = valueFieldStr.split(",")
+            valueFields = [val for val in valueFields if val in fieldNames]
+        nonNumericValueFields = []
+        for valueField in valueFields:
+            if not self.dataHandler.isNumericField(valueField):
+                nonNumericValueFields.append(valueField)
+        return nonNumericValueFields
+
     def canRenderChart(self):
         aggregation = self.getAggregation()
         if (aggregation == "COUNT"):
@@ -369,18 +386,14 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
         fieldNames = self.getFieldNames(True)
         (dialogTemplate, dialogOptions) = self.getDialogInfo(handlerId)
 
-        # go
         try:
             self.validateOptions()
-
             if self.options.get("debug", None):
                 self.logStuff()
             keyFields = self.getKeyFields()
             valueFields = self.getValueFields()
         except ShowChartOptionDialog:
-            self.dialogBody = self.renderTemplate(dialogTemplate, **dialogOptions)
-            self._addJavascriptTemplate("chartOptions.dialog", optionsDialogBody=self.dialogBody, 
-                optionsTitle=optionsTitle, inScript=True, **dialogOptions)
+            self._addHTMLTemplate("renderer.html", chartFigure="", optionsTitle=optionsTitle, show_options_dialog=True)
             return
         
         # render
