@@ -251,17 +251,15 @@ class Display(with_metaclass(ABCMeta)):
         controls = {
             "prefix": kwargs.pop("prefix", self.getPrefix()),
             "command": command,
-            "entity": parsed_command['args'],
+            "entity": parsed_command['args'][0],
             "options": parsed_command['kwargs'],
             "sniffers": [cb() for cb in CellHandshake.snifferCallbacks],
             "avoidMetadata": menuInfo is not None
         }
         for key,value in iteritems(kwargs):
             if key in controls and isinstance(controls[key], dict) and isinstance(value, dict):
-                self.debug("Updating")
                 controls[key].update(value)
             else:
-                self.debug("Not UPdateing")
                 controls[key] = value
 
         for key in black_list:
@@ -520,14 +518,16 @@ class RunInDialog(Display):
         self.debug("In RunInDialog")
         # del self.options['runInDialog']
         ipythonDisplay(Javascript("pixiedust.executeInDialog({0},{1});".format(
-            json.dumps({
-                "prefix": self.options.get("prefix", self.getPrefix()),
-                "command": self.callerText.replace(",runInDialog='true'",""),
-                "options": self.options
-            }),
+            json.dumps(
+                self.get_pd_controls(
+                    prefix = self.options.get("prefix", self.getPrefix())
+                )
+            ),
             json.dumps({
                 "nostoreMedatadata": True,
-                "options":{}
+                "options":{
+                    "runInDialog": ""
+                }
             })
         )))
     def doRender(self, handlerId):
