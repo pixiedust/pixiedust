@@ -259,7 +259,7 @@ class FilterApp(BaseOptions):
                 <div id="df-stats-panel{{prefix}}" class="panel panel-default">
                     <div class="panel-heading">
                         <h4 class="panel-title " style="margin:0px">
-                            <a data-toggle="collapse" class="data-toggle" href="#df-stats-{{prefix}}">{{field}} Statistics</a>
+                            <a data-toggle="collapse" class="data-toggle" href="#df-stats-{{prefix}}">Statistics: <span style="font-weight: normal">{{field}}</span></a>
                         </h4>
                     </div>
                     <div id="df-stats-{{prefix}}" class="panel-collapse collapse">
