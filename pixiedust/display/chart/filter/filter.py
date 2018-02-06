@@ -64,7 +64,7 @@ class FilterApp(BaseOptions):
     def main_screen(self): 
         self.reset_data()
         cleared = None
-        cols = ['Select column'] + self.fieldNames
+        cols = self.fieldNames
         filteredField = self.filter_options['field'] if 'field' in self.filter_options else ''
         
         return """
@@ -102,6 +102,7 @@ class FilterApp(BaseOptions):
             <form class="form-inline row">
                 <div class="form-group col-sm-2">
                     <select id="columnselect{{prefix}}" pd_options="field=$val(columnselect{{prefix}})" pd_target="constraints{{prefix}}" class="form-control filter-select" aria-label="select column">
+                        <option value="--select-column--" disabled selected>Select a Column</option>
                     {%for col in cols %}
                         <option value="{{col}}">{{col}}</option>
                     {%endfor%}
@@ -127,10 +128,10 @@ class FilterApp(BaseOptions):
                     'color': 'white'
                 })
             } else {
-                clearFilterInfo{{prefix}}()
+                clearFilterInfo{{prefix}}(true)
             }
         }
-        function clearFilterInfo{{prefix}}() {
+        function clearFilterInfo{{prefix}}(donotempty) {
             $('#filterbutton{{this.parent_prefix}}').attr('title', 'Filter')
             $('#results{{prefix}}').text('')
             $('#filterbutton{{this.parent_prefix}}').css({
@@ -139,6 +140,10 @@ class FilterApp(BaseOptions):
                 'color': ''
             })
             $('#manualvalue_{{prefix}}').val('')
+            if (!donotempty) {
+                $('#columnselect{{prefix}}').val('--select-column--')
+                $('#constraints{{prefix}}').empty()
+            }
 
             return ''
         }
