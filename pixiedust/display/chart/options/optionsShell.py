@@ -37,9 +37,10 @@ class OptionsShell(BaseOptions, ChartOptionTitle):
 
     def get_custom_options(self):
         "Options for this dialog"
+        t = self.camel_case_to_title(self.parsed_command['kwargs']['handlerId']) if 'kwargs' in self.parsed_command and 'handlerId' in self.parsed_command['kwargs'] else 'Chart'
         return {
             "runInDialog":"true",
-            "title": self.camel_case_to_title(self.parsed_command['kwargs']['handlerId']) + " Options",
+            "title": t + " Options",
             "showFooter":"true",
             "customClass":"pixiedust-default-dialog"
         }

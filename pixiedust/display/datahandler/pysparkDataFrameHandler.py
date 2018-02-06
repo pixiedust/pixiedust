@@ -108,7 +108,7 @@ class PySparkDataFrameDataHandler(BaseDataHandler):
     """
         Return a cleaned up Pandas Dataframe that will be used as working input to the chart
     """
-    def getWorkingPandasDataFrame(self, xFields, yFields, extraFields=[], aggregation=None, maxRows = 100, filterOptions={}):
+    def getWorkingPandasDataFrame(self, xFields, yFields, extraFields=[], aggregation=None, maxRows = 100, filterOptions={}, isTableRenderer=False):
         filteredDF = self.get_filtered_dataframe(filterOptions)
 
         if xFields is None or len(xFields)==0:
@@ -117,8 +117,15 @@ class PySparkDataFrameDataHandler(BaseDataHandler):
             yFields = []
             aggregation = None
 
-        extraFields = [a for a in extraFields if a not in xFields]
-        workingDF = filteredDF.select(xFields + extraFields + yFields)
+        if isTableRenderer:
+            if len(extraFields) < 1:
+                workingDF = filteredDF
+            else:
+                workingDF = filteredDF.select(extraFields)
+        else:
+            extraFields = [a for a in extraFields if a not in xFields]
+            workingDF = filteredDF.select(xFields + extraFields + yFields)
+
         if aggregation and len(yFields)>0:
             aggMapper = {"SUM":"sum", "AVG": "avg", "MIN": "min", "MAX": "max"}
             aggregation = aggMapper.get(aggregation, "count")
@@ -127,7 +134,8 @@ class PySparkDataFrameDataHandler(BaseDataHandler):
             for yField in yFields:
                 workingDF = workingDF.withColumnRenamed("{0}({1})".format(aggregation,yField), yField)
 
-        workingDF = workingDF.dropna()
+        if not isTableRenderer:
+            workingDF = workingDF.dropna()
         count = workingDF.count()
         if count > maxRows:
             workingDF = workingDF.sample(False, (float(maxRows) / float(count)))
@@ -141,14 +149,15 @@ class PySparkDataFrameDataHandler(BaseDataHandler):
             except:
                 self.exception("Unable to convert field {} to datetime".format(field))
 
-        #sort by xFields
-        pdf.sort_values(xFields + extraFields, inplace=True)
+        if not isTableRenderer:
+            #sort by xFields
+            pdf.sort_values(xFields + extraFields, inplace=True)
         return pdf
 
     """
-    Custom implementation of toPandas. It checks the spark type of each column in the dataframe for DecimalType. If any are found, it check the 
-    corresponding pandas dataframe column to make sure it's not a python object type (which would cause issue during plotting). If that's the case, 
-    it cast them as float
+    Custom implementation of toPandas. It checks the spark type of each column in the dataframe for DecimalType. If any are found, it checks the 
+    corresponding pandas dataframe column to make sure it's not a python object type (which would cause an issue during plotting). If that's the case, 
+    it casts them as float
     """
     def toPandas(self, workingDF):        
         decimals = []

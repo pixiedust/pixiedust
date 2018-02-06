@@ -81,8 +81,8 @@ class FilterApp(BaseOptions):
         .stats-table { width:356px; } 
         .stats-table td { vertical-align:top; }
         .stats-table th { text-align:center; }
-        .panel-heading .data-toggle:before { font-family:fontAwesome; content:"\\f0d7\\00a0\\00a0"; }
-        .panel-heading .data-toggle.collapsed:before { font-family:fontAwesome; content:"\\f0da\\00a0\\00a0"; }
+        .panel-heading .data-toggle:before { font-family:fontAwesome; content:"\\f0da\\00a0\\00a0"; }
+        .panel-heading .data-toggle[aria-expanded="true"]:before { font-family:fontAwesome; content:"\\f0d7\\00a0\\00a0"; }
         a.data-toggle, a.data-toggle:link, a.data-toggle:visited { text-decoration: none }
         #casematterscheck_{{prefix}}, regexcheck_{{prefix}} {margin: 0;}
         #df-stats-panel{{prefix}}, #regex-help-panel{{prefix}} { margin-bottom: 0; }
@@ -158,9 +158,8 @@ class FilterApp(BaseOptions):
         filteredValue = self.filter_options['value'] if 'value' in self.filter_options else ''
         filteredRegex = self.filter_options['regex'] if 'regex' in self.filter_options else 'False'
         filteredCase = self.filter_options['case_matter'] if 'case_matter' in self.filter_options else 'False'
-                
-        if filteredValue:
-            self.compute(field, filteredConstraint, filteredValue, filteredRegex, filteredCase)
+
+        isNumericField = self.dfh.isNumericField(field)
 
         stats = ""
         controls = ""
@@ -184,7 +183,7 @@ class FilterApp(BaseOptions):
             }
         """
 
-        if self.dfh.isStringField(field):
+        if not isNumericField:
             script += """
                 if ('{{filteredRegex}}') {
                     $('#regexcheck_{{prefix}}').prop('checked', ('{{filteredRegex}}'.toLowerCase() === 'true'));
@@ -282,7 +281,7 @@ class FilterApp(BaseOptions):
             <button type="button" class="btn btn-default btn-primary filter-submit" pd_options="field={{field}};constraint=None;val=$val(valOnUpdate{{prefix}});casematters=$val(casematterscheck_{{prefix}});regex=$val(regexcheck_{{prefix}})" pd_target="results{{prefix}}">Apply</button>
         </div>
         """
-        if not self.dfh.isStringField(field):
+        if isNumericField:
             submit = """
             <div class="form-group col-sm-1">
                 <button type="button" class="btn btn-default btn-primary filter-submit" pd_options="field={{field}};constraint=$val(constraintsselect{{prefix}});val=$val(valOnUpdate{{prefix}});casematters=False;regex=False" pd_target="results{{prefix}}">Apply</button>
@@ -294,7 +293,7 @@ class FilterApp(BaseOptions):
             <button type="button" class="btn btn-default filter-clear" pd_script="self.clear_filter('$val(clearFilterInfo{{prefix}})')">Clear</button>
         </div>"""
 
-        if self.dfh.isStringField(field):
+        if not isNumericField:
             return '<div class="row">' + manualvalue + controls + submit + clear + stats + '<script>' + script + '</script></div>'
         else:
             return '<div class="row">' + controls + manualvalue + submit + clear + stats + '<script>' + script + '</script></div>'
