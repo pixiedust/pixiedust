@@ -172,7 +172,7 @@ class FilterApp(BaseOptions):
         controls = ""
         manualvalue = """
         <div class="form-group col-sm-4">
-            <input class="form-control query-input" id="manualvalue_{{prefix}}" placeholder="Query">
+            <input class="form-control query-input" id="manualvalue_{{prefix}}" placeholder="Enter value">
         </div>
         """
         script = """
