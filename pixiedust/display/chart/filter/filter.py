@@ -322,7 +322,6 @@ class FilterApp(BaseOptions):
         self.frequents = []
 
         if isPandasDataFrame(self.df):
-            # statsdf = self.df[field].describe([.2,.4,.6,.8])
             statsdf = self.df[field].describe([.02, .09, .25, .50, .75, .91, .98])
             lbls = ['count','mean','std','min','max']
 
@@ -332,7 +331,6 @@ class FilterApp(BaseOptions):
                 else:
                     self.summary_stats.append((lbls[i], "{:.2f}".format(statsdf[lbls[i]])))
 
-            # lbls = ['20%','40%','60%','80%']
             lbls = ['2%','9%','25%','50%','75%','91%','98%']
             for i in range(0,len(lbls)):
                 self.quantiles.append((lbls[i] + "ile", "{:.2f}".format(statsdf[lbls[i]])))
@@ -355,10 +353,8 @@ class FilterApp(BaseOptions):
                     self.summary_stats.append((lbls[i], "{:.2f}".format(float(statsdf.collect()[i][1]))))
                     
             lbls = ['2%','9%','25%','50%','75%','91%','98%']
-            # quants = self.df.approxQuantile(field, [0.2,0.4,0.6,0.8], 0.1)
             quants = self.df.approxQuantile(field, [.02, .09, .25, .50, .75, .91, .98], 0.1)
             for i, q in enumerate(quants):
-                quantstats += "{:.2f}".format(q)  + "<br/>"
                 self.quantiles.append((lbls[i] + "ile", "{:.2f}".format(q)))
                 
             freqdf = self.df.stat.freqItems([field], 0.1)
@@ -366,7 +362,7 @@ class FilterApp(BaseOptions):
             stop = 5
             for i in freqlist:
                 if stop > 0:
-                    self.frequents.append(str(ix))
+                    self.frequents.append(str(i))
                 stop = stop - 1
                 
         summaryname = '<br>'.join(s[0] for s in self.summary_stats)
