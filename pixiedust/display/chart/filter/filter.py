@@ -128,10 +128,10 @@ class FilterApp(BaseOptions):
                     'color': 'white'
                 })
             } else {
-                clearFilterInfo{{prefix}}()
+                clearFilterInfo{{prefix}}(true)
             }
         }
-        function clearFilterInfo{{prefix}}() {
+        function clearFilterInfo{{prefix}}(donotempty) {
             $('#filterbutton{{this.parent_prefix}}').attr('title', 'Filter')
             $('#results{{prefix}}').text('')
             $('#filterbutton{{this.parent_prefix}}').css({
@@ -140,6 +140,10 @@ class FilterApp(BaseOptions):
                 'color': ''
             })
             $('#manualvalue_{{prefix}}').val('')
+            if (!donotempty) {
+                $('#columnselect{{prefix}}').val('--select-column--')
+                $('#constraints{{prefix}}').empty()
+            }
 
             return ''
         }
