@@ -19,6 +19,7 @@ from pixiedust.utils import Logger
 from pixiedust.display.datahandler import getDataHandler
 from pixiedust.utils import *
 from pixiedust.utils.dataFrameMisc import isPySparkDataFrame, isPandasDataFrame
+from pixiedust.utils.environment import Environment
 
 from pixiedust.utils.astParse import parse_function_call
 from IPython.core.getipython import get_ipython
@@ -78,9 +79,10 @@ class FilterApp(BaseOptions):
         input.form-control, .filter-clear { margin-right: 12px;}
         .stats .label {margin: 0 0.2em} 
         .filter-ui .label {font-weight:300} 
-        .stats-table { width:356px; } 
+        .stats-table { width: 100%; } 
         .stats-table td { vertical-align:top; }
         .stats-table th { text-align:center; }
+        .stats-table tr td:nth-child(2n) { text-align: left; }
         .panel-heading .data-toggle:before { font-family:fontAwesome; content:"\\f0da\\00a0\\00a0"; }
         .panel-heading .data-toggle[aria-expanded="true"]:before { font-family:fontAwesome; content:"\\f0d7\\00a0\\00a0"; }
         a.data-toggle, a.data-toggle:link, a.data-toggle:visited { text-decoration: none }
@@ -352,10 +354,11 @@ class FilterApp(BaseOptions):
                 else:
                     self.summary_stats.append((lbls[i], "{:.2f}".format(float(statsdf.collect()[i][1]))))
                     
-            lbls = ['2%','9%','25%','50%','75%','91%','98%']
-            quants = self.df.approxQuantile(field, [.02, .09, .25, .50, .75, .91, .98], 0.1)
-            for i, q in enumerate(quants):
-                self.quantiles.append((lbls[i] + "ile", "{:.2f}".format(q)))
+            if Environment.sparkVersion == 2:
+                lbls = ['2%','9%','25%','50%','75%','91%','98%']
+                quants = self.df.approxQuantile(field, [.02, .09, .25, .50, .75, .91, .98], 0.1)
+                for i, q in enumerate(quants):
+                    self.quantiles.append((lbls[i] + "ile", "{:.2f}".format(q)))
                 
             freqdf = self.df.stat.freqItems([field], 0.1)
             freqlist = freqdf.collect()[0][field+'_freqItems']
@@ -371,19 +374,26 @@ class FilterApp(BaseOptions):
         quantvalue = '<br>'.join(q[1] for q in self.quantiles)
         freqvalue = '<br>'.join(f for f in self.frequents)
 
-        return """
+        table = """
             <table class="stats-table">
                 <thead>
-                    <tr>
-                        <th>Summary</th> <th> </th> <th>Quantiles</th> <th> </th> <th>Frequents</th>
+                    <tr>""" 
+        table += "<th colspan='2'>Summary</th> <th colspan='2'>Quantiles</th> <th>Frequents</th>" if Environment.sparkVersion == 2 else "<th colspan='2'>Summary</th> <th>Frequents</th>"
+        table += """
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>{}</td> <td>{}</td> <td>{}</td> <td>{}</td> <td>{}</td>
+                    <tr>"""
+        table += "<td>{}</td> <td>{}</td> <td>{}</td> <td>{}</td> <td>{}</td>" if Environment.sparkVersion == 2 else "<td>{}</td> <td>{}</td> <td>{}</td>"
+        table += """
                     </tr>
                 </tbody>
-            </table>""".format(summaryname, summaryvalue, quantname, quantvalue, freqvalue)
+            </table>"""
+            
+        if Environment.sparkVersion == 2:
+            return table.format(summaryname, summaryvalue, quantname, quantvalue, freqvalue)
+        else:
+            return table.format(summaryname, summaryvalue, freqvalue)
 
     def on_update(self):
         return self.on_ok()
