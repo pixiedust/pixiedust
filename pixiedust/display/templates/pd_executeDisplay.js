@@ -208,12 +208,26 @@
             if(typeof cellMetadata != "undefined" && cellMetadata.displayParams){
                 addOptions(cellMetadata.displayParams);
                 addOptions({"showchrome":"true"});
-            }else if (curCell && curCell._metadata.pixiedust && !pd_controls.avoidMetadata ){
-                ignoreKeys = pd_controls.options.nostore_pixieapp?["handlerId"]:[];
-                if (pd_controls.override_keys){
-                    Array.prototype.push.apply(ignoreKeys,pd_controls.override_keys);
+            }else if (curCell && curCell._metadata.pixiedust ){
+                if (!pd_controls.avoidMetadata){
+                    ignoreKeys = pd_controls.options.nostore_pixieapp?["handlerId"]:[];
+                    if (pd_controls.override_keys){
+                        Array.prototype.push.apply(ignoreKeys,pd_controls.override_keys);
+                    }
+                    pd_controls.include_keys || []
+                    addOptions(curCell._metadata.pixiedust.displayParams || {}, pd_controls.useCellMetadata, ignoreKeys);
+                }{
+                    {#always include new fields and the one in include_keys#}
+                    debugger;
+                    var includeKeys = pd_controls.include_keys || [];
+                    var includeOptions = {};
+                    for (var key in (curCell._metadata.pixiedust.displayParams||{})){
+                        if (includeKeys.indexOf(key) > -1 || !(key in pd_controls.options)){
+                            includeOptions[key] = curCell._metadata.pixiedust.displayParams[key];
+                        }
+                    }
+                    addOptions(includeOptions);
                 }
-                addOptions(curCell._metadata.pixiedust.displayParams || {}, pd_controls.useCellMetadata, ignoreKeys);
             }
             addOptions(user_controls.options||{});
             var pattern = "\\w*\\s*=\\s*'(\\\\'|[^'])*'";

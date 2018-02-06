@@ -258,7 +258,8 @@ class Display(with_metaclass(ABCMeta)):
             "entity": parsed_command['args'][0],
             "options": parsed_command['kwargs'],
             "sniffers": [cb() for cb in CellHandshake.snifferCallbacks],
-            "avoidMetadata": menuInfo is not None
+            "avoidMetadata": menuInfo is not None,
+            "include_keys": ['filter']
         }
         for key,value in iteritems(kwargs):
             if key in controls and isinstance(controls[key], dict) and isinstance(value, dict):
