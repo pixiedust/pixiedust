@@ -216,13 +216,12 @@
                     }
                     pd_controls.include_keys || []
                     addOptions(curCell._metadata.pixiedust.displayParams || {}, pd_controls.useCellMetadata, ignoreKeys);
-                }{
+                }else{
                     {#always include new fields and the one in include_keys#}
-                    debugger;
                     var includeKeys = pd_controls.include_keys || [];
                     var includeOptions = {};
                     for (var key in (curCell._metadata.pixiedust.displayParams||{})){
-                        if (includeKeys.indexOf(key) > -1 && !(key in pd_controls.options)){
+                        if (includeKeys.indexOf(key) > -1 || !(key in pd_controls.options)){
                             includeOptions[key] = curCell._metadata.pixiedust.displayParams[key];
                         }
                     }
