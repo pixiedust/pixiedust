@@ -157,7 +157,7 @@
           {% endif %}
           <div>
             {% if table_nocount != 'true' %}
-            <span class="df-table-search-count">Showing {{wpdf.index|length}} of {{wpdf.index|length}}</span>
+            <span class="df-table-search-count">Showing {{wpdf.index|length}} of {{wpdf.index|length}} rows</span>
             {% endif %}
           </div>
           <!-- fixed header for when dataframe table scrolls -->
@@ -244,7 +244,7 @@
             $(this).attr('class', (++index % 2 == 0 ? 'even' : 'odd'));
           }
         });
-        $('.df-table-search-count', tableWrapper).html('Showing ' + index + ' of ' + total);
+        $('.df-table-search-count', tableWrapper).html('Showing ' + index + ' of ' + total + ' rows');
       });
     });
   
