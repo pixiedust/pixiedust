@@ -66,6 +66,10 @@ class FilterApp(BaseOptions):
         cleared = None
         cols = self.fieldNames
         filteredField = self.filter_options['field'] if 'field' in self.filter_options else ''
+
+        if filteredField not in cols:
+            filteredField = ''
+            self.filter_options = {}
         
         return """
         <style>
@@ -149,7 +153,8 @@ class FilterApp(BaseOptions):
         }
         function valOnUpdate{{prefix}}() {
             filterInfo{{prefix}}()
-            return $('#manualvalue_{{prefix}}').val()
+            var v = $('#manualvalue_{{prefix}}').val()
+            return v.replace(/\\\\/g, '\\\\\\\\')
         }
         if ('{{filteredField}}') {
             $('#columnselect{{prefix}}').val('{{filteredField}}').change()
@@ -162,7 +167,7 @@ class FilterApp(BaseOptions):
     def colnamechange(self, field):
         # self.reset_data()
         filteredConstraint = self.filter_options['constraint'] if 'constraint' in self.filter_options else ''
-        filteredValue = self.filter_options['value'] if 'value' in self.filter_options else ''
+        filteredValue = (self.filter_options['value'] if 'value' in self.filter_options else '').replace("\\", "\\\\")
         filteredRegex = self.filter_options['regex'] if 'regex' in self.filter_options else 'False'
         filteredCase = self.filter_options['case_matter'] if 'case_matter' in self.filter_options else 'False'
 
@@ -225,22 +230,22 @@ class FilterApp(BaseOptions):
 
                             <h3>Predefined character classes</h3>
                             <dt>.</dt><dd>Any character.</dd>
-                            <dt>\d</dt><dd>A digit: [0-9]</dd>
-                            <dt>\D</dt><dd>A non-digit: [^0-9]</dd>
-                            <dt>\s</dt><dd>A whitespace character: [ \t\n\x0B\f\r]</dd>
-                            <dt>\S</dt><dd>A non-whitespace character: [^\s]</dd>
-                            <dt>\w</dt><dd>A word character: [a-zA-Z_0-9]</dd>
-                            <dt>\W</dt><dd>A non-word character: [^\w]</dd>
+                            <dt>&#92;d</dt><dd>A digit: [0-9]</dd>
+                            <dt>&#92;D</dt><dd>A non-digit: [^0-9]</dd>
+                            <dt>&#92;s</dt><dd>A whitespace character: [ &#92;t&#92;n&#92;x0B&#92;f&#92;r]</dd>
+                            <dt>&#92;S</dt><dd>A non-whitespace character: [^&#92;s]</dd>
+                            <dt>&#92;w</dt><dd>A word character: [a-zA-Z_0-9]</dd>
+                            <dt>&#92;W</dt><dd>A non-word character: [^&#92;w]</dd>
 
                             <h3>Boundary matches</h3>
                             <dt>^</dt><dd>The beginning of a line.</dd>
                             <dt>$</dt><dd>The end of a line.</dd>
-                            <dt>\b</dt><dd>A word boundary.</dd>
-                            <dt>\B</dt><dd>A non-word boundary.</dd>
-                            <dt>\A</dt><dd>The beginning of the input.</dd>
-                            <dt>\G</dt><dd>The end of the previous match.</dd>
-                            <dt>\Z</dt><dd>The end of the input but for the final terminator, if any.</dd>
-                            <dt>\z</dt><dd>The end of the input.</dd>
+                            <dt>&#92;b</dt><dd>A word boundary.</dd>
+                            <dt>&#92;B</dt><dd>A non-word boundary.</dd>
+                            <dt>&#92;A</dt><dd>The beginning of the input.</dd>
+                            <dt>&#92;G</dt><dd>The end of the previous match.</dd>
+                            <dt>&#92;Z</dt><dd>The end of the input but for the final terminator, if any.</dd>
+                            <dt>&#92;z</dt><dd>The end of the input.</dd>
                         </div>
                     </div>
                 </div>
@@ -315,7 +320,7 @@ class FilterApp(BaseOptions):
         self.filter_options = {
             "field": field,
             "constraint": constraint,
-            "value": val,
+            "value": val.replace("\\", "\\\\"),
             "case_matter": casematters,
             "regex": regex
         }
