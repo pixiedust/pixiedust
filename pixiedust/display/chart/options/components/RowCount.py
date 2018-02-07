@@ -21,7 +21,7 @@ from pixiedust.utils import Logger
 class RowCount(object):
     @route(widget="pdRowCount")
     def chart_option_rowcount_widget(self, optid, count):
-        self.rowCount = count or 500
+        self.rowCount = count or 100
         return """
 <script>
     var rowCountStatus{{optid}}{{prefix}} = true
