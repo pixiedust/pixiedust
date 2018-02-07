@@ -143,7 +143,7 @@
     </div>
     {% endif %}
     <!-- dataframe table -->
-    <div class="panel panel-default">
+    <div class="panel panel-default" {% if table_noschema == 'true' %}style="border:none;"{% endif %}>
       {% if table_noschema != 'true' %}
       <div class="panel-heading">
         <h4 class="panel-title" style="margin: 0px;">
@@ -153,9 +153,13 @@
       {% endif %}
       <div id="df-table-{{prefix}}" class="panel-collapse collapse in">
         <div class="panel-body">
+          {% if table_nosearch != 'true' %}
           <input type="text" class="df-table-search form-control input-sm" placeholder="Search table">
+          {% endif %}
           <div>
-            <span class="df-table-search-count {%if table_nocount == 'true'%}hide{%endif%}">Showing {{wpdf.index|length}} of {{wpdf.index|length}}</span>
+            {% if table_nocount != 'true' %}
+            <span class="df-table-search-count">Showing {{wpdf.index|length}} of {{wpdf.index|length}}</span>
+            {% endif %}
           </div>
           <!-- fixed header for when dataframe table scrolls -->
           <div class="fixed-header-container">

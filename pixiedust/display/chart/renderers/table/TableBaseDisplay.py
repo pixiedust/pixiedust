@@ -70,7 +70,7 @@ class TableBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
         return [
             {
                 'name': 'table_noschema',
-                'description': 'Hide Table Schema',
+                'description': 'Hide Schema',
                 'metadata': {
                     'type': 'checkbox',
                     'default': "false"
@@ -79,6 +79,14 @@ class TableBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
             {
                 'name': 'table_nocount',
                 'description': 'Hide Table Count',
+                'metadata': {
+                    'type': 'checkbox',
+                    'default': "false"
+                }
+            },
+            {
+                'name': 'table_nosearch',
+                'description': 'Hide Search',
                 'metadata': {
                     'type': 'checkbox',
                     'default': "false"
