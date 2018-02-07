@@ -21,6 +21,7 @@ import numpy as np
 from pixiedust.utils import Logger
 from six import iteritems
 from .baseDataHandler import BaseDataHandler
+import re
 
 @Logger()
 class PandasDataFrameDataHandler(BaseDataHandler):
@@ -62,23 +63,20 @@ class PandasDataFrameDataHandler(BaseDataHandler):
         return "pd_count"
 
     def get_filtered_dataframe(self, filter_options):
-        df = self.entity
+        df = self.entity.copy(deep=True)
+
         if filter_options is not None:
             field = filter_options['field'] if 'field' in filter_options else ''
             constraint = filter_options['constraint'] if 'constraint' in filter_options else ''
             val = filter_options['value'] if 'value' in filter_options else ''
-            regex = filter_options['regex'] if 'regex' in filter_options else 'False'
-            casematters = filter_options['case_matter'] if 'case_matter' in filter_options else 'False'
+            regex = filter_options['regex'].lower() == "true" if 'regex' in filter_options else False
+            casematters = filter_options['case_matter'].lower() == "true" if 'case_matter' in filter_options else False
 
             if field and val:
-                if self.isStringField(field) and regex and casematters:
-                    df = df[df[field].str.contains(val)]
-                elif self.isStringField(field) and regex and not casematters:
-                    df = df[df[field].str.contains("(?i)" + val)]
-                elif self.isStringField(field) and not regex and casematters:
-                    df = df[df[field].str.contains("(.*)" + val + "(.*)")]
-                elif self.isStringField(field) and not regex and not casematters:
-                    df = df[df[field].str.contains("(?i)(.*)" + val + "(.*)")]
+                if not self.isNumericField(field):
+                    val = val if regex else ".*" + val + ".*"
+                    flags = 0 if casematters else re.IGNORECASE
+                    df = df[df[field].str.contains(val, flags=flags)]
                 elif constraint == "less_than":
                     df = df.loc[df[field] < float(val)]
                 elif constraint == "greater_than":
