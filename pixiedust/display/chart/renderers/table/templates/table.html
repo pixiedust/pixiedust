@@ -30,9 +30,12 @@
       height: inherit;
       overflow: auto;
     }
+    .df-table-search {
+      margin: 0 0 20px 0;
+    }
     .df-table-search-count {
       display: inline-block;
-      margin: 20px 0;
+      margin: 0 0 20px 0;
     }
     .df-table-container {
       max-height: 50vh;
@@ -68,8 +71,7 @@
   
     .df-table-wrapper thead,
     .fixed-header {
-      color: #337ab7;
-      font-family: monospace;
+      font-weight: 600;
     }
     .df-table-wrapper tr,
     .fixed-row {
@@ -105,7 +107,7 @@
       position: relative;
     }
     .fixed-header {
-      border-bottom: 2px solid #2e6da4;
+      border-bottom: 2px solid #000;
       display: table;
       position: relative;
     }
@@ -140,7 +142,7 @@
     </div>
     {% endif %}
     <!-- dataframe table -->
-    <div class="panel panel-default">
+    <div class="panel panel-default" {% if table_noschema == 'true' %}style="border:none;"{% endif %}>
       {% if table_noschema != 'true' %}
       <div class="panel-heading">
         <h4 class="panel-title" style="margin: 0px;">
@@ -150,7 +152,14 @@
       {% endif %}
       <div id="df-table-{{prefix}}" class="panel-collapse collapse in">
         <div class="panel-body">
+          {% if table_nosearch != 'true' %}
           <input type="text" class="df-table-search form-control input-sm" placeholder="Search table">
+          {% endif %}
+          <div>
+            {% if table_nocount != 'true' %}
+            <span class="df-table-search-count">Showing {{wpdf.index|length}} of {{wpdf.index|length}} rows</span>
+            {% endif %}
+          </div>
           <!-- fixed header for when dataframe table scrolls -->
           <div class="fixed-header-container">
             <div class="fixed-header">
@@ -235,7 +244,7 @@
             $(this).attr('class', (++index % 2 == 0 ? 'even' : 'odd'));
           }
         });
-        $('.df-table-search-count', tableWrapper).html('Showing ' + index + ' of ' + total);
+        $('.df-table-search-count', tableWrapper).html('Showing ' + index + ' of ' + total + ' rows');
       });
     });
   
