@@ -17,5 +17,7 @@ Here's what's new in Release 1.1.7 (7 February 2018):
 
 - Charts using the Brunel renderer now properly display the legend, and line charts with multiple charts are now clearly labelled with different colors (`#519 <https://github.com/ibm-watson-data-lab/pixiedust/issues/519>`_).
 
+- Brunel-rendered charts now support subplots, allowing for multiple visualizations to be rendered using a single call to ``display()`` (`# <>`_).
+
 - Updated icons for selecting chart types (`#568 <https://github.com/ibm-watson-data-lab/pixiedust/issues/568>`_).
 
