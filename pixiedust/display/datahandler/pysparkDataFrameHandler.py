@@ -84,18 +84,14 @@ class PySparkDataFrameDataHandler(BaseDataHandler):
             field = filter_options['field'] if 'field' in filter_options else ''
             constraint = filter_options['constraint'] if 'constraint' in filter_options else ''
             val = filter_options['value'] if 'value' in filter_options else ''
-            regex = filter_options['regex'] if 'regex' in filter_options else 'False'
-            casematters = filter_options['case_matter'] if 'case_matter' in filter_options else 'False'
+            regex = filter_options['regex'].lower() == "true" if 'regex' in filter_options else False
+            casematters = filter_options['case_matter'].lower() == "true" if 'case_matter' in filter_options else False
 
-            if field and val:
-                if self.isStringField(field) and regex and casematters:
+            if field and val and field in self.getFieldNames():
+                if not self.isNumericField(field):
+                    val = val if regex else ".*" + val + ".*"
+                    val = val if casematters else "(?i)" + val
                     df = df.filter(df[field].rlike(val))
-                elif self.isStringField(field) and regex and not casematters:
-                    df = df.filter(df[field].rlike("(?i)" + val))
-                elif self.isStringField(field) and not regex and casematters:
-                    df = df.filter(df[field].rlike("(.*)" + val + "(.*)"))
-                elif self.isStringField(field) and not regex and not casematters:
-                    df = df.filter(df[field].rlike("(?i)(.*)" + val + "(.*)"))
                 else: # a numeric SQL query
                     c = "=="
                     if constraint == "less_than":
