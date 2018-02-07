@@ -46,6 +46,7 @@ var pixiedust = (function(){
             user_controls = user_controls || {"options":{}};
             var displayOptions = $.extend({}, pd_controls.options || {}, user_controls.options || {} );
             var global={};
+            var sourceDivId = displayOptions.targetDivId;
             require(['base/js/dialog'],function(dialog){
                 var modal = dialog.modal;
                 var attr_pd_ctrl = JSON.stringify(pd_controls).trim()
@@ -72,7 +73,7 @@ var pixiedust = (function(){
                                 var dlg = $("#" + dialogRoot + " > pd_dialog");
                                 try{
                                     pixiedust.dialogRoot = null;
-                                    $(document).trigger('pd_event', {targetDivId: dialogRoot, entity: pd_controls.options.nostore_pixieapp});
+                                    $(document).trigger('pd_event', {targetDivId: sourceDivId || dialogRoot, entity: pd_controls.options.nostore_pixieapp});
                                     return new Function('global', 'modal_obj', dlg.find("> pd_ok").text().trim())(global, modal_obj);
                                 }catch(e){
                                     console.error(e);
