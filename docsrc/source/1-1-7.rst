@@ -17,7 +17,7 @@ Here's what's new in Release 1.1.7 (7 February 2018):
 
 - PixieDust's default table visualization has been re-architected to support new options and filtering. Highlights include the ability to display more than 100 rows of data, and the ability to use the search bar across the full data set (`#595 <https://github.com/ibm-watson-data-lab/pixiedust/issues/595>`_).
 
-- Charts using the Brunel renderer now properly display the legend, and line charts with multiple charts are now clearly labelled with different colors (`#519 <https://github.com/ibm-watson-data-lab/pixiedust/issues/519>`_).
+- Charts using the Brunel renderer now properly display the legend, and line charts with multiple lines are now clearly labelled with different colors (`#519 <https://github.com/ibm-watson-data-lab/pixiedust/issues/519>`_).
 
 - Brunel-rendered charts now support subplots (`#577 <https://github.com/ibm-watson-data-lab/pixiedust/pull/577>`_).
 
