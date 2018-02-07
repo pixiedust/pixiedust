@@ -66,6 +66,10 @@ class FilterApp(BaseOptions):
         cleared = None
         cols = self.fieldNames
         filteredField = self.filter_options['field'] if 'field' in self.filter_options else ''
+
+        if filteredField not in cols:
+            filteredField = ''
+            self.filter_options = {}
         
         return """
         <style>
