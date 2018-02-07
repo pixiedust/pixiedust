@@ -73,7 +73,6 @@ var pixiedust = (function(){
                                 var dlg = $("#" + dialogRoot + " > pd_dialog");
                                 try{
                                     pixiedust.dialogRoot = null;
-                                    debugger;
                                     $(document).trigger('pd_event', {targetDivId: sourceDivId || dialogRoot, entity: pd_controls.options.nostore_pixieapp});
                                     return new Function('global', 'modal_obj', dlg.find("> pd_ok").text().trim())(global, modal_obj);
                                 }catch(e){
