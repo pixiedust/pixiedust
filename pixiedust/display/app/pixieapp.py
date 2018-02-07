@@ -386,7 +386,6 @@ def PixieApp(cls):
         if is_running_child_pixieapp:
             cell_id = kwargs.get("options", {}).get("cell_id", None)
             if cell_id:
-                self.debug("Got a cellid")
                 instance_namespace = "_" + cell_id
         if not var:
             #If we're here, the user must have created the instance inline, assign a variable dynamically
