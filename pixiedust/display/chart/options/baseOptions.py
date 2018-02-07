@@ -96,7 +96,12 @@ class BaseOptions(with_metaclass(ABCMeta)):
 
     @property
     def get_renderer(self):
-        return PixiedustRenderer.getRenderer(self.parsed_command['kwargs'], self.parent_entity, False) if self.parent_entity is not None else None
+        options = self.parsed_command['kwargs']
+        if getattr(self, "cell_metadata"):
+            options.update( 
+                self.cell_metadata.get("pixiedust",{}).get("displayParams",{})
+            )
+        return PixiedustRenderer.getRenderer(options, self.parent_entity, False) if self.parent_entity is not None else None
 
     @abstractmethod
     def get_new_options(self):
