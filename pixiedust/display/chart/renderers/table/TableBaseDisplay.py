@@ -78,7 +78,7 @@ class TableBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
             },
             {
                 'name': 'table_nocount',
-                'description': 'Hide Table Count',
+                'description': 'Hide Row Count',
                 'metadata': {
                     'type': 'checkbox',
                     'default': "false"
