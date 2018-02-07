@@ -35,15 +35,20 @@ class MapboxAccessToken(object):
 @PixieApp
 @Logger()
 class MapboxOptions(DefaultOptions, MapboxAccessToken):
+
+    mapbox_default_token = "pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4M29iazA2Z2gycXA4N2pmbDZmangifQ.-g_vE53SD2WrJ6tFX7QHmA"
+
     def setup(self):
         DefaultOptions.setup(self)
 
         self.chart_options.append({
             "optid": "mapboxtoken",
             "classname": "field-width-50",
-            "mapboxtoken": lambda: self.options.get("mapboxtoken") or "pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4M29iazA2Z2gycXA4N2pmbDZmangifQ.-g_vE53SD2WrJ6tFX7QHmA",
+            "mapboxtoken": lambda: self.run_options.get("mapboxtoken") or self.mapbox_default_token,
             "widget": "mapboxAccessToken"
         })
+
+        self.new_options["mapboxtoken"] = self.run_options.get("mapboxtoken") or self.mapbox_default_token
 
     def key_fields_type(self):
         return ['string', 'numeric']
