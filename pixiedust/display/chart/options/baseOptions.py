@@ -36,6 +36,12 @@ class BaseOptions(with_metaclass(ABCMeta)):
                 self.exception(exc)
                 self.entity = None
 
+        #apply the cell_metadata
+        if getattr(self, "cell_metadata"):
+            self.parsed_command['kwargs'].update( 
+                self.cell_metadata.get("pixiedust",{}).get("displayParams",{})
+            )
+
     @cache(fieldName="fieldNames")
     def get_field_names(self, expandNested=True):
         return self.data_handler.getFieldNames(expandNested)
@@ -96,12 +102,10 @@ class BaseOptions(with_metaclass(ABCMeta)):
 
     @property
     def get_renderer(self):
-        options = self.parsed_command['kwargs']
-        if getattr(self, "cell_metadata"):
-            options.update( 
-                self.cell_metadata.get("pixiedust",{}).get("displayParams",{})
-            )
-        return PixiedustRenderer.getRenderer(options, self.parent_entity, False) if self.parent_entity is not None else None
+        return PixiedustRenderer.getRenderer(
+            self.parsed_command['kwargs'],
+            self.parent_entity, False
+        ) if self.parent_entity is not None else None
 
     @abstractmethod
     def get_new_options(self):
