@@ -153,7 +153,8 @@ class FilterApp(BaseOptions):
         }
         function valOnUpdate{{prefix}}() {
             filterInfo{{prefix}}()
-            return $('#manualvalue_{{prefix}}').val()
+            var v = $('#manualvalue_{{prefix}}').val()
+            return v.replace(/\\\\/g, '\\\\\\\\')
         }
         if ('{{filteredField}}') {
             $('#columnselect{{prefix}}').val('{{filteredField}}').change()
@@ -166,7 +167,7 @@ class FilterApp(BaseOptions):
     def colnamechange(self, field):
         # self.reset_data()
         filteredConstraint = self.filter_options['constraint'] if 'constraint' in self.filter_options else ''
-        filteredValue = self.filter_options['value'] if 'value' in self.filter_options else ''
+        filteredValue = (self.filter_options['value'] if 'value' in self.filter_options else '').replace("\\", "\\\\")
         filteredRegex = self.filter_options['regex'] if 'regex' in self.filter_options else 'False'
         filteredCase = self.filter_options['case_matter'] if 'case_matter' in self.filter_options else 'False'
 
@@ -319,7 +320,7 @@ class FilterApp(BaseOptions):
         self.filter_options = {
             "field": field,
             "constraint": constraint,
-            "value": val,
+            "value": val.replace("\\", "\\\\"),
             "case_matter": casematters,
             "regex": regex
         }
