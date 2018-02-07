@@ -106,7 +106,7 @@ class FilterApp(BaseOptions):
             <form class="form-inline row">
                 <div class="form-group col-sm-2">
                     <select id="columnselect{{prefix}}" pd_options="field=$val(columnselect{{prefix}})" pd_target="constraints{{prefix}}" class="form-control filter-select" aria-label="select column">
-                        <option value="--select-column--" disabled selected>Select a Column</option>
+                        <option value="--select-column--" disabled selected>Select a Field</option>
                     {%for col in cols %}
                         <option value="{{col}}">{{col}}</option>
                     {%endfor%}
@@ -123,7 +123,7 @@ class FilterApp(BaseOptions):
             if (v) {
                 var r = $('#regexcheck_{{prefix}}').is(':checked') ? 'True' : 'False'
                 var m = $('#casematterscheck_{{prefix}}').is(':checked') ? 'True' : 'False'
-                var filtermsg = 'field: ' + $('#columnselect{{prefix}}').val() + ', constraint: ' + $('#constraintsselect{{prefix}}').val() + ', value: ' + v + ', casematters: ' + m + ', regex: ' + r
+                var filtermsg = 'field: ' + $('#columnselect{{prefix}}').val() + ', constraint: ' + ($('#constraintsselect{{prefix}}').val() || 'None') + ', value: ' + v + ', casematters: ' + m + ', regex: ' + r
                 $('#filterbutton{{this.parent_prefix}}').attr('title', 'Filter - ' + filtermsg)
                 $('#results{{prefix}}').text(filtermsg)
                 $('#filterbutton{{this.parent_prefix}}').css({
@@ -172,6 +172,8 @@ class FilterApp(BaseOptions):
         filteredCase = self.filter_options['case_matter'] if 'case_matter' in self.filter_options else 'False'
 
         isNumericField = self.dfh.isNumericField(field)
+        if isNumericField and (filteredConstraint == 'None' or not filteredConstraint):
+            filteredConstraint = 'equal_to'
 
         stats = ""
         controls = ""
@@ -313,20 +315,29 @@ class FilterApp(BaseOptions):
     @route(field="*", constraint="*", casematters="*")
     def noqueryvalue(field, constraint, casematters): 
         # called when user submits without entering anything in the query <input>
-        return "<h4>A query is required</h4>"
+        return "<h4>A value is required</h4>"
 
     @route(field="*", constraint="*", val="*", casematters="*", regex="*")
     def compute(self, field, constraint, val, casematters, regex):
-        self.filter_options = {
-            "field": field,
-            "constraint": constraint,
-            "value": val.replace("\\", "\\\\"),
-            "case_matter": casematters,
-            "regex": regex
-        }
+        isNumericField = self.dfh.isNumericField(field)
 
-        self.on_update()
-        return "field: {}, constraint: {}, value: {}, casematters: {}, regex: {}".format(field, constraint, val, casematters, regex)
+        if isNumericField and constraint not in ['less_than', 'greater_than', 'equal_to']:
+            return "<h4>A constraint is required</h4>"
+        elif isNumericField and not val.replace('.','',1).replace('-','',1).isdigit():
+            return "<h4>A numeric value is required</h4>"
+        elif not val.strip():
+            return "<h4>A value is required</h4>"
+        else:
+            self.filter_options = {
+                "field": field,
+                "constraint": constraint,
+                "value": val.replace("\\", "\\\\"),
+                "case_matter": casematters,
+                "regex": regex
+            }
+
+            self.on_update()
+            return "field: {}, constraint: {}, value: {}, casematters: {}, regex: {}".format(field, constraint, val, casematters, regex)
 
     def stats_table(self, field):
         self.summary_stats = []
