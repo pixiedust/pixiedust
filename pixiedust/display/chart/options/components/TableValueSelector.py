@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------------
-# Copyright IBM Corp. 2017
+# Copyright IBM Corp. 2018
 # 
 # Licensed under the Apache License, Version 2.0 (the 'License');
 # you may not use this file except in compliance with the License.
@@ -14,26 +14,12 @@
 # limitations under the License.
 # -------------------------------------------------------------------------------
 
-from pixiedust.display.chart.renderers import PixiedustRenderer
+from pixiedust.display.app import route
 from pixiedust.utils import Logger
-from .brunelBaseDisplay import BrunelBaseDisplay
 
-@PixiedustRenderer(id="scatterPlot")
 @Logger()
-class ScatterPlotRenderer(BrunelBaseDisplay):
-
-    def compute_brunel_magic(self):
-        parts = ["point"]
-        valueFields = self.getValueFields()
-        keyFields = self.getKeyFields()
-        
-        parts.append("x({})".format(keyFields[0]))
-        if len(valueFields) == 1:
-            parts.append("y({})".format(valueFields[0]))
-        elif len(valueFields) > 1:
-            parts.append("y({})".format(",".join(valueFields)))
-            parts.append("color(#series)")
-        
-        parts.append(self.get_sort())
-
-        return parts
+class TableValueSelector(object):
+    @route(widget="pdTableValueSelector")
+    def chart_option_key_value_widget(self, optid, tableFields):
+        self.tableFields = tableFields.split(",") if tableFields else []
+        self._addHTMLTemplate("tablevalueselector.html")

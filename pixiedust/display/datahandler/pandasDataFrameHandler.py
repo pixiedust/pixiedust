@@ -21,6 +21,7 @@ import numpy as np
 from pixiedust.utils import Logger
 from six import iteritems
 from .baseDataHandler import BaseDataHandler
+import re
 
 @Logger()
 class PandasDataFrameDataHandler(BaseDataHandler):
@@ -61,25 +62,57 @@ class PandasDataFrameDataHandler(BaseDataHandler):
         self.entity["pd_count"] = 1
         return "pd_count"
 
+    def get_filtered_dataframe(self, filter_options):
+        df = self.entity.copy(deep=True)
+
+        if filter_options is not None:
+            field = filter_options['field'] if 'field' in filter_options else ''
+            constraint = filter_options['constraint'] if 'constraint' in filter_options else ''
+            val = filter_options['value'] if 'value' in filter_options else ''
+            regex = filter_options['regex'].lower() == "true" if 'regex' in filter_options else False
+            casematters = filter_options['case_matter'].lower() == "true" if 'case_matter' in filter_options else False
+
+            if field and val and field in self.getFieldNames():
+                if not self.isNumericField(field):
+                    val = val if regex else ".*" + val + ".*"
+                    flags = 0 if casematters else re.IGNORECASE
+                    df = df[df[field].str.contains(val, flags=flags)]
+                elif constraint == "less_than":
+                    df = df.loc[df[field] < float(val)]
+                elif constraint == "greater_than":
+                    df = df.loc[df[field] > float(val)]
+                else: # constraint == "equal_to":
+                    df = df.loc[df[field] == float(val)]
+        return df
+
     """
         Return a cleaned up Pandas Dataframe that will be used as working input to the chart
     """
-    def getWorkingPandasDataFrame(self, xFields, yFields, extraFields=[], aggregation=None, maxRows = 100):
+    def getWorkingPandasDataFrame(self, xFields, yFields, extraFields=[], aggregation=None, maxRows = 100, filterOptions={}, isTableRenderer=False):
+        filteredDF = self.get_filtered_dataframe(filterOptions)
+
         if xFields is None or len(xFields)==0:
             #swap the yFields with xFields
             xFields = yFields
             yFields = []
             aggregation = None
 
-        extraFields = [a for a in extraFields if a not in xFields and a not in yFields]
-        workingDF = self.entity[xFields + extraFields + yFields]
+        if isTableRenderer:
+            if len(extraFields) < 1:
+                workingDF = filteredDF
+            else:
+                workingDF = filteredDF[extraFields]
+        else:
+            extraFields = [a for a in extraFields if a not in xFields and a not in yFields]
+            workingDF = filteredDF[xFields + extraFields + yFields]
 
         if aggregation and len(yFields)>0:
             aggMapper = {"SUM":"sum", "AVG": "mean", "MIN": "min", "MAX": "max"}
             aggFn = aggMapper.get(aggregation, "count")
             workingDF = workingDF.groupby(extraFields + xFields).agg(aggFn).reset_index()
 
-        workingDF = workingDF.dropna()
+        if not isTableRenderer:
+            workingDF = workingDF.dropna()
         count = len(workingDF.index)
         if count > maxRows:
             workingDF = workingDF.sample(frac=(float(maxRows) / float(count)),replace=False)
@@ -112,7 +145,8 @@ class PandasDataFrameDataHandler(BaseDataHandler):
             except:
                 self.exception("Unable to convert field {} to datetime".format(field))
         
-        #sort by xFields
-        workingDF.sort_values(extraFields + xFields, inplace=True)
+        if not isTableRenderer:
+            #sort by xFields
+            workingDF.sort_values(extraFields + xFields, inplace=True)
         
         return workingDF
