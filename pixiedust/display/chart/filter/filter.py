@@ -172,6 +172,8 @@ class FilterApp(BaseOptions):
         filteredCase = self.filter_options['case_matter'] if 'case_matter' in self.filter_options else 'False'
 
         isNumericField = self.dfh.isNumericField(field)
+        if isNumericField and (filteredConstraint == 'None' or not filteredConstraint):
+            filteredConstraint = 'equal_to'
 
         stats = ""
         controls = ""
