@@ -77,16 +77,16 @@ class TableBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
                 }
             },
             {
-                'name': 'table_nocount',
-                'description': 'Hide Row Count',
+                'name': 'table_nosearch',
+                'description': 'Hide Search',
                 'metadata': {
                     'type': 'checkbox',
                     'default': "false"
                 }
             },
             {
-                'name': 'table_nosearch',
-                'description': 'Hide Search',
+                'name': 'table_nocount',
+                'description': 'Hide Row Count',
                 'metadata': {
                     'type': 'checkbox',
                     'default': "false"
