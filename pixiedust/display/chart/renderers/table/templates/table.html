@@ -30,9 +30,12 @@
       height: inherit;
       overflow: auto;
     }
+    .df-table-search {
+      margin: 0 0 20px 0;
+    }
     .df-table-search-count {
       display: inline-block;
-      margin: 20px 0;
+      margin: 0 0 20px 0;
     }
     .df-table-container {
       max-height: 50vh;
@@ -152,7 +155,7 @@
         <div class="panel-body">
           <input type="text" class="df-table-search form-control input-sm" placeholder="Search table">
           <div>
-            <span class="df-table-search-count">Showing {{wpdf.index|length}} of {{wpdf.index|length}}</span>
+            <span class="df-table-search-count {%if table_nocount == 'true'%}hide{%endif%}">Showing {{wpdf.index|length}} of {{wpdf.index|length}}</span>
           </div>
           <!-- fixed header for when dataframe table scrolls -->
           <div class="fixed-header-container">

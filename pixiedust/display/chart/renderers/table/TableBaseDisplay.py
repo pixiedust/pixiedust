@@ -75,6 +75,14 @@ class TableBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
                     'type': 'checkbox',
                     'default': "false"
                 }
+            },
+            {
+                'name': 'table_nocount',
+                'description': 'Hide Table Count',
+                'metadata': {
+                    'type': 'checkbox',
+                    'default': "false"
+                }
             }
         ]
     
