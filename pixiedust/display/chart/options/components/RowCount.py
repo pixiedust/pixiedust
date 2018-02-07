@@ -21,16 +21,17 @@ from pixiedust.utils import Logger
 class RowCount(object):
     @route(widget="pdRowCount")
     def chart_option_rowcount_widget(self, optid, count):
-        self.rowCount = count or 500
+        self.rowCount = count or 100
         return """
 <script>
     var rowCountStatus{{optid}}{{prefix}} = true
     function rowCount{{optid}}{{prefix}}(input) {
         var val = $(input).val()
-        if (rowCountStatus{{optid}}{{prefix}} && (isNaN(val) || Math.floor(Number(val)) < 1)) {
+        var invalid = !val || isNaN(val) || Math.floor(Number(val)) < 1
+        if (rowCountStatus{{optid}}{{prefix}} && invalid) {
             rowCountStatus{{optid}}{{prefix}} = false
             chartOptionsOKStatus{{prefix}}(true)
-        } else if (!rowCountStatus{{optid}}{{prefix}}) {
+        } else if (!rowCountStatus{{optid}}{{prefix}} && !invalid) {
             chartOptionsOKStatus{{prefix}}(false)
             rowCountStatus{{optid}}{{prefix}} = true
             $(input).trigger('click')

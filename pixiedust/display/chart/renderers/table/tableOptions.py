@@ -36,6 +36,6 @@ class TableOptions(OptionsShell, TableValueSelector, AggregationSelector, RowCou
         self.chart_options.append({
             "optid": "rowCount",
             "classname": "field-width-50 no_loading_msg",
-            "count": lambda: self.options.get("rowCount") or 500,
+            "count": lambda: self.options.get("rowCount") or 100,
             "widget": "pdRowCount"
         })
