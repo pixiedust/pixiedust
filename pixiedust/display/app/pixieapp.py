@@ -382,9 +382,14 @@ def PixieApp(cls):
             self.nostore_params = True
             self.pd_initialized = True
 
+        instance_namespace = ""
+        if is_running_child_pixieapp:
+            cell_id = kwargs.get("options", {}).get("cell_id", None)
+            if cell_id:
+                instance_namespace = "_" + cell_id
         if not var:
             #If we're here, the user must have created the instance inline, assign a variable dynamically
-            var = cls.__name__ + "_instance"
+            var = cls.__name__ + "_instance" + instance_namespace
             ShellAccess[var] = self
 
         self.runInDialog = kwargs.get("runInDialog", "false") is "true"

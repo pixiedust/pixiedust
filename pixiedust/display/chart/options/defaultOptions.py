@@ -45,7 +45,7 @@ class DefaultOptions(OptionsShell, KeyValueSelector, AggregationSelector, RowCou
         self.chart_options.append({
             "optid": "rowCount",
             "classname": "field-width-50 no_loading_msg",
-            "count": lambda: self.run_options.get("rowCount") or 500,
+            "count": lambda: self.run_options.get("rowCount") or 100,
             "widget": "pdRowCount"
         })
 

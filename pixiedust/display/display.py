@@ -250,11 +250,16 @@ class Display(with_metaclass(ABCMeta)):
         parsed_command = parse_function_call(command)
         controls = {
             "prefix": kwargs.pop("prefix", self.getPrefix()),
-            "command": command,
+            "command": "{}({},{})".format(
+                parsed_command['func'],
+                ",".join(parsed_command['args']),
+                ",".join( ["{}='{}'".format(k,v) for k,v in iteritems(parsed_command['kwargs']) if k not in black_list])
+            ),
             "entity": parsed_command['args'][0],
             "options": parsed_command['kwargs'],
             "sniffers": [cb() for cb in CellHandshake.snifferCallbacks],
-            "avoidMetadata": menuInfo is not None
+            "avoidMetadata": menuInfo is not None,
+            "include_keys": ['filter']
         }
         for key,value in iteritems(kwargs):
             if key in controls and isinstance(controls[key], dict) and isinstance(value, dict):
@@ -520,7 +525,8 @@ class RunInDialog(Display):
         ipythonDisplay(Javascript("pixiedust.executeInDialog({0},{1});".format(
             json.dumps(
                 self.get_pd_controls(
-                    prefix = self.options.get("prefix", self.getPrefix())
+                    prefix = self.options.get("prefix", self.getPrefix()),
+                    black_list = ['runInDialog']
                 )
             ),
             json.dumps({

@@ -3,9 +3,11 @@
 <div class="row chart-button-group">
     <div class="form-group col-sm-9" style="padding-right:10px;">
         {% if this.get_options_dialog_pixieapp() %}
-        <button pd_app="{{this.get_options_dialog_pixieapp()}}" class="btn btn-default no_loading_msg"
+        <button pd_app="{{this.get_options_dialog_pixieapp()}}" 
+            class="btn btn-default no_loading_msg"
+            pd_options="runInDialog=true"
             id="option_btn_{{prefix}}">
-            <pd_event_handler pd_source="*" pd_script="ShellAccess[eventInfo['entity']].on_ok()"></pd_event_handler>
+            <pd_event_handler pd_source="option_btn_{{prefix}}" pd_script="ShellAccess[eventInfo['entity']].on_ok()"></pd_event_handler>
             Options
         </button>
         {%if show_options_dialog%}
@@ -26,12 +28,14 @@
     </div>
     {% if this.getRendererList() and this._rendererId %}
     <div class="form-group col-sm-3">
+        {% if this._rendererId != 'table' %}
         <label class="field">Renderer:</label>
         <select class="form-control" id="renderer{{prefix}}" style="margin:0; display:inline-block; width:70%;">
             {% for renderer in this.getRendererList() %}
                 <option value="{{renderer._rendererId}}" {{'selected' if this._rendererId==renderer._rendererId else ''}}>{{renderer._rendererId}}</option>
             {% endfor %}
         </select>
+        {% endif %}
     </div>
     {% endif %}
 </div>

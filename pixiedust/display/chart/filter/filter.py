@@ -64,8 +64,12 @@ class FilterApp(BaseOptions):
     def main_screen(self): 
         self.reset_data()
         cleared = None
-        cols = ['Select column'] + self.fieldNames
+        cols = self.fieldNames
         filteredField = self.filter_options['field'] if 'field' in self.filter_options else ''
+
+        if filteredField not in cols:
+            filteredField = ''
+            self.filter_options = {}
         
         return """
         <style>
@@ -102,6 +106,7 @@ class FilterApp(BaseOptions):
             <form class="form-inline row">
                 <div class="form-group col-sm-2">
                     <select id="columnselect{{prefix}}" pd_options="field=$val(columnselect{{prefix}})" pd_target="constraints{{prefix}}" class="form-control filter-select" aria-label="select column">
+                        <option value="--select-column--" disabled selected>Select a Field</option>
                     {%for col in cols %}
                         <option value="{{col}}">{{col}}</option>
                     {%endfor%}
@@ -118,7 +123,7 @@ class FilterApp(BaseOptions):
             if (v) {
                 var r = $('#regexcheck_{{prefix}}').is(':checked') ? 'True' : 'False'
                 var m = $('#casematterscheck_{{prefix}}').is(':checked') ? 'True' : 'False'
-                var filtermsg = 'field: ' + $('#columnselect{{prefix}}').val() + ', constraint: ' + $('#constraintsselect{{prefix}}').val() + ', value: ' + v + ', casematters: ' + m + ', regex: ' + r
+                var filtermsg = 'field: ' + $('#columnselect{{prefix}}').val() + ', constraint: ' + ($('#constraintsselect{{prefix}}').val() || 'None') + ', value: ' + v + ', casematters: ' + m + ', regex: ' + r
                 $('#filterbutton{{this.parent_prefix}}').attr('title', 'Filter - ' + filtermsg)
                 $('#results{{prefix}}').text(filtermsg)
                 $('#filterbutton{{this.parent_prefix}}').css({
@@ -127,10 +132,10 @@ class FilterApp(BaseOptions):
                     'color': 'white'
                 })
             } else {
-                clearFilterInfo{{prefix}}()
+                clearFilterInfo{{prefix}}(true)
             }
         }
-        function clearFilterInfo{{prefix}}() {
+        function clearFilterInfo{{prefix}}(donotempty) {
             $('#filterbutton{{this.parent_prefix}}').attr('title', 'Filter')
             $('#results{{prefix}}').text('')
             $('#filterbutton{{this.parent_prefix}}').css({
@@ -139,12 +144,17 @@ class FilterApp(BaseOptions):
                 'color': ''
             })
             $('#manualvalue_{{prefix}}').val('')
+            if (!donotempty) {
+                $('#columnselect{{prefix}}').val('--select-column--')
+                $('#constraints{{prefix}}').empty()
+            }
 
             return ''
         }
         function valOnUpdate{{prefix}}() {
             filterInfo{{prefix}}()
-            return $('#manualvalue_{{prefix}}').val()
+            var v = $('#manualvalue_{{prefix}}').val()
+            return v.replace(/\\\\/g, '\\\\\\\\')
         }
         if ('{{filteredField}}') {
             $('#columnselect{{prefix}}').val('{{filteredField}}').change()
@@ -157,17 +167,19 @@ class FilterApp(BaseOptions):
     def colnamechange(self, field):
         # self.reset_data()
         filteredConstraint = self.filter_options['constraint'] if 'constraint' in self.filter_options else ''
-        filteredValue = self.filter_options['value'] if 'value' in self.filter_options else ''
+        filteredValue = (self.filter_options['value'] if 'value' in self.filter_options else '').replace("\\", "\\\\")
         filteredRegex = self.filter_options['regex'] if 'regex' in self.filter_options else 'False'
         filteredCase = self.filter_options['case_matter'] if 'case_matter' in self.filter_options else 'False'
 
         isNumericField = self.dfh.isNumericField(field)
+        if isNumericField and (filteredConstraint == 'None' or not filteredConstraint):
+            filteredConstraint = 'equal_to'
 
         stats = ""
         controls = ""
         manualvalue = """
         <div class="form-group col-sm-4">
-            <input class="form-control query-input" id="manualvalue_{{prefix}}" placeholder="Query">
+            <input class="form-control query-input" id="manualvalue_{{prefix}}" placeholder="Enter value">
         </div>
         """
         script = """
@@ -220,22 +232,22 @@ class FilterApp(BaseOptions):
 
                             <h3>Predefined character classes</h3>
                             <dt>.</dt><dd>Any character.</dd>
-                            <dt>\d</dt><dd>A digit: [0-9]</dd>
-                            <dt>\D</dt><dd>A non-digit: [^0-9]</dd>
-                            <dt>\s</dt><dd>A whitespace character: [ \t\n\x0B\f\r]</dd>
-                            <dt>\S</dt><dd>A non-whitespace character: [^\s]</dd>
-                            <dt>\w</dt><dd>A word character: [a-zA-Z_0-9]</dd>
-                            <dt>\W</dt><dd>A non-word character: [^\w]</dd>
+                            <dt>&#92;d</dt><dd>A digit: [0-9]</dd>
+                            <dt>&#92;D</dt><dd>A non-digit: [^0-9]</dd>
+                            <dt>&#92;s</dt><dd>A whitespace character: [ &#92;t&#92;n&#92;x0B&#92;f&#92;r]</dd>
+                            <dt>&#92;S</dt><dd>A non-whitespace character: [^&#92;s]</dd>
+                            <dt>&#92;w</dt><dd>A word character: [a-zA-Z_0-9]</dd>
+                            <dt>&#92;W</dt><dd>A non-word character: [^&#92;w]</dd>
 
                             <h3>Boundary matches</h3>
                             <dt>^</dt><dd>The beginning of a line.</dd>
                             <dt>$</dt><dd>The end of a line.</dd>
-                            <dt>\b</dt><dd>A word boundary.</dd>
-                            <dt>\B</dt><dd>A non-word boundary.</dd>
-                            <dt>\A</dt><dd>The beginning of the input.</dd>
-                            <dt>\G</dt><dd>The end of the previous match.</dd>
-                            <dt>\Z</dt><dd>The end of the input but for the final terminator, if any.</dd>
-                            <dt>\z</dt><dd>The end of the input.</dd>
+                            <dt>&#92;b</dt><dd>A word boundary.</dd>
+                            <dt>&#92;B</dt><dd>A non-word boundary.</dd>
+                            <dt>&#92;A</dt><dd>The beginning of the input.</dd>
+                            <dt>&#92;G</dt><dd>The end of the previous match.</dd>
+                            <dt>&#92;Z</dt><dd>The end of the input but for the final terminator, if any.</dd>
+                            <dt>&#92;z</dt><dd>The end of the input.</dd>
                         </div>
                     </div>
                 </div>
@@ -303,20 +315,29 @@ class FilterApp(BaseOptions):
     @route(field="*", constraint="*", casematters="*")
     def noqueryvalue(field, constraint, casematters): 
         # called when user submits without entering anything in the query <input>
-        return "<h4>A query is required</h4>"
+        return "<h4>A value is required</h4>"
 
     @route(field="*", constraint="*", val="*", casematters="*", regex="*")
     def compute(self, field, constraint, val, casematters, regex):
-        self.filter_options = {
-            "field": field,
-            "constraint": constraint,
-            "value": val,
-            "case_matter": casematters,
-            "regex": regex
-        }
+        isNumericField = self.dfh.isNumericField(field)
 
-        self.on_update()
-        return "field: {}, constraint: {}, value: {}, casematters: {}, regex: {}".format(field, constraint, val, casematters, regex)
+        if isNumericField and constraint not in ['less_than', 'greater_than', 'equal_to']:
+            return "<h4>A constraint is required</h4>"
+        elif isNumericField and not val.replace('.','',1).replace('-','',1).isdigit():
+            return "<h4>A numeric value is required</h4>"
+        elif not val.strip():
+            return "<h4>A value is required</h4>"
+        else:
+            self.filter_options = {
+                "field": field,
+                "constraint": constraint,
+                "value": val.replace("\\", "\\\\"),
+                "case_matter": casematters,
+                "regex": regex
+            }
+
+            self.on_update()
+            return "field: {}, constraint: {}, value: {}, casematters: {}, regex: {}".format(field, constraint, val, casematters, regex)
 
     def stats_table(self, field):
         self.summary_stats = []
@@ -396,4 +417,4 @@ class FilterApp(BaseOptions):
             return table.format(summaryname, summaryvalue, freqvalue)
 
     def on_update(self):
-        return self.on_ok()
+        return self.on_ok(avoid_metadata=False, override_keys=['filter'])

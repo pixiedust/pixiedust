@@ -64,4 +64,33 @@ class TableBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
 
     def supportsAggregation(self, handlerId):
         return False
+
+    @commonChartOptions
+    def getChartOptions(self):
+        return [
+            {
+                'name': 'table_noschema',
+                'description': 'Hide Schema',
+                'metadata': {
+                    'type': 'checkbox',
+                    'default': "false"
+                }
+            },
+            {
+                'name': 'table_nosearch',
+                'description': 'Hide Search',
+                'metadata': {
+                    'type': 'checkbox',
+                    'default': "false"
+                }
+            },
+            {
+                'name': 'table_nocount',
+                'description': 'Hide Row Count',
+                'metadata': {
+                    'type': 'checkbox',
+                    'default': "false"
+                }
+            }
+        ]
     
