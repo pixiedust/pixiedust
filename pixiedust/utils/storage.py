@@ -212,7 +212,7 @@ def track(version):
         event['code_version'] = version
     try:
         notebook_tenant_id = os.environ.get("NOTEBOOK_TENANT_ID")
-        if onotebook_tenant_id is not None:
+        if notebook_tenant_id is not None:
             event['notebook_tenant_id'] = notebook_tenant_id
         notebook_kernel = os.environ.get("NOTEBOOK_KERNEL")
         if notebook_kernel is not None:
