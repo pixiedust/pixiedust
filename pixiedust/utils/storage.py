@@ -196,7 +196,7 @@ def _trackDeploymentIfVersionChange(deploymenTrackerStorage, existingVersion, op
             else:
                 printWithLogo("Pixiedust version upgraded from {0} to {1}".format(existingVersion,version))
             # register
-            if optOut is not None:
+            if optOut is None:
                 track(version)
         else:
             myLogger.info("No change in version: {0} -> {1}.".format(existingVersion,version))
