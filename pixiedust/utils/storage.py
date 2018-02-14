@@ -17,6 +17,7 @@
 import sqlite3
 import os
 
+import hashlib
 import json
 import getpass
 import sys
@@ -156,20 +157,27 @@ class Storage(object):
         _conn.commit()
 
 DEPLOYMENT_TRACKER_TBL_NAME = "VERSION_TRACKER"
+DEPLOYMENT_TRACKER_OPT_OUT_TBL_NAME = "NO_TRACK"
 
 class __DeploymentTrackerStorage(Storage):
     def __init__(self):
         self._initTable(DEPLOYMENT_TRACKER_TBL_NAME,"VERSION TEXT NOT NULL")
+        self._initTable(DEPLOYMENT_TRACKER_OPT_OUT_TBL_NAME,"OPTOUT BOOLEAN NOT NULL")
 
 def _trackDeployment():
     deploymenTrackerStorage = __DeploymentTrackerStorage()
+    optOut = deploymenTrackerStorage.fetchOne("SELECT * FROM {0}".format(DEPLOYMENT_TRACKER_OPT_OUT_TBL_NAME));
+    if optOut is not None:
+        print("You have opted-out of tracking. To allow tracking run pixiedust.trackok()")
+    else:
+        print("To opt-out of tracking run pixiedust.notrack()")
     row = deploymenTrackerStorage.fetchOne("SELECT * FROM {0}".format(DEPLOYMENT_TRACKER_TBL_NAME));
     if row is None:
-        _trackDeploymentIfVersionChange(deploymenTrackerStorage, None)
+        _trackDeploymentIfVersionChange(deploymenTrackerStorage, None, optOut)
     else:
-        _trackDeploymentIfVersionChange(deploymenTrackerStorage, row["VERSION"])
+        _trackDeploymentIfVersionChange(deploymenTrackerStorage, row["VERSION"], optOut)
 
-def _trackDeploymentIfVersionChange(deploymenTrackerStorage, existingVersion):
+def _trackDeploymentIfVersionChange(deploymenTrackerStorage, existingVersion, optOut):
     # Get version and repository URL from 'setup.py'
     version = None
     try:
@@ -188,7 +196,8 @@ def _trackDeploymentIfVersionChange(deploymenTrackerStorage, existingVersion):
             else:
                 printWithLogo("Pixiedust version upgraded from {0} to {1}".format(existingVersion,version))
             # register
-            track(version)
+            if optOut is not None:
+                track(version)
         else:
             myLogger.info("No change in version: {0} -> {1}.".format(existingVersion,version))
             printWithLogo("Pixiedust version {0}".format(version)) 
@@ -211,7 +220,7 @@ def track(version):
     except:
         pass
     try:
-        event['space_id'] = getpass.getuser()
+        event['space_id'] = hashlib.md5(getpass.getuser()).hexdigest()
     except:
         pass
     event['config'] = {}
@@ -225,3 +234,13 @@ def track(version):
         response = post(url, data=json.dumps(event), headers=headers)
     except Exception as e:
         print('Deployment Tracker upload error: %s' % str(e))
+
+def notrack():
+    deploymenTrackerStorage = __DeploymentTrackerStorage()
+    row = deploymenTrackerStorage.fetchOne("SELECT * FROM {0}".format(DEPLOYMENT_TRACKER_OPT_OUT_TBL_NAME))
+    if row is None:
+        deploymenTrackerStorage.insert("INSERT INTO {0} (OPTOUT) VALUES (1)".format(DEPLOYMENT_TRACKER_OPT_OUT_TBL_NAME))
+
+def trackok():
+    deploymenTrackerStorage = __DeploymentTrackerStorage()
+    deploymenTrackerStorage.delete("DELETE FROM {0}".format(DEPLOYMENT_TRACKER_OPT_OUT_TBL_NAME))
