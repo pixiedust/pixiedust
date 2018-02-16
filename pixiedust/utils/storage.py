@@ -167,12 +167,9 @@ class __DeploymentTrackerStorage(Storage):
 def _trackDeployment():
     deploymenTrackerStorage = __DeploymentTrackerStorage()
     optOut = deploymenTrackerStorage.fetchOne("SELECT * FROM {0}".format(DEPLOYMENT_TRACKER_OPT_OUT_TBL_NAME));
-    if optOut is not None:
-        print("You have opted-out of tracking. To allow tracking run pixiedust.trackok()")
-    else:
-        print("To opt-out of tracking run pixiedust.notrack()")
     row = deploymenTrackerStorage.fetchOne("SELECT * FROM {0}".format(DEPLOYMENT_TRACKER_TBL_NAME));
     if row is None:
+        print("By default, Pixiedust records installs and updates. To opt out, call `pixiedust.optOut()`")
         _trackDeploymentIfVersionChange(deploymenTrackerStorage, None, optOut)
     else:
         _trackDeploymentIfVersionChange(deploymenTrackerStorage, row["VERSION"], optOut)
@@ -235,12 +232,14 @@ def track(version):
     except Exception as e:
         print('Deployment Tracker upload error: %s' % str(e))
 
-def notrack():
+def optOut():
     deploymenTrackerStorage = __DeploymentTrackerStorage()
     row = deploymenTrackerStorage.fetchOne("SELECT * FROM {0}".format(DEPLOYMENT_TRACKER_OPT_OUT_TBL_NAME))
     if row is None:
         deploymenTrackerStorage.insert("INSERT INTO {0} (OPTOUT) VALUES (1)".format(DEPLOYMENT_TRACKER_OPT_OUT_TBL_NAME))
+    print("Pixiedust no longer records installs and updates.")
 
-def trackok():
+def optIn():
     deploymenTrackerStorage = __DeploymentTrackerStorage()
     deploymenTrackerStorage.delete("DELETE FROM {0}".format(DEPLOYMENT_TRACKER_OPT_OUT_TBL_NAME))
+    print("Pixiedust will record installs and updates. To opt out, call pixiedust.optOut().")
