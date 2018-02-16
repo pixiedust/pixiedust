@@ -157,7 +157,7 @@ class Storage(object):
         _conn.commit()
 
 DEPLOYMENT_TRACKER_TBL_NAME = "VERSION_TRACKER"
-DEPLOYMENT_TRACKER_OPT_OUT_TBL_NAME = "NO_TRACK"
+DEPLOYMENT_TRACKER_OPT_OUT_TBL_NAME = "OPT_OUT"
 
 class __DeploymentTrackerStorage(Storage):
     def __init__(self):
@@ -169,7 +169,7 @@ def _trackDeployment():
     optOut = deploymenTrackerStorage.fetchOne("SELECT * FROM {0}".format(DEPLOYMENT_TRACKER_OPT_OUT_TBL_NAME));
     row = deploymenTrackerStorage.fetchOne("SELECT * FROM {0}".format(DEPLOYMENT_TRACKER_TBL_NAME));
     if row is None:
-        print("By default, Pixiedust records installs and updates. To opt out, call `pixiedust.optOut()`")
+        print("By default, Pixiedust records installs and updates. To opt out, call pixiedust.optOut()")
         _trackDeploymentIfVersionChange(deploymenTrackerStorage, None, optOut)
     else:
         _trackDeploymentIfVersionChange(deploymenTrackerStorage, row["VERSION"], optOut)
