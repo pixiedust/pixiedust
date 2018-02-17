@@ -1,5 +1,9 @@
 var pixiedust = (function(){
     return {
+        input_reply_queue: {
+            inflight: null,
+            queue: []
+        },
         getCell: function(cell_id){
             {% if gateway %}
             var cells = [];
@@ -252,17 +256,28 @@ function getParentScript(element){
 }
 
 function preRun(element){
-    var preRunCode = null;
-    $(element).find("> pd_script").each(function(){
-        var type = this.getAttribute("type");
-        if (type=="preRun"){
-            preRunCode = $(this).text();
-        }
-    });
+    var preRunCode = getScriptOfType(element, "preRun");
     if (!preRunCode ){
         return true;
     }
     return new Function(preRunCode.trim())();
+}
+
+function getScriptOfType(element, scriptType){
+    if (!element.jquery){
+        element = $(element);
+    }
+    var code = null;
+    element.find("> pd_script").each(function(){
+        var type = this.getAttribute("type");
+        if (type == scriptType){
+            code = $(this).text();
+        }
+    });
+    if (code){
+        return code.trim();
+    }
+    return code;
 }
 
 function addOptions(command, options, override=true){
@@ -518,6 +533,11 @@ function readExecInfo(pd_controls, element, searchParents, fromExecInfo){
         execInfo.targetDivId = execInfo.targetDivId || pixiedust.dialogRoot;
     }
 
+    if ("send_input_reply" in execInfo.options){
+        execInfo.send_input_reply = execInfo.options["send_input_reply"];
+        delete execInfo.options["send_input_reply"];
+    }
+
     execInfo.execute = function(){
         {#check if we have a pre-run client side script #}
         if (!preRun(element)){
@@ -532,6 +552,16 @@ function readExecInfo(pd_controls, element, searchParents, fromExecInfo){
                 pd_controls.command = addOptions(pd_controls.command, eval('(' + sniffer + ')'));
             }    
         }.bind(this));
+
+        var process_output = getScriptOfType(element, "process_output");
+        if (!process_output){
+            process_output = getScriptOfType($("#" + this.targetDivId), "process_output");
+        }
+        if (process_output){
+            this.process_output = function(output){
+                new Function('output', process_output)(output);
+            }
+        }
 
         if ( this.options.dialog == 'true' ){
             pixiedust.executeInDialog(pd_controls, this);

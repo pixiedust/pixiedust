@@ -1,6 +1,6 @@
 !function() {
-    function getTargetNode(){
-        return $('#' + ($targetDivId || ("wrapperHTML"+ pd_prefix)));
+    function getTargetNode(override=null){
+        return $('#' + (override || $targetDivId || ("wrapperHTML"+ pd_prefix)));
     }
     function checkRootInit(){
         node = getTargetNode();
@@ -10,7 +10,7 @@
         }
         return retValue;
     }
-    function setHTML(targetNode, contents, pdCtl = null){
+    function setHTML(targetNode, contents, pdCtl = null, userCtl = null){
         var pd_elements = []
         targetNode.children().each(function(){
             if (this.tagName.toLowerCase().startsWith("pd_")){
@@ -23,6 +23,24 @@
         }
         return true;
     }
+
+    function send_input_reply(cb, cmd){
+        if (cmd == 'c' || cmd == 'continue'){
+            cb = null;
+            pixiedust.input_reply_queue.queue = [];
+            pixiedust.input_reply_queue.debuggerInitialized = false;
+        }else if (cmd == 'no_op'){
+            cb = null;
+            cmd = null;
+        }
+        if ($targetDivId == "debugger_refresh"){
+            cb.refreshDebugger = true;
+        }
+        pixiedust.input_reply_queue.inflight = cb;
+        if (cmd){
+            IPython.notebook.session.kernel.send_input_reply(cmd);
+        }
+    }
     var cellId = options.cell_id || "";
     var curCell = pixiedust.getCell(cellId);
     console.log("curCell",curCell);
@@ -33,7 +51,7 @@
             reply : function(){
                 if ( !callbacks.response ){
                     if (!user_controls.partialUpdate){
-                        setHTML(getTargetNode(), "",pd_controls);
+                        setHTML(getTargetNode(), "",pd_controls, user_controls);
                         if (user_controls.onDisplayDone){
                             user_controls.onDisplayDone(getTargetNode());
                         }
@@ -71,10 +89,25 @@
                 var content = msg.content;
                 var targetNodeUpdated = false;
                 if(msg_type==="stream"){
+                    var reply_callbacks = pixiedust.input_reply_queue.inflight;
+                    if (reply_callbacks && reply_callbacks != callbacks){
+                        if (reply_callbacks.iopub){
+                            reply_callbacks.iopub.output(msg);
+                        }
+                        return;
+                    }
+                    var process_output = getScriptOfType($("#" + $targetDivId), "process_output");
+                    if (process_output){
+                        try{
+                            content.text = new Function('output', process_output)(content.text);
+                        }catch(e){
+                            console.log("Error while invoking post output function", e, content.text, process_output);
+                        }
+                    }
                     if (user_controls.onSuccess){
                         user_controls.onSuccess(content.text);
                     }else{
-                        targetNodeUpdated = setHTML(getTargetNode(), content.text, pd_controls);
+                        targetNodeUpdated = setHTML(getTargetNode(), content.text, pd_controls, user_controls);
                     }
                 }else if (msg_type==="display_data" || msg_type==="execute_result"){
                     var html=null;
@@ -99,7 +132,7 @@
                             if (user_controls.onSuccess){
                                 user_controls.onSuccess(html);
                             }else{
-                                targetNodeUpdated = setHTML(getTargetNode(), html, pd_controls);
+                                targetNodeUpdated = setHTML(getTargetNode(), html, pd_controls, user_controls);
                             }
                             if (content.metadata && content.metadata.pixieapp_metadata){
                                 {% if gateway %}
@@ -134,7 +167,7 @@
                             console.log("Invalid html output", e, html);
                             targetNodeUpdated = setHTML(getTargetNode(),  "Invalid html output: " + e.message + "<pre>" 
                                 + html.replace(/>/g,'&gt;').replace(/</g,'&lt;').replace(/"/g,'&quot;') + "<pre>",
-                                pd_controls);
+                                pd_controls, user_controls);
                         }
                         if (callbacks.options && callbacks.options.nostore_delaysave){
                             setTimeout(function(){
@@ -146,7 +179,7 @@
                     }
                 }else if (msg_type === "error") {
                     {% if gateway %}
-                    targetNodeUpdated = setHTML(getTargetNode(), content.traceback, pd_controls);
+                    targetNodeUpdated = setHTML(getTargetNode(), content.traceback, pd_controls, user_controls);
                     {%else%}
                     require(['base/js/utils'], function(utils) {
                         var tb = content.traceback;
@@ -160,7 +193,7 @@
                             if (user_controls.onError){
                                 user_controls.onError(data);
                             }else{
-                                targetNodeUpdated = setHTML(getTargetNode(), "<pre>" + data +"</pre>", pd_controls);
+                                targetNodeUpdated = setHTML(getTargetNode(), "<pre>" + data +"</pre>", pd_controls, user_controls);
                             }
                         }
                     });
@@ -172,6 +205,43 @@
                     user_controls.onDisplayDone(getTargetNode());
                 }
             }
+        },
+        input : function(msg){
+            var reply_callbacks = pixiedust.input_reply_queue.inflight;
+            if (!reply_callbacks || reply_callbacks.refreshDebugger){
+                var input_target = "input_reply_" + pd_controls.prefix;
+                var process_output = getScriptOfType($("#" + input_target), "process_output");
+                if (process_output){
+                    try{
+                        if (reply_callbacks){
+                            reply_callbacks.refreshDebugger = false;
+                        }
+                        if (!pixiedust.input_reply_queue.inflight){
+                            pixiedust.input_reply_queue.inflight = {};
+                        }
+                        pixiedust.input_reply_queue.queue = [];
+                        msg.content.prompt = new Function('output', process_output)(msg.content.prompt);
+                        targetNodeUpdated = setHTML(getTargetNode(input_target), msg.content.prompt, pd_controls, user_controls);
+                        if (targetNodeUpdated && user_controls.onDisplayDone){
+                            user_controls.onDisplayDone(getTargetNode(input_target));
+                        }
+                    }catch(e){
+                        console.log("Error while invoking post output function", e, msg.content.prompt, process_output);
+                    }
+                }else{
+                    console.log("No element with id input_reply_"+pd_controls.prefix + " found");
+                }
+            }
+
+            var next_input_reply = pixiedust.input_reply_queue.queue.shift();
+            if (next_input_reply){
+                setTimeout(function(){
+                    send_input_reply(next_input_reply.callbacks, next_input_reply.command);
+                }, 0);
+            }else{
+                pixiedust.input_reply_queue.inflight = null;
+            }
+            console.log("Handling input msg request: ", msg);
         }
     }
     {% if gateway %}
@@ -292,7 +362,7 @@
                 '<div style="text-align:center">' +
                     (getTargetNode().attr("pd_loading_msg") || "Loading your data. Please wait...") +
                 '</div>',
-                pd_controls
+                pd_controls, user_controls
             );
         }
         {% if gateway %}
@@ -319,7 +389,22 @@
                 JSON.stringify(curCell._metadata.pixiedust.pixieapp) + ")\n" + command
             }
         }
-        IPython.notebook.session.kernel.execute(command, callbacks, {silent:true,store_history:false,stop_on_error:true});
+        if (user_controls.send_input_reply){
+            command = user_controls.send_input_reply;
+            if (pixiedust.input_reply_queue.inflight){
+                pixiedust.input_reply_queue.queue.push({"command":command, "callbacks":callbacks});
+            }else{
+                send_input_reply(callbacks, command);
+            }
+        }else{
+            if (pixiedust.input_reply_queue.inflight){
+                console.log("Aborting kernel requests because not all the reply callback where consummed", command);
+                return;
+            }
+            IPython.notebook.session.kernel.execute(command, callbacks, {
+                silent:true,store_history:false,stop_on_error:true,allow_stdin : true
+            });
+        }
         {%endif%}
 
         console.log("Running command2:\n",command);
