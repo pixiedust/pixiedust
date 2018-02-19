@@ -23,6 +23,7 @@ import base64
 import inspect
 import sys
 from functools import partial
+from jinja2 import Template
 from IPython.utils.io import capture_output
 
 def route(**kw):
@@ -272,6 +273,14 @@ class PixieDustApp(Display):
                         self.options.pop("nostore_isrunningchildpixieapp", None)
                         retValue = """<div id="wrapperHTML{{prefix}}" pixiedust="{{pd_controls|htmlAttribute}}">""" + retValue + """</div>"""
                     self._addHTMLTemplateString(retValue, **injectedArgs)
+                elif isinstance(retValue, Template):
+                    self._addHTML(
+                        retValue.render(self._getTemplateArgs(
+                                resModule=".".join(type(self).__name__.split(".")[:-1]), 
+                                **injectedArgs
+                            )
+                        )
+                    )
                 elif isinstance(retValue, dict):
                     body = self.renderTemplateString(retValue.get("body", ""))
                     jsOnLoad = self.renderTemplateString(retValue.get("jsOnLoad", ""))
