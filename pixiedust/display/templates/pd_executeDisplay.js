@@ -24,11 +24,12 @@
         return true;
     }
 
-    function send_input_reply(cb, cmd){
+    function send_input_reply(cb, cmd, pd_controls){
         if (cmd == 'c' || cmd == 'continue'){
             cb = null;
             pixiedust.input_reply_queue.queue = [];
             pixiedust.input_reply_queue.debuggerInitialized = false;
+            $("#debugger_container_" + pd_controls.prefix).hide();
         }else if (cmd == 'no_op'){
             cb = null;
             cmd = null;
@@ -209,6 +210,7 @@
         input : function(msg){
             var reply_callbacks = pixiedust.input_reply_queue.inflight;
             if (!reply_callbacks || reply_callbacks.refreshDebugger){
+                $("#debugger_container_" + pd_controls.prefix).show();
                 var input_target = "input_reply_" + pd_controls.prefix;
                 var process_output = getScriptOfType($("#" + input_target), "process_output");
                 if (process_output){
@@ -236,7 +238,7 @@
             var next_input_reply = pixiedust.input_reply_queue.queue.shift();
             if (next_input_reply){
                 setTimeout(function(){
-                    send_input_reply(next_input_reply.callbacks, next_input_reply.command);
+                    send_input_reply(next_input_reply.callbacks, next_input_reply.command, pd_controls);
                 }, 0);
             }else{
                 pixiedust.input_reply_queue.inflight = null;
@@ -394,7 +396,7 @@
             if (pixiedust.input_reply_queue.inflight){
                 pixiedust.input_reply_queue.queue.push({"command":command, "callbacks":callbacks});
             }else{
-                send_input_reply(callbacks, command);
+                send_input_reply(callbacks, command, pd_controls);
             }
         }else{
             if (pixiedust.input_reply_queue.inflight){

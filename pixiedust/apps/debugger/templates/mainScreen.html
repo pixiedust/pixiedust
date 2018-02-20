@@ -1,44 +1,45 @@
-<div class="no_loading_msg" id="input_reply_{{prefix}}">
-    <pd_script type="process_output">
-        <script type="text/template">
-        return '<div pd_render_onload pd_options="send_input_reply=ll" pd_target="code{{prefix}}"></div>'+
-        '<div pd_render_onload pd_options="send_input_reply=p [\'{}:{}\'.format(key,value) for key,value in locals().items()]" pd_target="variables{{prefix}}"></div>'+
-        '<div pd_render_onload pd_options="send_input_reply=no_op" pd_target="variables{{prefix}}"></div>';
-        </script>
-    </pd_script>
-</div>
-<div class="container">
-    <div class="row" style="margin-bottom:10px">
-        <div class="col-xs-11 col-sm-8 col-md-6">
-            {%include resModule + ":toolbar.html"%}
+<div id="debugger_container_{{prefix}}" style="display:none">
+    <div class="no_loading_msg" id="input_reply_{{prefix}}">
+        <pd_script type="process_output">
+            <script type="text/template">
+            return '<div pd_render_onload pd_options="send_input_reply=ll" pd_target="code{{prefix}}"></div>'+
+            '<div pd_render_onload pd_options="send_input_reply=p [\'{}:{}\'.format(key,value) for key,value in locals().items()]" pd_target="variables{{prefix}}"></div>'+
+            '<div pd_render_onload pd_options="send_input_reply=no_op" pd_target="variables{{prefix}}"></div>';
+            </script>
+        </pd_script>
+    </div>
+    <div class="container no_loading_msg" id="debugger{{prefix}}">
+        <div class="row" style="margin-bottom:10px">
+            <div class="col-xs-11 col-sm-8 col-md-6">
+                {%include resModule + ":toolbar.html"%}
+            </div>
+        </div>
+        <div class="row">
+            <div class="no_loading_msg col-sm-6" id="code{{prefix}}" style="border:aliceblue 2px solid">
+                <pd_script type="process_output">
+                    <script type="text/template">
+                    return "<pre>" + output + "</pre>";
+                    </script>
+                </pd_script>
+            </div>
+            <div class="no_loading_msg col-sm-2" id="variables{{prefix}}">
+                <pd_script type="process_output"><script type="text/template">
+                    var ar = JSON.parse(output.trim().replace(/'/g, '"'))
+                    html = '<ul class="list-group" id="list_variables_{{prefix}}">';
+                    ar.forEach(function(variable){
+                        html += '<li pd_target="value{{prefix}}" pd_options="send_input_reply=' + variable + '" class="list-group-item" value="' + variable + '">'+variable+'</li>';
+                    })
+                    html += "</ul>";
+                    return html;
+                </script></pd_script>
+            </div>
         </div>
     </div>
-    <div class="row">
-        <div class="no_loading_msg col-sm-6" id="code{{prefix}}" style="border:aliceblue 2px solid">
-            <pd_script type="process_output">
-                <script type="text/template">
-                debugger;
-                return "<pre>" + output + "</pre>";
-                return html;
-                </script>
-            </pd_script>
-        </div>
-        <div class="no_loading_msg col-sm-2" id="variables{{prefix}}">
-            <pd_script type="process_output"><script type="text/template">
-                var ar = JSON.parse(output.trim().replace(/'/g, '"'))
-                html = '<ul class="list-group" id="list_variables_{{prefix}}">';
-                ar.forEach(function(variable){
-                    html += '<li pd_target="value{{prefix}}" pd_options="send_input_reply=' + variable + '" class="list-group-item" value="' + variable + '">'+variable+'</li>';
-                })
-                html += "</ul>";
-                return html;
-            </script></pd_script>
-        </div>
-    </div>
 </div>
-<div pd_render_onload pd_target="dummy"> 
+<div pd_render_onload pd_target="console_output_{{prefix}}"> 
     <pd_script>
 {{this.pixieapp_entity}}
     </pd_script>
 </div>
+<div id="console_output_{{prefix}}" class="no_loading_msg"></div>
 <div class="no_loading_msg" id="value{{prefix}}"></div>
