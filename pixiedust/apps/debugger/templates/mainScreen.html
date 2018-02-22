@@ -1,4 +1,168 @@
-<div id="debugger_container_{{prefix}}" style="display:none">
+<style>
+    .pd-debugger-out {
+        margin-top: 8px;
+        max-height: 100px;
+        min-height: 32px;
+        overflow: auto;
+        padding: 5px 0px;
+    }
+    .pd-debugger-out > div:first-child {
+        border-bottom: 1px solid #dddddd;
+        font-weight: 500;
+        margin-bottom: 8px;
+    }
+    .pd-debugger-out > div:last-child {
+        padding: 0 3px;
+    }
+    #variables{{prefix}} {
+        border: 1px solid #dddddd;
+        max-height: 220px;
+        min-height: 100%;
+        overflow: auto;
+        margin-left: 10px;
+        padding: 0;
+        width: calc(100% - 10px);
+    }
+    #value{{prefix}} {
+        background-color: #F9F9F9;
+        border: 1px solid #dddddd;
+        font-size: 14px;
+        height: 40px;
+        overflow: auto;
+        margin-left: 10px;
+        padding: 0 2px;
+        width: calc(100% - 10px);
+    }
+    #code{{prefix}} {
+        border: 1px solid #dddddd;
+        max-height: 275px;
+        min-height: 75px;
+        overflow: auto;
+        position: relative;
+    }
+    .pd-debugger-code {
+        display: flex;
+    }
+    .pd-debugger-code,
+    .pd-debugger-vars {
+        padding: 0;
+    }
+    .pd-debugger-code code,
+    .pd-debugger-vars code {
+        background-color: transparent;
+        padding: 0;
+        white-space: pre;
+    }
+    .pd-debugger-gutter {
+        background-color: #F7F7F7;
+        border-right: 1px solid #dddddd;
+        display: inline-block;
+        padding: 5px 0px;
+        text-align: right;
+    }
+    .pd-debugger-source {
+        display: inline-block;
+        flex: 1;
+        padding: 5px 0px;
+    }
+    .pd-debugger-gutter > div,
+    .pd-debugger-source > div {
+        padding: 0px 8px;
+    }
+    .pd-debugger-source .current-line,
+    .pd-debugger-gutter .current-line:not(.error-line) {
+        background-color: rgba(66, 165, 245, 0.2);
+    }
+    .pd-debugger-source .error-line:not(.current-line),
+    .pd-debugger-gutter .error-line {
+        background-color: #fdaeb7;
+    }
+
+    .pd-debugger-vars table {
+        table-layout: auto;
+        border-collapse: collapse;
+        width: 100%;
+    }
+    .pd-debugger-vars table {
+        font-size: 13px;
+        font-weight: 200;
+    }
+    .pd-debugger-vars table thead {
+        border-bottom: 1px solid #ddd;
+    }
+    .pd-debugger-vars table tr {
+        cursor: pointer;
+    }
+    .pd-debugger-vars table th {
+        color: #333333;
+        font-size: small;
+        font-weight: 500;
+        letter-spacing: 0.5px;
+        line-height: normal;
+        padding: 20px 0 0 0;
+    }
+    .pd-debugger-vars table td {
+        padding-top: 2px;
+        padding-bottom: 2px;
+    }
+    .pd-debugger-vars table th:last-child {
+        width: calc(100% - 15px);
+    }
+    .pd-debugger-vars table td:first-child,
+    .pd-debugger-vars table th:first-child {
+        padding-left: 4px;
+        text-align: left;
+    }
+    .pd-debugger-vars table td:last-child,
+    .pd-debugger-vars table th:last-child {
+        padding-right: 4px;
+        text-align: right;
+    }
+</style>
+<script>
+    var formatCodeOutput = function(output) {
+        var lines = output.split(/\r?\n/)
+        var gutter = []
+        var source = []
+        for (var i=0; i<lines.length; i++) {
+            var parts = lines[i].match(/(\s*\d+\s\s)(.+)/)
+            var rowclass = ''
+            if (parts) {
+                if (parts[2].search(/->/) === 0) {
+                    parts[2] = parts[2].replace(/->/, '')
+                    rowclass += 'current-line'
+                }
+                if (parts[2].search(/>>/) === 0) {
+                    parts[2] = parts[2].replace(/>>/, '')
+                    rowclass += ' error-line'
+                }
+                gutter.push('<div class="' + rowclass + '"><code>' + parts[1].trim() + '</code></div>')
+                source.push('<div class="' + rowclass + '"><code>' + (parts[2].substring(1) || '&nbsp;') + '</code></div>')
+            }
+        }
+        for (var j=gutter.length; j<5; j++) {
+            gutter.push('<div>&nbsp;</div>')
+            source.push('<div>&nbsp;</div>')
+        }
+        setTimeout(function() {
+            var current = $('#code{{prefix}} .pd-debugger-code .current-line')
+            var codebox = $('#code{{prefix}}')
+            if (current.length && (current.position().top + 25 > codebox.height() || current.position().top < 0)) {
+                codebox.scrollTop(current.position().top < 0 ? 0 : current.position().top)
+            }
+        }, 200)
+        return '<div class="pd-debugger-code"><div class="pd-debugger-gutter">' + gutter.join('') + '</div><div class="pd-debugger-source">' + source.join('')  + '</div></div>'
+    }
+    var formatVariablesOutput = function(output) {
+        var variables = JSON.parse(output.trim().replace(/'/g, '"')).sort(function (a, b) { return a.localeCompare(b) })
+        for (var i=0; i<variables.length; i++) {
+            var v = variables[i].split(':');
+            variables[i] = '<tr pd_target="value{{prefix}}" pd_options="send_input_reply=' + v[0] + '" value="' + variables[i] + '"><td><code>' + v[0] + '</code></td><td>' + v[1] + '</td></tr>'
+        }
+        return '<div class="pd-debugger-vars"><table role="presentation">' + variables.join('') + '</table></div>'
+    }
+</script>
+<div id="debugger_container_{{prefix}}" style="display:none;margin-bottom:20px;">
     <div class="no_loading_msg" id="input_reply_{{prefix}}">
         <pd_script type="process_output">
             <script type="text/template">
@@ -8,30 +172,38 @@
             </script>
         </pd_script>
     </div>
-    <div class="container no_loading_msg" id="debugger{{prefix}}">
-        <div class="row" style="margin-bottom:10px">
-            <div class="col-xs-11 col-sm-8 col-md-6">
-                {%include resModule + ":toolbar.html"%}
+    <div class="container no_loading_msg" id="debugger{{prefix}}" style="width:100%">
+        <div class="row" style="margin-top:30px; display: flex;">
+            <div class="col-sm-9">
+                <div class="row" style="margin-bottom:3px;">
+                    <div class="col-sm-12">
+                        {%include resModule + ":toolbar.html"%}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12 no_loading_msg" id="code{{prefix}}">
+                        <pd_script type="process_output">
+                            <script type="text/template">
+                                return formatCodeOutput(output);
+                            </script>
+                        </pd_script>
+                    </div>
+                </div>
             </div>
-        </div>
-        <div class="row">
-            <div class="no_loading_msg col-sm-6" id="code{{prefix}}" style="border:aliceblue 2px solid">
-                <pd_script type="process_output">
-                    <script type="text/template">
-                    return "<pre>" + output + "</pre>";
-                    </script>
-                </pd_script>
-            </div>
-            <div class="no_loading_msg col-sm-2" id="variables{{prefix}}">
-                <pd_script type="process_output"><script type="text/template">
-                    var ar = JSON.parse(output.trim().replace(/'/g, '"'))
-                    html = '<ul class="list-group" id="list_variables_{{prefix}}">';
-                    ar.forEach(function(variable){
-                        html += '<li pd_target="value{{prefix}}" pd_options="send_input_reply=' + variable + '" class="list-group-item" value="' + variable + '">'+variable+'</li>';
-                    })
-                    html += "</ul>";
-                    return html;
-                </script></pd_script>
+            <div class="col-sm-3">
+                <div class="row" style="font-weight:500;margin:20px 0 0 10px;">Variables</div>
+                <div class="row" style="height:calc(100% - 80px);margin-bottom:3px;">
+                    <div class="col-sm-12 no_loading_msg" id="variables{{prefix}}">
+                        <pd_script type="process_output">
+                            <script type="text/template">
+                                return formatVariablesOutput(output);
+                            </script>
+                        </pd_script>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12 no_loading_msg" id="value{{prefix}}"></div>
+                </div>
             </div>
         </div>
     </div>
@@ -41,5 +213,7 @@
 {{this.pixieapp_entity}}
     </pd_script>
 </div>
-<div id="console_output_{{prefix}}" class="no_loading_msg"></div>
-<div class="no_loading_msg" id="value{{prefix}}"></div>
+<div class="pd-debugger-out">
+    <div>Console</div>
+    <div id="console_output_{{prefix}}" class="no_loading_msg"></div>
+</div>
