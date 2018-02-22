@@ -167,6 +167,12 @@ var pixiedust = (function(){
                 });
             })
         },
+        sendEvent: function(payload, targetDivId){
+            payload = payload || {};
+            targetDivId = targetDivId || $(event.srcElement).uniqueId().attr('id');
+            payload.targetDivId = targetDivId;
+            $(document).trigger('pd_event', payload);
+        },
         saveOutputInCell: function(curCell, content, html, msg_type){
             if(curCell && curCell.output_area && curCell.output_area.outputs){
                 var data = JSON.parse(JSON.stringify(content.data));
@@ -634,10 +640,42 @@ function filterNonTargetElements(element){
     return element;
 }
 
+function readJSONAttribute(element, attrName){
+    var payload = resolveScriptMacros(element.getAttribute(attrName));
+    if (payload){
+        var parts = payload.split(";");
+        payload = {};
+        $.each( parts, function(){
+            var index = this.indexOf("=");
+            if ( index > 1){
+                payload[this.substring(0, index)] = this.substring(index+1);
+            }
+        });
+    }else{
+        {#read children using json format#}
+        $(element).find("> " + attrName).each(function(){
+            try{
+                payload = JSON.parse($(this).text());
+                for (var key in payload) { 
+                    payload[key] = resolveScriptMacros(payload[key]); 
+                }
+            }catch(e){
+                console.log("Error parsing " + attrName + ", invalid json", e);
+            }
+        })
+    }
+    return payload;
+}
+
 {#Dynamically add click handler on the pixiedust chrome menus#}
 function processEvent(event){
     if (event.pd_processed){
         return;
+    }
+    {#check if we need to send an event#}
+    var payload = readJSONAttribute(event.target, "pd_event_payload");
+    if (payload){
+        pixiedust.sendEvent(payload, $(event.target).uniqueId().attr('id'));
     }
     execQueue = runElement(filterNonTargetElements(event.target));
     {#execute#}
@@ -667,7 +705,7 @@ $(document).on("pd_event", function(event, eventInfo){
     if (targetDivId){
         eventHandlers = $("pd_event_handler").filter(function(){
             source = this.getAttribute("pd_source");
-            if (source == "*" || source == targetDivId){
+            if (source == "*" || source == targetDivId || source == eventInfo.type){
                 return true;
             }
             {#Find a parent with pd_target attribute#}
