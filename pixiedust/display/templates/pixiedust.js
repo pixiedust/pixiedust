@@ -167,10 +167,10 @@ var pixiedust = (function(){
                 });
             })
         },
-        sendEvent: function(payload, targetDivId){
+        sendEvent: function(payload, divId){
             payload = payload || {};
-            targetDivId = targetDivId || $(event.srcElement).uniqueId().attr('id');
-            payload.targetDivId = targetDivId;
+            divId = divId || $(event.srcElement).uniqueId().attr('id');
+            payload.targetDivId = divId;
             $(document).trigger('pd_event', payload);
         },
         saveOutputInCell: function(curCell, content, html, msg_type){

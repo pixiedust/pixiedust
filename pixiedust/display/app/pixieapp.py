@@ -133,7 +133,9 @@ class templateArgs(object):
 pixieAppRunCustomizer = None
 
 def runPixieApp(app, parent_pixieapp=None, entity=None, **kwargs):
-    kwargs.get("options", {}).pop("prefix", None)  #child pixieapp should have its own prefix
+    options = kwargs.get("options", {})
+    if options.pop("new_parent_prefix", "true") == "true":
+        options.pop("prefix", None)  #child pixieapp should have its own prefix
     if isinstance(app, PixieDustApp):
         app.run(entity, **kwargs)
     elif isinstance(app, string_types):
@@ -365,8 +367,7 @@ def PixieApp(cls):
         is_running_child_pixieapp = kwargs.pop("is_running_child_pixieapp", False)
         for key, value in iteritems(kwargs):
             setattr(self, key, value)
-        if entity is not None:
-            self.pixieapp_entity = entity
+        self.pixieapp_entity = entity
         var = None
         if self.parent_pixieapp is not None:
             parent_key = None

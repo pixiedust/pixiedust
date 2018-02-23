@@ -1,6 +1,9 @@
 !function() {
+    function getTargetNodeId(override=null){
+        return override || $targetDivId || ("wrapperHTML"+ pd_prefix);
+    }
     function getTargetNode(override=null){
-        return $('#' + (override || $targetDivId || ("wrapperHTML"+ pd_prefix)));
+        return $('#' + getTargetNodeId(override));
     }
     function checkRootInit(){
         node = getTargetNode();
@@ -25,16 +28,19 @@
     }
 
     function send_input_reply(cb, cmd, pd_controls){
-        if (cmd == 'c' || cmd == 'continue'){
+        if (cmd == 'c' || cmd == 'continue' || cmd.startsWith("$$")){
             cb = null;
             pixiedust.input_reply_queue.queue = [];
             pixiedust.input_reply_queue.debuggerInitialized = false;
             $("#debugger_container_" + pd_controls.prefix).hide();
+            if (cmd.startsWith("$$")){
+                cmd = cmd.substring(2);
+            }
         }else if (cmd == 'no_op'){
             cb = null;
             cmd = null;
         }
-        if ($targetDivId == "debugger_refresh"){
+        if (cb && $targetDivId == "debugger_refresh"){
             cb.refreshDebugger = true;
         }
         pixiedust.input_reply_queue.inflight = cb;
@@ -45,8 +51,7 @@
     var cellId = options.cell_id || "";
     var curCell = pixiedust.getCell(cellId);
     console.log("curCell",curCell);
-    var startWallToWall;
-    //Resend the display command
+    {#Resend the display command#}
     var callbacks = {
         shell : {
             reply : function(){
@@ -194,7 +199,12 @@
                             if (user_controls.onError){
                                 user_controls.onError(data);
                             }else{
-                                targetNodeUpdated = setHTML(getTargetNode(), "<pre>" + data +"</pre>", pd_controls, user_controls);
+                                targetNodeUpdated = setHTML(
+                                    getTargetNode(), 
+                                    "<pre>" + data + '</pre><button type="submit" pd_options="new_parent_prefix=false" pd_target="' + getTargetNodeId() + '" pd_app="pixiedust.apps.debugger.PixieDebugger">Call debugger</button>', 
+                                    pd_controls, 
+                                    user_controls
+                                );
                             }
                         }
                     });

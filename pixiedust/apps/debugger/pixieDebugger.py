@@ -16,7 +16,7 @@
 import warnings
 from pixiedust.display.app import *
 from six import iteritems
-from IPython.core.magic import (Magics, magics_class, cell_magic)
+from IPython.core.magic import (Magics, magics_class, line_cell_magic)
 from IPython.core.getipython import get_ipython
 
 @magics_class
@@ -24,8 +24,8 @@ class PixiedustDebuggerMagics(Magics):
     def __init__(self, shell):
         super(PixiedustDebuggerMagics,self).__init__(shell=shell)
 
-    @cell_magic
-    def pixie_debugger(self, line, cell):
+    @line_cell_magic
+    def pixie_debugger(self, line, cell=None):
         PixieDebugger().run(cell)
 
 try:
@@ -38,6 +38,19 @@ except NameError:
 
 @PixieApp
 class PixieDebugger():
+    def setup(self):
+        self.is_post_mortem = False
+        if self.pixieapp_entity is None:
+            self.is_post_mortem = True
+            self.pixieapp_entity =  """
+import pdb
+pdb.pm()
+            """
+
+    @property
+    def pm_prefix(self):
+        return "$$" if self.is_post_mortem else ""
+
     @route()
     def main_screen(self):
         return self.env.getTemplate("mainScreen.html")
