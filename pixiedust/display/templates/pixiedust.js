@@ -543,6 +543,10 @@ function readExecInfo(pd_controls, element, searchParents, fromExecInfo){
         execInfo.send_input_reply = execInfo.options["send_input_reply"];
         delete execInfo.options["send_input_reply"];
     }
+    if ("answer_input_reply" in execInfo.options){
+        execInfo.answer_input_reply = execInfo.options["answer_input_reply"];
+        delete execInfo.options["answer_input_reply"];
+    }
 
     execInfo.execute = function(){
         {#check if we have a pre-run client side script #}

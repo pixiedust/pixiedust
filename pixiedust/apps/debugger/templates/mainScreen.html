@@ -153,11 +153,30 @@
         }, 200)
         return '<div class="pd-debugger-code"><div class="pd-debugger-gutter">' + gutter.join('') + '</div><div class="pd-debugger-source">' + source.join('')  + '</div></div>'
     }
+    var truncate = function(s){
+        if (s.length > 10){
+            s = s.substring(0,7) + "...";
+        }
+        return s.replace(/</g,"&lt;").replace(/>/g,"&gt;");
+    }
     var formatVariablesOutput = function(output) {
-        var variables = JSON.parse(output.trim().replace(/'/g, '"')).sort(function (a, b) { return a.localeCompare(b) })
+        var variables = "";
+        output = output.trim();
+        try{
+            variables = JSON.parse(output.replace(/'/g, '"')).sort(function (a, b) { return a.localeCompare(b) });
+        }catch(e){
+            if (output[0] == "'"){
+                output = output.substring(1);
+            }
+            if (output[output.length - 1] == "'"){
+                output = output.substring(0, output.length - 1);
+            }
+            output = output.replace(/\\'/g, "'").replace(/\\\\/g,'\\');
+            variables = JSON.parse(output);
+        }
         for (var i=0; i<variables.length; i++) {
             var v = variables[i].split(':');
-            variables[i] = '<tr pd_target="value{{prefix}}" pd_options="send_input_reply=' + v[0] + '" value="' + variables[i] + '"><td><code>' + v[0] + '</code></td><td>' + v[1] + '</td></tr>'
+            variables[i] = '<tr pd_target="value{{prefix}}" pd_options="send_input_reply=' + truncate(v[0]) + '" value="' + v[0] + '"><td><code>' + truncate(v[0]) + '</code></td><td>' + truncate(v[1]) + '</td></tr>'
         }
         return '<div class="pd-debugger-vars"><table role="presentation">' + variables.join('') + '</table></div>'
     }
@@ -167,7 +186,7 @@
         <pd_script type="process_output">
             <script type="text/template">
             return '<div pd_render_onload pd_options="send_input_reply=ll" pd_target="code{{prefix}}"></div>'+
-            '<div pd_render_onload pd_options="send_input_reply=p [\'{}:{}\'.format(key,value) for key,value in locals().items()]" pd_target="variables{{prefix}}"></div>'+
+            '<div pd_render_onload pd_options="send_input_reply=p json.dumps([\'{}:{}\'.format(key,value) for key,value in locals().items() if not key.startswith(\'_\') and key not in [\'In\',\'Out\']])" pd_target="variables{{prefix}}"></div>'+
             '<div pd_render_onload pd_options="send_input_reply=no_op" pd_target="variables{{prefix}}"></div>';
             </script>
         </pd_script>
@@ -210,8 +229,16 @@
 </div>
 <div pd_render_onload pd_target="console_output_{{prefix}}"> 
     <pd_script>
-{{this.pixieapp_entity}}
+def pixie_run():
+    import pdb
+    pdb.set_trace()
+{{this.pixieapp_entity|indent(4, indentfirst=True)}}
+pixie_run()
     </pd_script>
+    {#<target pd_options="send_input_reply=no_op_delay" pd_target="dummy"></target>
+    <target pd_options="send_input_reply=clear;answer_input_reply=yes" pd_target="console_output_{{prefix}}"></target>
+    <target pd_options="send_input_reply=tbreak method" pd_target="console_output_{{prefix}}"></target>
+    <target pd_options="send_input_reply=c" pd_target="debugger{{prefix}}"></target>#}
 </div>
 <div class="pd-debugger-out">
     <div>Console</div>
