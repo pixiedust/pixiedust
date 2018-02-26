@@ -16,12 +16,8 @@
 
 from abc import ABCMeta
 from six import with_metaclass
-from pixiedust.utils import Logger
-import pixiedust
 from pixiedust.display.chart.renderers import PixiedustRenderer
-from pixiedust.display.chart.renderers.baseChartDisplay import BaseChartDisplay,commonChartOptions
-
-myLogger = pixiedust.getLogger(__name__)
+from pixiedust.display.chart.renderers.baseChartDisplay import BaseChartDisplay, commonChartOptions
 
 @PixiedustRenderer(rendererId="table")
 class TableBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
