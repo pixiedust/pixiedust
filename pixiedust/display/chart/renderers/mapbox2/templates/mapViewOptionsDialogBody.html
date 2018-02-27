@@ -1,0 +1,9 @@
+{%extends resModule + ":baseChartOptionsDialogBody.html"%}
+{%block staticFigure%}
+{%endblock%}
+{%block customFormFields%}
+<div class="form-group col-sm-12" style="padding: 0px 0px 0px 5px;">
+	<label for="title{{prefix}}"><a href="https://www.mapbox.com/help/create-api-access-token/" target="_mapboxwin">Mapbox Access Token</a>: <i class="fa fa-question-circle" title="Get a Mapbox access token by creating a free account at mapbox.com"></i></label>
+	<input type="text" class="form-control" id="mapboxtoken{{prefix}}" name="mapboxtoken" value="{{this.options.get("mapboxtoken") or "pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4M29iazA2Z2gycXA4N2pmbDZmangifQ.-g_vE53SD2WrJ6tFX7QHmA"}}">
+</div>
+{%endblock%}
