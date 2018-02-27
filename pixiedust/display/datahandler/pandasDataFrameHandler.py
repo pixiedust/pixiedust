@@ -117,6 +117,7 @@ class PandasDataFrameDataHandler(BaseDataHandler):
         if count > maxRows:
             workingDF = workingDF.sample(frac=(float(maxRows) / float(count)),replace=False)
 
+        #NOTE: preserveCols is deprecated. This functionality doesn't exist in the pySparkDataFrameHandler so don't use it!!!
         #check if the caller want to preserve some columns
         preserveCols = self.options.get("preserveCols", None)
         if preserveCols is not None:
