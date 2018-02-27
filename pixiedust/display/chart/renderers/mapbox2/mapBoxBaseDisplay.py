@@ -59,7 +59,7 @@ class MapBoxBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
                         'type': 'slider',
                         'max': 100,
                         'min': 0,
-                        'default': 80
+                        'default': 50
                 }
             },
             {
