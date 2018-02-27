@@ -1,18 +1,30 @@
 <style>
     .pd-debugger-out {
         margin-top: 8px;
-        max-height: 100px;
-        min-height: 32px;
+        min-height: 48px;
         overflow: auto;
         padding: 5px 0px;
     }
-    .pd-debugger-out > div:first-child {
-        border-bottom: 1px solid #dddddd;
-        font-weight: 500;
-        margin-bottom: 8px;
+    .pd-debugger-out .tab-content {
+        border-bottom: 1px solid #ddd;
+        border-left: 1px solid #ddd;
+        border-right: 1px solid #ddd;
+        padding: 0;
     }
-    .pd-debugger-out > div:last-child {
-        padding: 0 3px;
+    .pd-debugger-out .nav-tabs {
+        padding-left: 0 !important;
+    }
+    .pd-debugger-out .nav-tabs > li > a {
+        border-radius: 0;
+        font-weight: 300;
+        color: #333333;
+        padding: 8px 10px;
+        text-decoration: none;
+    }
+    .pd-debugger-out .nav-tabs > li.active > a {
+        font-weight: 500;
+        color: #000000;
+        text-decoration: none;
     }
     #variables{{prefix}} {
         border: 1px solid #dddddd;
@@ -117,6 +129,37 @@
     .pd-debugger-vars table th:last-child {
         padding-right: 4px;
         text-align: right;
+    }
+    #console_output_{{prefix}} {
+        min-height: 82px;
+        padding: 10px;
+    }
+    #evaluate_{{prefix}} {
+        min-height: 48px;
+        padding: 10px;
+    }
+    #evaluate_output_{{prefix}} input {
+        border-color: #ddd !important;
+        border-bottom: 0 none !important;
+        border-left: 0 none !important;
+        border-radius: 0 !important;
+        box-shadow: initial !important;
+        padding-left: 17px;
+        background-color: #F9F9F9;
+        height: 34px;
+        font-family: monospace;
+    }
+
+    #evaluate_output_{{prefix}} .fa-angle-right {
+        position: absolute;
+        left: 4px;
+        top: 4px;
+        z-index: 10;
+    }
+    #evaluate_output_{{prefix}} button {
+        border-right: 0 none;
+        border-radius: 0;
+        font-size: 14px;
     }
 </style>
 <script>
@@ -241,6 +284,28 @@ pixie_run()
     <target pd_options="send_input_reply=c" pd_target="debugger{{prefix}}"></target>#}
 </div>
 <div class="pd-debugger-out">
-    <div>Console</div>
-    <div id="console_output_{{prefix}}" class="no_loading_msg"></div>
+    <ul class="nav nav-tabs" role="tablist">
+        <li role="presentation" class="active"><a href="#console_output_{{prefix}}" aria-controls="console_output_{{prefix}}" role="tab" data-toggle="tab">Console</a></li>
+        <li role="presentation"><a href="#evaluate_output_{{prefix}}" aria-controls="evaluate_output_{{prefix}}" role="tab" data-toggle="tab">Evaluate</a></li>
+    </ul>
+    <div class="tab-content">
+        <div role="tabpanel" class="tab-pane active no_loading_msg" id="console_output_{{prefix}}"> </div>
+        <div role="tabpanel" class="tab-pane" id="evaluate_output_{{prefix}}">
+            <div class="row no_loading_msg" id="evaluate_{{prefix}}"> </div>
+            <div class="row">
+                <div class="col-sm-12">
+                    <i class="fa fa-angle-right fa-2x"></i>
+                    <div class="input-group">
+                        <input id="evaluate_input_{{prefix}}" type="text" class="form-control" placeholder="Enter an expression" style="border-radius: 0;">
+                        <span class="input-group-btn">
+                            <button class="btn btn-primary" type="button"
+                                title="Evaluate the expression in the current context and print its value"
+                                pd_target="evaluate_{{prefix}}"
+                                pd_options="send_input_reply=p $val(evaluate_input_{{prefix}})">Run</button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
