@@ -56,10 +56,6 @@ class MapViewDisplay(MapBoxBaseDisplay):
         else:
             return (False, "No location field found ('latitude'/'longitude', 'lat/lon', 'y/x').<br>Use the Chart Options dialog to specify location fields.")
 
-    def getChartContext(self, handlerId):
-        diagTemplate = MapBoxBaseDisplay.__module__ + ":mapViewOptionsDialogBody.html"
-        return (diagTemplate, {})
-    
     def doRenderChart(self):
         mbtoken = self.options.get("mapboxtoken")
         if not mbtoken:
