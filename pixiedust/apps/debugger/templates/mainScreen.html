@@ -89,6 +89,12 @@
     .pd-debugger-gutter .error-line {
         background-color: #fdaeb7;
     }
+    .pd-debugger-gutter .breakpoint-line code::before {
+        color: crimson;
+        content: "\f188";
+        font: normal normal normal 12px/1 FontAwesome;
+        padding-right: 5px;
+    }
 
     .pd-debugger-vars table {
         table-layout: auto;
@@ -164,7 +170,6 @@
 </style>
 <script>
     var formatCodeOutput = function(output) {
-        debugger;
         var lines = output.split(/\r?\n/)
         var gutter = []
         var source = []
@@ -172,9 +177,13 @@
             var parts = lines[i].match(/(\s*\d+\sB?\s?)(.+)/)
             var rowclass = ''
             if (parts) {
+                if (parts[1].indexOf('B') > 0) {
+                    parts[1] = parts[1].replace('B', '')
+                    rowclass += ' breakpoint-line'
+                }
                 if (parts[2].search(/->/) === 0) {
                     parts[2] = parts[2].replace(/->/, '')
-                    rowclass += 'current-line'
+                    rowclass += ' current-line'
                 }
                 if (parts[2].search(/>>/) === 0) {
                     parts[2] = parts[2].replace(/>>/, '')
