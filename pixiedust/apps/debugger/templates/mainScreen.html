@@ -288,8 +288,10 @@
     <target pd_options="send_input_reply=clear;answer_input_reply=yes" pd_target="console_output_{{prefix}}"></target>
     {%for breakpoint in this.breakpoints%}
     <target pd_options="send_input_reply=break {{breakpoint}}" pd_target="console_output_{{prefix}}"></target>
-    {%endfor%}
+    {%if loop.last%}
     <target pd_options="send_input_reply=c" pd_target="debugger{{prefix}}"></target>
+    {%endif%}
+    {%endfor%}
 </div>
 <div class="pd-debugger-out">
     <ul class="nav nav-tabs" role="tablist">
