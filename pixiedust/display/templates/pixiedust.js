@@ -347,16 +347,18 @@ function computeGeometry(element, execInfo){
 }
 
 function readScriptAttribute(element){
-    retValue = element.getAttribute("pd_script");
+    var retValue = element.getAttribute("pd_script");
+    var run_raw = false;
     if (!retValue){
         $(element).find("> pd_script").each(function(){
             var type = this.getAttribute("type");
             if (!type || type=="python"){
                 retValue = $(this).text();
+                run_raw = this.hasAttribute("run_raw");
             }
         })
     }
-    return retValue;
+    return retValue?{"script":retValue, "run_raw":run_raw}:null;
 }
 
 function getAttribute(element, name, defValue, defValueIfKeyAlone){
@@ -433,7 +435,8 @@ function readExecInfo(pd_controls, element, searchParents, fromExecInfo){
 
     scriptAttr = readScriptAttribute(element);
     if (scriptAttr){
-        execInfo.script = (execInfo.script || "") + "\n" + scriptAttr;
+        execInfo.script = (execInfo.script || "") + "\n" + scriptAttr.script;
+        execInfo.script_run_raw = scriptAttr.run_raw;
     }
     execInfo.refresh = execInfo.refresh || (getAttribute(element, "pd_refresh", "false", "true") == 'true');
     execInfo.norefresh = element.hasAttribute("pd_norefresh");
@@ -479,9 +482,13 @@ function readExecInfo(pd_controls, element, searchParents, fromExecInfo){
             }
         }
         if (entity){
-            console.log("Inject self with entity", entity)
-            execInfo.script = "from pixiedust.utils.shellAccess import ShellAccess\n"+
-                "self=ShellAccess['" + entity + "']\n" +
+            var prolog = "";
+            if (!execInfo.script_run_raw){
+                console.log("Inject self with entity", entity);
+                prolog = "from pixiedust.utils.shellAccess import ShellAccess\n"+
+                    "self=ShellAccess['" + entity + "']\n";
+            }
+            execInfo.script = prolog +
                 resolveScriptMacros( getParentScript(element) ) + '\n' +
                 resolveScriptMacros(execInfo.script);
             if ( execInfo.pixieapp){

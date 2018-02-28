@@ -14,7 +14,9 @@
 # limitations under the License.
 # -------------------------------------------------------------------------------
 import warnings
+import argparse
 from pixiedust.display.app import *
+from pixiedust.utils.astParse import get_matches_lineno
 from six import iteritems
 from IPython.core.magic import (Magics, magics_class, line_cell_magic)
 from IPython.core.getipython import get_ipython
@@ -26,7 +28,15 @@ class PixiedustDebuggerMagics(Magics):
 
     @line_cell_magic
     def pixie_debugger(self, line, cell=None):
-        PixieDebugger().run(cell)
+        args = None
+        if line is not None:
+            parser = argparse.ArgumentParser(description='PixieDebugger options')
+            parser.add_argument('-b', '--breakpoints', nargs='*', help='set breakpoints')
+            args = parser.parse_args(line.split())
+        PixieDebugger().run({
+            "breakpoints": args.breakpoints if args is not None else [],
+            "code": cell
+        })
 
 try:
     with warnings.catch_warnings():
@@ -38,11 +48,34 @@ except NameError:
 
 @PixieApp
 class PixieDebugger():
-    def setup(self):
+    def initialize(self):
         self.is_post_mortem = False
-        if self.pixieapp_entity is None:
-            self.is_post_mortem = True
-            self.pixieapp_entity =  """
+        self.code =  ""
+        self.breakpoints = []
+        self.is_post_mortem = self.pixieapp_entity is None or self.pixieapp_entity["code"] is None
+        if not self.is_post_mortem:
+            self.code = self.renderTemplateString("""
+def pixie_run():
+    import pdb
+    pdb.set_trace()
+{{this.pixieapp_entity["code"]|indent(4, indentfirst=True)}}
+pixie_run()
+        """)
+            bps_lines = set()
+            bps_fns = set()
+            for breakpoint in self.pixieapp_entity["breakpoints"]:
+                try:
+                    bps_lines.add( int(breakpoint))
+                except ValueError:
+                    matches = get_matches_lineno(self.code, breakpoint)
+                    if len(matches) == 0:
+                        bps_fns.add(breakpoint)
+                    else:
+                        for match in matches:
+                            bps_lines.add(match)
+            self.breakpoints = list(sorted(bps_lines)) + list(sorted(bps_fns))
+        else:
+            self.code="""
 import pdb
 pdb.pm()
             """
@@ -53,6 +86,7 @@ pdb.pm()
 
     @route()
     def main_screen(self):
+        self.initialize()
         return self.env.getTemplate("mainScreen.html")
 
     @route(done="*")

@@ -164,11 +164,12 @@
 </style>
 <script>
     var formatCodeOutput = function(output) {
+        debugger;
         var lines = output.split(/\r?\n/)
         var gutter = []
         var source = []
         for (var i=0; i<lines.length; i++) {
-            var parts = lines[i].match(/(\s*\d+\s\s)(.+)/)
+            var parts = lines[i].match(/(\s*\d+\sB?\s?)(.+)/)
             var rowclass = ''
             if (parts) {
                 if (parts[2].search(/->/) === 0) {
@@ -271,17 +272,15 @@
     </div>
 </div>
 <div pd_render_onload pd_target="console_output_{{prefix}}"> 
-    <pd_script>
-def pixie_run():
-    import pdb
-    pdb.set_trace()
-{{this.pixieapp_entity|indent(4, indentfirst=True)}}
-pixie_run()
+    <pd_script run_raw>
+{{this.code}}
     </pd_script>
-    {#<target pd_options="send_input_reply=no_op_delay" pd_target="dummy"></target>
+    <target pd_options="send_input_reply=no_op_delay" pd_target="dummy"></target>
     <target pd_options="send_input_reply=clear;answer_input_reply=yes" pd_target="console_output_{{prefix}}"></target>
-    <target pd_options="send_input_reply=tbreak method" pd_target="console_output_{{prefix}}"></target>
-    <target pd_options="send_input_reply=c" pd_target="debugger{{prefix}}"></target>#}
+    {%for breakpoint in this.breakpoints%}
+    <target pd_options="send_input_reply=break {{breakpoint}}" pd_target="console_output_{{prefix}}"></target>
+    {%endfor%}
+    <target pd_options="send_input_reply=c" pd_target="debugger{{prefix}}"></target>
 </div>
 <div class="pd-debugger-out">
     <ul class="nav nav-tabs" role="tablist">

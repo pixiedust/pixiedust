@@ -244,7 +244,6 @@
             }
             if (reply_callbacks && reply_callbacks.answer_input_reply){
                 setTimeout(function(){
-                    debugger;
                     var answer = reply_callbacks.answer_input_reply;
                     reply_callbacks.answer_input_reply = null;
                     send_input_reply(reply_callbacks, answer, pd_controls);
