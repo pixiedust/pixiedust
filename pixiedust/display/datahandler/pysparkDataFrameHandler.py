@@ -113,14 +113,24 @@ class PySparkDataFrameDataHandler(BaseDataHandler):
             yFields = []
             aggregation = None
 
+        allFields = self.getFieldNames()
+        myFieldsOrdered = []
         if isTableRenderer:
             if len(extraFields) < 1:
                 workingDF = filteredDF
             else:
-                workingDF = filteredDF.select(extraFields)
+                for f in allFields:
+                    if f in extraFields:
+                        myFieldsOrdered.append(f)
+                workingDF = filteredDF.select(myFieldsOrdered)
         else:
             extraFields = [a for a in extraFields if a not in xFields]
-            workingDF = filteredDF.select(xFields + extraFields + yFields)
+            # arrange fields in same order as they appear in the data
+            myFields = xFields + extraFields + yFields
+            for f in allFields:
+                if f in myFields:
+                    myFieldsOrdered.append(f)
+            workingDF = filteredDF.select(myFieldsOrdered)
 
         if aggregation and len(yFields)>0:
             aggMapper = {"SUM":"sum", "AVG": "avg", "MIN": "min", "MAX": "max"}
