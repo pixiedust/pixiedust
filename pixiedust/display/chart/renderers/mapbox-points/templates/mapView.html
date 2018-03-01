@@ -132,7 +132,11 @@
             popuphtml += "<h3>"+f.layer.id.toUpperCase()+"</h3>\n";
             var keylength = Object.keys(f.properties).length;
             for (var key in f.properties) {
-                popuphtml += "<b>"+key+": </b> "+f.properties[key]+"<br/>\n";
+                let v = f.properties[key].toString()
+                if (v.startsWith("http")) {
+                    v = "<a target='_redfin' href='"+v+"'>"+v+"</a>"
+                }
+                popuphtml += "<b>"+key+": </b> "+v+"<br/>\n";
             }
         });
         popup.setLngLat(e.lngLat).setHTML(popuphtml).addTo(map);
