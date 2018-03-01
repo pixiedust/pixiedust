@@ -291,7 +291,12 @@ class PixieDustApp(Display):
                             raise
                         return
                 if defRoute:
-                    retValue = getattr(self, defRoute)()
+                    try:
+                        self.exceptions.pop(defRoute, None)
+                        retValue = getattr(self, defRoute)()
+                    except:
+                        self.exceptions[defRoute] = self.get_pd_controls()["command"]
+                        raise
                     return
             finally:
                 if isinstance(retValue, templateArgs.TemplateRetValue):

@@ -207,8 +207,8 @@
         return '<div class="pd-debugger-code"><div class="pd-debugger-gutter">' + gutter.join('') + '</div><div class="pd-debugger-source">' + source.join('')  + '</div></div>'
     }
     var truncate = function(s){
-        if (s.length > 10){
-            s = s.substring(0,7) + "...";
+        if (s.length > 20){
+            s = s.substring(0,17) + "...";
         }
         return s.replace(/</g,"&lt;").replace(/>/g,"&gt;");
     }

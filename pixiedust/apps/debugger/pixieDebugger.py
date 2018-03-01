@@ -18,6 +18,7 @@ import inspect
 import sys
 import argparse
 from pixiedust.display.app import *
+from pixiedust.utils import Logger
 from pixiedust.utils.astParse import get_matches_lineno
 from six import iteritems
 from IPython.core.magic import (Magics, magics_class, line_cell_magic)
@@ -53,6 +54,7 @@ class NoTraceback(Exception):
     pass
 
 @PixieApp
+@Logger()
 class PixieDebugger():
     def initialize(self):
         self.is_post_mortem = False
@@ -63,11 +65,17 @@ class PixieDebugger():
             if sys.last_traceback is None:
                 raise NoTraceback()
             if self.options.get("debug_route", "false" ) == "true":
-                method_name = inspect.getinnerframes(sys.last_traceback)[-1].function
+                stack = [tb.function for tb in inspect.getinnerframes(sys.last_traceback)]
+                method_name = stack[-1]
+                for method in reversed(stack):
+                    code = self.parent_pixieapp.exceptions.get(method, None)
+                    if code:
+                        break
                 self.pixieapp_entity = {
                     "breakpoints": ["{}.{}".format(self.parent_pixieapp.__pixieapp_class_name__, method_name)],
-                    "code": self.parent_pixieapp.exceptions.get(method_name, "")
+                    "code": code or ""
                 }
+                self.debug("Invoking PixieDebugger for route with {}".format(self.pixieapp_entity))
                 self.is_post_mortem = False
 
         if not self.is_post_mortem:

@@ -198,7 +198,6 @@
                             if (user_controls.onError){
                                 user_controls.onError(data);
                             }else{
-                                debugger;
                                 var debugger_html = '<button type="submit" pd_options="new_parent_prefix=false" pd_target="' + 
                                 getTargetNodeId() + '" pd_app="pixiedust.apps.debugger.PixieDebugger">Post Mortem</button>' +
                                 '<span>&nbsp;&nbsp;</span>' +
