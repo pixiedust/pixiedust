@@ -134,7 +134,7 @@ class PySparkDataFrameDataHandler(BaseDataHandler):
             workingDF = workingDF.dropna()
         count = workingDF.count()
         if count > maxRows:
-            workingDF = workingDF.sample(False, (float(maxRows) / float(count)))
+            workingDF = workingDF.sample(n=int(maxRows),replace=False)
         pdf = self.toPandas(workingDF)
 
         #check if the user wants timeseries
