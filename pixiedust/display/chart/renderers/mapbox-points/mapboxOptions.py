@@ -17,7 +17,6 @@
 from pixiedust.display.app import *
 from pixiedust.utils import Logger
 from pixiedust.display.chart.options.optionsShell import *
-# from pixiedust.display.chart.options.components.KeyValueSelector import *
 from pixiedust.display.chart.options.components.AggregationSelector import *
 from pixiedust.display.chart.options.components.RowCount import *
 import six
@@ -25,21 +24,19 @@ import six
 @Logger()
 class GeoSelector(object):
     @route(widget="pdGeoSelector")
-    def chart_option_geo_widget(self, optid, keyFields, valueFields, extraFields):
-        self.keyFields = keyFields.split(",") if isinstance(keyFields, six.string_types) else keyFields or []
+    def chart_option_geo_widget(self, optid, lonField, latField, valueFields, extraFields):
+        self.lonField = lonField
+        self.latField = latField
+        self.lonFieldNames = ["x","lon","long","longitude"]
+        self.latFieldNames = ["y","lat","latitude"]
         self.valueFields = valueFields.split(",") if isinstance(valueFields, six.string_types) and valueFields else valueFields or []
         self.extraFields = extraFields.split(",") if isinstance(extraFields, six.string_types) and extraFields else extraFields or []
-        self.keyFieldsSupported = self.key_fields_supported()
-        self.keyFieldsType = self.key_fields_type()
         self.valueFieldsType = self.value_fields_type()
         self.extraFieldsType = self.extra_fields_type()
         self._addHTMLTemplate("geoselector.html")
 
     def key_fields_supported(self):
         return self.get_renderer.supportsKeyFields(self.parsed_command['kwargs']['handlerId'])
-
-    def key_fields_type(self):
-        return ['numeric']
 
     def value_fields_type(self):
         return ['numeric']
@@ -73,9 +70,10 @@ class MapboxOptions(OptionsShell, GeoSelector, AggregationSelector, RowCount, Ma
         self.chart_options.append({
             "optid": "keyvalue",
             "classname": "no_loading_msg",
-            "keyFields": lambda: self.run_options.get("keyFields") or "",
-            "valueFields": lambda: self.options.get("valueFields") or "",
-            "extraFields": lambda: self.options.get("extraFields") or "",
+            "lonField": lambda: self.run_options.get("lonField") or "",
+            "latField": lambda: self.run_options.get("latField") or "",
+            "valueFields": lambda: self.run_options.get("valueFields") or "",
+            "extraFields": lambda: self.run_options.get("extraFields") or "",
             "widget": "pdGeoSelector"
         })
 
@@ -105,9 +103,6 @@ class MapboxOptions(OptionsShell, GeoSelector, AggregationSelector, RowCount, Ma
 
     def aggregation_supported(self):
         return self.get_renderer.supportsAggregation(self.parsed_command['kwargs']['handlerId'])
-
-    def key_fields_type(self):
-        return ['string', 'numeric']
 
     def value_fields_type(self):
         return ['any']

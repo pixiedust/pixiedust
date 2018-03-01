@@ -171,17 +171,20 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
         xFields = self.getKeyFields()
         yFields = self.getValueFields()
         extraFields = self.getExtraFields()
+        lonField = self.getLonField()
+        latField = self.getLatField()
         aggregation = self.getAggregation()
         maxRows = self.getMaxRows()
+        isMap = self.isMap()
         isTableRenderer = self.isTableRenderer()
         timeseries = self.options.get("timeseries", 'false')
         filter_options = json.loads(self.options.get("filter", '{}'))
         #remember the constraints for this cache, they are the list of variables
         constraints = locals()
 
-        workingDF = WorkingDataCache.getFromCache(self.options, constraints )
+        workingDF = WorkingDataCache.getFromCache(self.options, constraints)
         if workingDF is None:
-            workingDF = self.dataHandler.getWorkingPandasDataFrame(xFields, yFields, extraFields = extraFields, aggregation=aggregation, maxRows = maxRows, filterOptions=filter_options, isTableRenderer = isTableRenderer)
+            workingDF = self.dataHandler.getWorkingPandasDataFrame(xFields, yFields, extraFields = extraFields, aggregation=aggregation, maxRows = maxRows, filterOptions=filter_options, isTableRenderer=isTableRenderer, lonField=lonField, latField=latField, isMap=isMap)
             WorkingDataCache.putInCache(self.options, workingDF, constraints)
         
         if self.options.get("sortby", None):
@@ -235,7 +238,7 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
     def doRenderChart(self):
         pass
 
-    def isMap(self, handlerId):
+    def isMap(self):
         return False
 
     """ Set to true for table rendering """
@@ -319,6 +322,24 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
         if not self.supportsKeyFields(self.handlerId) and len(numericValueFields) == 0 and not self.isTableRenderer():
             raise ShowChartOptionDialog()
         return numericValueFields
+
+    def getLonField(self):
+        fieldNames = self.getFieldNames()
+        if len(fieldNames) == 0:
+            return []
+        lonFieldStr = self.options.get("lonField")
+        if lonFieldStr is not None and lonFieldStr in fieldNames:
+            return lonFieldStr
+        return None
+      
+    def getLatField(self):
+        fieldNames = self.getFieldNames()
+        if len(fieldNames) == 0:
+            return []
+        latFieldStr = self.options.get("latField")
+        if latFieldStr is not None and latFieldStr in fieldNames:
+            return latFieldStr
+        return None
       
     def getNonNumericValueFields(self):
         fieldNames = self.getFieldNames()

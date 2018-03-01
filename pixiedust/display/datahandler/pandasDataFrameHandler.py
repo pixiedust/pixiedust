@@ -88,7 +88,7 @@ class PandasDataFrameDataHandler(BaseDataHandler):
     """
         Return a cleaned up Pandas Dataframe that will be used as working input to the chart
     """
-    def getWorkingPandasDataFrame(self, xFields, yFields, extraFields=[], aggregation=None, maxRows = 100, filterOptions={}, isTableRenderer=False):
+    def getWorkingPandasDataFrame(self, xFields, yFields, extraFields=[], aggregation=None, maxRows = 100, filterOptions={}, isTableRenderer=False, lonField=None, latField=None, isMap=False):
         filteredDF = self.get_filtered_dataframe(filterOptions)
 
         if xFields is None or len(xFields)==0:
@@ -104,6 +104,11 @@ class PandasDataFrameDataHandler(BaseDataHandler):
                 workingDF = filteredDF[extraFields]
         else:
             extraFields = [a for a in extraFields if a not in xFields and a not in yFields]
+            if isMap:
+                if lonField is not None and len(lonField) > 0 and lonField not in extraFields:
+                    extraFields.append(lonField)
+                if latField is not None and len(latField) > 0 and latField not in extraFields:
+                    extraFields.append(latField)
             workingDF = filteredDF[xFields + extraFields + yFields]
 
         if aggregation and len(yFields)>0:

@@ -1,0 +1,310 @@
+<style>
+  select {
+    display: block;
+  }
+  .fields-container select {
+    margin-bottom: 9px;
+    width: 100%;
+  }
+  .fields-container ul {
+    overflow-y: auto;
+    border: 1px solid #ccc;
+    padding: 5px 0 0 0;
+    list-style-type: none;
+  }
+  .fields-container label {
+    color: #008571;
+    font-weight: bold;
+  }
+  .fields-container li {
+    margin: 0px 5px 5px 5px;
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #daffff;
+    width: auto;
+    min-width: 150px;
+  }
+  .fields-container .keys-fields > label:nth-child(2),
+  .fields-container .values-fields > label:nth-child(2),
+  .fields-container .extra-fields > label:nth-child(2) {
+    display: none;
+  }
+  .fields-container.field-drag .keys-fields:not(.field-drag-acceptable) > ul,
+  .fields-container.field-drag .values-fields:not(.field-drag-acceptable) > ul,
+  .fields-container.field-drag .extra-fields:not(.field-drag-acceptable) > ul {
+    opacity: 0.5;
+  }
+  .fields-container.field-drag .keys-fields:not(.field-drag-acceptable) > label:first-child,
+  .fields-container.field-drag .values-fields:not(.field-drag-acceptable) > label:first-child,
+  .fields-container.field-drag .extra-fields:not(.field-drag-acceptable) > label:first-child {
+    display: none;
+  }
+  .fields-container.field-drag .keys-fields:not(.field-drag-acceptable) > label:nth-child(2),
+  .fields-container.field-drag .values-fields:not(.field-drag-acceptable) > label:nth-child(2),
+  .fields-container.field-drag .extra-fields:not(.field-drag-acceptable) > label:nth-child(2) {
+    color: #ff0000;
+    font-weight: 400;
+    display: inline-block;
+  }
+  .fieldslist-wrapper {
+    height: 100%;
+  }
+  .fieldslist-wrapper label {
+    color: #008571;
+    font-weight: bold;
+  }
+  .fieldslist-showlink {
+    color: #337ab7;
+    cursor: pointer;
+    display: inline-block;
+    font-size: 0.95em;
+    font-weight: 300;
+    position: absolute;
+    right: 20px;
+    top: 3px;
+  }
+  .fieldslist-showlink:hover {
+    color: #286090;
+    text-decoration: underline;
+  }
+  .fieldslist-allfields {
+    height: calc(100% - 65px);
+  }
+  .fieldslist-allfields.numeric-only > [data-field-type="string"] {
+    display: none;
+  }
+  .fieldslist-wrapper .ui-draggable-dragging {
+    width: 90%;
+  }
+  .field-remove {
+    color: #777;
+    font-size: 14px;
+    float: right;
+    margin: 0px;
+    cursor: pointer;
+  }
+  .field-remove:after {
+    content: "x";
+  }
+  .field-name {
+    font-weight: 600;
+  }
+  .field-type {
+    float: right;
+    font-style: italic;
+  }
+  .keys-fields > ul {
+    height: 147px;
+  }
+  .keys-fields .field-type,
+  .values-fields .field-type,
+  .extra-fields .field-type {
+    display: none;
+  }
+  .keys-fields {
+    height: 112px;
+    margin-bottom: 5px;
+  }
+  .values-fields {
+    height: 80px;
+  }
+  .extra-fields {
+      height: 207px;
+    }
+  .warnEmptyValueFields {
+    font-size: smaller;
+    display: inline-block;
+    top: -10px;
+    position: relative;
+  }
+</style>
+<div class="fields-container row">
+  <div class="col-sm-6" style="padding: 0px 5px 0px 0px; height: 365px;">
+    <div class="fieldslist-wrapper" style="height:100%">
+      <label>Fields:</label>
+      <span class="fieldslist-showlink">Show only numeric columns</span>
+      <input type="text" class="fieldslist-filter form-control input-sm" placeholder="Search/Filter Fields">
+      <ul class="fieldslist-allfields">
+      {% for field in this.fieldNamesAndTypes %}
+        {% if field[0] in this.fieldNames %}
+        <li id="fieldslist{{prefix}}-{{this.fieldNames.index(field.0)+1}}" class="fieldslist-field-{{prefix}}" data-field="{{field.0}}" data-field-type="{{field.1}}">
+          <span class="field-name">{{field.0}}</span>
+          <span class="field-type">{{field.1}}</span>
+        </li>
+        {% endif %}
+      {% endfor %}
+      </ul>
+    </div>
+  </div>
+  <div class="col-sm-6" style="padding: 0px 0px 0px 5px;">
+
+    <div id="lon-field-{{prefix}}">
+      <label for="lon-select-{{prefix}}">Longitude (X) <i class="fa fa-question-circle" title="The column containing longitude values. It's name should be x,lon,long or longitude."></i></label>
+      <select id="lon-select-{{prefix}}" pd_script="self.options_callback('lonField', '$val(updateSelectedLonField)')">
+        {% for field in this.fieldNamesAndTypes %}
+          {% if field[0] in this.fieldNames %}
+          <option value="{{field.0}}" {% if field.0 == this.lonField %}selected{% endif %}>{{field.0}}</option>
+          {% endif %}
+        {% endfor %}  
+      </select>
+    </div>
+      
+    <div id="lat-field-{{prefix}}">
+      <label for="lat-select-{{prefix}}">Latitude (Y) <i class="fa fa-question-circle" title="The column containing latitude values. It's name should be y, lat or latitude."></i></label>
+      <select id="lat-select-{{prefix}}" pd_script="self.options_callback('latField', '$val(updateSelectedLatField)')">
+        {% for field in this.fieldNamesAndTypes %}
+          {% if field[0] in this.fieldNames %}
+          <option value="{{field.0}}" {% if field.0 == this.latField %}selected{% endif %}>{{field.0}}</option>
+          {% endif %}
+        {% endfor %}  
+      </select>
+    </div>
+      
+    <div id="value-field-{{prefix}}">
+      <label for="value-select-{{prefix}}">Mapping field: <i class="fa fa-question-circle" title="The column to be symbolized on the map. Must be a numeric field."></i></label>
+      <select id="value-select-{{prefix}}" pd_script="self.options_callback('valueFields', '$val(updateSelectedValuesFields)')">
+        {% for field in this.fieldNamesAndTypes %}
+          {% if field[0] in this.fieldNames and field[1] == 'numeric' %}
+          <option value="{{field.0}}" {% if this.valueFields|length>0 and field.0 == this.valueFields[0] %}selected{% endif %}>{{field.0}}</option>
+          {% endif %}
+        {% endfor %}  
+      </select>
+    </div>
+
+    <div class="extra-fields">
+        <label>Extra: <i class="fa fa-question-circle" title="Fields to show when map feature is clicked on."></i></label>
+        <ul id="extra-fields-{{prefix}}" class="field-drop" style="height:calc(100% - 30px);" pd_script="self.options_callback('extraFields', '$val(updateSelectedExtraFields)')">
+        {% for fieldName in this.extraFields %}
+            {% if fieldName in this.fieldNames %}
+            <li id="fieldslist{{prefix}}-{{this.fieldNames.index(fieldName)+1}}-extra-fields-{{prefix}}" data-field="{{fieldName}}">
+            {{fieldName}}
+            <a class="field-remove" pd_script="if '{{fieldName}}' in self.extraFields: self.extraFields.remove('{{fieldName}}')"></a>
+            </li>
+            {% endif %}
+        {% endfor %}
+        </ul>
+    </div>
+</div>
+</div>
+
+<script>
+  var valueFieldsType = []
+  {% for vf in this.valueFieldsType %}
+  valueFieldsType.push('{{vf}}')
+  {% endfor %}
+
+  var extraFieldsType = []
+  {% for ef in this.extraFieldsType %}
+  extraFieldsType.push('{{ef}}')
+  {% endfor %}
+
+  $('.fieldslist-showlink').click(function() {
+    if ($('.fieldslist-allfields').hasClass('numeric-only')) {
+      $('.fieldslist-allfields').removeClass('numeric-only')
+      $(this).text('Show only numeric columns')
+    }
+    else {
+      $('.fieldslist-allfields').addClass('numeric-only')
+      $(this).text('Show all columns')
+    }
+  })
+
+  var rows = $('.fieldslist-field-{{prefix}}')
+  $('.fieldslist-filter').keyup(function() {
+    var val = '^(?=.*\\b' + $.trim($(this).val()).split(/\s+/).join('\\b)(?=.*\\b') + ').*$'
+    var reg = RegExp(val, 'i')
+    var index = 0
+    rows.each(function(i, e) {
+      if (!reg.test($(this).text().replace(/\s+/g, ' '))) {
+        $(this).attr('class', 'hidden')
+      }
+      else {
+        $(this).attr('class', (++index % 2 == 0 ? 'even' : 'odd'))
+      }
+    })
+  })
+
+  $('.fieldslist-field-{{prefix}}').draggable({
+    helper:"clone",
+    containment:"document",
+    start: function(event, ui) {
+      $('.fields-container').addClass('field-drag')
+    },
+    stop: function(event, ui) {
+      $('.fields-container').removeClass('field-drag')
+    }
+  })
+
+  $('.field-drop').droppable({
+    accept: function(d) {
+      if ($(this).parent().hasClass('extra-fields')) {
+        return extraFieldsType.indexOf(d.data("fieldType")) >= 0 || extraFieldsType.indexOf('any') >= 0
+      }
+      else {
+        return false
+      }
+    },
+    activate: function(event, ui) {
+      $(this).parent().addClass('field-drag-acceptable')
+    },
+    deactivate: function(event, ui) {
+      $(this).parent().removeClass('field-drag-acceptable')
+    },
+    drop:function(event, ui) {
+      var newId = ui.draggable.attr('id') + '-' + $(this).attr('id')
+      var fieldName = ui.draggable.attr('data-field')
+      if ( $('#'+newId).length === 0) {
+        var el = ui.draggable.clone(true, true)
+        el.attr("id", newId)
+        var ar = $('<a class="field-remove" pd_script="if \'' + fieldName + '\' in self.selected_fields: self.selected_fields.remove(\'' + fieldName + '\')">')
+        ar.click(function(e) {
+          e.preventDefault()
+          var drop = $(this).closest('.field-drop')
+          $(this).parent().remove()
+          drop.click()
+          return false
+        });
+        el.append(ar)
+        el.appendTo($(this))
+        $(this).click()
+      }
+    }
+  });
+
+  $('#extra-fields-{{prefix}} .field-remove').click(function(e) {
+    e.preventDefault()
+    var drop = $(this).closest('.field-drop')
+    $(this).parent().remove()
+    drop.click()
+    return false
+  });
+
+  function selectedFieldsListStr(fieldid) {
+    var selected = []
+    $('#' + fieldid + ' li')
+      .each(function () {
+        selected.push($(this).data('field'))
+      })
+    return selected.join(',')
+  }
+  function updateSelectedValuesFields() {
+    return $('#value-select-{{prefix}}').val()
+  }
+  function updateSelectedExtraFields() {
+    return selectedFieldsListStr('extra-fields-{{prefix}}')
+  }
+  function updateSelectedLatField() {
+    return $('#lat-select-{{prefix}}').val()
+  }
+  function updateSelectedLonField() {
+    return $('#lon-select-{{prefix}}').val()
+  }
+  function hasSelectedLonLatFields() {
+    if ( $('#lon-select-{{prefix}}').val() && $('#lat-select-{{prefix}}').val() ) 
+      return false
+    return true
+  }
+  updateSelectedValuesFields()
+  chartOptionsOKStatus{{prefix}}(hasSelectedLonLatFields())
+</script>

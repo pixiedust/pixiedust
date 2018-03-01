@@ -23,14 +23,14 @@ import pixiedust
 
 myLogger = pixiedust.getLogger(__name__)
 
-@PixiedustRenderer(rendererId="mapbox2")
+@PixiedustRenderer(rendererId="mapbox-points")
 class MapBoxBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
     def get_options_dialog_pixieapp(self):
             """
             Return the fully qualified path to a PixieApp used to display the dialog options
             PixieApp must inherit from pixiedust.display.chart.options.baseOptions.BaseOptions
             """
-            return "pixiedust.display.chart.renderers.mapbox2.mapboxOptions.MapboxOptions"
+            return "pixiedust.display.chart.renderers.mapbox-points.mapboxOptions.MapboxOptions"
 
     def getChartOptions(self):
         return [ 
