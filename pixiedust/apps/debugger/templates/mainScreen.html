@@ -229,7 +229,7 @@
         }
         for (var i=0; i<variables.length; i++) {
             var v = variables[i].split(':');
-            variables[i] = '<tr pd_target="value{{prefix}}" pd_options="send_input_reply=' + truncate(v[0]) + '" value="' + v[0] + '"><td><code>' + truncate(v[0]) + '</code></td><td>' + truncate(v[1]) + '</td></tr>'
+            variables[i] = '<tr pd_target="value{{prefix}}" pd_options="send_input_reply=pp ' + v[0] + '" value="' + v[0] + '"><td><code>' + truncate(v[0]) + '</code></td><td>' + truncate(v[1]) + '</td></tr>'
         }
         return '<div class="pd-debugger-vars"><table role="presentation">' + variables.join('') + '</table></div>'
     }

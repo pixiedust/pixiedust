@@ -14,6 +14,8 @@
 # limitations under the License.
 # -------------------------------------------------------------------------------
 import warnings
+import inspect
+import sys
 import argparse
 from pixiedust.display.app import *
 from pixiedust.utils.astParse import get_matches_lineno
@@ -46,6 +48,10 @@ except NameError:
     #IPython not available we must be in a spark executor
     pass
 
+class NoTraceback(Exception):
+    "Marker exception for signaling that no traceback was found"
+    pass
+
 @PixieApp
 class PixieDebugger():
     def initialize(self):
@@ -53,6 +59,17 @@ class PixieDebugger():
         self.code =  ""
         self.breakpoints = []
         self.is_post_mortem = self.pixieapp_entity is None or self.pixieapp_entity["code"] is None
+        if self.is_post_mortem:
+            if sys.last_traceback is None:
+                raise NoTraceback()
+            if self.options.get("debug_route", "false" ) == "true":
+                method_name = inspect.getinnerframes(sys.last_traceback)[-1].function
+                self.pixieapp_entity = {
+                    "breakpoints": ["{}.{}".format(self.parent_pixieapp.__pixieapp_class_name__, method_name)],
+                    "code": self.parent_pixieapp.exceptions.get(method_name, "")
+                }
+                self.is_post_mortem = False
+
         if not self.is_post_mortem:
             self.code = self.renderTemplateString("""
 def pixie_run():
@@ -63,7 +80,7 @@ pixie_run()
         """)
             bps_lines = set()
             bps_fns = set()
-            for breakpoint in self.pixieapp_entity["breakpoints"]:
+            for breakpoint in self.pixieapp_entity["breakpoints"] or []:
                 try:
                     bps_lines.add( int(breakpoint))
                 except ValueError:

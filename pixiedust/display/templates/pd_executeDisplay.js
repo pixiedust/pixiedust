@@ -198,9 +198,16 @@
                             if (user_controls.onError){
                                 user_controls.onError(data);
                             }else{
+                                debugger;
+                                var debugger_html = '<button type="submit" pd_options="new_parent_prefix=false" pd_target="' + 
+                                getTargetNodeId() + '" pd_app="pixiedust.apps.debugger.PixieDebugger">Post Mortem</button>' +
+                                '<span>&nbsp;&nbsp;</span>' +
+                                '<button type="submit" pd_options="new_parent_prefix=false;debug_route=true" pd_target="' + 
+                                getTargetNodeId() + '" pd_app="pixiedust.apps.debugger.PixieDebugger">Debug Route</button>'
+
                                 targetNodeUpdated = setHTML(
                                     getTargetNode(), 
-                                    "<pre>" + data + '</pre><button type="submit" pd_options="new_parent_prefix=false" pd_target="' + getTargetNodeId() + '" pd_app="pixiedust.apps.debugger.PixieDebugger">Call debugger</button>', 
+                                    debugger_html + "<pre>" + data + '</pre>' + debugger_html, 
                                     pd_controls, 
                                     user_controls
                                 );
