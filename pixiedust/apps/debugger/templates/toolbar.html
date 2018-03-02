@@ -26,7 +26,16 @@
                 pd_options="send_input_reply={{this.pm_prefix}}s">
                 <i class="fa fa-level-down fa-lg"></i>
             </button>
-        </div>                            
+        </div>     
+        <div class="btn-group" role="group">
+            <button type="submit" class="btn btn-primary" style="border-radius: 0;"
+                data-original-title="Step Out"
+                title="Continue execution until the current function returns"
+                pd_target="debugger_refresh"
+                pd_options="send_input_reply={{this.pm_prefix}}r">
+                <i class="fa fa-reply fa-lg"></i>
+            </button>
+        </div>                         
         <div class="btn-group" role="group">
             <button type="submit" class="btn btn-primary" style="border-radius: 0;"
                 data-original-title="Up Frame"

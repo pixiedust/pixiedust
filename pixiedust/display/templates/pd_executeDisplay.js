@@ -13,6 +13,19 @@
         }
         return retValue;
     }
+    function setText(targetNode, contents, pdCtl = null, userCtl = null){
+        var pd_elements = []
+        targetNode.children().each(function(){
+            if (this.tagName.toLowerCase().startsWith("pd_")){
+                pd_elements.push($(this).clone());
+            }
+        });
+        targetNode.text(contents);
+        if (pd_elements.length > 0 ){
+            targetNode.append(pd_elements);
+        }
+        return true;
+    }
     function setHTML(targetNode, contents, pdCtl = null, userCtl = null){
         var pd_elements = []
         targetNode.children().each(function(){
@@ -101,10 +114,12 @@
                         }
                         return;
                     }
+                    var useHTML = false;
                     var process_output = getScriptOfType($("#" + $targetDivId), "process_output");
                     if (process_output){
                         try{
                             content.text = new Function('output', process_output)(content.text);
+                            useHTML = true;
                         }catch(e){
                             console.log("Error while invoking post output function", e, content.text, process_output);
                         }
@@ -112,7 +127,8 @@
                     if (user_controls.onSuccess){
                         user_controls.onSuccess(content.text);
                     }else{
-                        targetNodeUpdated = setHTML(getTargetNode(), content.text, pd_controls, user_controls);
+                        fn = useHTML?setHTML:setText;
+                        targetNodeUpdated = fn(getTargetNode(), content.text, pd_controls, user_controls);
                     }
                 }else if (msg_type==="display_data" || msg_type==="execute_result"){
                     var html=null;

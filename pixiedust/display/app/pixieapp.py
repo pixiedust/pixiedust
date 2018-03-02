@@ -205,19 +205,19 @@ class PixieDustApp(Display):
             method = method.org_fn
         return getattr(method, "persist_args", None) is not None
 
-    def injectArgs(self, method, route):
+    def injectArgs(self, method, **kwargs):
         if isinstance(method, partial) and hasattr(method, "org_fn"):
             method = method.org_fn
         argspec = inspect.getargspec(method)
         args = argspec.args
         if len(args) > 0:
             args = args[1:] if hasattr(method, "__self__") or args[0] == 'self' else args
-        return OrderedDict(zip([a for a in args], [self.getOptionValue(arg) for arg in args]))
+        return OrderedDict(zip([a for a in args], [self.getOptionValue(arg) or kwargs.get(arg, None) for arg in args]))
 
     def invoke_route(self, class_method, **kwargs):
         "Programmatically invoke a route from arguments"
         try:
-            injectedArgs = kwargs
+            injectedArgs = self.injectArgs(class_method, **kwargs)
             retValue = class_method(*list(injectedArgs.values()))
         finally:
             if isinstance(retValue, templateArgs.TemplateRetValue):
@@ -279,7 +279,7 @@ class PixieDustApp(Display):
                             raise RunInPixieDebugger()
                         self.debug("match found: {}".format(t[0]))
                         meth = getattr(self, t[1])
-                        injectedArgs = self.injectArgs(meth, t[0])
+                        injectedArgs = self.injectArgs(meth)
                         self.debug("Injected args: {}".format(injectedArgs))
                         if self.metadata is None and self.has_persist_args(meth):
                             self.metadata = {key:self.getOptionValue(key) for key,_ in iteritems(t[0])}

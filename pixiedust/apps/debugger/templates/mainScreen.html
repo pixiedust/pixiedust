@@ -140,11 +140,13 @@
         min-height: 82px;
         padding: 10px;
     }
-    #evaluate_{{prefix}} {
+    #evaluate_{{prefix}},
+    #breakpoints_{{prefix}} {
         min-height: 48px;
         padding: 10px;
     }
-    #evaluate_output_{{prefix}} input {
+    #evaluate_output_{{prefix}} input,
+    #breakpoints_output_{{prefix}} input {
         border-color: #ddd !important;
         border-bottom: 0 none !important;
         border-left: 0 none !important;
@@ -156,13 +158,15 @@
         font-family: monospace;
     }
 
-    #evaluate_output_{{prefix}} .fa-angle-right {
+    #evaluate_output_{{prefix}} .fa-angle-right,
+    #breakpoints_output_{{prefix}} .fa-angle-right {
         position: absolute;
         left: 4px;
         top: 4px;
         z-index: 10;
     }
-    #evaluate_output_{{prefix}} button {
+    #evaluate_output_{{prefix}} button,
+    #breakpoints_output_{{prefix}} button {
         border-right: 0 none;
         border-radius: 0;
         font-size: 14px;
@@ -240,6 +244,7 @@
             <script type="text/template">
             return '<div pd_render_onload pd_options="send_input_reply=ll" pd_target="code{{prefix}}"></div>'+
             '<div pd_render_onload pd_options="send_input_reply=p json.dumps([\'{}:{}\'.format(key,value) for key,value in locals().items() if not key.startswith(\'_\') and key not in [\'In\',\'Out\']])" pd_target="variables{{prefix}}"></div>'+
+            '<div pd_render_onload pd_options="send_input_reply=break" pd_target="breakpoints_{{prefix}}"></div>' +
             '<div pd_render_onload pd_options="send_input_reply=no_op" pd_target="variables{{prefix}}"></div>';
             </script>
         </pd_script>
@@ -297,6 +302,7 @@
     <ul class="nav nav-tabs" role="tablist">
         <li role="presentation" class="active"><a href="#console_output_{{prefix}}" aria-controls="console_output_{{prefix}}" role="tab" data-toggle="tab">Console</a></li>
         <li role="presentation"><a href="#evaluate_output_{{prefix}}" aria-controls="evaluate_output_{{prefix}}" role="tab" data-toggle="tab">Evaluate</a></li>
+        <li role="presentation"><a href="#breakpoints_output_{{prefix}}" aria-controls="breakpoints_output_{{prefix}}" role="tab" data-toggle="tab">Breakpoints</a></li>
     </ul>
     <div class="tab-content">
         <div role="tabpanel" class="tab-pane active no_loading_msg" id="console_output_{{prefix}}"> </div>
@@ -311,7 +317,62 @@
                             <button class="btn btn-primary" type="button"
                                 title="Evaluate the expression in the current context and print its value"
                                 pd_target="evaluate_{{prefix}}"
-                                pd_options="send_input_reply=p $val(evaluate_input_{{prefix}})">Run</button>
+                                pd_options="send_input_reply=pp $val(evaluate_input_{{prefix}})">Run</button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div role="tabpanel" class="tab-pane" id="breakpoints_output_{{prefix}}">
+            <div class="row no_loading_msg" id="breakpoints_{{prefix}}"> 
+                <pd_script type="process_output">
+                    <script type="text/template">
+                        var lines = output.split('\n');
+                        var html = '<table width="100%">';
+                        var colsCount = 0;
+                        for (var i in lines){
+                            var parts = lines[i].split(/\s+/);
+                            if (i == 0){
+                                html += "<thead><tr>";
+                                colsCount = parts.length;
+                                var style='style="width:50px"';
+                                parts.forEach(function(part){
+                                    html += "<th " + style + ">" + part + "</th>";
+                                    style = "";
+                                });
+                                html += "</tr></thead>";
+                            }else if (!isNaN(parseFloat(parts[0])) && isFinite(parts[0])){
+                                if (i == 1){
+                                    html += "<tbody>";
+                                }
+                                html += "<tr>";
+                                if (parts.length > colsCount){
+                                    parts = parts.slice(0, colsCount-1).concat( parts.slice(colsCount-1).join(" "));
+                                }
+                                parts.forEach(function(part){
+                                    html += "<td>" + part.replace("<", "&lt;") + "</td>";
+                                });
+                                html += "</tr>";
+                                if ( i == lines.length - 1){
+                                    html += "</tbody>";
+                                }
+                            }
+                        }
+                        html +="</table>";
+                        return html;
+                    </script>
+                </pd_script>
+            </div>
+            <div class="row">
+                <div class="col-sm-12">
+                    <i class="fa fa-angle-right fa-2x"></i>
+                    <div class="input-group">
+                        <input id="breakpoints_input_{{prefix}}" type="text" class="form-control" placeholder="Enter a breakpoint (line no or method)" style="border-radius: 0;">
+                        <span class="input-group-btn">
+                            <button class="btn btn-primary" type="button"
+                                title="Add a breakpoint to the module currently executed"
+                                pd_target="debugger_refresh"
+                                pd_options="send_input_reply=break $val(breakpoints_input_{{prefix}})">Add</button>
                         </span>
                     </div>
                 </div>
