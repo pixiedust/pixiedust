@@ -91,9 +91,21 @@
     }
     .pd-debugger-gutter .breakpoint-line code::before {
         color: crimson;
-        content: "\f188";
+        content: " \f188";
         font: normal normal normal 12px/1 FontAwesome;
         padding-right: 5px;
+        visibility: initial;
+    }
+    .pd-debugger-gutter > div > code:hover {
+        visibility: hidden;
+    }
+    .pd-debugger-gutter > div > code:hover::after {
+        color: green;
+        cursor: pointer;
+        content: "\f050";
+        font: normal normal normal 12px/1 FontAwesome;
+        margin-left: -14px;
+        visibility: initial;
     }
 
     .pd-debugger-vars table {
@@ -147,6 +159,9 @@
         max-height: 200px;
         overflow: auto;
     }
+    #breakpoints_{{prefix}} {
+        padding: 10px 0;
+    }
     #evaluate_output_{{prefix}} input,
     #breakpoints_output_{{prefix}} input {
         border-color: #ddd !important;
@@ -195,7 +210,7 @@
                     parts[2] = parts[2].replace(/>>/, '')
                     rowclass += ' error-line'
                 }
-                gutter.push('<div class="' + rowclass + '"><code>' + parts[1].trim() + '</code></div>')
+                gutter.push('<div class="' + rowclass + '"><code title="If possible, continue execution until this line is reached">' + parts[1].trim() + '</code></div>')
                 source.push('<div class="' + rowclass + '"><code>' + (parts[2].substring(1) || '&nbsp;') + '</code></div>')
             }
         }
@@ -209,8 +224,19 @@
             if (current.length && (current.position().top + 25 > codebox.height() || current.position().top < 0)) {
                 codebox.scrollTop(current.position().top < 0 ? 0 : current.position().top)
             }
-        }, 200)
-        return '<div class="pd-debugger-code"><div class="pd-debugger-gutter">' + gutter.join('') + '</div><div class="pd-debugger-source">' + source.join('')  + '</div></div>'
+            $('#code{{prefix}} .pd-debugger-gutter code').on('click', function () {
+                var lineno = $(this).text()
+                $('#btn-unt-{{prefix}}')
+                    .attr('pd_target', "debugger_refresh")
+                    .attr('pd_options', 'send_input_reply=unt ' + lineno)
+                $('#btn-unt-{{prefix}}').click()
+            })
+        }, 250)
+        return '<div class="pd-debugger-code"><div class="pd-debugger-gutter">' + 
+                gutter.join('') + 
+                '</div><div class="pd-debugger-source">' + 
+                source.join('')  + 
+                '</div><button id="btn-unt-{{prefix}}"></button></div>'
     }
     var truncate = function(s){
         if (s.length > 20){
