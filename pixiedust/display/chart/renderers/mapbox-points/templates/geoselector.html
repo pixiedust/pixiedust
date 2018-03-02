@@ -142,6 +142,7 @@
     <div id="lon-field-{{prefix}}">
       <label for="lon-select-{{prefix}}">Longitude (X) <i class="fa fa-question-circle" title="The column containing longitude values. It's name should be x,lon,long or longitude."></i></label>
       <select id="lon-select-{{prefix}}" pd_script="self.options_callback('lonField', '$val(updateSelectedLonField)')">
+        <option value="-">-----</option>
         {% for field in this.fieldNamesAndTypes %}
           {% if field[0] in this.fieldNames %}
           <option value="{{field.0}}" {% if field.0 == this.lonField %}selected{% endif %}>{{field.0}}</option>
@@ -153,6 +154,7 @@
     <div id="lat-field-{{prefix}}">
       <label for="lat-select-{{prefix}}">Latitude (Y) <i class="fa fa-question-circle" title="The column containing latitude values. It's name should be y, lat or latitude."></i></label>
       <select id="lat-select-{{prefix}}" pd_script="self.options_callback('latField', '$val(updateSelectedLatField)')">
+        <option value="-">-----</option>
         {% for field in this.fieldNamesAndTypes %}
           {% if field[0] in this.fieldNames %}
           <option value="{{field.0}}" {% if field.0 == this.latField %}selected{% endif %}>{{field.0}}</option>
@@ -164,6 +166,7 @@
     <div id="value-field-{{prefix}}">
       <label for="value-select-{{prefix}}">Mapping field: <i class="fa fa-question-circle" title="The column to be symbolized on the map. Must be a numeric field."></i></label>
       <select id="value-select-{{prefix}}" pd_script="self.options_callback('valueFields', '$val(updateSelectedValuesFields)')">
+        <option value="-">-----</option>
         {% for field in this.fieldNamesAndTypes %}
           {% if field[0] in this.fieldNames and field[1] == 'numeric' %}
           <option value="{{field.0}}" {% if this.valueFields|length>0 and field.0 == this.valueFields[0] %}selected{% endif %}>{{field.0}}</option>
