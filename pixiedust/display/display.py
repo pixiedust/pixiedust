@@ -14,7 +14,7 @@
 # limitations under the License.
 # -------------------------------------------------------------------------------
 
-from abc import ABCMeta,abstractmethod
+from abc import ABCMeta, abstractmethod
 from IPython.display import display as ipythonDisplay, HTML, Javascript
 from pixiedust.utils import Logger
 from pixiedust.utils.astParse import parse_function_call
@@ -24,6 +24,7 @@ import uuid
 from collections import OrderedDict
 import time
 import re
+import six
 import pixiedust
 from six import iteritems, with_metaclass
 from functools import reduce
@@ -200,7 +201,11 @@ class Display(with_metaclass(ABCMeta)):
 
     @property
     def is_running_on_dsx(self):
-        return pixiedust.utils.environment.Environment.isRunningOnDSX
+        return pixiedust.utils.environment.Environment.isRunningOnDSXy
+    
+    @property
+    def is_PY3(self):
+        return six.PY3
 
     def getBooleanOption(self, key, defValue):
         value = self.options.get(key, None)
