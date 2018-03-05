@@ -1,6 +1,14 @@
+{% macro get_customized_css(class='btn-primary') -%}
+{%if this.is_running_on_dsx%}
+{%set bg_color='#f0ad4e' if class=='btn-warning' else '#337ab7'%}
+{%set border_color='#eea236' if class=='btn-warning' else '#2e6da4'%}
+style="padding: 6px 12px;background-color:{{bg_color}};border-color: {{border_color}};margin: 0px;border: 1px solid transparent;"
+{%endif%}
+{%- endmacro %}
+
 <div class="btn-toolbar" role="toolbar" style="margin:0;">
     <div class="btn-group" role="group" style="margin:0">
-        <div class="btn-group" role="group">
+        <div class="btn-group" role="group" {{get_customized_css('btn-warning')}}>
             <button type="submit" class="btn btn-warning" style="border-radius: 0;"
                 data-original-title="Resume"
                 title="Continue execution, only stop when a breakpoint is encountered"

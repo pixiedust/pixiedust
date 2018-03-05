@@ -198,6 +198,10 @@ class Display(with_metaclass(ABCMeta)):
     def isStreaming(self):
         return self.dataHandler.isStreaming if self.dataHandler is not None else False
 
+    @property
+    def is_running_on_dsx(self):
+        return pixiedust.utils.environment.Environment.isRunningOnDSX
+
     def getBooleanOption(self, key, defValue):
         value = self.options.get(key, None)
         if value is None:
