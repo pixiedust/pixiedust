@@ -63,6 +63,7 @@ with warnings.catch_warnings():
             get_ipython().user_ns["display"]=display
 
         from pixiedust.utils.sampleData import sampleData
+        import pixiedust.apps.debugger
         from pixiedust.utils import checkVersion
         checkVersion()
     except (NameError):
