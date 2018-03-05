@@ -271,7 +271,13 @@
         <pd_script type="process_output">
             <script type="text/template">
             return '<div pd_render_onload pd_options="send_input_reply=ll" pd_target="code{{prefix}}"></div>'+
-            '<div pd_render_onload pd_options="send_input_reply=p json.dumps([\'{}:{}\'.format(key,value) for key,value in locals().items() if not key.startswith(\'_\') and key not in [\'In\',\'Out\']])" pd_target="variables{{prefix}}"></div>'+
+            '<div pd_render_onload pd_target="variables{{prefix}}">'+
+                '<pd_options>'+
+                '{'+
+                    '"send_input_reply": "import json;;p json.dumps([\'{}:{}\'.format(key,value) for key,value in locals().items() if not key.startswith(\'_\') and key not in [\'In\',\'Out\']])"'+
+                '}'+
+                '</pd_options>'+
+            '</div>'+
             '<div pd_render_onload pd_options="send_input_reply=break" pd_target="breakpoints_{{prefix}}"></div>' +
             '<div pd_render_onload pd_options="send_input_reply=no_op" pd_target="variables{{prefix}}"></div>';
             </script>

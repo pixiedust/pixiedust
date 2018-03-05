@@ -85,7 +85,7 @@ def pixie_run():
     pdb.set_trace()
 {{this.pixieapp_entity["code"]|indent(4, indentfirst=True)}}
 pixie_run()
-        """)
+        """.strip())
             bps_lines = set()
             bps_fns = set()
             for breakpoint in self.pixieapp_entity["breakpoints"] or []:
