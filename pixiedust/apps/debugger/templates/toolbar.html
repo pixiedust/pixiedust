@@ -17,7 +17,7 @@ style="padding: 6px 12px;background-color:{{bg_color}};border-color: {{border_co
                 <i class="fa fa-play fa-lg"></i>
             </button>
         </div>
-        <div class="btn-group" role="group">
+        <div class="btn-group" role="group" {{get_customized_css()}}>
             <button type="submit" class="btn btn-primary" style="border-radius: 0;"
                 data-original-title="Next"
                 title="Continue execution until the next line in the current function is reached or it returns"
@@ -26,7 +26,7 @@ style="padding: 6px 12px;background-color:{{bg_color}};border-color: {{border_co
                 <i class="fa fa-step-forward fa-lg"></i>
             </button>
         </div>
-        <div class="btn-group" role="group">
+        <div class="btn-group" role="group" {{get_customized_css()}}>
             <button type="submit" class="btn btn-primary" style="border-radius: 0;"
                 data-original-title="Step Into"
                 title="Execute the current line, stop at the first possible occasion"
@@ -35,7 +35,7 @@ style="padding: 6px 12px;background-color:{{bg_color}};border-color: {{border_co
                 <i class="fa fa-level-down fa-lg"></i>
             </button>
         </div>     
-        <div class="btn-group" role="group">
+        <div class="btn-group" role="group" {{get_customized_css()}}>
             <button type="submit" class="btn btn-primary" style="border-radius: 0;"
                 data-original-title="Step Out"
                 title="Continue execution until the current function returns"
@@ -44,7 +44,7 @@ style="padding: 6px 12px;background-color:{{bg_color}};border-color: {{border_co
                 <i class="fa fa-reply fa-lg"></i>
             </button>
         </div>                         
-        <div class="btn-group" role="group">
+        <div class="btn-group" role="group" {{get_customized_css()}}>
             <button type="submit" class="btn btn-primary" style="border-radius: 0;"
                 data-original-title="Up Frame"
                 title="Move the current frame one level up in the stack trace"
@@ -53,7 +53,7 @@ style="padding: 6px 12px;background-color:{{bg_color}};border-color: {{border_co
                 <i class="fa fa-angle-double-up fa-lg"></i>
             </button>
         </div>
-        <div class="btn-group" role="group">
+        <div class="btn-group" role="group" {{get_customized_css()}}>
             <button type="submit" class="btn btn-primary" style="border-radius: 0;"
                 data-original-title="Down Frame"
                 title="Move the current frame one level down in the stack trace"
