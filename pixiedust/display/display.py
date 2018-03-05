@@ -201,7 +201,7 @@ class Display(with_metaclass(ABCMeta)):
 
     @property
     def is_running_on_dsx(self):
-        return pixiedust.utils.environment.Environment.isRunningOnDSXy
+        return pixiedust.utils.environment.Environment.isRunningOnDSX
     
     @property
     def is_PY3(self):
