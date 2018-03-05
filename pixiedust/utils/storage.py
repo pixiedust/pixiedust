@@ -181,7 +181,24 @@ def _trackDeployment():
         doNotTrack = True
         deploymenTrackerStorage._initTable(METRICS_TRACKER_TBL_NAME,"LAST_VERSION_TRACKED TEXT NULL, OPT_OUT BOOLEAN NOT NULL")
         deploymenTrackerStorage.insert("INSERT INTO {0} (OPT_OUT) VALUES ({1})".format(METRICS_TRACKER_TBL_NAME,0))
-        print("By default, Pixiedust records installs and updates. To opt out, call pixiedust.optOut() in a new cell")
+        print("""
+Share anonymous install statistics? (opt-out instructions)
+
+PixieDust will record metadata on its environment the next time the package is installed or updated. The data is anonymized and aggregated to help plan for future releases, and records only the following values:
+
+{
+   "data_sent": currentDate,
+   "runtime": "python",
+   "application_version": currentPixiedustVersion,
+   "space_id": nonIdentifyingUniqueId,
+   "config": {
+       "repository_id": "https://github.com/ibm-watson-data-lab/pixiedust",
+       "target_runtimes": ["Data Science Experience"],
+       "event_id": "web",
+       "event_organizer": "dev-journeys"
+   }
+}
+You can opt out by calling pixiedust.optOut() in a new cell.""")
     else:
         row = deploymenTrackerStorage.fetchOne("SELECT * FROM {0}".format(METRICS_TRACKER_TBL_NAME));
         if row is None:
@@ -231,8 +248,6 @@ def _updateVersionAndTrackDeployment(deploymenTrackerStorage, lastPixiedustVersi
         myLogger.error("Error registering with deployment tracker:\n" + str(sys.exc_info()[0]) + "\n" + str(sys.exc_info()[1]))
 
 def track(version):
-    print("TRACK VERSION = {}".format(version))
-    return
     event = dict()
     event['date_sent'] = time.strftime("%Y-%m-%dT%H:%M:%S.000Z", time.gmtime())
     event['runtime'] = 'python'
@@ -253,15 +268,16 @@ def track(version):
     headers = {'content-type': "application/json"}
     try:
         response = post(url, data=json.dumps(event), headers=headers)
+        myLogger.info('Anonymous install statistics collected.')
     except Exception as e:
-        myLogger.error('Deployment Tracker upload error: %s' % str(e))
+        myLogger.error('Anonymous install statistics collection error: %s' % str(e))
 
 def optOut():
     deploymenTrackerStorage = __DeploymentTrackerStorage()
     deploymenTrackerStorage.update("UPDATE {0} SET OPT_OUT={1}".format(METRICS_TRACKER_TBL_NAME,1))
-    print("Pixiedust no longer records installs and updates.")
+    print("Pixiedust will not collect anonymous install statistics.")
 
 def optIn():
     deploymenTrackerStorage = __DeploymentTrackerStorage()
     deploymenTrackerStorage.update("UPDATE {0} SET OPT_OUT={1}".format(METRICS_TRACKER_TBL_NAME,0))
-    print("Pixiedust will record installs and updates. To opt out, call pixiedust.optOut().")
+    print("Pixiedust will collect anonymous install statistics. To opt out, call pixiedust.optOut() in a new cell.")
