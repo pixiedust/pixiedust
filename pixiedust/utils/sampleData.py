@@ -66,7 +66,7 @@ dataDefs = OrderedDict([
         "publisher": "IBM"
     }),
     ("6", {
-        "displayName": "Million dollar home sales in NE Mass late 2016",
+        "displayName": "Million dollar home sales in Massachusetts, USA Feb 2017 through Jan 2018",
         "url": "https://raw.githubusercontent.com/ibm-watson-data-lab/open-data/master/homesales/milliondollarhomes.csv",
         "topic": "Economy & Business",
         "publisher": "Redfin.com"

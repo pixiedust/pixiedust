@@ -97,14 +97,23 @@ class PandasDataFrameDataHandler(BaseDataHandler):
             yFields = []
             aggregation = None
 
+        allFields = self.getFieldNames()
+        myFieldsOrdered = []
         if isTableRenderer:
             if len(extraFields) < 1:
                 workingDF = filteredDF
             else:
-                workingDF = filteredDF[extraFields]
+                for f in allFields:
+                    if f in extraFields:
+                        myFieldsOrdered.append(f)
+                workingDF = filteredDF[myFieldsOrdered]
         else:
             extraFields = [a for a in extraFields if a not in xFields and a not in yFields]
-            workingDF = filteredDF[xFields + extraFields + yFields]
+            myFields = xFields + extraFields + yFields
+            for f in allFields:
+                if f in myFields:
+                    myFieldsOrdered.append(f)
+            workingDF = filteredDF[myFieldsOrdered]
 
         if aggregation and len(yFields)>0:
             aggMapper = {"SUM":"sum", "AVG": "mean", "MIN": "min", "MAX": "max"}
