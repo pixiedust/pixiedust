@@ -270,7 +270,7 @@
     <div class="no_loading_msg" id="input_reply_{{prefix}}">
         <pd_script type="process_output">
             <script type="text/template">
-            return '<div pd_render_onload pd_options="send_input_reply=ll" pd_target="code{{prefix}}"></div>'+
+            return '<div pd_render_onload pd_options="send_input_reply={%if this.is_PY3%}ll{%else%}l{%endif%}" pd_target="code{{prefix}}"></div>'+
             '<div pd_render_onload pd_target="variables{{prefix}}">'+
                 '<pd_options>'+
                 '{'+
