@@ -444,6 +444,7 @@
                 console.log("Aborting kernel requests because not all the reply callback where consummed", command);
                 return;
             }
+            command = command.trim();
             IPython.notebook.session.kernel.execute(command, callbacks, {
                 silent:true,store_history:false,stop_on_error:true,allow_stdin : true
             });
