@@ -396,7 +396,7 @@ def PixieApp(cls):
                     f(instance)
 
     def run(self, entity=None, **kwargs):
-        self.breakpoints = kwargs.pop("breakpoints", [])
+        self.breakpoints = kwargs.pop("debug_route", "")
         is_running_child_pixieapp = kwargs.pop("is_running_child_pixieapp", False)
         for key, value in iteritems(kwargs):
             setattr(self, key, value)

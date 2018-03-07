@@ -98,7 +98,10 @@ class PySparkDataFrameDataHandler(BaseDataHandler):
                         c = "<"
                     if constraint == "greater_than":
                         c = ">"
-                    df = df.filter(field + " " + c + " " + val)
+                    filterStr = field + " " + c + " " + val
+                    if " " in field:
+                        filterStr = "`" + field + "` " + c + " " + val
+                    df = df.filter(filterStr)
         return df
 
     """
