@@ -17,6 +17,7 @@
 import sqlite3
 import os
 
+import hashlib
 import json
 import getpass
 import sys
@@ -77,6 +78,14 @@ including storage lifecycle e.g. schema definition and creation, cleanup, etc...
 class Storage(object):
     def __init__(self):
         pass
+
+    def _tableExists(self, tableName):
+        cursor=_conn.execute("""
+            SELECT * FROM sqlite_master WHERE name ='{0}' and type='table';
+        """.format(tableName))
+        exists = cursor.fetchone() is not None
+        cursor.close()
+        return exists
 
     def _initTable(self, tableName, schemaDef):
         cursor=_conn.execute("""
@@ -155,43 +164,86 @@ class Storage(object):
             _conn.execute(sqlQuery)
         _conn.commit()
 
-DEPLOYMENT_TRACKER_TBL_NAME = "VERSION_TRACKER"
+PIXIEDUST_VERSION_TBL_NAME = "VERSION_TRACKER"
+METRICS_TRACKER_TBL_NAME = "METRICS_TRACKER"
 
 class __DeploymentTrackerStorage(Storage):
     def __init__(self):
-        self._initTable(DEPLOYMENT_TRACKER_TBL_NAME,"VERSION TEXT NOT NULL")
+        self._initTable(PIXIEDUST_VERSION_TBL_NAME,"VERSION TEXT NOT NULL")
 
 def _trackDeployment():
     deploymenTrackerStorage = __DeploymentTrackerStorage()
-    row = deploymenTrackerStorage.fetchOne("SELECT * FROM {0}".format(DEPLOYMENT_TRACKER_TBL_NAME));
-    if row is None:
-        _trackDeploymentIfVersionChange(deploymenTrackerStorage, None)
-    else:
-        _trackDeploymentIfVersionChange(deploymenTrackerStorage, row["VERSION"])
+    doNotTrack = None
+    lastVersionTracked = None
+    # if the metrics tracker table does not exist then this represents a new install
+    # we do not want to track the user until after they have a chance to opt out
+    if not deploymenTrackerStorage._tableExists(METRICS_TRACKER_TBL_NAME):
+        doNotTrack = True
+        deploymenTrackerStorage._initTable(METRICS_TRACKER_TBL_NAME,"LAST_VERSION_TRACKED TEXT NULL, OPT_OUT BOOLEAN NOT NULL")
+        deploymenTrackerStorage.insert("INSERT INTO {0} (OPT_OUT) VALUES ({1})".format(METRICS_TRACKER_TBL_NAME,0))
+        print("""
+Share anonymous install statistics? (opt-out instructions)
 
-def _trackDeploymentIfVersionChange(deploymenTrackerStorage, existingVersion):
+PixieDust will record metadata on its environment the next time the package is installed or updated. The data is anonymized and aggregated to help plan for future releases, and records only the following values:
+
+{
+   "data_sent": currentDate,
+   "runtime": "python",
+   "application_version": currentPixiedustVersion,
+   "space_id": nonIdentifyingUniqueId,
+   "config": {
+       "repository_id": "https://github.com/ibm-watson-data-lab/pixiedust",
+       "target_runtimes": ["Data Science Experience"],
+       "event_id": "web",
+       "event_organizer": "dev-journeys"
+   }
+}
+You can opt out by calling pixiedust.optOut() in a new cell.""")
+    else:
+        row = deploymenTrackerStorage.fetchOne("SELECT * FROM {0}".format(METRICS_TRACKER_TBL_NAME));
+        if row is None:
+            deploymenTrackerStorage.insert("INSERT INTO {0} (OPT_OUT) VALUES ({2})".format(METRICS_TRACKER_TBL_NAME,0))
+            doNotTrack = False
+            lastVersionTracked = None
+        else:
+            doNotTrack = row["OPT_OUT"] == 1
+            lastVersionTracked = row["LAST_VERSION_TRACKED"]
+
+    row = deploymenTrackerStorage.fetchOne("SELECT * FROM {0}".format(PIXIEDUST_VERSION_TBL_NAME));
+    if row is None:
+        _updateVersionAndTrackDeployment(deploymenTrackerStorage, None, lastVersionTracked, doNotTrack)
+    else:
+        _updateVersionAndTrackDeployment(deploymenTrackerStorage, row["VERSION"], lastVersionTracked, doNotTrack)
+
+def _updateVersionAndTrackDeployment(deploymenTrackerStorage, lastPixiedustVersion, lastVersionTracked, doNotTrack):
     # Get version and repository URL from 'setup.py'
     version = None
     try:
         app = get_distribution("pixiedust")
         version = app.version
         # save last tracked version in the db
-        if existingVersion is None:
-            deploymenTrackerStorage.insert("INSERT INTO {0} (VERSION) VALUES ('{1}')".format(DEPLOYMENT_TRACKER_TBL_NAME,version))
+        if lastPixiedustVersion is None:
+            deploymenTrackerStorage.insert("INSERT INTO {0} (VERSION) VALUES ('{1}')".format(PIXIEDUST_VERSION_TBL_NAME,version))
         else:
-            deploymenTrackerStorage.update("UPDATE {0} SET VERSION='{1}'".format(DEPLOYMENT_TRACKER_TBL_NAME,version))
+            deploymenTrackerStorage.update("UPDATE {0} SET VERSION='{1}'".format(PIXIEDUST_VERSION_TBL_NAME,version))
         # if version has changed then track with deployment tracker
-        if existingVersion is None or existingVersion != version:
-            myLogger.info("Change in version detected: {0} -> {1}.".format(existingVersion,version))
-            if existingVersion is None:
+        if lastPixiedustVersion is None or lastPixiedustVersion != version:
+            myLogger.info("Change in version detected: {0} -> {1}.".format(lastPixiedustVersion,version))
+            if lastPixiedustVersion is None:
                 printWithLogo("Pixiedust version {0}".format(version))
             else:
-                printWithLogo("Pixiedust version upgraded from {0} to {1}".format(existingVersion,version))
+                printWithLogo("Pixiedust version upgraded from {0} to {1}".format(lastPixiedustVersion,version))
             # register
-            track(version)
+            if not doNotTrack:
+                deploymenTrackerStorage.update("UPDATE {0} SET LAST_VERSION_TRACKED='{1}'".format(METRICS_TRACKER_TBL_NAME,version))
+                track(version)
         else:
-            myLogger.info("No change in version: {0} -> {1}.".format(existingVersion,version))
-            printWithLogo("Pixiedust version {0}".format(version)) 
+            myLogger.info("No change in version: {0} -> {1}.".format(lastPixiedustVersion,version))
+            printWithLogo("Pixiedust version {0}".format(version))
+            # if never tracked then track for the first time
+            if lastVersionTracked is None and not doNotTrack:
+                deploymenTrackerStorage.update("UPDATE {0} SET LAST_VERSION_TRACKED='{1}'".format(METRICS_TRACKER_TBL_NAME,version))
+                track(version)
     except:
         myLogger.error("Error registering with deployment tracker:\n" + str(sys.exc_info()[0]) + "\n" + str(sys.exc_info()[1]))
 
@@ -200,18 +252,11 @@ def track(version):
     event['date_sent'] = time.strftime("%Y-%m-%dT%H:%M:%S.000Z", time.gmtime())
     event['runtime'] = 'python'
     if version is not None:
-        event['code_version'] = version
+        event['application_version'] = version
     try:
-        notebook_tenant_id = os.environ.get("NOTEBOOK_TENANT_ID")
-        if onotebook_tenant_id is not None:
-            event['notebook_tenant_id'] = notebook_tenant_id
-        notebook_kernel = os.environ.get("NOTEBOOK_KERNEL")
-        if notebook_kernel is not None:
-            event['notebook_kernel'] = notebook_kernel
-    except:
-        pass
-    try:
-        event['space_id'] = getpass.getuser()
+        # a hashed value that uniquely identifies this user
+        # no password or identifying information are tracked
+        event['space_id'] = hashlib.md5(getpass.getuser()).hexdigest()
     except:
         pass
     event['config'] = {}
@@ -223,5 +268,16 @@ def track(version):
     headers = {'content-type': "application/json"}
     try:
         response = post(url, data=json.dumps(event), headers=headers)
+        myLogger.info('Anonymous install statistics collected.')
     except Exception as e:
-        print('Deployment Tracker upload error: %s' % str(e))
+        myLogger.error('Anonymous install statistics collection error: %s' % str(e))
+
+def optOut():
+    deploymenTrackerStorage = __DeploymentTrackerStorage()
+    deploymenTrackerStorage.update("UPDATE {0} SET OPT_OUT={1}".format(METRICS_TRACKER_TBL_NAME,1))
+    print("Pixiedust will not collect anonymous install statistics.")
+
+def optIn():
+    deploymenTrackerStorage = __DeploymentTrackerStorage()
+    deploymenTrackerStorage.update("UPDATE {0} SET OPT_OUT={1}".format(METRICS_TRACKER_TBL_NAME,0))
+    print("Pixiedust will collect anonymous install statistics. To opt out, call pixiedust.optOut() in a new cell.")

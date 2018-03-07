@@ -65,6 +65,7 @@ with warnings.catch_warnings():
         from pixiedust.utils.sampleData import sampleData
         import pixiedust.apps.debugger
         from pixiedust.utils import checkVersion
+        from pixiedust.utils.storage import optOut, optIn
         checkVersion()
     except (NameError):
         #IPython not available we must be in a spark executor
