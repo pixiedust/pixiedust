@@ -23,7 +23,7 @@ import pixiedust
 myLogger = pixiedust.getLogger(__name__ )
 
 #bootstrap all the renderers
-renderers = ["matplotlib", "bokeh", "seaborn", "mapbox", "google", "brunel"]
+renderers = ["matplotlib", "bokeh", "seaborn", "mapbox", "google", "brunel", "table"]
 
 for renderer in renderers:
     try:
@@ -36,13 +36,15 @@ class ChartDisplayMeta(DisplayHandlerMeta):
     @addId
     def getMenuInfo(self, entity, dataHandler):
         if dataHandler is not None:
+            # first item in this array will be the default renderer (if no metadata exists)
             infos = [
+                {"categoryId": "Table", "title": "Table.Next", "icon": "fa-table", "id": "tableView"},
                 {"categoryId": "Chart", "title": "Bar Chart", "icon": "fa-bar-chart", "id": "barChart"},
                 {"categoryId": "Chart", "title": "Line Chart", "icon": "fa-line-chart", "id": "lineChart"},
                 {"categoryId": "Chart", "title": "Scatter Plot", "icon": "fa-circle", "id": "scatterPlot"},
                 {"categoryId": "Chart", "title": "Pie Chart", "icon": "fa-pie-chart", "id": "pieChart"},
                 {"categoryId": "Chart", "title": "Map", "icon": "fa-globe", "id": "mapView"},
-                {"categoryId": "Chart", "title": "Histogram", "icon": "fa-table", "id": "histogram"}
+                {"categoryId": "Chart", "title": "Histogram", "icon": "fa-area-chart", "id": "histogram"}
             ]
 
             infos = [info for info in infos if info["id"] in PixiedustRenderer.getHandlerIdList(dataHandler.isStreaming)]

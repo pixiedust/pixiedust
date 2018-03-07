@@ -84,7 +84,7 @@ class PixiedustTemplateEnvironment(object):
         self.env.filters['removeJSComments']=lambda s: self.removeJSComments(s)
         self.env.filters['htmlAttribute']=lambda s: self.attribute(s)
         self.env.filters['jsonify'] = json.dumps
-        self.env.filters['btoa'] = lambda s: base64.b64encode(s)
+        self.env.filters['btoa'] = lambda s: base64.b64encode(s.encode()).decode("ascii")
 
     def removeJSComments(self, s):
         s = re.sub(re.compile("/\*.*?\*/",re.DOTALL ) ,"" ,s)

@@ -36,6 +36,12 @@ class BaseOptions(with_metaclass(ABCMeta)):
                 self.exception(exc)
                 self.entity = None
 
+        #apply the cell_metadata
+        if getattr(self, "cell_metadata"):
+            self.parsed_command['kwargs'].update( 
+                self.cell_metadata.get("pixiedust",{}).get("displayParams",{})
+            )
+
     @cache(fieldName="fieldNames")
     def get_field_names(self, expandNested=True):
         return self.data_handler.getFieldNames(expandNested)
@@ -52,7 +58,7 @@ class BaseOptions(with_metaclass(ABCMeta)):
             "showFooter":"true"
         }
 
-    def on_ok(self):
+    def on_ok(self, **kwargs):
         run_options = self.run_options
         #update with the new options
         run_options.update(self.get_new_options())
@@ -65,9 +71,22 @@ class BaseOptions(with_metaclass(ABCMeta)):
         )
         js = self.env.from_string("""
             pixiedust.executeDisplay(
-                {{this.get_pd_controls(command=command, avoidMetadata=True, options=run_options, black_list=['nostore_figureOnly']) | tojson}}
+                {{this.get_pd_controls(
+                    command=command, 
+                    avoidMetadata=avoid_metadata, 
+                    override_keys=override_keys,
+                    options=run_options, 
+                    black_list=['nostore_figureOnly'],
+                    prefix=this.run_options['prefix'],
+                ) | tojson}}
             );
-        """).render(this=self, run_options=run_options, command=command)
+        """).render(
+            this=self, 
+            run_options=run_options, 
+            command=command, 
+            avoid_metadata=kwargs.get("avoid_metadata", True),
+            override_keys=kwargs.get("override_keys", [])
+        )
         return self._addJavascript(js)
 
     @property
@@ -83,7 +102,10 @@ class BaseOptions(with_metaclass(ABCMeta)):
 
     @property
     def get_renderer(self):
-        return PixiedustRenderer.getRenderer(self.parsed_command['kwargs'], self.parent_entity, False) if self.parent_entity is not None else None
+        return PixiedustRenderer.getRenderer(
+            self.parsed_command['kwargs'],
+            self.parent_entity, False
+        ) if self.parent_entity is not None else None
 
     @abstractmethod
     def get_new_options(self):

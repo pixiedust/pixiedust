@@ -1,5 +1,9 @@
 var pixiedust = (function(){
     return {
+        input_reply_queue: {
+            inflight: null,
+            queue: []
+        },
         getCell: function(cell_id){
             {% if gateway %}
             var cells = [];
@@ -46,6 +50,7 @@ var pixiedust = (function(){
             user_controls = user_controls || {"options":{}};
             var displayOptions = $.extend({}, pd_controls.options || {}, user_controls.options || {} );
             var global={};
+            var sourceDivId = displayOptions.targetDivId;
             require(['base/js/dialog'],function(dialog){
                 var modal = dialog.modal;
                 var attr_pd_ctrl = JSON.stringify(pd_controls).trim()
@@ -72,7 +77,7 @@ var pixiedust = (function(){
                                 var dlg = $("#" + dialogRoot + " > pd_dialog");
                                 try{
                                     pixiedust.dialogRoot = null;
-                                    $(document).trigger('pd_event', {targetDivId: dialogRoot, entity: pd_controls.options.nostore_pixieapp});
+                                    $(document).trigger('pd_event', {targetDivId: sourceDivId || dialogRoot, entity: pd_controls.options.nostore_pixieapp});
                                     return new Function('global', 'modal_obj', dlg.find("> pd_ok").text().trim())(global, modal_obj);
                                 }catch(e){
                                     console.error(e);
@@ -161,6 +166,12 @@ var pixiedust = (function(){
                     pixiedust.dialogRoot = null;
                 });
             })
+        },
+        sendEvent: function(payload, divId){
+            payload = payload || {};
+            divId = divId || $(event.srcElement).uniqueId().attr('id');
+            payload.targetDivId = divId;
+            $(document).trigger('pd_event', payload);
         },
         saveOutputInCell: function(curCell, content, html, msg_type){
             if(curCell && curCell.output_area && curCell.output_area.outputs){
@@ -251,17 +262,28 @@ function getParentScript(element){
 }
 
 function preRun(element){
-    var preRunCode = null;
-    $(element).find("> pd_script").each(function(){
-        var type = this.getAttribute("type");
-        if (type=="preRun"){
-            preRunCode = $(this).text();
-        }
-    });
+    var preRunCode = getScriptOfType(element, "preRun");
     if (!preRunCode ){
         return true;
     }
     return new Function(preRunCode.trim())();
+}
+
+function getScriptOfType(element, scriptType){
+    if (!element.jquery){
+        element = $(element);
+    }
+    var code = null;
+    element.find("> pd_script").each(function(){
+        var type = this.getAttribute("type");
+        if (type == scriptType){
+            code = $(this).text();
+        }
+    });
+    if (code){
+        return code.trim();
+    }
+    return code;
 }
 
 function addOptions(command, options, override=true){
@@ -325,16 +347,18 @@ function computeGeometry(element, execInfo){
 }
 
 function readScriptAttribute(element){
-    retValue = element.getAttribute("pd_script");
+    var retValue = element.getAttribute("pd_script");
+    var run_raw = false;
     if (!retValue){
         $(element).find("> pd_script").each(function(){
             var type = this.getAttribute("type");
             if (!type || type=="python"){
                 retValue = $(this).text();
+                run_raw = this.hasAttribute("run_raw");
             }
         })
     }
-    return retValue;
+    return retValue?{"script":retValue, "run_raw":run_raw}:null;
 }
 
 function getAttribute(element, name, defValue, defValueIfKeyAlone){
@@ -411,7 +435,8 @@ function readExecInfo(pd_controls, element, searchParents, fromExecInfo){
 
     scriptAttr = readScriptAttribute(element);
     if (scriptAttr){
-        execInfo.script = (execInfo.script || "") + "\n" + scriptAttr;
+        execInfo.script = (execInfo.script || "") + "\n" + scriptAttr.script;
+        execInfo.script_run_raw = scriptAttr.run_raw;
     }
     execInfo.refresh = execInfo.refresh || (getAttribute(element, "pd_refresh", "false", "true") == 'true');
     execInfo.norefresh = element.hasAttribute("pd_norefresh");
@@ -419,10 +444,6 @@ function readExecInfo(pd_controls, element, searchParents, fromExecInfo){
 
     function applyEntity(c, e, doptions){
         {#add pixieapp info #}
-        var match = c.match(/display\((\w*),/);
-        if (match){
-            doptions.nostore_pixieapp = match[1];
-        }
         doptions.prefix = pd_controls.prefix;
 
         pd_controls.sniffers = pd_controls.sniffers || [];
@@ -453,12 +474,21 @@ function readExecInfo(pd_controls, element, searchParents, fromExecInfo){
     if (execInfo.script){
         execInfo.script = execInfo.script.trim()
         {#set up the self variable#}
-        var match = pd_controls.command.match(/display\((\w*),/)
-        if (match){
-            var entity = match[1]
-            console.log("Inject self with entity", entity)
-            execInfo.script = "from pixiedust.utils.shellAccess import ShellAccess\n"+
-                "self=ShellAccess['" + entity + "']\n" +
+        var entity = pd_controls.entity;
+        if (!entity){
+            var match = pd_controls.command.match(/display\((\w*),/);
+            if (match){
+                entity = match[1];
+            }
+        }
+        if (entity){
+            var prolog = "";
+            if (!execInfo.script_run_raw){
+                console.log("Inject self with entity", entity);
+                prolog = "from pixiedust.utils.shellAccess import ShellAccess\n"+
+                    "self=ShellAccess['" + entity + "']\n";
+            }
+            execInfo.script = prolog +
                 resolveScriptMacros( getParentScript(element) ) + '\n' +
                 resolveScriptMacros(execInfo.script);
             if ( execInfo.pixieapp){
@@ -516,6 +546,15 @@ function readExecInfo(pd_controls, element, searchParents, fromExecInfo){
         execInfo.targetDivId = execInfo.targetDivId || pixiedust.dialogRoot;
     }
 
+    if ("send_input_reply" in execInfo.options){
+        execInfo.send_input_reply = execInfo.options["send_input_reply"];
+        delete execInfo.options["send_input_reply"];
+    }
+    if ("answer_input_reply" in execInfo.options){
+        execInfo.answer_input_reply = execInfo.options["answer_input_reply"];
+        delete execInfo.options["answer_input_reply"];
+    }
+
     execInfo.execute = function(){
         {#check if we have a pre-run client side script #}
         if (!preRun(element)){
@@ -530,6 +569,16 @@ function readExecInfo(pd_controls, element, searchParents, fromExecInfo){
                 pd_controls.command = addOptions(pd_controls.command, eval('(' + sniffer + ')'));
             }    
         }.bind(this));
+
+        var process_output = getScriptOfType(element, "process_output");
+        if (!process_output){
+            process_output = getScriptOfType($("#" + this.targetDivId), "process_output");
+        }
+        if (process_output){
+            this.process_output = function(output){
+                new Function('output', process_output)(output);
+            }
+        }
 
         if ( this.options.dialog == 'true' ){
             pixiedust.executeInDialog(pd_controls, this);
@@ -602,10 +651,42 @@ function filterNonTargetElements(element){
     return element;
 }
 
+function readJSONAttribute(element, attrName){
+    var payload = resolveScriptMacros(element.getAttribute(attrName));
+    if (payload){
+        var parts = payload.split(";");
+        payload = {};
+        $.each( parts, function(){
+            var index = this.indexOf("=");
+            if ( index > 1){
+                payload[this.substring(0, index)] = this.substring(index+1);
+            }
+        });
+    }else{
+        {#read children using json format#}
+        $(element).find("> " + attrName).each(function(){
+            try{
+                payload = JSON.parse($(this).text());
+                for (var key in payload) { 
+                    payload[key] = resolveScriptMacros(payload[key]); 
+                }
+            }catch(e){
+                console.log("Error parsing " + attrName + ", invalid json", e);
+            }
+        })
+    }
+    return payload;
+}
+
 {#Dynamically add click handler on the pixiedust chrome menus#}
 function processEvent(event){
     if (event.pd_processed){
         return;
+    }
+    {#check if we need to send an event#}
+    var payload = readJSONAttribute(event.target, "pd_event_payload");
+    if (payload){
+        pixiedust.sendEvent(payload, $(event.target).uniqueId().attr('id'));
     }
     execQueue = runElement(filterNonTargetElements(event.target));
     {#execute#}
@@ -635,7 +716,7 @@ $(document).on("pd_event", function(event, eventInfo){
     if (targetDivId){
         eventHandlers = $("pd_event_handler").filter(function(){
             source = this.getAttribute("pd_source");
-            if (source == "*" || source == targetDivId){
+            if (source == "*" || source == targetDivId || source == eventInfo.type){
                 return true;
             }
             {#Find a parent with pd_target attribute#}

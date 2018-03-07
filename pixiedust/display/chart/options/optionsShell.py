@@ -17,6 +17,7 @@
 from pixiedust.display.app import *
 from pixiedust.utils import Logger
 from .baseOptions import BaseOptions
+import re
 
 @Logger()
 class ChartOptionTitle(object):
@@ -31,11 +32,15 @@ class ChartOptionTitle(object):
 @PixieApp
 @Logger()
 class OptionsShell(BaseOptions, ChartOptionTitle):
+    def camel_case_to_title(self, name):
+        return re.compile('([a-z0-9])([A-Z])').sub(r'\1 \2', name).title()
+
     def get_custom_options(self):
         "Options for this dialog"
+        t = self.camel_case_to_title(self.parsed_command['kwargs']['handlerId']) if 'kwargs' in self.parsed_command and 'handlerId' in self.parsed_command['kwargs'] else 'Chart'
         return {
             "runInDialog":"true",
-            "title":"Test",
+            "title": t + " Options",
             "showFooter":"true",
             "customClass":"pixiedust-default-dialog"
         }
@@ -44,7 +49,7 @@ class OptionsShell(BaseOptions, ChartOptionTitle):
         BaseOptions.setup(self)
         self.chart_options = [{
             "optid": "title",
-            "title": lambda: self.options.get("title") or "",
+            "title": lambda: self.run_options.get("title") or "",
             "widget": "pdChartOptionTitle"
         }]
         self.new_options = {}

@@ -1,0 +1,254 @@
+<style type="text/css" class="pd_save">
+    .df-table-wrapper .panel-heading {
+      border-radius: 0;
+      padding: 0px;
+    }
+    .df-table-wrapper .panel-heading:hover {
+      border-color: #008571;
+    }
+    .df-table-wrapper .panel-title a {
+      background-color: #f9f9fb;
+      color: #333333;
+      display: block;
+      outline: none;
+      padding: 10px 15px;
+      text-decoration: none;
+    }
+    .df-table-wrapper .panel-title a:hover {
+      background-color: #337ab7;
+      border-color: #2e6da4;
+      color: #ffffff;
+      display: block;
+      padding: 10px 15px;
+      text-decoration: none;
+    }
+    .df-table-wrapper {
+      font-size: small;
+      font-weight: 300;
+      letter-spacing: 0.5px;
+      line-height: normal;
+      height: inherit;
+      overflow: auto;
+    }
+    .df-table-search {
+      margin: 0 0 20px 0;
+    }
+    .df-table-search-count {
+      display: inline-block;
+      margin: 0 0 20px 0;
+    }
+    .df-table-container {
+      max-height: 50vh;
+      max-width: 100%;
+      overflow-x: auto;
+      position: relative;
+    }
+    .df-table-wrapper table {
+      border: 0 none #ffffff;
+      border-collapse: collapse;
+      margin: 0;
+      min-width: 100%;
+      padding: 0;
+      table-layout: fixed;
+      height: inherit;
+      overflow: auto;
+    }
+    .df-table-wrapper tr.hidden {
+      display: none;
+    }
+    .df-table-wrapper tr:nth-child(even) {
+      background-color: #f9f9fb;
+    }
+    .df-table-wrapper tr.even {
+      background-color: #f9f9fb;
+    }
+    .df-table-wrapper tr.odd {
+      background-color: #ffffff;
+    }
+    .df-table-wrapper td + td {
+      border-left: 1px solid #e0e0e0;
+    }
+  
+    .df-table-wrapper thead,
+    .fixed-header {
+      font-weight: 600;
+    }
+    .df-table-wrapper tr,
+    .fixed-row {
+      border: 0 none #ffffff;
+      margin: 0;
+      padding: 0;
+    }
+    .df-table-wrapper th,
+    .df-table-wrapper td,
+    .fixed-cell {
+      border: 0 none #ffffff;
+      margin: 0;
+      min-width: 50px;
+      padding: 5px 20px 5px 10px;
+      text-align: left;
+      word-wrap: break-word;
+    }
+    .df-table-wrapper th {
+      padding-bottom: 0;
+      padding-top: 0;
+    }
+    .df-table-wrapper th div {
+      max-height: 1px;
+      visibility: hidden;
+    }
+  
+    .df-schema-field {
+      margin-left: 10px;
+    }
+  
+    .fixed-header-container {
+      overflow: hidden;
+      position: relative;
+    }
+    .fixed-header {
+      border-bottom: 2px solid #000;
+      display: table;
+      position: relative;
+    }
+    .fixed-row {
+      display: table-row;
+    }
+    .fixed-cell {
+      display: table-cell;
+    }
+  </style>
+  
+  {% set fieldNames = wpdf.columns %}
+  <div class="df-table-wrapper df-table-wrapper-{{prefix}} panel-group pd_save">
+    <!-- dataframe schema -->
+    {% if table_noschema != 'true' %}
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h4 class="panel-title" style="margin: 0px;">
+          <a data-toggle="collapse" href="#df-schema-{{prefix}}" data-parent="#df-table-wrapper-{{prefix}}">Schema</a>
+        </h4>
+      </div>
+      <div id="df-schema-{{prefix}}" class="panel-collapse collapse">
+        <div class="panel-body" style="font-family: monospace;">
+          <div class="df-schema-fields">
+            <div>Field types:</div>
+            {% for colname, coltype in wpdf.dtypes.iteritems() %}
+              <div class="df-schema-field"><strong>{{colname}}: </strong> {{coltype}}</div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+    <!-- dataframe table -->
+    <div class="panel panel-default" {% if table_noschema == 'true' %}style="border:none;"{% endif %}>
+      {% if table_noschema != 'true' %}
+      <div class="panel-heading">
+        <h4 class="panel-title" style="margin: 0px;">
+          <a data-toggle="collapse" href="#df-table-{{prefix}}" data-parent="#df-table-wrapper-{{prefix}}">{{this.options.get("title","")}} Table</a>
+        </h4>
+      </div>
+      {% endif %}
+      <div id="df-table-{{prefix}}" class="panel-collapse collapse in">
+        <div class="panel-body">
+          {% if table_nosearch != 'true' %}
+          <input type="text" class="df-table-search form-control input-sm" placeholder="Search table">
+          {% endif %}
+          <div>
+            {% if table_nocount != 'true' %}
+            <span class="df-table-search-count">Showing {{wpdf.index|length}} of {{this.count}} rows</span>
+            {% endif %}
+          </div>
+          <!-- fixed header for when dataframe table scrolls -->
+          <div class="fixed-header-container">
+            <div class="fixed-header">
+              <div class="fixed-row">
+                {% for field in fieldNames %}
+                <div class="fixed-cell">{{field | decodeUTF8 }}</div>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+          <div class="df-table-container">
+            <table class="df-table">
+              <thead>
+                <tr>
+                  {% for field in fieldNames %}
+                  <th><div>{{field | decodeUTF8 }}</div></th>
+                  {% endfor %}
+                </tr>
+              </thead>
+              <tbody>
+                {% for rowindex, row in wpdf.iterrows() %}
+                <tr>
+                  {% for field in fieldNames %}
+                  <td>{{row[field]}}</td>
+                  {% endfor %}
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <script class="pd_save">
+    $(function() {
+      var tableWrapper = $('.df-table-wrapper-{{prefix}}');
+      var fixedHeader = $('.fixed-header', tableWrapper);
+      var tableContainer = $('.df-table-container', tableWrapper);
+      var table = $('.df-table', tableContainer);
+      var rows = $('tbody > tr', table);
+      var total = {{wpdf.index|length}};
+  
+      fixedHeader
+        .css('width', table.width())
+        .find('.fixed-cell')
+        .each(function(i, e) {
+          $(this).css('width', $('.df-table-wrapper-{{prefix}} th:nth-child(' + (i+1) + ')').css('width'));
+        });
+  
+      tableContainer.scroll(function() {
+        fixedHeader.css({ left: table.position().left });
+      });
+  
+      rows.on("click", function(e){
+          var txt = e.delegateTarget.innerText;
+          var splits = txt.split("\t");
+          var len = splits.length;
+          var hdrs = $(fixedHeader).find(".fixed-cell");
+          // Add all cells in the selected row as a map to be consumed by the target as needed
+          var payload = {type:"select", targetDivId: "{{this.options.get("targetDivId","") }}" };
+          for (var i = 0; i < len; i++) {
+            payload[hdrs[i].innerHTML] = splits[i];
+          }
+  
+          //simple selection highlighting, client adds "selected" class
+          $(this).addClass("selected").siblings().removeClass("selected");
+          $(document).trigger('pd_event', payload);
+      });
+  
+      $('.df-table-search', tableWrapper).keyup(function() {
+        var val = '^(?=.*\\b' + $.trim($(this).val()).split(/\s+/).join('\\b)(?=.*\\b') + ').*$';
+        var reg = RegExp(val, 'i');
+        var index = 0;
+        
+        rows.each(function(i, e) {
+          if (!reg.test($(this).text().replace(/\s+/g, ' '))) {
+            $(this).attr('class', 'hidden');
+          }
+          else {
+            $(this).attr('class', (++index % 2 == 0 ? 'even' : 'odd'));
+          }
+        });
+        $('.df-table-search-count', tableWrapper).html('Showing ' + index + ' of ' + total + ' rows');
+      });
+    });
+  
+    $(".df-table-wrapper td:contains('http://')").each(function(){var tc = this.textContent; $(this).wrapInner("<a target='_blank' href='" + tc + "'/>");});
+    $(".df-table-wrapper td:contains('https://')").each(function(){var tc = this.textContent; $(this).wrapInner("<a target='_blank' href='" + tc + "'/>");});
+  </script>
+  

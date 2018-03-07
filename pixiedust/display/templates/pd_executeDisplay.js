@@ -1,6 +1,9 @@
 !function() {
-    function getTargetNode(){
-        return $('#' + ($targetDivId || ("wrapperHTML"+ pd_prefix)));
+    function getTargetNodeId(override=null){
+        return override || $targetDivId || ("wrapperHTML"+ pd_prefix);
+    }
+    function getTargetNode(override=null){
+        return $('#' + getTargetNodeId(override));
     }
     function checkRootInit(){
         node = getTargetNode();
@@ -10,33 +13,63 @@
         }
         return retValue;
     }
-    function setHTML(targetNode, contents, pdCtl = null){
+    function setText(targetNode, contents, pdCtl = null, userCtl = null){
         var pd_elements = []
         targetNode.children().each(function(){
             if (this.tagName.toLowerCase().startsWith("pd_")){
                 pd_elements.push($(this).clone());
             }
         });
-        if (targetNode.attr("pixiedust") && pdCtl){
-            targetNode.attr("pixiedust", JSON.stringify(pdCtl));
+        targetNode.text(contents);
+        if (pd_elements.length > 0 ){
+            targetNode.append(pd_elements);
         }
+        return true;
+    }
+    function setHTML(targetNode, contents, pdCtl = null, userCtl = null){
+        var pd_elements = []
+        targetNode.children().each(function(){
+            if (this.tagName.toLowerCase().startsWith("pd_")){
+                pd_elements.push($(this).clone());
+            }
+        });
         targetNode.html("<div pd_stop_propagation style='height:100%;'>" + contents + "</div>");
         if (pd_elements.length > 0 ){
             targetNode.append(pd_elements);
         }
         return true;
     }
+
+    function send_input_reply(cb, cmd, pd_controls){
+        if (cmd == 'c' || cmd == 'continue' || cmd.startsWith("$$")){
+            cb = null;
+            pixiedust.input_reply_queue.queue = [];
+            $("#debugger_container_" + pd_controls.prefix).hide();
+            if (cmd.startsWith("$$")){
+                cmd = cmd.substring(2);
+            }
+        }else if (cmd == 'no_op'){
+            cb = null;
+            cmd = null;
+        }
+        if (cb && $targetDivId == "debugger_refresh"){
+            cb.refreshDebugger = true;
+        }
+        pixiedust.input_reply_queue.inflight = cb;
+        if (cmd){
+            IPython.notebook.session.kernel.send_input_reply(cmd);
+        }
+    }
     var cellId = options.cell_id || "";
     var curCell = pixiedust.getCell(cellId);
     console.log("curCell",curCell);
-    var startWallToWall;
-    //Resend the display command
+    {#Resend the display command#}
     var callbacks = {
         shell : {
             reply : function(){
                 if ( !callbacks.response ){
                     if (!user_controls.partialUpdate){
-                        setHTML(getTargetNode(), "",pd_controls);
+                        setHTML(getTargetNode(), "",pd_controls, user_controls);
                         if (user_controls.onDisplayDone){
                             user_controls.onDisplayDone(getTargetNode());
                         }
@@ -74,10 +107,28 @@
                 var content = msg.content;
                 var targetNodeUpdated = false;
                 if(msg_type==="stream"){
+                    var reply_callbacks = pixiedust.input_reply_queue.inflight;
+                    if (reply_callbacks && reply_callbacks != callbacks){
+                        if (reply_callbacks.iopub){
+                            reply_callbacks.iopub.output(msg);
+                        }
+                        return;
+                    }
+                    var useHTML = false;
+                    var process_output = getScriptOfType($("#" + $targetDivId), "process_output");
+                    if (process_output){
+                        try{
+                            content.text = new Function('output', process_output)(content.text);
+                            useHTML = true;
+                        }catch(e){
+                            console.log("Error while invoking post output function", e, content.text, process_output);
+                        }
+                    }
                     if (user_controls.onSuccess){
                         user_controls.onSuccess(content.text);
                     }else{
-                        targetNodeUpdated = setHTML(getTargetNode(), content.text, pd_controls);
+                        fn = useHTML?setHTML:setText;
+                        targetNodeUpdated = fn(getTargetNode(), content.text, pd_controls, user_controls);
                     }
                 }else if (msg_type==="display_data" || msg_type==="execute_result"){
                     var html=null;
@@ -102,7 +153,7 @@
                             if (user_controls.onSuccess){
                                 user_controls.onSuccess(html);
                             }else{
-                                targetNodeUpdated = setHTML(getTargetNode(), html, pd_controls);
+                                targetNodeUpdated = setHTML(getTargetNode(), html, pd_controls, user_controls);
                             }
                             if (content.metadata && content.metadata.pixieapp_metadata){
                                 {% if gateway %}
@@ -137,7 +188,7 @@
                             console.log("Invalid html output", e, html);
                             targetNodeUpdated = setHTML(getTargetNode(),  "Invalid html output: " + e.message + "<pre>" 
                                 + html.replace(/>/g,'&gt;').replace(/</g,'&lt;').replace(/"/g,'&quot;') + "<pre>",
-                                pd_controls);
+                                pd_controls, user_controls);
                         }
                         if (callbacks.options && callbacks.options.nostore_delaysave){
                             setTimeout(function(){
@@ -149,7 +200,7 @@
                     }
                 }else if (msg_type === "error") {
                     {% if gateway %}
-                    targetNodeUpdated = setHTML(getTargetNode(), content.traceback, pd_controls);
+                    targetNodeUpdated = setHTML(getTargetNode(), content.traceback, pd_controls, user_controls);
                     {%else%}
                     require(['base/js/utils'], function(utils) {
                         var tb = content.traceback;
@@ -163,7 +214,18 @@
                             if (user_controls.onError){
                                 user_controls.onError(data);
                             }else{
-                                targetNodeUpdated = setHTML(getTargetNode(), "<pre>" + data +"</pre>", pd_controls);
+                                var debugger_html = '<button type="submit" pd_options="new_parent_prefix=false" pd_target="' + 
+                                getTargetNodeId() + '" pd_app="pixiedust.apps.debugger.PixieDebugger">Post Mortem</button>' +
+                                '<span>&nbsp;&nbsp;</span>' +
+                                '<button type="submit" pd_options="new_parent_prefix=false;debug_route=true" pd_target="' + 
+                                getTargetNodeId() + '" pd_app="pixiedust.apps.debugger.PixieDebugger">Debug Route</button>'
+
+                                targetNodeUpdated = setHTML(
+                                    getTargetNode(), 
+                                    debugger_html + "<pre>" + data + '</pre>' + debugger_html, 
+                                    pd_controls, 
+                                    user_controls
+                                );
                             }
                         }
                     });
@@ -175,6 +237,53 @@
                     user_controls.onDisplayDone(getTargetNode());
                 }
             }
+        },
+        input : function(msg){
+            var reply_callbacks = pixiedust.input_reply_queue.inflight;
+            if (!reply_callbacks || reply_callbacks.refreshDebugger){
+                $("#debugger_container_" + pd_controls.prefix).show();
+                var input_target = "input_reply_" + pd_controls.prefix;
+                var process_output = getScriptOfType($("#" + input_target), "process_output");
+                if (process_output){
+                    try{
+                        if (reply_callbacks){
+                            reply_callbacks.refreshDebugger = false;
+                        }
+                        if (!pixiedust.input_reply_queue.inflight){
+                            pixiedust.input_reply_queue.inflight = {};
+                        }
+                        msg.content.prompt = new Function('output', process_output)(msg.content.prompt);
+                        targetNodeUpdated = setHTML(getTargetNode(input_target), msg.content.prompt, pd_controls, user_controls);
+                        if (targetNodeUpdated && user_controls.onDisplayDone){
+                            user_controls.onDisplayDone(getTargetNode(input_target));
+                        }
+                    }catch(e){
+                        console.log("Error while invoking post output function", e, msg.content.prompt, process_output);
+                    }
+                }else{
+                    console.log("No element with id input_reply_"+pd_controls.prefix + " found");
+                }
+            }
+            if (reply_callbacks && reply_callbacks.answer_input_reply){
+                setTimeout(function(){
+                    var answer = reply_callbacks.answer_input_reply;
+                    reply_callbacks.answer_input_reply = null;
+                    send_input_reply(reply_callbacks, answer, pd_controls);
+                }, 0);
+            }else{
+                var next_input_reply = pixiedust.input_reply_queue.queue.shift();
+                if (next_input_reply && next_input_reply.command == "no_op_delay"){
+                    next_input_reply = pixiedust.input_reply_queue.queue.shift();
+                }
+                if (next_input_reply){
+                    setTimeout(function(){
+                        send_input_reply(next_input_reply.callbacks, next_input_reply.command, pd_controls);
+                    }, 0);
+                }else{
+                    pixiedust.input_reply_queue.inflight = null;
+                }
+            }
+            console.log("Handling input msg request: ", msg);
         }
     }
     {% if gateway %}
@@ -211,9 +320,25 @@
             if(typeof cellMetadata != "undefined" && cellMetadata.displayParams){
                 addOptions(cellMetadata.displayParams);
                 addOptions({"showchrome":"true"});
-            }else if (curCell && curCell._metadata.pixiedust && !pd_controls.avoidMetadata ){
-                ignoreKeys = pd_controls.options.nostore_pixieapp?["handlerId"]:[];
-                addOptions(curCell._metadata.pixiedust.displayParams || {}, pd_controls.useCellMetadata, ignoreKeys);
+            }else if (curCell && curCell._metadata.pixiedust ){
+                if (!pd_controls.avoidMetadata){
+                    ignoreKeys = pd_controls.options.nostore_pixieapp?["handlerId"]:[];
+                    if (pd_controls.override_keys){
+                        Array.prototype.push.apply(ignoreKeys,pd_controls.override_keys);
+                    }
+                    pd_controls.include_keys || []
+                    addOptions(curCell._metadata.pixiedust.displayParams || {}, pd_controls.useCellMetadata, ignoreKeys);
+                }else{
+                    {#always include new fields and the one in include_keys#}
+                    var includeKeys = pd_controls.include_keys || [];
+                    var includeOptions = {};
+                    for (var key in (curCell._metadata.pixiedust.displayParams||{})){
+                        if (includeKeys.indexOf(key) > -1 || !(key in pd_controls.options)){
+                            includeOptions[key] = curCell._metadata.pixiedust.displayParams[key];
+                        }
+                    }
+                    addOptions(includeOptions);
+                }
             }
             addOptions(user_controls.options||{});
             var pattern = "\\w*\\s*=\\s*'(\\\\'|[^'])*'";
@@ -279,7 +404,7 @@
                 '<div style="text-align:center">' +
                     (getTargetNode().attr("pd_loading_msg") || "Loading your data. Please wait...") +
                 '</div>',
-                pd_controls
+                pd_controls, user_controls
             );
         }
         {% if gateway %}
@@ -306,7 +431,24 @@
                 JSON.stringify(curCell._metadata.pixiedust.pixieapp) + ")\n" + command
             }
         }
-        IPython.notebook.session.kernel.execute(command, callbacks, {silent:true,store_history:false,stop_on_error:true});
+        if (user_controls.send_input_reply){
+            command = user_controls.send_input_reply;
+            callbacks.answer_input_reply = user_controls.answer_input_reply;
+            if (pixiedust.input_reply_queue.inflight || pixiedust.input_reply_queue.queue.length > 0 || command == "no_op_delay"){
+                pixiedust.input_reply_queue.queue.push({"command":command, "callbacks":callbacks});
+            }else{
+                send_input_reply(callbacks, command, pd_controls);
+            }
+        }else{
+            if (pixiedust.input_reply_queue.inflight){
+                console.log("Aborting kernel requests because not all the reply callback where consummed", command);
+                return;
+            }
+            command = command.trim();
+            IPython.notebook.session.kernel.execute(command, callbacks, {
+                silent:true,store_history:false,stop_on_error:true,allow_stdin : true
+            });
+        }
         {%endif%}
 
         console.log("Running command2:\n",command);

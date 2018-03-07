@@ -21,15 +21,19 @@ from .brunelBaseDisplay import BrunelBaseDisplay
 @PixiedustRenderer(id="scatterPlot")
 @Logger()
 class ScatterPlotRenderer(BrunelBaseDisplay):
+
     def compute_brunel_magic(self):
         parts = ["point"]
-
-        for index, key in enumerate(self.getKeyFields()):
-            if index > 0:
-                parts.append("+ point")
-            parts.append("x({})".format(key))
-            parts.append("y({})".format(",".join(self.getValueFields())))
-            parts.append(self.get_sort())
-            #parts.append("filter({})".format(key))
+        valueFields = self.getValueFields()
+        keyFields = self.getKeyFields()
+        
+        parts.append("x({})".format(keyFields[0]))
+        if len(valueFields) == 1:
+            parts.append("y({})".format(valueFields[0]))
+        elif len(valueFields) > 1:
+            parts.append("y({})".format(",".join(valueFields)))
+            parts.append("color(#series)")
+        
+        parts.append(self.get_sort())
 
         return parts

@@ -100,12 +100,14 @@ class BokehBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
                             setTimeout(setChartScript, 250)
                         }} else {{
                             var d = document.getElementById("pd-bkchartdiv-{p}")
-                            var el = document.createElement('div')
-                            el.innerHTML = `{chartScript}`
-                            var chartscript = el.childNodes[1]
-                            var s = document.createElement("script")
-                            s.innerHTML = chartscript.innerHTML
-                            d.parentNode.insertBefore(s, d)
+                            if (d){{
+                                var el = document.createElement('div')
+                                el.innerHTML = `{chartScript}`
+                                var chartscript = el.childNodes[1]
+                                var s = document.createElement("script")
+                                s.innerHTML = chartscript.innerHTML
+                                d.parentNode.insertBefore(s, d)
+                            }}
                         }}
                     }}
                     if (!window.Bokeh && !window.autoload){{

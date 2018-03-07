@@ -29,7 +29,7 @@ class DefaultOptions(OptionsShell, KeyValueSelector, AggregationSelector, RowCou
         self.chart_options.append({
             "optid": "keyvalue",
             "classname": "no_loading_msg",
-            "keyFields": lambda: self.options.get("keyFields") or "",
+            "keyFields": lambda: self.run_options.get("keyFields") or "",
             "valueFields": lambda: self.options.get("valueFields") or "",
             "widget": "pdKeyValueSelector"
         })
@@ -38,14 +38,14 @@ class DefaultOptions(OptionsShell, KeyValueSelector, AggregationSelector, RowCou
             self.chart_options.append({
                 "optid": "aggregation",
                 "classname": "field-width-50 no_loading_msg",
-                "aggregation": lambda: self.options.get("aggregation") or "",
+                "aggregation": lambda: self.run_options.get("aggregation") or "",
                 "widget": "pdAggregationSelector"
             })
 
         self.chart_options.append({
             "optid": "rowCount",
             "classname": "field-width-50 no_loading_msg",
-            "count": lambda: self.options.get("rowCount") or 500,
+            "count": lambda: self.run_options.get("rowCount") or 100,
             "widget": "pdRowCount"
         })
 
