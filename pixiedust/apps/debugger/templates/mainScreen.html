@@ -211,7 +211,7 @@
                     rowclass += ' error-line'
                 }
                 gutter.push('<div class="' + rowclass + '"><code title="Continue execution until a line with a number greater or equal to this line number is reached.">' + parts[1].trim() + '</code></div>')
-                source.push('<div class="' + rowclass + '"><code>' + (parts[2].substring(1) || '&nbsp;') + '</code></div>')
+                source.push('<div class="' + rowclass + '"><code>' + (parts[2].substring(1).replace("<", "&lt;") || '&nbsp;') + '</code></div>')
             }
         }
         for (var j=gutter.length; j<5; j++) {

@@ -124,7 +124,7 @@ class PandasDataFrameDataHandler(BaseDataHandler):
             workingDF = workingDF.dropna()
         count = len(workingDF.index)
         if count > maxRows:
-            workingDF = workingDF.sample(frac=(float(maxRows) / float(count)),replace=False)
+            workingDF = workingDF.sample(n=int(maxRows),replace=False)
 
         #check if the caller want to preserve some columns
         preserveCols = self.options.get("preserveCols", None)
