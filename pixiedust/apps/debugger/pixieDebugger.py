@@ -70,6 +70,7 @@ class PixieDebugger():
                 for method in reversed(stack):
                     code = self.parent_pixieapp.exceptions.get(method, None)
                     if code:
+                        method_name = method
                         break
                 self.pixieapp_entity = {
                     "breakpoints": ["{}.{}".format(self.parent_pixieapp.__pixieapp_class_name__, method_name)],
