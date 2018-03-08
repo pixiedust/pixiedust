@@ -22,6 +22,30 @@
      Bug fixes
     </strong>
    </p>
+   <ul>
+    <li>
+     <p>
+      Resolved an issue with displaying tables. The
+      <code>
+       display()
+      </code>
+      function's table visualization now properly shows the correct number of rows and honors the max rows constraint set by users (
+      <a href="https://github.com/ibm-watson-data-lab/pixiedust/issues/601/">
+       #601
+      </a>
+      ).
+     </p>
+    </li>
+    <li>
+     <p>
+      Fixed a problem with filtering. Previously when using PySpark with PixieDust, filtering by a column name containing a space would fail (
+      <a href="https://github.com/ibm-watson-data-lab/pixiedust/issues/621/">
+       #621
+      </a>
+      ).
+     </p>
+    </li>
+   </ul>
    <p>
     <strong>
      Enhancements
@@ -30,22 +54,35 @@
    <ul>
     <li>
      <p>
-      The 1.1.8 release introduces a visual Python debugger for Jupyter Notebooks: PixieDebugger. It is built as a
+      The 1.1.8 release introduces a visual Python debugger for Jupyter Notebooks:
+      <strong>
+       PixieDebugger
+      </strong>
+      . It is built as a
       <a href="pixieapps.html">
        PixieApp
       </a>
-      , and includes a source editor, local variable inspector, console output, the ability to evaluate Python expressions in the current context, breakpoints management, and a toolbar for controlling code execution. In addition to debugging traditional notebook cells, PixieDebugger also works to debug PixieApps, which is especially usefule when troubleshooting issues with routes. See this
+      , and includes a source editor, local variable inspector, console output, the ability to evaluate Python expressions in the current context, breakpoints management, and a toolbar for controlling code execution. In addition to debugging traditional notebook cells, PixieDebugger also works to debug PixieApps, which is especially useful when troubleshooting issues with routes. See this
       <a href="https://medium.com/ibm-watson-data-lab/the-visual-python-debugger-for-jupyter-notebooks-youve-always-wanted-761713babc62">
        blog post for usage examples
       </a>
       . More documentation on PixieDebugger will be added to this site soon (
-      <a href="hhttps://github.com/ibm-watson-data-lab/pixiedust/issues/623/">
+      <a href="https://github.com/ibm-watson-data-lab/pixiedust/issues/623/">
        #623
       </a>
-      ).
+      ). Example usage to invoke PixieDebugger to break at the first executable line of cell code:
      </p>
     </li>
    </ul>
+   <pre>%%pixie_debugger
+import random
+def find_max (values):
+    max = 0
+    for val in values:
+        if val &gt; max:
+            max = val
+    return max
+find_max(random.sample(range(100), 10))</pre>
    <p>
     <h3>
      Return to main topic for:

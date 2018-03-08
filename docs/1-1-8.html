@@ -42,10 +42,25 @@
 <h1>1.1.8<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h1>
 <p>Here’s what’s new in Release 1.1.8 (9 March 2018):</p>
 <p><strong>Bug fixes</strong></p>
+<ul class="simple">
+<li>Resolved an issue with displaying tables. The <code class="docutils literal"><span class="pre">display()</span></code> function’s table visualization now properly shows the correct number of rows and honors the max rows constraint set by users (<a class="reference external" href="https://github.com/ibm-watson-data-lab/pixiedust/issues/601/">#601</a>).</li>
+<li>Fixed a problem with filtering. Previously when using PySpark with PixieDust, filtering by a column name containing a space would fail (<a class="reference external" href="https://github.com/ibm-watson-data-lab/pixiedust/issues/621/">#621</a>).</li>
+</ul>
 <p><strong>Enhancements</strong></p>
 <ul class="simple">
-<li>The 1.1.8 release introduces a visual Python debugger for Jupyter Notebooks: PixieDebugger. It is built as a <a class="reference external" href="pixieapps.html">PixieApp</a>, and includes a source editor, local variable inspector, console output, the ability to evaluate Python expressions in the current context, breakpoints management, and a toolbar for controlling code execution. In addition to debugging traditional notebook cells, PixieDebugger also works to debug PixieApps, which is especially usefule when troubleshooting issues with routes. See this <a class="reference external" href="https://medium.com/ibm-watson-data-lab/the-visual-python-debugger-for-jupyter-notebooks-youve-always-wanted-761713babc62">blog post for usage examples</a>. More documentation on PixieDebugger will be added to this site soon (<a class="reference external" href="hhttps://github.com/ibm-watson-data-lab/pixiedust/issues/623/">#623</a>).</li>
+<li>The 1.1.8 release introduces a visual Python debugger for Jupyter Notebooks: <strong>PixieDebugger</strong>. It is built as a <a class="reference external" href="pixieapps.html">PixieApp</a>, and includes a source editor, local variable inspector, console output, the ability to evaluate Python expressions in the current context, breakpoints management, and a toolbar for controlling code execution. In addition to debugging traditional notebook cells, PixieDebugger also works to debug PixieApps, which is especially useful when troubleshooting issues with routes. See this <a class="reference external" href="https://medium.com/ibm-watson-data-lab/the-visual-python-debugger-for-jupyter-notebooks-youve-always-wanted-761713babc62">blog post for usage examples</a>. More documentation on PixieDebugger will be added to this site soon (<a class="reference external" href="https://github.com/ibm-watson-data-lab/pixiedust/issues/623/">#623</a>). Example usage to invoke PixieDebugger to break at the first executable line of cell code:</li>
 </ul>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%%</span><span class="n">pixie_debugger</span>
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="k">def</span> <span class="nf">find_max</span> <span class="p">(</span><span class="n">values</span><span class="p">):</span>
+    <span class="nb">max</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">values</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">val</span> <span class="o">&gt;</span> <span class="nb">max</span><span class="p">:</span>
+            <span class="nb">max</span> <span class="o">=</span> <span class="n">val</span>
+    <span class="k">return</span> <span class="nb">max</span>
+<span class="n">find_max</span><span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">100</span><span class="p">),</span> <span class="mi">10</span><span class="p">))</span>
+</pre></div>
+</div>
 </div>
 
 
