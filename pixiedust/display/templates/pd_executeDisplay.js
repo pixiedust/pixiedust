@@ -441,8 +441,7 @@
             }
         }else{
             if (pixiedust.input_reply_queue.inflight){
-                console.log("Aborting kernel requests because not all the reply callback where consummed", command);
-                return;
+                console.log("Warning: A kernel request is triggered but not all the reply callback where consummed", command);
             }
             command = command.trim();
             IPython.notebook.session.kernel.execute(command, callbacks, {
