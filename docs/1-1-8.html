@@ -5,7 +5,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>1.1.2 &#8212; PixieDust Documentation</title>
+    <title>1.1.8 &#8212; PixieDust Documentation</title>
     <link rel="stylesheet" href="_static/better.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="_static/custom.css" type="text/css" />
@@ -25,8 +25,7 @@
     <link rel="shortcut icon" href="_static/pd_icon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="1.1.3" href="1-1-3.html" />
-    <link rel="prev" title="1.1.1" href="1-1-1.html" />
+    <link rel="prev" title="1.1.7" href="1-1-7.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   </head>
   <body>
@@ -40,20 +39,12 @@
           <div class="body" role="main">
             
   <div class="section" id="id1">
-<h1>1.1.2<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h1>
-<p>Here’s what’s new in Release 1.1.2 (8 November 2017):</p>
+<h1>1.1.8<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h1>
+<p>Here’s what’s new in Release 1.1.8 (9 March 2018):</p>
 <p><strong>Bug fixes</strong></p>
-<ul class="simple">
-<li>Fixed an issue with duplicate requests when running the StockViewer sample PixieApp as a web application (<a class="reference external" href="https://github.com/ibm-watson-data-lab/pixiedust/issues/483">#483</a>).</li>
-<li>PixieDust can now run the same code in multiple notebooks locally with Spark. Previously, running the same code across multiple notebooks locally, such as PixieDust’s <code class="docutils literal"><span class="pre">sampleData()</span></code> API, generated an error (<a class="reference external" href="https://github.com/ibm-watson-data-lab/pixiedust/issues/496">#496</a>).</li>
-<li>Refactored PixieGateway into <a class="reference external" href="https://github.com/ibm-watson-data-lab/pixiegateway">its own GitHub repo</a> to run in IBM’s Data Science Experience environment and <a class="reference external" href="pixiegateway.html">updated PixieGateway documentation</a> (<a class="reference external" href="https://github.com/ibm-watson-data-lab/pixiedust/issues/498">#498</a> and <a class="reference external" href="https://github.com/ibm-watson-data-lab/pixiedust/issues/495">#495</a>).</li>
-</ul>
 <p><strong>Enhancements</strong></p>
 <ul class="simple">
-<li>Released alpha version of PixieGateway admin dashboard, with a streamlined UI. DevOps users of PixieGateway can now access a list of PixieApps deployed to the gateway and a list of running kernels with real-time statistics (<a class="reference external" href="https://github.com/ibm-watson-data-lab/pixiedust/issues/487">#487</a> and <a class="reference external" href="https://github.com/ibm-watson-data-lab/pixiedust/issues/501">#501</a>).</li>
-<li>Added the ability to <code class="docutils literal"><span class="pre">display()</span></code> JSON directly. PixieDust now supports native rendering of data dictionaries, or an array of dictionaries, without having to first convert them into Pandas DataFrames (<a class="reference external" href="https://github.com/ibm-watson-data-lab/pixiedust/issues/489">#489</a>).</li>
-<li>Added functionality to embed PixieDust charts into a regular web application, such as a web app that was not generated via PixieApp web publishing (<a class="reference external" href="https://github.com/ibm-watson-data-lab/pixiedust/issues/493">#493</a>).</li>
-<li>Improved PixieApp web publishing to allow developers to publish to a specific kernel. Previously, all PixieApps were published into the default Python kernel (<a class="reference external" href="https://github.com/ibm-watson-data-lab/pixiedust/issues/486">#486</a>).</li>
+<li>The 1.1.8 release introduces a visual Python debugger for Jupyter Notebooks: PixieDebugger. It is built as a <a class="reference external" href="pixieapps.html">PixieApp</a>, and includes a source editor, local variable inspector, console output, the ability to evaluate Python expressions in the current context, breakpoints management, and a toolbar for controlling code execution. In addition to debugging traditional notebook cells, PixieDebugger also works to debug PixieApps, which is especially usefule when troubleshooting issues with routes. See this <a class="reference external" href="https://medium.com/ibm-watson-data-lab/the-visual-python-debugger-for-jupyter-notebooks-youve-always-wanted-761713babc62">blog post for usage examples</a>. More documentation on PixieDebugger will be added to this site soon (<a class="reference external" href="hhttps://github.com/ibm-watson-data-lab/pixiedust/issues/623/">#623</a>).</li>
 </ul>
 </div>
 
@@ -80,13 +71,13 @@
 <li class="toctree-l2"><a class="reference internal" href="1-0-11.html">1.0.11</a></li>
 <li class="toctree-l2"><a class="reference internal" href="1-1.html">1.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="1-1-1.html">1.1.1</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">1.1.2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="1-1-2.html">1.1.2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="1-1-3.html">1.1.3</a></li>
 <li class="toctree-l2"><a class="reference internal" href="1-1-4.html">1.1.4</a></li>
 <li class="toctree-l2"><a class="reference internal" href="1-1-5.html">1.1.5</a></li>
 <li class="toctree-l2"><a class="reference internal" href="1-1-6.html">1.1.6</a></li>
 <li class="toctree-l2"><a class="reference internal" href="1-1-7.html">1.1.7</a></li>
-<li class="toctree-l2"><a class="reference internal" href="1-1-8.html">1.1.8</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">1.1.8</a></li>
 </ul>
 </li>
 </ul>
