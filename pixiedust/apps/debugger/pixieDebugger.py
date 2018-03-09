@@ -62,7 +62,7 @@ class PixieDebugger():
         self.breakpoints = []
         self.is_post_mortem = self.pixieapp_entity is None or self.pixieapp_entity["code"] is None
         if self.is_post_mortem:
-            if sys.last_traceback is None:
+            if not hasattr(sys, "last_traceback") or sys.last_traceback is None:
                 raise NoTraceback()
             if self.options.get("debug_route", "false" ) == "true":
                 stack = [tb.function for tb in inspect.getinnerframes(sys.last_traceback)]
@@ -70,6 +70,7 @@ class PixieDebugger():
                 for method in reversed(stack):
                     code = self.parent_pixieapp.exceptions.get(method, None)
                     if code:
+                        method_name = method
                         break
                 self.pixieapp_entity = {
                     "breakpoints": ["{}.{}".format(self.parent_pixieapp.__pixieapp_class_name__, method_name)],
@@ -111,7 +112,10 @@ pdb.pm()
 
     @route()
     def main_screen(self):
-        self.initialize()
+        try:
+            self.initialize()
+        except NoTraceback:
+            return "<div>Nothing to debug because no Traceback has been produced</div>"
         return self.env.getTemplate("mainScreen.html")
 
     @route(done="*")

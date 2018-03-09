@@ -98,7 +98,10 @@ class PySparkDataFrameDataHandler(BaseDataHandler):
                         c = "<"
                     if constraint == "greater_than":
                         c = ">"
-                    df = df.filter(field + " " + c + " " + val)
+                    filterStr = field + " " + c + " " + val
+                    if " " in field:
+                        filterStr = "`" + field + "` " + c + " " + val
+                    df = df.filter(filterStr)
         return df
 
     """
@@ -144,8 +147,11 @@ class PySparkDataFrameDataHandler(BaseDataHandler):
             workingDF = workingDF.dropna()
         count = workingDF.count()
         if count > maxRows:
-            workingDF = workingDF.sample(False, (float(maxRows) / float(count)))
+            pct = (float(maxRows) / float(count)) + 0.02
+            workingDF = workingDF.sample(False, pct)
         pdf = self.toPandas(workingDF)
+        if pdf.shape[0] > maxRows:
+            pdf = pdf.head(maxRows)
 
         #check if the user wants timeseries
         if len(xFields) == 1 and self.options.get("timeseries", 'false') == 'true':

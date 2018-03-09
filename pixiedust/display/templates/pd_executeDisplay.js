@@ -265,20 +265,16 @@
                 }
             }
             if (reply_callbacks && reply_callbacks.answer_input_reply){
-                setTimeout(function(){
-                    var answer = reply_callbacks.answer_input_reply;
-                    reply_callbacks.answer_input_reply = null;
-                    send_input_reply(reply_callbacks, answer, pd_controls);
-                }, 0);
+                var answer = reply_callbacks.answer_input_reply;
+                reply_callbacks.answer_input_reply = null;
+                send_input_reply(reply_callbacks, answer, pd_controls);
             }else{
                 var next_input_reply = pixiedust.input_reply_queue.queue.shift();
                 if (next_input_reply && next_input_reply.command == "no_op_delay"){
                     next_input_reply = pixiedust.input_reply_queue.queue.shift();
                 }
                 if (next_input_reply){
-                    setTimeout(function(){
-                        send_input_reply(next_input_reply.callbacks, next_input_reply.command, pd_controls);
-                    }, 0);
+                    send_input_reply(next_input_reply.callbacks, next_input_reply.command, pd_controls);
                 }else{
                     pixiedust.input_reply_queue.inflight = null;
                 }
@@ -434,6 +430,12 @@
         if (user_controls.send_input_reply){
             command = user_controls.send_input_reply;
             callbacks.answer_input_reply = user_controls.answer_input_reply;
+            {#remove any no_op command to avoid hang#}
+            pixiedust.input_reply_queue.queue = pixiedust.input_reply_queue.queue.filter(
+                function(item){
+                    return item.command!='no_op';
+                }
+            );
             if (pixiedust.input_reply_queue.inflight || pixiedust.input_reply_queue.queue.length > 0 || command == "no_op_delay"){
                 pixiedust.input_reply_queue.queue.push({"command":command, "callbacks":callbacks});
             }else{
@@ -441,9 +443,9 @@
             }
         }else{
             if (pixiedust.input_reply_queue.inflight){
-                console.log("Aborting kernel requests because not all the reply callback where consummed", command);
-                return;
+                console.log("Warning: A kernel request is triggered but not all the reply callback where consummed", command);
             }
+            command = command.trim();
             IPython.notebook.session.kernel.execute(command, callbacks, {
                 silent:true,store_history:false,stop_on_error:true,allow_stdin : true
             });

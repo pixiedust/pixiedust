@@ -623,7 +623,7 @@ function runElement(element, searchParents){
     function addToQueue(execInfo){
         if (Array.isArray(execInfo)){
             execInfo.forEach(function(exec){
-                execQueue.push(exec);
+                addToQueue(exec);
             });
         }else{
             execQueue.push(execInfo);
