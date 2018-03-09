@@ -1,7 +1,7 @@
 1.0.4
 =====
 
-Here's what's new in Release 1.0.4 (13 April 2017):             
+Here's what's new in Release 1.0.4 (13 April 2017):              
 
 **Bug fixes**
 
