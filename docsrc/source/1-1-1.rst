@@ -1,7 +1,7 @@
 1.1.1
 =====
 
-Here's what's new in Release 1.1.1 (20 October 2017):         
+Here's what's new in Release 1.1.1 (20 October 2017):          
 
 **Bug fixes**
 

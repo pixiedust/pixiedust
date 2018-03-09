@@ -1,7 +1,7 @@
 1.1.7
 =====
 
-Here's what's new in Release 1.1.7 (7 February 2018):           
+Here's what's new in Release 1.1.7 (7 February 2018):            
 
 **Bug fixes**
 
