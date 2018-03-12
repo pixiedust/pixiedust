@@ -44,6 +44,7 @@
         if (cmd == 'c' || cmd == 'continue' || cmd.startsWith("$$")){
             cb = null;
             pixiedust.input_reply_queue.queue = [];
+            pixiedust.input_reply_queue.callbacks = {};
             $("#debugger_container_" + pd_controls.prefix).hide();
             if (cmd.startsWith("$$")){
                 cmd = cmd.substring(2);
@@ -57,7 +58,8 @@
         }
         pixiedust.input_reply_queue.inflight = cb;
         if (cmd){
-            IPython.notebook.session.kernel.send_input_reply(cmd);
+            var prolog = cb ? "print('" + pixiedust.input_reply_queue.registerCallback(cb) + "');;" : "";
+            IPython.notebook.session.kernel.send_input_reply( prolog + cmd );
         }
     }
     var cellId = options.cell_id || "";
@@ -107,7 +109,7 @@
                 var content = msg.content;
                 var targetNodeUpdated = false;
                 if(msg_type==="stream"){
-                    var reply_callbacks = pixiedust.input_reply_queue.inflight;
+                    var reply_callbacks = pixiedust.input_reply_queue.parseCallback(content);
                     if (reply_callbacks && reply_callbacks != callbacks){
                         if (reply_callbacks.iopub){
                             reply_callbacks.iopub.output(msg);
