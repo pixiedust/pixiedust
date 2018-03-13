@@ -2,7 +2,28 @@ var pixiedust = (function(){
     return {
         input_reply_queue: {
             inflight: null,
-            queue: []
+            queue: [],
+            callbacks: {},
+            counter: 0,
+            registerCallback: function(cb){
+                var handle = 'id_' + this.counter++;
+                this.callbacks[handle] = cb;
+                return "$$" + handle + "$$";
+            },
+            parseCallback: function(content){
+                var match = content.text.match(/\$\$(.*)\$\$((.|\n)*)/i);
+                if (match){
+                    content.text = match[2].trim();
+                    if (!this.callbacks[match[1]]){
+                        console.log("Cannot find callbacks for " + match[1]);
+                    }else{
+                        var retValue = this.callbacks[match[1]];
+                        delete this.callbacks[match[1]];
+                        return retValue;
+                    }
+                }
+                return null;
+            }
         },
         getCell: function(cell_id){
             {% if gateway %}

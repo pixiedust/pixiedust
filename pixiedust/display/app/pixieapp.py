@@ -291,6 +291,9 @@ class PixieDustApp(Display):
                             raise
                         return
                 if defRoute:
+                    if self.breakpoints == defRoute:
+                        self.debug("Breakpoint matched, Invoking PixieDebugger")
+                        raise RunInPixieDebugger()
                     try:
                         self.exceptions.pop(defRoute, None)
                         retValue = getattr(self, defRoute)()

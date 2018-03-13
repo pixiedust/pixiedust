@@ -44,6 +44,7 @@
         if (cmd == 'c' || cmd == 'continue' || cmd.startsWith("$$")){
             cb = null;
             pixiedust.input_reply_queue.queue = [];
+            pixiedust.input_reply_queue.callbacks = {};
             $("#debugger_container_" + pd_controls.prefix).hide();
             if (cmd.startsWith("$$")){
                 cmd = cmd.substring(2);
@@ -57,7 +58,8 @@
         }
         pixiedust.input_reply_queue.inflight = cb;
         if (cmd){
-            IPython.notebook.session.kernel.send_input_reply(cmd);
+            var prolog = cb ? "print('" + pixiedust.input_reply_queue.registerCallback(cb) + "');;" : "";
+            IPython.notebook.session.kernel.send_input_reply( prolog + cmd );
         }
     }
     var cellId = options.cell_id || "";
@@ -107,7 +109,7 @@
                 var content = msg.content;
                 var targetNodeUpdated = false;
                 if(msg_type==="stream"){
-                    var reply_callbacks = pixiedust.input_reply_queue.inflight;
+                    var reply_callbacks = pixiedust.input_reply_queue.parseCallback(content);
                     if (reply_callbacks && reply_callbacks != callbacks){
                         if (reply_callbacks.iopub){
                             reply_callbacks.iopub.output(msg);
@@ -265,20 +267,16 @@
                 }
             }
             if (reply_callbacks && reply_callbacks.answer_input_reply){
-                setTimeout(function(){
-                    var answer = reply_callbacks.answer_input_reply;
-                    reply_callbacks.answer_input_reply = null;
-                    send_input_reply(reply_callbacks, answer, pd_controls);
-                }, 0);
+                var answer = reply_callbacks.answer_input_reply;
+                reply_callbacks.answer_input_reply = null;
+                send_input_reply(reply_callbacks, answer, pd_controls);
             }else{
                 var next_input_reply = pixiedust.input_reply_queue.queue.shift();
                 if (next_input_reply && next_input_reply.command == "no_op_delay"){
                     next_input_reply = pixiedust.input_reply_queue.queue.shift();
                 }
                 if (next_input_reply){
-                    setTimeout(function(){
-                        send_input_reply(next_input_reply.callbacks, next_input_reply.command, pd_controls);
-                    }, 0);
+                    send_input_reply(next_input_reply.callbacks, next_input_reply.command, pd_controls);
                 }else{
                     pixiedust.input_reply_queue.inflight = null;
                 }
@@ -434,6 +432,12 @@
         if (user_controls.send_input_reply){
             command = user_controls.send_input_reply;
             callbacks.answer_input_reply = user_controls.answer_input_reply;
+            {#remove any no_op command to avoid hang#}
+            pixiedust.input_reply_queue.queue = pixiedust.input_reply_queue.queue.filter(
+                function(item){
+                    return item.command!='no_op';
+                }
+            );
             if (pixiedust.input_reply_queue.inflight || pixiedust.input_reply_queue.queue.length > 0 || command == "no_op_delay"){
                 pixiedust.input_reply_queue.queue.push({"command":command, "callbacks":callbacks});
             }else{
