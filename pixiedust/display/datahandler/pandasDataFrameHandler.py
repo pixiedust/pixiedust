@@ -29,6 +29,9 @@ class PandasDataFrameDataHandler(BaseDataHandler):
     def getFieldNames(self, expandNested=False):
         return dataFrameMisc.getFieldNames(PandasDataFrameAdapter(self.entity), expandNested)
 
+    def count(self):
+        return len(self.entity.index)
+
     def isNumericField(self, fieldName):
         for y in self.entity.columns:
             if y == fieldName:
