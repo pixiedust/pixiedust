@@ -30,6 +30,9 @@ class PySparkDataFrameDataHandler(BaseDataHandler):
             return self.entity.__getattribute__(name)
         raise AttributeError("{0} attribute not found".format(name))
 
+    def count(self):
+        return self.entity.count()
+
     def getFieldNames(self, expandNested=False):
         return dataFrameMisc.getFieldNames(self.entity, expandNested)
 
