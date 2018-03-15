@@ -40,7 +40,7 @@ class ChartDisplay(Display):
     
     @property
     def count(self):
-        return createDataframeAdapter(self.entity).count()
+        return self.dataHandler.count() if self.dataHandler is not None else createDataframeAdapter(self.entity).count()
 
     # numerical used as a boolean flag for truth table
     def sampleColumn(self, numerical):
