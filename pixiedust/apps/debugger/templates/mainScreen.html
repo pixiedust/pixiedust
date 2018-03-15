@@ -203,6 +203,12 @@
     }
 </style>
 <script>
+    var triggerInputOnEnter = function(btnId, elt, evt) {
+        if ((evt.keyCode ? evt.keyCode : evt.which) === 13) {
+            $('#' + btnId).click()
+            $(elt).val('')
+        }
+    }
     var formatCodeOutput = function(output) {
         var lines = output.split(/\r?\n/)
         var gutter = []
@@ -364,9 +370,10 @@
                 <div class="col-sm-12">
                     <i class="fa fa-angle-right fa-2x"></i>
                     <div class="input-group">
-                        <input id="evaluate_input_{{prefix}}" type="text" class="form-control" placeholder="Enter an expression" style="border-radius: 0;">
+                        <input id="evaluate_input_{{prefix}}" type="text" class="form-control" onkeypress="triggerInputOnEnter('evaluate_btn_{{prefix}}', this, event)"
+                            placeholder="Enter an expression" style="border-radius: 0;">
                         <span class="input-group-btn">
-                            <button class="btn btn-primary" type="button"
+                            <button class="btn btn-primary" type="button" id="evaluate_btn_{{prefix}}"
                                 title="Evaluate the expression in the current context and print its value"
                                 pd_target="evaluate_{{prefix}}"
                                 pd_options="send_input_reply=pp $val(evaluate_input_{{prefix}})">Run</button>
@@ -421,9 +428,10 @@
                 <div class="col-sm-12">
                     <i class="fa fa-angle-right fa-2x"></i>
                     <div class="input-group">
-                        <input id="breakpoints_input_{{prefix}}" type="text" class="form-control" placeholder="Enter a breakpoint (line no or method)" style="border-radius: 0;">
+                        <input id="breakpoints_input_{{prefix}}" type="text" class="form-control" onkeypress="triggerInputOnEnter('breakpoints_btn_{{prefix}}', this, event)"
+                            placeholder="Enter a breakpoint (line no or method)" style="border-radius: 0;">
                         <span class="input-group-btn">
-                            <button class="btn btn-primary" type="button"
+                            <button class="btn btn-primary" type="button" id="breakpoints_btn_{{prefix}}"
                                 title="Add a breakpoint to the module currently executed"
                                 pd_target="debugger_refresh"
                                 pd_options="send_input_reply=break $val(breakpoints_input_{{prefix}})">Add</button>
