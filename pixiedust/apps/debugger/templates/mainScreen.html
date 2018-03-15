@@ -89,12 +89,23 @@
     .pd-debugger-gutter .error-line {
         background-color: #fdaeb7;
     }
-    .pd-debugger-gutter .breakpoint-line code::before {
+    .pd-debugger-gutter .fa-bug {
         color: crimson;
-        content: " \f188";
-        font: normal normal normal 12px/1 FontAwesome;
+        cursor: pointer;
+        display: inline;
+        font-size: 12px;
         padding-right: 5px;
-        visibility: initial;
+        opacity: 0;
+    }
+    .pd-debugger-gutter .fa-bug:hover {
+        color: crimson;
+        opacity: 0.45;
+    }
+    .pd-debugger-gutter .breakpoint-line .fa-bug {
+        opacity: 1;
+    }
+    .pd-debugger-gutter .breakpoint-line .fa-bug:hover {
+        opacity: 0.75;
     }
     .pd-debugger-gutter > div > code:hover {
         visibility: hidden;
@@ -210,8 +221,8 @@
                     parts[2] = parts[2].replace(/>>/, '')
                     rowclass += ' error-line'
                 }
-                gutter.push('<div class="' + rowclass + '"><code title="Continue execution until a line with a number greater or equal to this line number is reached.">' + parts[1].trim() + '</code></div>')
-                source.push('<div class="' + rowclass + '"><code>' + (parts[2].substring(1).replace("<", "&lt;") || '&nbsp;') + '</code></div>')
+                gutter.push('<div data-lineno="' + parts[1].trim() + '" class="' + rowclass + '"><i class="fa fa-bug breakpointgutter"></i><code title="Continue execution until a line with a number greater or equal to this line number is reached.">' + parts[1].trim() + '</code></div>')
+                source.push('<div data-lineno="' + parts[1].trim() + '" class="' + rowclass + '"><code>' + (parts[2].substring(1).replace("<", "&lt;") || '&nbsp;') + '</code></div>')
             }
         }
         for (var j=gutter.length; j<5; j++) {
@@ -227,16 +238,22 @@
             $('#code{{prefix}} .pd-debugger-gutter code').on('click', function () {
                 var lineno = $(this).text()
                 $('#btn-unt-{{prefix}}')
-                    .attr('pd_target', "debugger_refresh")
                     .attr('pd_options', 'send_input_reply=unt ' + lineno)
-                $('#btn-unt-{{prefix}}').click()
+                    .click()
+            })
+            $('#code{{prefix}} .pd-debugger-gutter .breakpointgutter').on('click', function () {
+                var lineno = $(this).parent().attr('data-lineno')
+                var cmd = $(this).parent().hasClass('breakpoint-line') ? 'cl ' : 'b '
+                $('#btn-unt-{{prefix}}')
+                    .attr('pd_options', 'send_input_reply=' + cmd + lineno)
+                    .click()
             })
         }, 250)
         return '<div class="pd-debugger-code"><div class="pd-debugger-gutter">' + 
                 gutter.join('') + 
                 '</div><div class="pd-debugger-source">' + 
                 source.join('')  + 
-                '</div><button style="display:none" id="btn-unt-{{prefix}}"></button></div>'
+                '</div><button style="display:none" id="btn-unt-{{prefix}}" pd_target="debugger_refresh"></button></div>'
     }
     var truncate = function(s){
         if (s.length > 20){
