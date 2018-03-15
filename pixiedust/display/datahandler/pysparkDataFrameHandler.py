@@ -30,6 +30,9 @@ class PySparkDataFrameDataHandler(BaseDataHandler):
             return self.entity.__getattribute__(name)
         raise AttributeError("{0} attribute not found".format(name))
 
+    def count(self):
+        return self.entity.count()
+
     def getFieldNames(self, expandNested=False):
         return dataFrameMisc.getFieldNames(self.entity, expandNested)
 
@@ -128,12 +131,7 @@ class PySparkDataFrameDataHandler(BaseDataHandler):
                 workingDF = filteredDF.select(myFieldsOrdered)
         else:
             extraFields = [a for a in extraFields if a not in xFields]
-            # arrange fields in same order as they appear in the data
-            myFields = xFields + extraFields + yFields
-            for f in allFields:
-                if f in myFields:
-                    myFieldsOrdered.append(f)
-            workingDF = filteredDF.select(myFieldsOrdered)
+            workingDF = filteredDF.select(xFields + extraFields + yFields)
 
         if aggregation and len(yFields)>0:
             aggMapper = {"SUM":"sum", "AVG": "avg", "MIN": "min", "MAX": "max"}
