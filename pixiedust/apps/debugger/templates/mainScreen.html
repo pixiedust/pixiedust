@@ -98,14 +98,10 @@
         opacity: 0;
     }
     .pd-debugger-gutter .fa-bug:hover {
-        color: crimson;
         opacity: 0.45;
     }
     .pd-debugger-gutter .breakpoint-line .fa-bug {
         opacity: 1;
-    }
-    .pd-debugger-gutter .breakpoint-line .fa-bug:hover {
-        opacity: 0.75;
     }
     .pd-debugger-gutter > div > code:hover {
         visibility: hidden;
@@ -199,6 +195,12 @@
         border-radius: 0;
         font-size: 14px;
     }
+    .pd-remove-bp {
+        border: 0 none;
+        background-color: transparent;
+        color: red;
+        opacity: 0.85;
+    }
 </style>
 <script>
     var formatCodeOutput = function(output) {
@@ -241,11 +243,10 @@
                     .attr('pd_options', 'send_input_reply=unt ' + lineno)
                     .click()
             })
-            $('#code{{prefix}} .pd-debugger-gutter .breakpointgutter').on('click', function () {
+            $('#code{{prefix}} .pd-debugger-gutter :not(.breakpoint-line) .breakpointgutter').on('click', function () {
                 var lineno = $(this).parent().attr('data-lineno')
-                var cmd = $(this).parent().hasClass('breakpoint-line') ? 'cl ' : 'b '
                 $('#btn-unt-{{prefix}}')
-                    .attr('pd_options', 'send_input_reply=' + cmd + lineno)
+                    .attr('pd_options', 'send_input_reply=b ' + lineno)
                     .click()
             })
         }, 250)
@@ -381,6 +382,7 @@
                         var lines = output.split('\n');
                         var html = '<table width="100%">';
                         var colsCount = 0;
+                        var btn = ''
                         for (var i in lines){
                             var parts = lines[i].split(/\s+/);
                             if (i == 0){
@@ -400,8 +402,9 @@
                                 if (parts.length > colsCount){
                                     parts = parts.slice(0, colsCount-1).concat( parts.slice(colsCount-1).join(" "));
                                 }
-                                parts.forEach(function(part){
-                                    html += "<td>" + part.replace("<", "&lt;") + "</td>";
+                                parts.forEach(function(part, idx){
+                                    btn = idx > 0 ? '' : ('<button title="Clear breakpoint" class="pd-remove-bp" pd_target="debugger_refresh" pd_options="send_input_reply=clear ' + part + '"><i class="fa fa-trash-o"></i></button>')
+                                    html += "<td>" + btn + part.replace("<", "&lt;") + "</td>";
                                 });
                                 html += "</tr>";
                                 if ( i == lines.length - 1){
