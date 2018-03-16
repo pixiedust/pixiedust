@@ -77,7 +77,7 @@ class PandasDataFrameDataHandler(BaseDataHandler):
 
             if field and val and field in self.getFieldNames():
                 if val == 'None':
-                    df = df.loc[df[field].isna()]
+                    df = df.loc[df[field].isna() if hasattr(df[field], 'isna') else df[field].isnull()]
                 elif not self.isNumericField(field):
                     val = val if regex else ".*" + val + ".*"
                     flags = 0 if casematters else re.IGNORECASE
