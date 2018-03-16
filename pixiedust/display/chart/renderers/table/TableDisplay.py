@@ -9,9 +9,12 @@ class TableDisplay(TableBaseDisplay):
 
     def doRenderChart(self):
         wpdf = self.getWorkingPandasDataFrame()
-        table_onlymissing = self.options.get("table_onlymissing", False)
-        if str(table_onlymissing).lower() == 'true':
-            wpdf = wpdf[wpdf.isnull().any(axis=1)]
+        table_showrows = self.options.get("table_showrows", 'All')
+        if table_showrows == 'Missing values':
+            wpdf = wpdf[wpdf.isna().any(axis=1)]
+        elif table_showrows == 'Not missing values':
+            wpdf = wpdf[wpdf.notna().all(axis=1)]
+
 
         return self.renderTemplate("table.html", wpdf=wpdf,
             table_noschema=self.options.get("table_noschema", "false"),

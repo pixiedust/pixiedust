@@ -89,11 +89,12 @@ class TableBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
                 }
             },
             {
-                'name': 'table_onlymissing',
-                'description': 'Show Only Rows with Missing Values',
+                'name': 'table_showrows',
+                'description': 'Show Rows',
                 'metadata': {
-                    'type': 'checkbox',
-                    'default': "false"
+                    'type': 'dropdown',
+                    'values': ['All', 'Missing values', 'Not missing values'],
+                    'default': "All"
                 }
             }
         ]
