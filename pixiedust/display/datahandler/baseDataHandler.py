@@ -23,6 +23,9 @@ class BaseDataHandler(object):
     def add_numerical_column(self):
         raise NotImplementedError()
 
+    def count(self):
+        raise NotImplementedError()
+
     def getFieldNamesAndTypes(self, expandNested=True, sorted=False):
         fieldNames = self.getFieldNames(expandNested)
         fieldNamesAndTypes = []

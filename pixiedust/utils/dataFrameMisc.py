@@ -76,7 +76,7 @@ Return True if spark type is a date
 def isDateType(type):
     if checkIfDataType(type):
         return isDateType( type.__class__.__name__)
-    return (type =="DateType")
+    return type == "DateType" or type == "TimestampType"
 
 """
 Return True is field represented by fieldName is Numeric

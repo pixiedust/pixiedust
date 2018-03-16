@@ -55,12 +55,11 @@ class InteractiveVariables(object):
         user_ns = self.shell.user_ns
         user_ns_hidden = self.shell.user_ns_hidden
         nonmatching = object()  # This can never be in user_ns
-        #for i in user_ns:
-        #    print(user_ns[i].__class__)
         filtered = ["function"]
-        out = { key : self.transform(key, user_ns[key]) for key in user_ns \
+        out = {key : self.transform(key, user_ns[key]) for key in user_ns \
                 if not key.startswith('_') \
-                and key!="sc" and key!="sqlContext" \
+                and key != "sc" and key != "sqlContext" \
+                and key not in ["false", "true"] \
                 and (user_ns[key] is not user_ns_hidden.get(key, nonmatching)) \
                 and not inspect.isclass(user_ns[key])\
                 and not inspect.isfunction(user_ns[key])\
@@ -135,7 +134,9 @@ class PixiedustScalaMagics(Magics):
         clSlot = self.getLineOption(line, "cl")
         clExt = "." + clSlot if clSlot is not None else ""
         scalaCode = self.env.getTemplate("scalaCell.template").render(
-            scalaVersion=Environment.scalaVersion, cell=cell, variables=self.interactiveVariables.getVarsDict(), returnVars=self.getReturnVars(cell), cl=clExt
+            scalaVersion=Environment.scalaVersion, cell=cell,
+            variables=self.interactiveVariables.getVarsDict(),
+            returnVars=self.getReturnVars(cell), cl=clExt
         )
         if self.hasLineOption(line, "debug"):
             print(scalaCode)
