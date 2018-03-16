@@ -25,7 +25,7 @@ install:
 - source activate pixiedust-travis-test
 - pip install jupyter 
 - pip install matplotlib 
-- pip install pandas==0.19.2 
+- pip install pandas 
 - pip install seaborn 
 - pip install bokeh 
 - pip install requests 
