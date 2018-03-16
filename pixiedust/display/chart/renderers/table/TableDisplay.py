@@ -11,9 +11,9 @@ class TableDisplay(TableBaseDisplay):
         wpdf = self.getWorkingPandasDataFrame()
         table_showrows = self.options.get("table_showrows", 'All')
         if table_showrows == 'Missing values':
-            wpdf = wpdf[wpdf.isna().any(axis=1)]
+            wpdf = wpdf[wpdf.isna().any(axis=1) if hasattr(wpdf,'isna') else wpdf.isnull().any(axis=1)]
         elif table_showrows == 'Not missing values':
-            wpdf = wpdf[wpdf.notna().all(axis=1)]
+            wpdf = wpdf[wpdf.notna().all(axis=1) if hasattr(wpdf,'notna') else wpdf.notnull().all(axis=1)]
 
 
         return self.renderTemplate("table.html", wpdf=wpdf,
