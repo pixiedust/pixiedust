@@ -91,6 +91,7 @@ class TableBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
             {
                 'name': 'table_showrows',
                 'description': 'Show Rows',
+                'tooltip': 'Warning: this filter only applies to the sampled data and not the original data set',
                 'metadata': {
                     'type': 'dropdown',
                     'values': ['All', 'Missing values', 'Not missing values'],
