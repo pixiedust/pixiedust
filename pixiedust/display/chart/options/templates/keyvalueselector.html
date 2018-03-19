@@ -18,8 +18,8 @@
       width: auto;
       min-width: 150px;
     }
-    .fields-container .keys-fields > label:nth-child(2),
-    .fields-container .values-fields > label:nth-child(2) {
+    .fields-container .keys-fields > label:not(:first-child),
+    .fields-container .values-fields > label:not(:first-child) {
       display: none;
     }
     .fields-container.field-drag .keys-fields:not(.field-drag-acceptable) > ul,
@@ -30,8 +30,10 @@
     .fields-container.field-drag .values-fields:not(.field-drag-acceptable) > label:first-child {
       display: none;
     }
-    .fields-container.field-drag .keys-fields:not(.field-drag-acceptable) > label:nth-child(2),
-    .fields-container.field-drag .values-fields:not(.field-drag-acceptable) > label:nth-child(2) {
+    .fields-container.field-drag .keys-fields:not(.field-drag-acceptable):not(.field-drag-no) > label:nth-child(2),
+    .fields-container.field-drag .values-fields:not(.field-drag-acceptable):not(.field-drag-no) > label:nth-child(2),
+    .fields-container.field-drag .keys-fields.field-drag-no > label:nth-child(3),
+    .fields-container.field-drag .values-fields.field-drag-no > label:nth-child(3) {
       color: #ff0000;
       font-weight: 400;
       display: inline-block;
@@ -130,6 +132,7 @@
     <div class="keys-fields">
       <label>Keys: <i class="fa fa-question-circle" title="Controls the X-Axis of the chart. Rows will be grouped by Key columns. Columns may be {% for kf in this.keyFieldsType %}{% if this.keyFieldsType|length > 1%}{% if loop.last %}or {% endif %}{% endif %}{{kf}}{% if not loop.last %}, {% endif %}{% endfor %}."></i></label>
       <label>Keys: Only {% for kf in this.keyFieldsType %}{% if this.keyFieldsType|length > 1%}{% if loop.last %}or {% endif %}{% endif %}{{kf}}{% if not loop.last %}, {% endif %}{% endfor %} columns are supported <i class="fa fa-warning"></i></label>
+      <label>Keys: Adding the same Field to Keys and Values is not supported. <i class="fa fa-warning"></i></label>
       <ul id="keys-fields-{{prefix}}" class="field-drop" style="height:calc(100% - 30px);" pd_script="self.options_callback('keyFields', '$val(updateSelectedKeysFields)')">
       {% for fieldName in this.keyFields %}
         {% if fieldName in this.fieldNames %}
@@ -145,6 +148,7 @@
     <div class="values-fields">
       <label>Values: <i class="fa fa-question-circle" title="Controls the Y-Axis of the chart. Values must be {% for vf in this.valueFieldsType %}{% if this.valueFieldsType|length > 1%}{% if loop.last %}or {% endif %}{% endif %}{{vf}}{% if not loop.last %}, {% endif %}{% endfor %} columns."></i></label>
       <label>Values: Only {% for vf in this.valueFieldsType %}{% if this.valueFieldsType|length > 1%}{% if loop.last %}or {% endif %}{% endif %}{{vf}}{% if not loop.last %}, {% endif %}{% endfor %} columns are supported <i class="fa fa-warning"></i></label>
+      <label>Values: Adding the same Field to Keys and Values is not supported. <i class="fa fa-warning"></i></label>
       <ul id="values-fields-{{prefix}}" class="field-drop" style="height:calc(100% - 30px);" pd_script="self.options_callback('valueFields', '$val(updateSelectedValuesFields)')">
       {% for fieldName in this.valueFields %}
         {% if fieldName in this.fieldNames %}
@@ -205,17 +209,25 @@
       $('.fields-container').addClass('field-drag')
     },
     stop: function(event, ui) {
-      $('.fields-container').removeClass('field-drag')
+      $('.fields-container')
+        .removeClass('field-drag')
+        .find('.keys-fields, .values-fields')
+        .removeClass('field-drag-acceptable')
+        .removeClass('field-drag-no')
     }
   })
 
   $('.field-drop').droppable({
     accept: function(d) {
       if ($(this).parent().hasClass('keys-fields')) {
-        return keyFieldsType.indexOf(d.data("fieldType")) >= 0 || keyFieldsType.indexOf('any') >= 0
+        var sv = selectedFieldsListStr('values-fields-{{prefix}}').split(',')
+        return (keyFieldsType.indexOf(d.data("fieldType")) >= 0 || keyFieldsType.indexOf('any') >= 0)
+          && (sv.indexOf(d.data("field")) === -1 || $(this).parent().addClass('field-drag-no').hasClass('return-false'))
       }
       else if ($(this).parent().hasClass('values-fields')) {
-        return valueFieldsType.indexOf(d.data("fieldType")) >= 0 || valueFieldsType.indexOf('any') >= 0
+        var sk = selectedFieldsListStr('keys-fields-{{prefix}}').split(',')
+        return (valueFieldsType.indexOf(d.data("fieldType")) >= 0 || valueFieldsType.indexOf('any') >= 0)
+          && (sk.indexOf(d.data("field")) === -1 || $(this).parent().addClass('field-drag-no').hasClass('return-false'))
       }
       else {
         return false
