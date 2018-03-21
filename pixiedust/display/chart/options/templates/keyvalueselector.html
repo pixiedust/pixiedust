@@ -294,10 +294,19 @@
     } else {
       $('#warnEmptyValueFields{{prefix}}').show()
     }
+    {% if not this.keyFieldsSupported %}
+    if (!selected && hasSelectedKeyFields) {
+      hasSelectedKeyFields = false
+      chartOptionsOKStatus{{prefix}}(true)
+    } else if (selected && !hasSelectedKeyFields) {
+      hasSelectedKeyFields = true
+      chartOptionsOKStatus{{prefix}}(false)
+    }
+    {% endif %}
     return selected
   }
 
-  var hasSelectedKeyFields = !!selectedFieldsListStr('keys-fields-{{prefix}}')
+  var hasSelectedKeyFields = {% if this.keyFieldsSupported %} !!selectedFieldsListStr('keys-fields-{{prefix}}') {% else %} !!selectedFieldsListStr('values-fields-{{prefix}}') {% endif %}
   updateSelectedValuesFields()
   chartOptionsOKStatus{{prefix}}(!hasSelectedKeyFields)
 </script>
