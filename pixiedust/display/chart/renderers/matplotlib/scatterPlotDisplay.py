@@ -42,5 +42,9 @@ class ScatterPlotDisplay(MatplotlibBaseDisplay):
 	def matplotlibRender(self, fig, ax):
 		keyFields = self.getKeyFields()
 		for i,keyField in enumerate(keyFields):
-			self.getWorkingPandasDataFrame().plot(kind='scatter', x=keyField, y=self.getValueFields()[0], 
-				label=keyField, ax=ax, color=Colors[1.*i/len(keyFields)])
+			if self.showLegend():
+				self.getWorkingPandasDataFrame().plot(kind='scatter', x=keyField, y=self.getValueFields()[0], 
+					ax=ax, color=Colors[1.*i/len(keyFields)], label=self.getValueFields()[0])
+			else:
+				self.getWorkingPandasDataFrame().plot(kind='scatter', x=keyField, y=self.getValueFields()[0], 
+					ax=ax, color=Colors[1.*i/len(keyFields)])

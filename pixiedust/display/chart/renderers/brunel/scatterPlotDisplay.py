@@ -34,6 +34,13 @@ class ScatterPlotRenderer(BrunelBaseDisplay):
             parts.append("y({})".format(",".join(valueFields)))
             parts.append("color(#series)")
         
-        parts.append(self.get_sort())
+        if self.showLegend() is not None:
+            parts.append("legends(all)")
+        else:    
+            parts.append("legends(none)")
 
+        parts.append("tooltip(#all)")
+        
+        parts.append(self.get_sort())
+            
         return parts

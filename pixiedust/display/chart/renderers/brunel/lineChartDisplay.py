@@ -62,6 +62,11 @@ class LineChartRenderer(BrunelBaseDisplay):
             elif clusterby is not None:
                 self.addMessage("Warning: 'Cluster By' not implemented for Brunel yet")
 
+        parts.append("tooltip(#all)")
+
+        if self.showLegend() is False:
+            parts.append("legends(none)")
+
         parts.append(self.get_sort())
 
         return parts
