@@ -308,7 +308,7 @@ class PixieDustApp(Display):
                 if isinstance(retValue, string_types):
                     if self.getBooleanOption("nostore_isrunningchildpixieapp", False):
                         self.options.pop("nostore_isrunningchildpixieapp", None)
-                        retValue = """<div id="wrapperHTML{{prefix}}" pixiedust="{{pd_controls|htmlAttribute}}">""" + retValue + """</div>"""
+                        retValue = """<div id="wrapperHTML{{prefix}}" pixiedust="{{this.get_pd_controls(black_list=['nostore_isrunningchildpixieapp'])|tojson|htmlAttribute}}">""" + retValue + """</div>"""
                     self._addHTMLTemplateString(retValue, **injectedArgs)
                 elif isinstance(retValue, Template):
                     self._addHTML(

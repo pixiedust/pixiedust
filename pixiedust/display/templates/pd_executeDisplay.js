@@ -20,7 +20,15 @@
                 pd_elements.push($(this).clone());
             }
         });
-        targetNode.text(contents);
+        var consoleNode = targetNode.children("div.consoleOutput");
+        if (consoleNode.length == 0){
+            consoleNode = targetNode.append('<div class="consoleOutput"></div>').children("div.consoleOutput");
+        }
+        var existing = consoleNode.text();
+        if (existing != ""){
+            contents = existing + "\n" + contents;
+        }
+        consoleNode.html('<pre style="max-height: 300px;border: 1px lightgray solid;margin-top: 20px;">' + contents + "</pre>");
         if (pd_elements.length > 0 ){
             targetNode.append(pd_elements);
         }
@@ -29,7 +37,8 @@
     function setHTML(targetNode, contents, pdCtl = null, userCtl = null){
         var pd_elements = []
         targetNode.children().each(function(){
-            if (this.tagName.toLowerCase().startsWith("pd_")){
+            var eltName = this.tagName.toLowerCase();
+            if (eltName.startsWith("pd_") || (eltName == "div" && this.classList.contains("consoleOutput")) ){
                 pd_elements.push($(this).clone());
             }
         });
