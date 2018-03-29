@@ -20,15 +20,19 @@
                 pd_elements.push($(this).clone());
             }
         });
-        var consoleNode = targetNode.children("div.consoleOutput");
-        if (consoleNode.length == 0){
-            consoleNode = targetNode.append('<div class="consoleOutput"></div>').children("div.consoleOutput");
+        if (targetNode.hasClass("no_stream_output")){
+            targetNode.text(contents);
+        }else{
+            var consoleNode = targetNode.children("div.consoleOutput");
+            if (consoleNode.length == 0){
+                consoleNode = targetNode.append('<div class="consoleOutput"></div>').children("div.consoleOutput");
+            }
+            var existing = consoleNode.text();
+            if (existing != ""){
+                contents = existing + "\n" + contents;
+            }
+            consoleNode.html('<pre style="max-height: 300px;border: 1px lightgray solid;margin-top: 20px;">' + contents + "</pre>");
         }
-        var existing = consoleNode.text();
-        if (existing != ""){
-            contents = existing + "\n" + contents;
-        }
-        consoleNode.html('<pre style="max-height: 300px;border: 1px lightgray solid;margin-top: 20px;">' + contents + "</pre>");
         if (pd_elements.length > 0 ){
             targetNode.append(pd_elements);
         }
