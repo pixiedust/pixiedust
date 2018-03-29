@@ -88,9 +88,13 @@ class captureOutput(object):
         return wrapper_fn
 
     def wrapper(self, instance, *args, **kwargs):
+        ret_html = None
         with capture_output() as buf:
-            self.fn(instance, *args, **kwargs)
-        return "\n".join([self.convert_html(output) for output in buf.outputs])
+            ret_html = self.fn(instance, *args, **kwargs)
+        captured_output = "\n".join([self.convert_html(output) for output in buf.outputs])
+        if ret_html is not None:
+            captured_output += "\n" + ret_html
+        return captured_output
 
 class templateArgs(object):
     """
