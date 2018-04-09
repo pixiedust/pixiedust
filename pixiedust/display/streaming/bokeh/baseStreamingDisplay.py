@@ -1,12 +1,12 @@
 # -------------------------------------------------------------------------------
 # Copyright IBM Corp. 2017
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the 'License');
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 # http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an 'AS IS' BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,10 +20,15 @@ import pandas
 import numpy as np
 from bokeh.io import push_notebook, show, output_notebook
 from bokeh.models import HoverTool
-from bokeh.plotting import figure 
-from bokeh.io import notebook_div, _state, _CommsHandle
+from bokeh.plotting import figure
+from bokeh.io import _state, _CommsHandle
 from bokeh.util.serialization import make_id
 from bokeh.util.notebook import get_comms
+
+try:
+    from bokeh.embed import components as notebook_div
+except ImportError:
+    from bokeh.io import notebook_div
 
 class BokehStreamingDisplay(StreamingDisplay):
     CellHandshake.addCallbackSniffer( lambda: "{'nostore_bokeh':!!window.Bokeh}")
@@ -36,20 +41,20 @@ class BokehStreamingDisplay(StreamingDisplay):
         self.figure.axis.major_label_text_font_size = "18pt"
         self.hover = HoverTool(tooltips=None, mode="vline")
         self.figure.add_tools(self.hover)
-        
+
         self.comms_handle = None
         self.glyphRenderer = None
         self.setup();
-    
+
     def setup(self):
         pass
-    
+
     def createGlyphRenderer(self, figure):
         return None
-    
+
     def updateGlyphRenderer(self, figure, glyphRenderer):
         pass
-    
+
     def _concatArrays(self,a,b):
         if type(a) != type(b):
             raise Exception("Can't concatenate objects of different types")
@@ -58,7 +63,7 @@ class BokehStreamingDisplay(StreamingDisplay):
         elif isinstance(a, np.ndarray):
             return np.concatenate((a,b))
         raise Exception("Can't concatenate: unsupported types")
-        
+
     def _delWindowElements(self, array):
         if isinstance(array, list):
             del array[:len(array)-self.windowSize]
@@ -67,25 +72,25 @@ class BokehStreamingDisplay(StreamingDisplay):
             array = np.delete(array, range(0, len(array) - self.windowSize))
             return array
         raise Exception("Can't delete: unsupported type")
-        
+
     def _toNPArray(self, a ):
         if isinstance(a, list):
             return np.array(a)
         elif isinstance(a, np.ndarray):
             return a
         raise Exception("Can't cast to np array: unsupported type")
-    
+    #check if this works
     def doRender(self, handlerId):
         clientHasBokeh = self.options.get("nostore_bokeh", "false") == "true"
-        if not clientHasBokeh:          
+        if not clientHasBokeh:
             output_notebook(hide_banner=True)
         data = self.entity.getNextData()
         if data is None:
             return
-        
+
         x = None
         y = None
-        
+
         if isinstance(data, (list,np.ndarray)):
             x = list(range(self.windowSize)) if self.glyphRenderer is None else self.glyphRenderer.data_source.data['x']
             y = data if self.glyphRenderer is None else self._concatArrays(self.glyphRenderer.data_source.data['y'],data)
@@ -100,19 +105,19 @@ class BokehStreamingDisplay(StreamingDisplay):
         else:
             x = data[0]
             y = data[1]
-        
+
         if self.glyphRenderer is None:
             self.glyphRenderer = self.createGlyphRenderer( self.figure, x, y )
-        else:        
+        else:
             self.updateGlyphRenderer( self.figure, self.glyphRenderer)
-        
+
         if self.glyphRenderer is None:
             print("Error: no glyphRenderer found")
             return
 
         self.glyphRenderer.data_source.data['x'] = x
         self.glyphRenderer.data_source.data['y'] = y
-        
+
         if not self.handleId:
             self.handleId = make_id()
             if self.figure not in _state.document.roots:
