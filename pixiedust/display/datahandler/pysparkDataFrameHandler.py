@@ -91,7 +91,9 @@ class PySparkDataFrameDataHandler(BaseDataHandler):
             casematters = filter_options['case_matter'].lower() == "true" if 'case_matter' in filter_options else False
 
             if field and val and field in self.getFieldNames():
-                if not self.isNumericField(field):
+                if val == 'None':
+                    df = df.where(df[field].isNull())
+                elif not self.isNumericField(field):
                     val = val if regex else ".*" + val + ".*"
                     val = val if casematters else "(?i)" + val
                     df = df.filter(df[field].rlike(val))
