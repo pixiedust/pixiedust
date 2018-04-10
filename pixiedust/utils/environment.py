@@ -49,6 +49,8 @@ class Environment(with_metaclass(
         @property
         @cache(fieldName="_javaClassPath")
         def javaClassPath(self):
+            if not self.hasSpark:
+                return None
             from pixiedust.utils.javaBridge import JavaWrapper
             return JavaWrapper("java.lang.System").getProperty("java.class.path")
 
