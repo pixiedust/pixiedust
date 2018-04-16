@@ -37,12 +37,13 @@ class PixiedustInstall(InstallKernelSpec):
         super(PixiedustInstall, self).__init__(**kwargs)
         self.pixiedust_home = None
         self.spark_home = None
-        self.spark_download_versions = ['1.6.3', '2.0.2', '2.1.0', '2.2.0']
+        self.spark_download_versions = ['1.6.3', '2.0.2', '2.1.0', '2.2.0', '2.3.0']
         self.spark_download_urls = {
             '1.6.3': 'http://d3kbcqa49mib13.cloudfront.net/spark-1.6.3-bin-hadoop2.6.tgz',
             '2.0.2': 'http://d3kbcqa49mib13.cloudfront.net/spark-2.0.2-bin-hadoop2.7.tgz',
             '2.1.0': 'http://d3kbcqa49mib13.cloudfront.net/spark-2.1.0-bin-hadoop2.7.tgz',
-            '2.2.0': 'https://d3kbcqa49mib13.cloudfront.net/spark-2.2.0-bin-hadoop2.7.tgz'
+            '2.2.0': 'https://d3kbcqa49mib13.cloudfront.net/spark-2.2.0-bin-hadoop2.7.tgz',
+            '2.3.0': 'http://apache.claz.org/spark/spark-2.3.0/spark-2.3.0-bin-hadoop2.7.tgz'
         }
         self.scala_home = None
         self.scala_download_urls = {

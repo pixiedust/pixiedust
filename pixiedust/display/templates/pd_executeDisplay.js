@@ -20,7 +20,7 @@
                 pd_elements.push($(this).clone());
             }
         });
-        if (targetNode.hasClass("no_stream_output")){
+        if (!targetNode.hasClass("use_stream_output")){
             targetNode.text(contents);
         }else{
             var consoleNode = targetNode.children("div.consoleOutput");
