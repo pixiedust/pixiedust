@@ -18,17 +18,14 @@ from pixiedust.display.streamingDisplay import StreamingDisplay
 from pixiedust.display.display import CellHandshake
 import pandas
 import numpy as np
+from bokeh.embed import components
 from bokeh.io import push_notebook, show, output_notebook
+from bokeh.io.notebook import CommsHandle
+from bokeh.io.state import State
 from bokeh.models import HoverTool
 from bokeh.plotting import figure
-from bokeh.io import _state, _CommsHandle
 from bokeh.util.serialization import make_id
 from bokeh.util.notebook import get_comms
-
-try:
-    from bokeh.embed import components as notebook_div
-except ImportError:
-    from bokeh.io import notebook_div
 
 class BokehStreamingDisplay(StreamingDisplay):
     CellHandshake.addCallbackSniffer( lambda: "{'nostore_bokeh':!!window.Bokeh}")
@@ -120,11 +117,11 @@ class BokehStreamingDisplay(StreamingDisplay):
 
         if not self.handleId:
             self.handleId = make_id()
-            if self.figure not in _state.document.roots:
-                _state.document.add_root(self.figure)
-            target = notebook_div(self.figure, self.handleId)
+            if self.figure not in State.document.roots:
+                State.document.add_root(self.figure)
+            target = components(self.figure, self.handleId)
             from IPython.display import display as ipythonDisplay, HTML, Javascript
             ipythonDisplay(HTML(target))
-            self.comms_handle = _CommsHandle(get_comms(self.handleId), _state.document,_state.document.to_json())
+            self.comms_handle = CommsHandle(get_comms(self.handleId), State.document, State.document.to_json())
         else:
             push_notebook(handle = self.comms_handle)
