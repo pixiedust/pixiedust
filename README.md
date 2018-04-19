@@ -60,13 +60,13 @@ Watch this video to see PixieDust in action:
 
 ## Usage
 
-You can use PixieDust locally or online within IBM's Data Science Experience (DSX). 
+You can use PixieDust locally or online within IBM's Watson Studio. 
 
 ### Use online
 
 To use PixieDust online
-* Sign up for a free trial on IBM's [Data Science Experience](http://datascience.ibm.com/)
-* [Create a new notebook from URL](http://datascience.ibm.com/docs/content/analyze-data/creating-notebooks.html) using this template and learn the basics
+* Sign up for a free trial on IBM's [Watson Studio](http://www.ibm.com/cloud/watson-studio)
+* [Create a new notebook from URL](https://datascience.ibm.com/docs/content/analyze-data/creating-notebooks.html) using this template and learn the basics
 
   `https://github.com/ibm-watson-data-lab/pixiedust/blob/master/notebook/DSX/Welcome%20to%20PixieDust.ipynb` 
   
