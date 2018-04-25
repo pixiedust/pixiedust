@@ -20,8 +20,8 @@ import pandas
 import numpy as np
 from bokeh.embed.notebook import notebook_content
 from bokeh.io import push_notebook, show, output_notebook, curdoc
+from bokeh.io.state import curstate
 from bokeh.io.notebook import CommsHandle
-from bokeh.io.state import State
 from bokeh.models import HoverTool
 from bokeh.plotting import figure
 from bokeh.util.serialization import make_id
@@ -125,21 +125,21 @@ class BokehStreamingDisplay(StreamingDisplay):
 
         if not self.handleId:
             self.handleId = make_id()
+            state = curstate()
             bokehDoc = curdoc()
             if self.figure not in bokehDoc.roots:
                 bokehDoc.add_root(self.figure)
-            script, div, doc = notebook_content(self.figure, self.handleId)
+            script, div, doc = notebook_content(self.figure, notebook_comms_target=self.handleId)
+            
             html = NOTEBOOK_DIV.render(
                 plot_script = script,
                 plot_div = div,
             )
-            # print html
+            
             from IPython.display import display as ipythonDisplay, HTML, Javascript
             ipythonDisplay(HTML(html))
-            # self.debug("COUNTING THE THINGS")
-            # self.debug(get_comms(self.handleId))
-            # self.debug(bokehDoc)
-            # self.debug(bokehDoc.to_json())
-            self.comms_handle = CommsHandle(get_comms(self.handleId), bokehDoc, bokehDoc.to_json())
+            self.comms_handle = CommsHandle(get_comms(self.handleId), bokehDoc)
+            state.document.on_change_dispatch_to(self.comms_handle)
+            state.last_comms_handle = self.comms_handle
         else:
             push_notebook(handle = self.comms_handle)

@@ -46,9 +46,9 @@ var pixiedust = (function(){
         executeDisplay:function(pd_ctls, user_ctls){
             var pd_controls = pd_ctls || {};
             var user_controls = user_ctls || {"options":{}};
-            debugger;
+            //debugger;
             if (user_controls.inFlight){
-                debugger;
+                //debugger;
                 console.log("Ignoring request to execute Display that is already being executed");
                 return;
             }
@@ -56,7 +56,7 @@ var pixiedust = (function(){
             var options = $.extend({}, pd_controls.options || {}, user_controls.options || {} );
             function wrapDisplayDone(fn){
                 return function(targetNode){
-                    debugger;
+                    //debugger;
                     user_controls.inFlight = false;
                     if (fn){
                         fn.apply(this);
@@ -178,7 +178,7 @@ var pixiedust = (function(){
                         }
                     }
                     pixiedust.dialogRoot = dialogRoot;
-                    debugger;
+                    //debugger;
                     pixiedust.executeDisplay(pd_controls, user_controls);
                 });
                 modal_obj.on("hidden.bs.modal", function () {
@@ -607,12 +607,12 @@ function readExecInfo(pd_controls, element, searchParents, fromExecInfo){
                 new Function('output', process_output)(output);
             }
         }
-        debugger;
+        //debugger;
         if ( this.options.dialog == 'true' ){
-            debugger;
+            //debugger;
             pixiedust.executeInDialog(pd_controls, this);
         }else{
-            debugger;
+            //debugger;
             pixiedust.executeDisplay(pd_controls, this);
         }
     }
@@ -742,6 +742,7 @@ $(document).on( "change", "[pixiedust]", function(event){
 
 {#handler for customer pd_event#}
 $(document).on("pd_event", function(event, eventInfo){
+    //debugger;
     targetDivId = eventInfo.targetDivId;
     if (targetDivId){
         eventHandlers = $("pd_event_handler").filter(function(){
