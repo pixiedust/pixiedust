@@ -18,15 +18,23 @@ from pixiedust.display.streamingDisplay import StreamingDisplay
 from pixiedust.display.display import CellHandshake
 import pandas
 import numpy as np
-from bokeh.embed import components
-from bokeh.io import push_notebook, show, output_notebook
+from bokeh.embed.notebook import notebook_content
+from bokeh.io import push_notebook, show, output_notebook, curdoc
 from bokeh.io.notebook import CommsHandle
 from bokeh.io.state import State
 from bokeh.models import HoverTool
 from bokeh.plotting import figure
 from bokeh.util.serialization import make_id
 from bokeh.util.notebook import get_comms
+from pixiedust.utils import Logger
 
+import os
+from jinja2 import Environment, FileSystemLoader
+THIS_DIR = os.path.dirname(os.path.abspath(__file__))
+_env = Environment(loader=FileSystemLoader(THIS_DIR), trim_blocks=True)
+NOTEBOOK_DIV = _env.get_template("notebook_div.html")
+
+@Logger()
 class BokehStreamingDisplay(StreamingDisplay):
     CellHandshake.addCallbackSniffer( lambda: "{'nostore_bokeh':!!window.Bokeh}")
 
@@ -117,11 +125,21 @@ class BokehStreamingDisplay(StreamingDisplay):
 
         if not self.handleId:
             self.handleId = make_id()
-            if self.figure not in State.document.roots:
-                State.document.add_root(self.figure)
-            target = components(self.figure, self.handleId)
+            bokehDoc = curdoc()
+            if self.figure not in bokehDoc.roots:
+                bokehDoc.add_root(self.figure)
+            script, div, doc = notebook_content(self.figure, self.handleId)
+            html = NOTEBOOK_DIV.render(
+                plot_script = script,
+                plot_div = div,
+            )
+            # print html
             from IPython.display import display as ipythonDisplay, HTML, Javascript
-            ipythonDisplay(HTML(target))
-            self.comms_handle = CommsHandle(get_comms(self.handleId), State.document, State.document.to_json())
+            ipythonDisplay(HTML(html))
+            # self.debug("COUNTING THE THINGS")
+            # self.debug(get_comms(self.handleId))
+            # self.debug(bokehDoc)
+            # self.debug(bokehDoc.to_json())
+            self.comms_handle = CommsHandle(get_comms(self.handleId), bokehDoc, bokehDoc.to_json())
         else:
             push_notebook(handle = self.comms_handle)

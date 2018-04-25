@@ -82,10 +82,12 @@
     var callbacks = {
         shell : {
             reply : function(){
+                debugger;
                 if ( !callbacks.response ){
                     if (!user_controls.partialUpdate){
                         setHTML(getTargetNode(), "",pd_controls, user_controls);
                         if (user_controls.onDisplayDone){
+                            debugger;
                             user_controls.onDisplayDone(getTargetNode());
                         }
                     }
@@ -101,6 +103,7 @@
         },
         iopub:{
             output:function(msg){
+                debugger;
                 if (curCell && !$targetDivId && getTargetNode().length == 0){
                     curCell.output_area.handle_output.apply(curCell.output_area, arguments);
                     return;
@@ -248,12 +251,15 @@
                 }else{
                     callbacks.response = false;
                 }
+                debugger;
                 if (targetNodeUpdated && user_controls.onDisplayDone){
+                    debugger;
                     user_controls.onDisplayDone(getTargetNode());
                 }
             }
         },
         input : function(msg){
+            debugger;
             var reply_callbacks = pixiedust.input_reply_queue.inflight;
             if (!reply_callbacks || reply_callbacks.refreshDebugger){
                 $("#debugger_container_" + pd_controls.prefix).show();
@@ -270,6 +276,7 @@
                         msg.content.prompt = new Function('output', process_output)(msg.content.prompt);
                         targetNodeUpdated = setHTML(getTargetNode(input_target), msg.content.prompt, pd_controls, user_controls);
                         if (targetNodeUpdated && user_controls.onDisplayDone){
+                            debugger;
                             user_controls.onDisplayDone(getTargetNode(input_target));
                         }
                     }catch(e){
