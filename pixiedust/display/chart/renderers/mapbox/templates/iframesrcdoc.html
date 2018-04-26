@@ -55,7 +55,7 @@
   iframe.setAttribute('srcdoc', atob('{{body|btoa}}'));
 </script>
 {%if this.isStreaming%}
-<div pd_refresh_rate="{{this.options.get('refresh', 1000)}}">
+<div pd_refresh_rate="{{this.options.get('refresh', 1000)}}" class="no_loading_msg">
     <pd_script>
 from ipykernel.comm import Comm
 from pixiedust.display.streamingDisplay import *

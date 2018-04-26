@@ -85,9 +85,9 @@
                 if ( !callbacks.response ){
                     if (!user_controls.partialUpdate){
                         setHTML(getTargetNode(), "",pd_controls, user_controls);
-                        if (user_controls.onDisplayDone){
-                            user_controls.onDisplayDone(getTargetNode());
-                        }
+                    }
+                    if (user_controls.onDisplayDone){
+                        user_controls.onDisplayDone(getTargetNode());
                     }
                 }
             },
