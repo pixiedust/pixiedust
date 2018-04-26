@@ -164,7 +164,7 @@ class PixieDustTestExecutePreprocessor( ExecutePreprocessor ):
                             expected = len(before)
                             actual = len(after)
                             ratio = seqmatcher.quick_ratio()
-                            logging.info("expected_length: {0}, actual_length: {1}, sequence_ratio: {2}".format(expected, actual, ratio))
+                            logging.info("expected_length: {0}, actual_length: {1}, sequence_ratio: {2}, compare_ratio: {3}".format(expected, actual, ratio, compareRatio))
                             if ratio < compareRatio:
                                 logging.debug("output_type ({0}) below ratio ({1}) threshold \r\nExpected:\r\n {2} \r\n\r\nActual:\r\n {3}".format(key, ratio, before, after))
                                 raise CompareOutputException("output_type ({0}) below ratio ({1}) threshold for cell:\r\n{2}".format(key, ratio, cellsource))
