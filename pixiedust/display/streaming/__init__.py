@@ -40,7 +40,7 @@ class StreamingDataAdapter(with_metaclass(ABCMeta)):
     defaultValues = {
         "getFieldNames": lambda expandNested=False: [],
         "schema": PandasDataFrameAdapter(pandas.DataFrame()).schema,
-        "getWorkingPandasDataFrame": lambda xFields, yFields, extraFields=[], aggregation=None, maxRows = 100: pandas.DataFrame()
+        "getWorkingPandasDataFrame": lambda xFields, yFields, extraFields=[], aggregation=None, maxRows = 100, filterOptions={}, isTableRenderer=False: pandas.DataFrame()
     }
 
     def getDisplayDataHandler(self, options, entity):
