@@ -21,7 +21,7 @@ import numpy as np
 from bokeh.embed.notebook import notebook_content
 from bokeh.io import push_notebook, show, output_notebook, curdoc
 from bokeh.io.state import curstate
-from bokeh.io.notebook import CommsHandle
+from bokeh.io.notebook import CommsHandle, show_doc
 from bokeh.models import HoverTool
 from bokeh.plotting import figure
 from bokeh.util.serialization import make_id
@@ -123,23 +123,30 @@ class BokehStreamingDisplay(StreamingDisplay):
         self.glyphRenderer.data_source.data['x'] = x
         self.glyphRenderer.data_source.data['y'] = y
 
-        if not self.handleId:
-            self.handleId = make_id()
+        if not self.comms_handle:
+            # self.handleId = make_id()
             state = curstate()
-            bokehDoc = curdoc()
-            if self.figure not in bokehDoc.roots:
-                bokehDoc.add_root(self.figure)
-            script, div, doc = notebook_content(self.figure, notebook_comms_target=self.handleId)
+            doc = state.document
+
+            # script, div, doc = notebook_content(self.figure, notebook_comms_target=self.handleId)
+
+            if self.figure not in doc.roots:
+               doc.add_root(self.figure)
+
+            # self.comms_handle = CommsHandle(get_comms(self.handleId), doc)
+            # doc.on_change_dispatch_to(self.comms_handle)
+            # state.last_comms_handle = self.comms_handle
+    
+            # html = NOTEBOOK_DIV.render(
+            #     plot_script = script,
+            #     plot_div = div,
+            # )
             
-            html = NOTEBOOK_DIV.render(
-                plot_script = script,
-                plot_div = div,
-            )
+            # from IPython.display import display as ipythonDisplay, HTML, Javascript
+            # ipythonDisplay(HTML(html))
+
+            self.comms_handle = show_doc(self.figure, state, notebook_handle=True)
             
-            from IPython.display import display as ipythonDisplay, HTML, Javascript
-            ipythonDisplay(HTML(html))
-            self.comms_handle = CommsHandle(get_comms(self.handleId), bokehDoc)
-            state.document.on_change_dispatch_to(self.comms_handle)
-            state.last_comms_handle = self.comms_handle
         else:
             push_notebook(handle = self.comms_handle)
+            

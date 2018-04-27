@@ -11,6 +11,7 @@ var pixiedust = (function(){
                 return "$$" + handle + "$$";
             },
             parseCallback: function(content){
+                //debugger;
                 var match = content.text.match(/\$\$(.*)\$\$((.|\n)*)/i);
                 if (match){
                     content.text = match[2].trim();
