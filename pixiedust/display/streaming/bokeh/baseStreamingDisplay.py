@@ -18,8 +18,7 @@ from pixiedust.display.streamingDisplay import StreamingDisplay
 from pixiedust.display.display import CellHandshake
 import pandas
 import numpy as np
-from bokeh.embed.notebook import notebook_content
-from bokeh.io import push_notebook, show, output_notebook, curdoc
+from bokeh.io import push_notebook, output_notebook, curdoc
 from bokeh.io.state import curstate
 from bokeh.io.notebook import CommsHandle, show_doc
 from bokeh.models import HoverTool
@@ -27,12 +26,6 @@ from bokeh.plotting import figure
 from bokeh.util.serialization import make_id
 from bokeh.util.notebook import get_comms
 from pixiedust.utils import Logger
-
-import os
-from jinja2 import Environment, FileSystemLoader
-THIS_DIR = os.path.dirname(os.path.abspath(__file__))
-_env = Environment(loader=FileSystemLoader(THIS_DIR), trim_blocks=True)
-NOTEBOOK_DIV = _env.get_template("notebook_div.html")
 
 @Logger()
 class BokehStreamingDisplay(StreamingDisplay):
@@ -124,29 +117,11 @@ class BokehStreamingDisplay(StreamingDisplay):
         self.glyphRenderer.data_source.data['y'] = y
 
         if not self.comms_handle:
-            # self.handleId = make_id()
             state = curstate()
             doc = state.document
-
-            # script, div, doc = notebook_content(self.figure, notebook_comms_target=self.handleId)
-
             if self.figure not in doc.roots:
                doc.add_root(self.figure)
-
-            # self.comms_handle = CommsHandle(get_comms(self.handleId), doc)
-            # doc.on_change_dispatch_to(self.comms_handle)
-            # state.last_comms_handle = self.comms_handle
-    
-            # html = NOTEBOOK_DIV.render(
-            #     plot_script = script,
-            #     plot_div = div,
-            # )
-            
-            # from IPython.display import display as ipythonDisplay, HTML, Javascript
-            # ipythonDisplay(HTML(html))
-
             self.comms_handle = show_doc(self.figure, state, notebook_handle=True)
-            
         else:
             push_notebook(handle = self.comms_handle)
             
