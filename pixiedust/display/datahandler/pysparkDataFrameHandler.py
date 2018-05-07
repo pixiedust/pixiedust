@@ -177,7 +177,7 @@ class PySparkDataFrameDataHandler(BaseDataHandler):
             if f.dataType.__class__ == DecimalType:
                 decimals.append(f.name)
 
-        schema_types = {f.name: type(f.dataType) for f in workingDF.schema}
+        schema_types = {f.name: type(f.dataType) for f in workingDF.schema.fields}
 
         pdf = workingDF.toPandas()
         for y in pdf.columns:
