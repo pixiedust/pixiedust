@@ -83,11 +83,12 @@
         shell : {
             reply : function(){
                 if ( !callbacks.response ){
+                    var targetNodeUpdated = false;
                     if (!user_controls.partialUpdate){
-                        setHTML(getTargetNode(), "",pd_controls, user_controls);
+                        targetNodeUpdated = setHTML(getTargetNode(), "",pd_controls, user_controls);
                     }
                     if (user_controls.onDisplayDone){
-                        user_controls.onDisplayDone(getTargetNode());
+                        user_controls.onDisplayDone(getTargetNode(), targetNodeUpdated);
                     }
                 }
             },
@@ -248,8 +249,8 @@
                 }else{
                     callbacks.response = false;
                 }
-                if (targetNodeUpdated && user_controls.onDisplayDone){
-                    user_controls.onDisplayDone(getTargetNode());
+                if (user_controls.onDisplayDone){
+                    user_controls.onDisplayDone(getTargetNode(), targetNodeUpdated);
                 }
             }
         },
@@ -269,8 +270,8 @@
                         }
                         msg.content.prompt = new Function('output', process_output)(msg.content.prompt);
                         targetNodeUpdated = setHTML(getTargetNode(input_target), msg.content.prompt, pd_controls, user_controls);
-                        if (targetNodeUpdated && user_controls.onDisplayDone){
-                            user_controls.onDisplayDone(getTargetNode(input_target));
+                        if (user_controls.onDisplayDone){
+                            user_controls.onDisplayDone(getTargetNode(input_target), targetNodeUpdated);
                         }
                     }catch(e){
                         console.log("Error while invoking post output function", e, msg.content.prompt, process_output);
