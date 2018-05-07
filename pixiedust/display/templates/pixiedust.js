@@ -54,13 +54,14 @@ var pixiedust = (function(){
             user_controls.inFlight = true;
             var options = $.extend({}, pd_controls.options || {}, user_controls.options || {} );
             function wrapDisplayDone(fn){
-                return function(targetNode){
-                    
+                return function(targetNode, targetNodeUpdated=false){
                     user_controls.inFlight = false;
-                    if (fn){
-                        fn.apply(this);
+                    if(targetNodeUpdated){
+                        if (fn){
+                            fn.apply(this);
+                        }
+                        $(document).trigger('pd_event', {type:"pd_load", targetNode: targetNode});
                     }
-                    $(document).trigger('pd_event', {type:"pd_load", targetNode: targetNode});
                 }
             }
             user_controls.onDisplayDone = wrapDisplayDone( user_controls.onDisplayDone);
