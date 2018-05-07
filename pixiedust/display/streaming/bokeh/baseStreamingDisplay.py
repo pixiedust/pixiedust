@@ -74,7 +74,7 @@ class BokehStreamingDisplay(StreamingDisplay):
         elif isinstance(a, np.ndarray):
             return a
         raise Exception("Can't cast to np array: unsupported type")
-    #check if this works
+
     def doRender(self, handlerId):
         clientHasBokeh = self.options.get("nostore_bokeh", "false") == "true"
         if not clientHasBokeh:
