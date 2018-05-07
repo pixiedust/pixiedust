@@ -85,17 +85,10 @@
                 if ( !callbacks.response ){
                     var targetNodeUpdated = false;
                     if (!user_controls.partialUpdate){
-<<<<<<< HEAD
                         targetNodeUpdated = setHTML(getTargetNode(), "",pd_controls, user_controls);
                     }
                     if (user_controls.onDisplayDone){
                         user_controls.onDisplayDone(getTargetNode(), targetNodeUpdated);
-=======
-                        setHTML(getTargetNode(), "",pd_controls, user_controls);
-                    }
-                    if (user_controls.onDisplayDone){
-                        user_controls.onDisplayDone(getTargetNode());
->>>>>>> master
                     }
                 }
             },
