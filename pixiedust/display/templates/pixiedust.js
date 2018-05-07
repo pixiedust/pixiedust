@@ -54,7 +54,7 @@ var pixiedust = (function(){
             user_controls.inFlight = true;
             var options = $.extend({}, pd_controls.options || {}, user_controls.options || {} );
             function wrapDisplayDone(fn){
-                return function(targetNode, targetNodeUpdated=false){
+                return function(targetNode, targetNodeUpdated){
                     user_controls.inFlight = false;
                     if(targetNodeUpdated){
                         if (fn){
