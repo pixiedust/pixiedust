@@ -18,13 +18,11 @@ from pixiedust.display.streamingDisplay import StreamingDisplay
 from pixiedust.display.display import CellHandshake
 import pandas
 import numpy as np
-from bokeh.io import push_notebook, output_notebook, curdoc
+from bokeh.io import push_notebook, output_notebook
 from bokeh.io.state import curstate
-from bokeh.io.notebook import CommsHandle, show_doc
+from bokeh.io.notebook import show_doc
 from bokeh.models import HoverTool
 from bokeh.plotting import figure
-from bokeh.util.serialization import make_id
-from bokeh.util.notebook import get_comms
 from pixiedust.utils import Logger
 
 @Logger()
@@ -33,7 +31,6 @@ class BokehStreamingDisplay(StreamingDisplay):
 
     def __init__(self, options, entity, dataHandler=None):
         super(BokehStreamingDisplay,self).__init__(options,entity,dataHandler)
-        self.handleId = None
         self.TOOLS="crosshair,pan,wheel_zoom,box_zoom,reset,tap,box_select,lasso_select"
         self.figure = figure(tools=self.TOOLS)
         self.figure.axis.major_label_text_font_size = "18pt"
@@ -124,4 +121,3 @@ class BokehStreamingDisplay(StreamingDisplay):
             self.comms_handle = show_doc(self.figure, state, notebook_handle=True)
         else:
             push_notebook(handle = self.comms_handle)
-            

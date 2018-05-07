@@ -11,7 +11,6 @@ var pixiedust = (function(){
                 return "$$" + handle + "$$";
             },
             parseCallback: function(content){
-                
                 var match = content.text.match(/\$\$(.*)\$\$((.|\n)*)/i);
                 if (match){
                     content.text = match[2].trim();
@@ -178,7 +177,6 @@ var pixiedust = (function(){
                         }
                     }
                     pixiedust.dialogRoot = dialogRoot;
-                    //
                     pixiedust.executeDisplay(pd_controls, user_controls);
                 });
                 modal_obj.on("hidden.bs.modal", function () {
@@ -607,12 +605,9 @@ function readExecInfo(pd_controls, element, searchParents, fromExecInfo){
                 new Function('output', process_output)(output);
             }
         }
-        //
         if ( this.options.dialog == 'true' ){
-            //
             pixiedust.executeInDialog(pd_controls, this);
         }else{
-            //
             pixiedust.executeDisplay(pd_controls, this);
         }
     }
@@ -742,7 +737,6 @@ $(document).on( "change", "[pixiedust]", function(event){
 
 {#handler for customer pd_event#}
 $(document).on("pd_event", function(event, eventInfo){
-    //
     targetDivId = eventInfo.targetDivId;
     if (targetDivId){
         eventHandlers = $("pd_event_handler").filter(function(){
