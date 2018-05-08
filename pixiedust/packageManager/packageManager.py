@@ -22,6 +22,7 @@ import urllib
 import os
 from pixiedust.utils.storage import *
 from pixiedust.utils.printEx import *
+from pixiedust.utils.environment import Environment
 from pyspark import SparkContext
 from .package import Package
 from .downloader import Downloader, RequestException
@@ -45,6 +46,26 @@ packageStorage = __PackageStorage()
 
 class PackageManager(object):
     DOWNLOAD_DIR=os.environ.get("PIXIEDUST_HOME", os.path.expanduser('~')) + "/data/libs"
+
+    # Issue 492: https://github.com/ibm-watson-data-lab/pixiedust/issues/492
+    # Make sure that DOWNLOAD_DIR is in the java classpath
+    def check_pixiedust_jar(download_dir):
+        pixiedust_jar_path = os.path.join(download_dir, "pixiedust.jar")
+        for path in Environment.javaClassPath.split(":"):
+            if pixiedust_jar_path == path:
+                return True
+        return False
+    IS_PIXIEDUST_JAR_ON_JAVA_CLASS_PATH = check_pixiedust_jar(DOWNLOAD_DIR)
+
+    def check_valid(fn):
+        def wrap(self, *args, **kwargs):
+            if not PackageManager.IS_PIXIEDUST_JAR_ON_JAVA_CLASS_PATH:
+                print("PackageManager is disabled because {} is not on the Java Class Path. Please contact your administrator".format(
+                    PackageManager.DOWNLOAD_DIR
+                ))
+                return
+            return fn(self, *args, **kwargs)
+        return wrap
     
     def __init__(self):
         if not os.path.exists(self.DOWNLOAD_DIR):
@@ -54,12 +75,13 @@ class PackageManager(object):
         if isinstance(package, six.string_types):
             package=Package.fromPackageIdentifier(package)
         return package
-    
+
+    @check_valid
     def installPackage(self, package, base=None, sc=None):
         package = self._toPackage(package)
         #Test if we already have a version installed
-        res=self.fetchPackage(package)
-        fileLoc=None
+        res = self.fetchPackage(package)
+        fileLoc = None
         if res:
             fileLoc=res[1]
             print("Package already installed: {0}".format(str(package)))
@@ -106,6 +128,7 @@ class PackageManager(object):
             
         return package
         
+    @check_valid
     def uninstallPackage(self, package):
         results = self.fetchPackage(package)
         if results is None:
@@ -115,7 +138,7 @@ class PackageManager(object):
     
     def hasPackage(self, package):
         return self.fetchPackage(package) is not None
-        
+
     def fetchPackage(self, package ):
         package = self._toPackage(package)
         return packageStorage.fetchOne("""
@@ -124,6 +147,7 @@ class PackageManager(object):
             lambda row: (Package(row["GROUPID"],row["ARTIFACTID"],row["VERSION"]),row["FILEPATH"])
         )
                 
+    @check_valid
     def printAllPackages(self):
         self.visitAll(lambda row: print("{0}:{1}:{2} => {3}".format(row["GROUPID"],row["ARTIFACTID"],row["VERSION"],row["FILEPATH"])))
         

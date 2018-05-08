@@ -88,9 +88,13 @@ class captureOutput(object):
         return wrapper_fn
 
     def wrapper(self, instance, *args, **kwargs):
+        ret_html = None
         with capture_output() as buf:
-            self.fn(instance, *args, **kwargs)
-        return "\n".join([self.convert_html(output) for output in buf.outputs])
+            ret_html = self.fn(instance, *args, **kwargs)
+        captured_output = "\n".join([self.convert_html(output) for output in buf.outputs])
+        if ret_html is not None:
+            captured_output += "\n" + ret_html
+        return captured_output
 
 class templateArgs(object):
     """
@@ -308,7 +312,7 @@ class PixieDustApp(Display):
                 if isinstance(retValue, string_types):
                     if self.getBooleanOption("nostore_isrunningchildpixieapp", False):
                         self.options.pop("nostore_isrunningchildpixieapp", None)
-                        retValue = """<div id="wrapperHTML{{prefix}}" pixiedust="{{pd_controls|htmlAttribute}}">""" + retValue + """</div>"""
+                        retValue = """<div id="wrapperHTML{{prefix}}" pixiedust="{{this.get_pd_controls(black_list=['nostore_isrunningchildpixieapp'])|tojson|htmlAttribute}}">""" + retValue + """</div>"""
                     self._addHTMLTemplateString(retValue, **injectedArgs)
                 elif isinstance(retValue, Template):
                     self._addHTML(

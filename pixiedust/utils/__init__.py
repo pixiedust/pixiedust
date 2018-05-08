@@ -101,7 +101,8 @@ class Logger(object):
         if not hasattr(cls, "myLogger"):
             cls.myLogger = pdLogging.getLogger(cls.__module__ + "." + cls.__name__)
             cls.debug = cls.myLogger.debug
-            cls.warn = cls.myLogger.warn
+            cls.warn = cls.myLogger.warning
+            cls.warning = cls.myLogger.warning
             cls.error = cls.myLogger.error
             cls.info = cls.myLogger.info
             cls.exception = cls.myLogger.exception

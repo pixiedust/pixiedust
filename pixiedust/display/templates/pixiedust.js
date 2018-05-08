@@ -53,12 +53,14 @@ var pixiedust = (function(){
             user_controls.inFlight = true;
             var options = $.extend({}, pd_controls.options || {}, user_controls.options || {} );
             function wrapDisplayDone(fn){
-                return function(targetNode){
+                return function(targetNode, targetNodeUpdated){
                     user_controls.inFlight = false;
-                    if (fn){
-                        fn.apply(this);
+                    if(targetNodeUpdated){
+                        if (fn){
+                            fn.apply(this);
+                        }
+                        $(document).trigger('pd_event', {type:"pd_load", targetNode: targetNode});
                     }
-                    $(document).trigger('pd_event', {type:"pd_load", targetNode: targetNode});
                 }
             }
             user_controls.onDisplayDone = wrapDisplayDone( user_controls.onDisplayDone);
@@ -462,7 +464,6 @@ function readExecInfo(pd_controls, element, searchParents, fromExecInfo){
     execInfo.refresh = execInfo.refresh || (getAttribute(element, "pd_refresh", "false", "true") == 'true');
     execInfo.norefresh = element.hasAttribute("pd_norefresh");
     execInfo.entity = element.hasAttribute("pd_entity") ? resolveScriptMacros(element.getAttribute("pd_entity")) || "pixieapp_entity" : null;
-
     function applyEntity(c, e, doptions){
         {#add pixieapp info #}
         doptions.prefix = pd_controls.prefix;
@@ -474,7 +475,11 @@ function readExecInfo(pd_controls, element, searchParents, fromExecInfo){
         if (!e){
             return addOptions(c, doptions);
         }
-        c = c.replace(/\((\w*),/, "($1." + e + ",")
+        if (pd_controls.entity){
+            c = c.replace(pd_controls.entity, pd_controls.entity+ "." + e );
+        }else{
+            c = c.replace(/\((\w*),/, "($1." + e + ",");
+        }        
         return addOptions(c, doptions);
     }
 
@@ -600,7 +605,6 @@ function readExecInfo(pd_controls, element, searchParents, fromExecInfo){
                 new Function('output', process_output)(output);
             }
         }
-
         if ( this.options.dialog == 'true' ){
             pixiedust.executeInDialog(pd_controls, this);
         }else{
