@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # -------------------------------------------------------------------------------
+import sys
 from IPython.display import display, HTML
 
 __all__=['printEx','PrintColors', 'printWithLogo']
@@ -37,6 +38,9 @@ def printEx(message, color=None):
         print( color + message + PrintColors.END)
 
 def printWithLogo(message):
+    if "jupyter-pixiegateway" in sys.argv[0]:
+        print(message)
+        return
     display(HTML(
         """
         <div style="margin:10px">
