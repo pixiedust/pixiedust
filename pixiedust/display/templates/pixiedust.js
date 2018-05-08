@@ -190,7 +190,8 @@ var pixiedust = (function(){
         },
         sendEvent: function(payload, divId){
             payload = payload || {};
-            divId = divId || $(event.srcElement).uniqueId().attr('id');
+            var targetElement = event.target || event.srcElement;
+            divId = divId || $(targetElement).uniqueId().attr('id');
             payload.targetDivId = divId;
             $(document).trigger('pd_event', payload);
         },
