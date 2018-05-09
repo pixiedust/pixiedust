@@ -76,7 +76,9 @@ class PandasDataFrameDataHandler(BaseDataHandler):
             casematters = filter_options['case_matter'].lower() == "true" if 'case_matter' in filter_options else False
 
             if field and val and field in self.getFieldNames():
-                if not self.isNumericField(field):
+                if val == 'None':
+                    df = df.loc[df[field].isna() if hasattr(df[field], 'isna') else df[field].isnull()]
+                elif not self.isNumericField(field):
                     val = val if regex else ".*" + val + ".*"
                     flags = 0 if casematters else re.IGNORECASE
                     df = df[df[field].str.contains(val, flags=flags)]

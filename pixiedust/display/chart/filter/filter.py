@@ -313,20 +313,20 @@ class FilterApp(BaseOptions):
             return '<div class="row">' + controls + manualvalue + submit + clear + stats + '<script>' + script + '</script></div>'
 
     @route(field="*", constraint="*", casematters="*")
-    def noqueryvalue(field, constraint, casematters): 
+    def noqueryvalue(self, field, constraint, casematters): 
         # called when user submits without entering anything in the query <input>
-        return "<h4>A value is required</h4>"
+        return self.compute(field, constraint, '', casematters, 'false')
 
     @route(field="*", constraint="*", val="*", casematters="*", regex="*")
     def compute(self, field, constraint, val, casematters, regex):
         isNumericField = self.dfh.isNumericField(field)
+        if not val or not val.strip() or val.strip() == 'None':
+            val = 'None'
 
         if isNumericField and constraint not in ['less_than', 'greater_than', 'equal_to']:
             return "<h4>A constraint is required</h4>"
-        elif isNumericField and not val.replace('.','',1).replace('-','',1).isdigit():
+        elif isNumericField and val != 'None' and not val.replace('.','',1).replace('-','',1).isdigit():
             return "<h4>A numeric value is required</h4>"
-        elif not val.strip():
-            return "<h4>A value is required</h4>"
         else:
             self.filter_options = {
                 "field": field,
