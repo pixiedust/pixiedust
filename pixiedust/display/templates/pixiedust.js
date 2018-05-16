@@ -53,12 +53,14 @@ var pixiedust = (function(){
             user_controls.inFlight = true;
             var options = $.extend({}, pd_controls.options || {}, user_controls.options || {} );
             function wrapDisplayDone(fn){
-                return function(targetNode){
+                return function(targetNode, targetNodeUpdated){
                     user_controls.inFlight = false;
-                    if (fn){
-                        fn.apply(this);
+                    if(targetNodeUpdated){
+                        if (fn){
+                            fn.apply(this);
+                        }
+                        $(document).trigger('pd_event', {type:"pd_load", targetNode: targetNode});
                     }
-                    $(document).trigger('pd_event', {type:"pd_load", targetNode: targetNode});
                 }
             }
             user_controls.onDisplayDone = wrapDisplayDone( user_controls.onDisplayDone);
@@ -190,7 +192,8 @@ var pixiedust = (function(){
         },
         sendEvent: function(payload, divId){
             payload = payload || {};
-            divId = divId || $(event.srcElement).uniqueId().attr('id');
+            var targetElement = event.target || event.srcElement;
+            divId = divId || $(targetElement).uniqueId().attr('id');
             payload.targetDivId = divId;
             $(document).trigger('pd_event', payload);
         },
@@ -603,7 +606,6 @@ function readExecInfo(pd_controls, element, searchParents, fromExecInfo){
                 new Function('output', process_output)(output);
             }
         }
-
         if ( this.options.dialog == 'true' ){
             pixiedust.executeInDialog(pd_controls, this);
         }else{

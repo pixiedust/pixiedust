@@ -36,8 +36,7 @@ def setup(self):
         return """
 <ul class="nav nav-tabs" role="tablist">
 {%for app in this.apps%}
-    <li role="presentation" id="tab_{{prefix}}_{{loop.index}}" {%if loop.first%}class="active"{%endif%} 
-        pd_app="{{app['app_class']}}" pd_target="content_{{prefix}}_{{loop.index}}">
+    <li role="presentation" id="tab_{{prefix}}_{{loop.index}}" {%if loop.first%}class="active"{%endif%}>
         <a href="#content_{{prefix}}_{{loop.index}}" data-toggle="tab">{{app['title']}}</a>
     </li>
 {%endfor%}
@@ -46,6 +45,7 @@ def setup(self):
 {%for app in this.apps%}
     <div role="tabpanel" class="tab-pane {%if loop.first%}active{%endif%} no_loading_msg" 
         id="content_{{prefix}}_{{loop.index}}">
+        <div pd_render_onload pd_app="{{app['app_class']}}"></div>
     </div>
 {%endfor%}
 </div>

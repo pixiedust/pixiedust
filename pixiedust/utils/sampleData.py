@@ -141,7 +141,11 @@ class SampleData(object):
                     return csvload.option("inferSchema", "true").load(path)
         else:
             print("Loading file using 'pandas'")
-            return pd.read_csv(path)
+            try:
+                return pd.read_csv(path)
+            except UnicodeDecodeError:
+                #Try ISO-8859-1
+                return pd.read_csv(path, encoding = "ISO-8859-1")
 
     def JSONdataLoader(self, path, schema=None):
         if schema is not None and Environment.hasSpark:
