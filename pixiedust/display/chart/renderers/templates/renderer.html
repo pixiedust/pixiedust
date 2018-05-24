@@ -30,6 +30,17 @@
                         data-default={{this.options.get(option.name,None) or option.metadata.default}}
                         style="margin: 0 0.6em;"></div>
                 </div>
+                {% if option.name == 'numbins' and this.get_numbins_options_pixieapp() %}
+                    <div class="rendererOpt">
+                        <button pd_app="{{this.get_numbins_options_pixieapp()}}"
+                            class="btn btn-default no_loading_msg"
+                            pd_options="runInDialog=true"
+                            id="numbins_btn_{{prefix}}">
+                            <pd_event_handler pd_source="numbins_btn_{{prefix}}" pd_script="ShellAccess[eventInfo['entity']].on_ok()"></pd_event_handler>
+                            Bin Options
+                        </button>
+                    </div>
+                {%endif%}
             {%endif%}
             {% if option.metadata.type == 'dropdown' %}
                 <div class="rendererOpt">

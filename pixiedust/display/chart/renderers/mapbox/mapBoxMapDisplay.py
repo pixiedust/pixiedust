@@ -179,6 +179,11 @@ class MapViewDisplay(MapBoxBaseDisplay):
 
             # if there's a numeric value field and type is not 'simple', paint the data as a choropleth map
             if self.options.get("kind") and self.options.get("kind").find("simple") < 0 and len(valueFields) > 0:
+                # get value from the "Number of Bins" slider
+                numBins = 5 # default
+                if self.options.get("numbins"):
+                    numBins = int(self.options.get("numbins"))
+
                 # color options
                 bincolors = []
                 bincolors.append(['#ffffcc','#a1dab4','#41b6c4','#2c7fb8','#253494']) #yellow to blue
@@ -195,13 +200,25 @@ class MapViewDisplay(MapBoxBaseDisplay):
                     if self.options.get("colorrampname") == "Orange to Purple":
                         bincolorsIdx = 3
 
-                minval = df[valueFields[0]].min()
-                maxval = df[valueFields[0]].max()
-                bins.append((minval,bincolors[bincolorsIdx][0]))
-                bins.append((df[valueFields[0]].quantile(0.25),bincolors[bincolorsIdx][1]))
-                bins.append((df[valueFields[0]].quantile(0.5),bincolors[bincolorsIdx][2]))
-                bins.append((df[valueFields[0]].quantile(0.75),bincolors[bincolorsIdx][3]))
-                bins.append((maxval,bincolors[bincolorsIdx][4]))
+                # only use list of quantiles if it matches the number of bins
+                if self.options.get("quantiles") and len(self.options.get("quantiles").split(",")) == numBins:
+                    quantileFloats = [float(x) for x in self.options.get("quantiles").split(",")]
+                    self.debug("Using quantileFloats: %s" % quantileFloats)
+                    for i in range(numBins):
+                        bins.append((df[valueFields[0]].quantile(quantileFloats[i]),bincolors[bincolorsIdx][i%len(bincolors[bincolorsIdx])]))
+                else:
+                    # default, equal-size bins based on numBins (if cannot find quantiles array in options)
+                    self.debug("Using equal-size bins based on numBins: %s" % numBins)
+                    for i in range(numBins):
+                        bins.append((df[valueFields[0]].quantile(float(i)/(numBins-1.0)),bincolors[bincolorsIdx][i%len(bincolors[bincolorsIdx])]))
+
+                # minval = df[valueFields[0]].min()
+                # maxval = df[valueFields[0]].max()
+                # bins.append((minval,bincolors[bincolorsIdx][0]))
+                # bins.append((df[valueFields[0]].quantile(0.25),bincolors[bincolorsIdx][1]))
+                # bins.append((df[valueFields[0]].quantile(0.5),bincolors[bincolorsIdx][2]))
+                # bins.append((df[valueFields[0]].quantile(0.75),bincolors[bincolorsIdx][3]))
+                # bins.append((maxval,bincolors[bincolorsIdx][4]))
 
                 if geomType == 1:
                     # paint['line-opacity'] = 0.65

@@ -17,6 +17,8 @@
 from pixiedust.display.app import *
 from pixiedust.utils import Logger
 from pixiedust.display.chart.options.defaultOptions import DefaultOptions
+from pixiedust.display.chart.options.optionsShell import OptionsShell
+from pixiedust.display.chart.options.components.BinQuantiles import BinQuantiles
 
 @Logger()
 class MapboxAccessToken(object):
@@ -55,3 +57,42 @@ class MapboxOptions(DefaultOptions, MapboxAccessToken):
 
     def value_fields_type(self):
         return ['any']
+
+@PixieApp
+@Logger()
+class NumBinsOptions(OptionsShell, BinQuantiles):
+
+    def setup(self):
+        OptionsShell.setup(self)
+        # should only be one entry in the chart option list for chart name
+        # don't want that, just get rid of it
+        self.chart_options.pop()
+
+        numbins = int(self.run_options.get("numbins") or 5)
+        self.setupQuantiles(numbins)
+
+        self.chart_options.append({
+            "optid": "binRanges",
+            "classname": "field-width-100 no_loading_msg",
+            "numbins": numbins,
+            "quantiles": self.new_options["quantiles"],
+            "widget": "pdBinQuantiles"
+        })
+
+    # default equal size quantiles
+    # for numBins=5, quantiles are 0, 0.25, 0.50, 0.75, 1
+    def generateQuantiles(self, numBins):
+        quantiles = []
+        for i in range(numBins):
+            quantiles.append(float(i)/(numBins-1.0))
+        return ",".join(map(str,quantiles))
+
+    # set up quantiles based on numbins/presence of quantiles string in metadata
+    def setupQuantiles(self, numBins):
+        if self.run_options.get("quantiles"):
+            if len(self.run_options["quantiles"].split(",")) == numBins:
+                self.new_options["quantiles"] = self.run_options["quantiles"]
+                return
+
+        self.new_options["quantiles"] = self.generateQuantiles(numBins)
+        return

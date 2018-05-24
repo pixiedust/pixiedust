@@ -32,6 +32,14 @@ class MapBoxBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
             """
             return "pixiedust.display.chart.renderers.mapbox.mapboxOptions.MapboxOptions"
 
+    def get_numbins_options_pixieapp(self):
+        """
+        Return the fully qualified path to a PixieApp used to display a dialog for options
+        controlling the break down of bin clustering.
+        PixieApp must inherit from pixiedust.display.chart.options.baseOptions.BaseOptions
+        """
+        return "pixiedust.display.chart.renderers.mapbox.mapboxOptions.NumBinsOptions"
+
     def getChartOptions(self):
         return [ 
             {
@@ -86,6 +94,16 @@ class MapBoxBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
                     'type': 'dropdown', 
                     'values': ['light-v9', 'satellite-v9', 'dark-v9','outdoors-v9'], 
                     'default': 'light-v9'
+                }
+            },
+            {
+                'name': 'numbins',
+                'description': 'Number of Bins',
+                'metadata': {
+                    'type': 'slider',
+                    'max': 20,
+                    'min': 2,
+                    'default': 5
                 }
             }
         ]
