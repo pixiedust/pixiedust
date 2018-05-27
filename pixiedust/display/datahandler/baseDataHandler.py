@@ -39,7 +39,7 @@ class BaseDataHandler(object):
                 fieldType = "string"
             fieldNamesAndTypes.append((fieldName, fieldType))
         if sorted:
-            fieldNamesAndTypes.sort(key=lambda x: x[0])
+            fieldNamesAndTypes.sort(key=lambda x: str(x[0]))
         return fieldNamesAndTypes
 
     def get_filtered_dataframe(self, filter_options):

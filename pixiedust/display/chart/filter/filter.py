@@ -343,29 +343,8 @@ class FilterApp(BaseOptions):
         self.summary_stats = []
         self.quantiles = []
         self.frequents = []
-
-        if isPandasDataFrame(self.df):
-            statsdf = self.df[field].describe([.02, .09, .25, .50, .75, .91, .98])
-            lbls = ['count','mean','std','min','max']
-
-            for i in range(0,len(lbls)):
-                if i == 0:
-                    self.summary_stats.append((lbls[i], "{:.0f}".format(statsdf[i])))
-                else:
-                    self.summary_stats.append((lbls[i], "{:.2f}".format(statsdf[lbls[i]])))
-
-            lbls = ['2%','9%','25%','50%','75%','91%','98%']
-            for i in range(0,len(lbls)):
-                self.quantiles.append((lbls[i] + "ile", "{:.2f}".format(statsdf[lbls[i]])))
-
-            freqseries = self.df[field].value_counts()
-            stop = 5
-            for ix in freqseries.index:
-                if stop > 0:
-                    self.frequents.append(str(ix))
-                stop = stop - 1
         
-        else: #isPySparkDataFrame(self.df):
+        if isPySparkDataFrame(self.df):
             statsdf = self.df.describe(field)
             lbls = ['count','mean','std','min','max']
 
@@ -388,6 +367,29 @@ class FilterApp(BaseOptions):
                 if stop > 0:
                     self.frequents.append(str(i))
                 stop = stop - 1
+        else:
+            if not isPandasDataFrame(self.df):
+                self.df = self.data_handler.entity
+            if isPandasDataFrame(self.df):
+                statsdf = self.df[field].describe([.02, .09, .25, .50, .75, .91, .98])
+                lbls = ['count','mean','std','min','max']
+
+                for i in range(0,len(lbls)):
+                    if i == 0:
+                        self.summary_stats.append((lbls[i], "{:.0f}".format(statsdf[i])))
+                    else:
+                        self.summary_stats.append((lbls[i], "{:.2f}".format(statsdf[lbls[i]])))
+
+                lbls = ['2%','9%','25%','50%','75%','91%','98%']
+                for i in range(0,len(lbls)):
+                    self.quantiles.append((lbls[i] + "ile", "{:.2f}".format(statsdf[lbls[i]])))
+
+                freqseries = self.df[field].value_counts()
+                stop = 5
+                for ix in freqseries.index:
+                    if stop > 0:
+                        self.frequents.append(str(ix))
+                    stop = stop - 1
                 
         summaryname = '<br>'.join(s[0] for s in self.summary_stats)
         summaryvalue = '<br>'.join(s[1] for s in self.summary_stats)
