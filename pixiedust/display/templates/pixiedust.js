@@ -421,7 +421,7 @@ function readExecInfo(pd_controls, element, searchParents, fromExecInfo){
         var parts = pd_options.split(";");
         $.each( parts, function(){
             var index = this.indexOf("=");
-            if ( index > 1){
+            if ( index > 0){
                 hasOptions = true;
                 execInfo.options[this.substring(0, index)] = this.substring(index+1);
             }
@@ -684,7 +684,7 @@ function readJSONAttribute(element, attrName){
         payload = {};
         $.each( parts, function(){
             var index = this.indexOf("=");
-            if ( index > 1){
+            if ( index > 0){
                 payload[this.substring(0, index)] = this.substring(index+1);
             }
         });
