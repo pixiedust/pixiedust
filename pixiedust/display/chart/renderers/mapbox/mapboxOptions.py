@@ -34,9 +34,20 @@ class MapboxAccessToken(object):
 </div>
 """
 
+class MapboxCustomBaseColor(object):
+    @route(widget="mapboxCustomBaseColor")
+    def mapbox_color_picker_widget(self, optid, custombasecolor, labelname="Custom Base Color:"):
+        return """
+<div class="form-group">
+<label for="mapboxoption{{optid}}{{prefix}}">{{labelname}}</label>
+<input type="color" class="form-control" id="mapboxoption{{optid}}{{prefix}}" name="{{optid}}" value="{{custombasecolor}}"
+  pd_script="self.options_callback('{{optid}}', '$val(mapboxoption{{optid}}{{prefix}})')" onkeyup="$(this).trigger('click');">
+</div>
+"""
+
 @PixieApp
 @Logger()
-class MapboxOptions(DefaultOptions, MapboxAccessToken):
+class MapboxOptions(DefaultOptions, MapboxAccessToken, MapboxCustomBaseColor):
 
     mapbox_default_token = "pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4M29iazA2Z2gycXA4N2pmbDZmangifQ.-g_vE53SD2WrJ6tFX7QHmA"
 
@@ -48,6 +59,22 @@ class MapboxOptions(DefaultOptions, MapboxAccessToken):
             "classname": "field-width-50",
             "mapboxtoken": lambda: self.run_options.get("mapboxtoken") or self.mapbox_default_token,
             "widget": "mapboxAccessToken"
+        })
+
+        self.chart_options.append({
+            "optid": "custombasecolor",
+            "classname": "field-width-50",
+            "custombasecolor": lambda: self.run_options.get("custombasecolor") or "#ff0000",
+            "labelname": "Custom Base Color:",
+            "widget": "mapboxCustomBaseColor"
+        })
+
+        self.chart_options.append({
+            "optid": "custombasecolorsecondary",
+            "classname": "field-width-50",
+            "custombasecolor": lambda: self.run_options.get("custombasecolorsecondary") or "#ff0000",
+            "labelname": "Secondary Custom Base Color:",
+            "widget": "mapboxCustomBaseColor"
         })
 
         self.new_options["mapboxtoken"] = self.run_options.get("mapboxtoken") or self.mapbox_default_token

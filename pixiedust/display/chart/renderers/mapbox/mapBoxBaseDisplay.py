@@ -84,7 +84,16 @@ class MapBoxBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
                 'description': 'Color Ramp',
                 'metadata': {
                     'type': 'dropdown',
-                    'values': ['Yellow to Blue','Light to Dark Red','Grayscale','Orange to Purple'],
+                    'values': [
+                        'Yellow to Blue',
+                        'Light to Dark Red',
+                        'Grayscale',
+                        'Orange to Purple',
+                        'Green to Purple',
+                        'Custom Monochrome Light',
+                        'Custom Monochrome Dark',
+                        'Custom Color Range'
+                    ],
                     'default': 'Yellow to Blue'
                 }
             },
