@@ -121,7 +121,7 @@ def isDateField(entity, fieldName):
     def isDateFieldRecurse(field, targetName):
         if field.name == targetName:
             return isDateType(field.dataType)
-        elif checkIfDataType(field.dataType) and targetName.startswith(field.name + "."):
+        elif checkIfDataType(field.dataType) and targetName.startswith(str(field.name) + "."):
             nestedFieldName = targetName[len(field.name)+1:]
             for f in field.dataType.fields:
                 if isDateFieldRecurse(f, nestedFieldName):

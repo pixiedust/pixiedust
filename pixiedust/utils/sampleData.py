@@ -16,6 +16,7 @@
 from six import iteritems
 import pixiedust
 import ast
+import zipfile
 from pixiedust.utils.shellAccess import ShellAccess
 from pixiedust.utils.template import PixiedustTemplateEnvironment
 from pixiedust.utils.environment import Environment,scalaGateway
@@ -229,10 +230,9 @@ class Downloader(object):
             with tempfile.NamedTemporaryFile(delete=False) as f:
                 bytesDownloaded = self.write(urlopen(req), f)
                 path = f.name   
-            if url.endswith(".zip"):
+            if url.endswith(".zip") or zipfile.is_zipfile(path):
                 #unzip first and get the first file in it
                 print("Extracting first item in zip file...")
-                import zipfile
                 import shutil
                 zfile = zipfile.ZipFile(path, 'r')
                 if len(zfile.filelist)==0:

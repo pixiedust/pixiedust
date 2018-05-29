@@ -20,7 +20,7 @@ import argparse
 from pixiedust.display.app import *
 from pixiedust.utils import Logger
 from pixiedust.utils.astParse import get_matches_lineno
-from six import iteritems
+from six import iteritems, PY3
 from IPython.core.magic import (Magics, magics_class, line_cell_magic)
 from IPython.core.getipython import get_ipython
 
@@ -65,7 +65,7 @@ class PixieDebugger():
             if not hasattr(sys, "last_traceback") or sys.last_traceback is None:
                 raise NoTraceback()
             if self.options.get("debug_route", "false" ) == "true":
-                stack = [tb.function for tb in inspect.getinnerframes(sys.last_traceback)]
+                stack = [tb.function if PY3 else tb[3] for tb in inspect.getinnerframes(sys.last_traceback)]
                 method_name = stack[-1]
                 for method in reversed(stack):
                     code = self.parent_pixieapp.exceptions.get(method, None)
