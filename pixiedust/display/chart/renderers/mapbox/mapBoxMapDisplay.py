@@ -182,19 +182,13 @@ class MapViewDisplay(MapBoxBaseDisplay):
             # if there's a numeric value field and type is not 'simple', paint the data as a choropleth map
             if self.options.get("kind") and self.options.get("kind").find("simple") < 0 and len(valueFields) > 0:
                 # get value from the "Number of Bins" slider
-                numBins = 5 # default
-                if self.options.get("numbins"):
-                    numBins = int(self.options.get("numbins"))
+                numBins = int(self.options.get("numbins", 5))
 
                 # custom index, uses "Custom Base Color" hex value in options menu.
-                customBaseColor = "#ff0000" # default
-                if self.options.get("custombasecolor"):
-                    customBaseColor = self.options.get("custombasecolor")
+                customBaseColor = self.options.get("custombasecolor", "#ff0000")
 
-                # custom index, uses "Custom Base Color" hex value in options menu.
-                secondaryCustomBaseColor = "#ff0000" # default
-                if self.options.get("custombasecolorsecondary"):
-                    secondaryCustomBaseColor = self.options.get("custombasecolorsecondary")
+                # custom index, uses "Secondary Custom Base Color" hex value in options menu.
+                secondaryCustomBaseColor = self.options.get("custombasecolorsecondary", "#ff0000")
 
                 # color options
                 bincolors = []
