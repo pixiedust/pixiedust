@@ -114,5 +114,13 @@ class MapBoxBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
                     'min': 2,
                     'default': 5
                 }
+            },
+            {
+                'name': 'binoptions',
+                'description': 'Bin Options',
+                'metadata': {
+                    'type': 'button',
+                    'pd_app': self.get_numbins_options_pixieapp()
+                }
             }
         ]
