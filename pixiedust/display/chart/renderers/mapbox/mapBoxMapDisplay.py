@@ -334,7 +334,8 @@ class MapViewDisplay(MapBoxBaseDisplay):
 
     def _getMonochromeLight(self, customBaseColor, nColors):
         # HEX -> RGB
-        customBaseColorRGB = tuple(map(ord,customBaseColor[1:].decode('hex')))
+        customBaseColor = customBaseColor.lstrip("#")
+        customBaseColorRGB = tuple(int(customBaseColor[i:i+2], 16) for i in (0, 2 ,4))
         # RGB -> HSV
         customBaseColorHSV = colorsys.rgb_to_hsv(customBaseColorRGB[0]/float(255), customBaseColorRGB[1]/float(255), customBaseColorRGB[2]/float(255))
         h, s, v = customBaseColorHSV
@@ -350,7 +351,8 @@ class MapViewDisplay(MapBoxBaseDisplay):
 
     def _getMonochromeDark(self, customBaseColor, nColors):
         # HEX -> RGB
-        customBaseColorRGB = tuple(map(ord,customBaseColor[1:].decode('hex')))
+        customBaseColor = customBaseColor.lstrip("#")
+        customBaseColorRGB = tuple(int(customBaseColor[i:i+2], 16) for i in (0, 2 ,4))
         # RGB -> HSV
         customBaseColorHSV = colorsys.rgb_to_hsv(customBaseColorRGB[0]/float(255), customBaseColorRGB[1]/float(255), customBaseColorRGB[2]/float(255))
         h, s, v = customBaseColorHSV
