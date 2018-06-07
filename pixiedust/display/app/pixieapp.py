@@ -410,13 +410,23 @@ def PixieApp(cls):
         self.pixieapp_entity = entity
         var = None
         if self.parent_pixieapp is not None:
-            def find_notebook_var():
+            def find_child_var(parent, child):
+                for c in dir(parent):
+                    if getattr(parent, c) == child:
+                        return c
+            def find_notebook_var(parent):
                 for key in ShellAccess.keys():
                     notebook_var = ShellAccess[key]
-                    if notebook_var is self.parent_pixieapp and key != "self":
+                    if notebook_var is parent and key != "self" and not key.startswith("_"):
                         return key, notebook_var
+                # we didn't find it, maybe it's nested
+                if parent.parent_pixieapp is not None:
+                    key, notebook_var = find_notebook_var(parent.parent_pixieapp)
+                    if key is not None:
+                        # find the current object by name and append it to the key         
+                        return (key + "." + find_child_var(parent.parent_pixieapp, parent), notebook_var)
                 return None,None
-            parent_key, notebook_var = find_notebook_var()
+            parent_key, notebook_var = find_notebook_var(self.parent_pixieapp)
             for child_key, child in iteritems(notebook_var.pixieapp_children):
                 if child is self:
                     var = "{}.{}".format(parent_key, child_key)
