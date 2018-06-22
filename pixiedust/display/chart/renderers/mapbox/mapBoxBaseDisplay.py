@@ -32,6 +32,14 @@ class MapBoxBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
             """
             return "pixiedust.display.chart.renderers.mapbox.mapboxOptions.MapboxOptions"
 
+    def get_numbins_options_pixieapp(self):
+        """
+        Return the fully qualified path to a PixieApp used to display a dialog for options
+        controlling the break down of bin clustering.
+        PixieApp must inherit from pixiedust.display.chart.options.baseOptions.BaseOptions
+        """
+        return "pixiedust.display.chart.renderers.mapbox.mapboxOptions.NumBinsOptions"
+
     def getChartOptions(self):
         return [ 
             {
@@ -76,7 +84,16 @@ class MapBoxBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
                 'description': 'Color Ramp',
                 'metadata': {
                     'type': 'dropdown',
-                    'values': ['Yellow to Blue','Light to Dark Red','Grayscale','Orange to Purple'],
+                    'values': [
+                        'Yellow to Blue',
+                        'Light to Dark Red',
+                        'Grayscale',
+                        'Orange to Purple',
+                        'Green to Purple',
+                        'Custom Monochrome Light',
+                        'Custom Monochrome Dark',
+                        'Custom Color Range'
+                    ],
                     'default': 'Yellow to Blue'
                 }
             },
@@ -86,6 +103,24 @@ class MapBoxBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
                     'type': 'dropdown', 
                     'values': ['light-v9', 'satellite-v9', 'dark-v9','outdoors-v9'], 
                     'default': 'light-v9'
+                }
+            },
+            {
+                'name': 'numbins',
+                'description': 'Number of Bins',
+                'metadata': {
+                    'type': 'slider',
+                    'max': 20,
+                    'min': 2,
+                    'default': 5
+                }
+            },
+            {
+                'name': 'binoptions',
+                'description': 'Bin Options',
+                'metadata': {
+                    'type': 'button',
+                    'pd_app': self.get_numbins_options_pixieapp()
                 }
             }
         ]
