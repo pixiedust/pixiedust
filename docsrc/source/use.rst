@@ -7,7 +7,7 @@ PixieDust brings you the power to create compelling visuals fast, no coding nece
 
 .. sidebar:: Use PixieDust online right now
 
-    Start by trying PixieDust in a Python notebook online--no installation necessary. PixieDust is built-in to IBM's `Data Science Experience <http://datascience.ibm.com/>`_. Sign up for a free trial there, and create a new notebook from URL using this sample: 
+    Start by trying PixieDust in a Python notebook online--no installation necessary. PixieDust is built-in to IBM's `Watson Studio <https://www.ibm.com/cloud/watson-studio>`_. Sign up for a free trial there, and create a new notebook from URL using this sample: 
     ::
 
     | https://github.com/ibm-cds-labs/pixiedust/raw/master/notebook/DSX/Welcome%20to%20PixieDust.ipynb
