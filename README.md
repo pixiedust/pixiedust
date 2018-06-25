@@ -1,7 +1,7 @@
 # PixieDust
 
 [![PyPI version](https://badge.fury.io/py/pixiedust.svg)](https://badge.fury.io/py/pixiedust)
-[![Build Status](https://travis-ci.org/ibm-watson-data-lab/pixiedust.svg?branch=master)](https://travis-ci.org/ibm-watson-data-lab/pixiedust)  
+<!-- [![Build Status](https://travis-ci.org/ibm-watson-data-lab/pixiedust.svg?branch=master)](https://travis-ci.org/ibm-watson-data-lab/pixiedust) -->
 
 PixieDust is a productivity tool for Python or Scala notebooks, which lets a developer encapsulate business logic into something easy for your customers to consume.
 
