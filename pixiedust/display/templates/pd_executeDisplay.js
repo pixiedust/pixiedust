@@ -54,7 +54,7 @@
     }
 
     function send_input_reply(cb, cmd, pd_controls){
-        if (cmd == 'c' || cmd == 'continue' || cmd.startsWith("$$")){
+        if (cmd == 'c' || cmd == 'continue' || cmd == 'q' || cmd == 'quit' || cmd.startsWith("$$")){
             cb = null;
             pixiedust.input_reply_queue.queue = [];
             pixiedust.input_reply_queue.callbacks = {};
@@ -219,29 +219,38 @@
                     targetNodeUpdated = setHTML(getTargetNode(), content.traceback, pd_controls, user_controls);
                     {%else%}
                     require(['base/js/utils'], function(utils) {
-                        var tb = content.traceback;
-                        console.log("tb",tb);
-                        if (tb && tb.length>0){
-                            var data = tb.reduce(function(res, frame){return res+frame+'\\n';},"");
-                            console.log("data",data);
-                            data = utils.fixConsole(data);
-                            data = utils.fixCarriageReturn(data);
-                            data = utils.autoLinkUrls(data);
-                            if (user_controls.onError){
-                                user_controls.onError(data);
-                            }else{
-                                var debugger_html = '<button type="submit" pd_options="new_parent_prefix=false" pd_target="' + 
-                                getTargetNodeId() + '" pd_app="pixiedust.apps.debugger.PixieDebugger">Post Mortem</button>' +
-                                '<span>&nbsp;&nbsp;</span>' +
-                                '<button type="submit" pd_options="new_parent_prefix=false;debug_route=true" pd_target="' + 
-                                getTargetNodeId() + '" pd_app="pixiedust.apps.debugger.PixieDebugger">Debug Route</button>'
+                        if (content.ename == "BdbQuit"){
+                            targetNodeUpdated = setHTML(
+                                getTargetNode(), 
+                                "PixieDebugger exited", 
+                                pd_controls, 
+                                user_controls
+                            );
+                        }else{
+                            var tb = content.traceback;
+                            console.log("tb",tb);
+                            if (tb && tb.length>0){
+                                var data = tb.reduce(function(res, frame){return res+frame+'\\n';},"");
+                                console.log("data",data);
+                                data = utils.fixConsole(data);
+                                data = utils.fixCarriageReturn(data);
+                                data = utils.autoLinkUrls(data);
+                                if (user_controls.onError){
+                                    user_controls.onError(data);
+                                }else{
+                                    var debugger_html = '<button type="submit" pd_options="new_parent_prefix=false" pd_target="' + 
+                                    getTargetNodeId() + '" pd_app="pixiedust.apps.debugger.PixieDebugger">Post Mortem</button>' +
+                                    '<span>&nbsp;&nbsp;</span>' +
+                                    '<button type="submit" pd_options="new_parent_prefix=false;debug_route=true" pd_target="' + 
+                                    getTargetNodeId() + '" pd_app="pixiedust.apps.debugger.PixieDebugger">Debug Route</button>'
 
-                                targetNodeUpdated = setHTML(
-                                    getTargetNode(), 
-                                    debugger_html + "<pre>" + data + '</pre>' + debugger_html, 
-                                    pd_controls, 
-                                    user_controls
-                                );
+                                    targetNodeUpdated = setHTML(
+                                        getTargetNode(), 
+                                        debugger_html + "<pre>" + data + '</pre>' + debugger_html, 
+                                        pd_controls, 
+                                        user_controls
+                                    );
+                                }
                             }
                         }
                     });
