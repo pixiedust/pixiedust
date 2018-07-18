@@ -2,17 +2,17 @@
 <html>
  <head>
   <title>
-   Custom HTML Attributes
+   Custom HTML Attributes for PixieApps
   </title>
-  <meta content="&#xA9;Copyright IBM Corporation 2017" name="copyright"/>
-  <meta content="&#xA9;Copyright IBM Corporation 2017" name="DC.Rights.Owner"/>
-  <meta content="&#xA9; Copyright IBM Corporation 2016, 2017" name="dcterms.rights"/>
-  <meta content="2017-06-05" name="DC.date"/>
+  <meta content="&#xA9;Copyright IBM Corporation 2018" name="copyright"/>
+  <meta content="&#xA9;Copyright IBM Corporation 2018" name="DC.Rights.Owner"/>
+  <meta content="&#xA9; Copyright IBM Corporation 2016, 2017, 2018" name="dcterms.rights"/>
+  <meta content="2018-03-09" name="DC.date"/>
  </head>
  <body>
   <div>
    <h1>
-    Custom HTML Attributes
+    Custom HTML Attributes for PixieApps
    </h1>
    <p>
     The PixieDust JS runtime listens to click events on any HTML element that has one or more of the custom attributes below, and then transforms the attribute values into a kernel request. The following section describes all the custom attributes available, and how they affect the kernel request executed when a click event is received.
@@ -38,10 +38,10 @@
      </code>
      API options (more details below).
     </p>
-    <div>
-     <p>
+    <blockquote>
+     <strong>
       Note
-     </p>
+     </strong>
      <p>
       You can also use a shorter syntax to define options using the following attribute pattern:
       <code>
@@ -51,11 +51,11 @@
       </code>
       .
      </p>
-    </div>
-    <div>
-     <p>
+    </blockquote>
+    <blockquote>
+     <strong>
       Note
-     </p>
+     </strong>
      <p>
       To build the pd_options value for display(), use the display() API in a separate cell. When the correct chart is created, simply copy the options from the cell metadata. (You'll need to use the
       <em>
@@ -63,7 +63,25 @@
       </em>
       menu to show the "edit metadata" button.) You will also need to transform the JSON to the pd_options attribute format, e.g., no quote in the value, semi-colon separator, and "key=value" format.
      </p>
-    </div>
+    </blockquote>
+    <p>
+     You can now alternatively use JSON notation to configure pd_options. To do so, simply create a pd_options child element and directly store the JSON options as text. For example:
+    </p>
+    <pre>&lt;div id="map{{prefix}}" pd_entity&gt;
+    &lt;pd_options&gt;
+    {
+        "mapboxtoken": "XXXXX",
+        "chartsize": "90",
+        "aggregation": "SUM",
+        "rowCount": "500",
+        "handlerId": "mapView",
+        "rendererId": "mapbox",
+        "valueFields": "IncidntNum",
+        "keyFields": "X,Y",
+        "basemap": "light-v9"
+    }
+    &lt;/pd_options&gt;
+&lt;/div&gt;</pre>
    </div>
    <div>
     <h1>
@@ -82,10 +100,10 @@
      </code>
      , and requires that the PixieApp instance has a field named filteredDataFrame. If the field is not present, then an error will be raised.
     </p>
-    <div>
-     <p>
+    <blockquote>
+     <strong>
       Note
-     </p>
+     </strong>
      <p>
       the entity passed by the caller in the run method is stored in a special field called
       <code>
@@ -99,7 +117,7 @@
       </code>
       will direct PixieDust to use the entity passed by the caller. For convenience, the user can also simply use pd_entity (without any value) to do the same thing.
      </p>
-    </div>
+    </blockquote>
    </div>
    <div>
     <h1>
@@ -118,7 +136,7 @@
      </code>
      to specify a target element that will receive the output. (Of course the elementId must exist in the current view.) For example:
     </p>
-    <pre>&lt;div id="myTarget{{prefix}}"/&gt;
+    <pre>&lt;div id="myTarget{{prefix}}"&gt;&lt;/div&gt;
 &lt;input type="button" pd_options="handlerId=dataframe" pd_entity pd_target="myTarget{{prefix}}" value="click me"/&gt;</pre>
     <p>
      In the example above, we define a placeholder div with id
@@ -129,21 +147,21 @@
      </code>
      and use it as a target in the input button.
     </p>
-    <div>
-     <p>
+    <blockquote>
+     <strong>
       Note
-     </p>
+     </strong>
      <p>
       <code>
        {{prefix}}
       </code>
       is a Jinja2 notation that means "use the value of the prefix variable, which PixieDust automatically creates to provide a unique id." We need this value to avoid a conflict in case a user calls the PixieApp multiple times within the same notebook.
      </p>
-    </div>
-    <div>
-     <p>
+    </blockquote>
+    <blockquote>
+     <strong>
       Note
-     </p>
+     </strong>
      <p>
       You can define multiple targets for a particular kernel request. In this case, you'll want to create one or more
       <code>
@@ -155,7 +173,7 @@
       </strong>
       section for more info).
      </p>
-    </div>
+    </blockquote>
    </div>
    <div>
     <h1>
@@ -174,12 +192,12 @@
      </code>
      . pd_script can be used even if pd_entity is used. In this case, the Python script will be executed before the display() call. This behavior can be useful, for example, in creating a sub entity that will be used in the display() call. For example:
     </p>
-    <pre>&lt;div id="myTarget{{prefix}}"/&gt;
+    <pre>&lt;div id="myTarget{{prefix}}"&gt;&lt;/div&gt;
 &lt;input type="button" pd_options="handlerId=dataframe" pd_entity="filteredDataFrame" pd_script="self.filteredDataFrame=self.createFilteredDataFrame()" pd_target="myTarget{{prefix}}" value="click me"/&gt;</pre>
-    <div>
-     <p>
+    <blockquote>
+     <strong>
       Note
-     </p>
+     </strong>
      <p>
       You can use the
       <code>
@@ -187,15 +205,15 @@
       </code>
       keyword, which points at the current PixieApp instance.
      </p>
-    </div>
-    <div>
-     <p>
+    </blockquote>
+    <blockquote>
+     <strong>
       Note
-     </p>
+     </strong>
      <p>
       You can only use one-line Python code (similar to Python lambda). If you need to run more than one line of code, then you'll need to use the pd_script element as a child (see the Custom PixieApp Elements section for more info).
      </p>
-    </div>
+    </blockquote>
    </div>
    <div>
     <h1>
@@ -258,7 +276,7 @@ class Refresh():
     def mainScreen(self):
         return """
         &lt;input type="button" pd_refresh="counter{{prefix}}" value="Refresh Counter"&gt;
-        &lt;div id="counter{{prefix}}" pd_script="self.incrCounter()"/&gt;
+        &lt;div id="counter{{prefix}}" pd_script="self.incrCounter()"&gt;&lt;/div&gt;
         """
 Refresh().run()</pre>
    </div>
@@ -274,6 +292,43 @@ Refresh().run()</pre>
      forces PixieDust to not refresh the current output target.
     </p>
    </div>
+   <div>
+    <h1>
+     pd_stop_propagation
+    </h1>
+    <p>
+     Use the
+     <code>
+      pd_stop_propagation
+     </code>
+     attribute to tell PixieDust that in the case where it couldn't find anything to execute in the current element, to stop searching parent elements. This can be useful when the content of an element is dynamically generated via a route which has no execution info and you want to prevent accidental execution of a parent element configuration.
+    </p>
+   </div>
+   <div>
+    <h1>
+     pd_refresh_rate
+    </h1>
+    <p>
+     Use the
+     <code>
+      pd_refresh_rate
+     </code>
+     attribute to repeat the execution at a specified interval expressed in milliseconds. This is useful for when you want to poll the state of a particular variable and show the result in the UI. For example:
+    </p>
+    <pre>&lt;div pd_refresh_rate="3000" pd_script="print(self.get_status())"&gt;&lt;/div&gt;</pre>
+   </div>
+   <p>
+    <h3>
+     Return to main topic for:
+    </h3>
+    <ul>
+     <li>
+      <a href="pixieapps.html">
+       PixieApps: Use PixieDust to Generate UI Elements
+      </a>
+     </li>
+    </ul>
+   </p>
   </div>
  </body>
 </html>

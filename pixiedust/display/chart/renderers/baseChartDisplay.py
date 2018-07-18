@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------------
-# Copyright IBM Corp. 2017
+# Copyright IBM Corp. 2018
 # 
 # Licensed under the Apache License, Version 2.0 (the 'License');
 # you may not use this file except in compliance with the License.
@@ -29,6 +29,7 @@ import pandas as pd
 import time
 import inspect
 import re
+import json
 
 class ShowChartOptionDialog(Exception):
     pass
@@ -129,6 +130,13 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
         return []
 
     def validateOptions(self):
+        #start with the value Field, if empty, then we need to add a dummy column
+        value_fields = self.getValueFields()
+        if self.supportsKeyFields(self.handlerId) and len(value_fields) == 0:
+            new_col_name = self.dataHandler.add_numerical_column()
+            if new_col_name is not None:
+                self.valueFields = [new_col_name]
+                self.aggregation = "COUNT"
         #validate options
         chartOptions = self.getChartOptions()   
         self.debug("chartOptions {}".format(chartOptions)) 
@@ -139,14 +147,17 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
                 values = value.split(",")
                 self.debug("values: {0}".format(values))
                 for v in values:
-                    self.debug("Calling with {0}".format(v))
+                    self.debug("Calling validation for option {} with value {}".format(key, v))
                     passed, message = ord.get(key)(v)
                     if not passed:
-                        self.addMessage("Filtered option {0} with value {1}. Reason {2}".format(key, value, message))
+                        msg = "Filtered option {0} with value {1}. Reason {2}".format(key, value, message)
+                        self.debug(msg)
+                        self.addMessage(msg)
                         remKeys.append(key)
                         break
 
         for key in remKeys:
+            self.debug("deleting option: {}".format(key))
             del self.options[key]
 
     def getExtraFields(self):
@@ -162,13 +173,15 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
         extraFields = self.getExtraFields()
         aggregation = self.getAggregation()
         maxRows = self.getMaxRows()
+        isTableRenderer = self.isTableRenderer()
         timeseries = self.options.get("timeseries", 'false')
+        filter_options = json.loads(self.options.get("filter", '{}'))
         #remember the constraints for this cache, they are the list of variables
         constraints = locals()
 
         workingDF = WorkingDataCache.getFromCache(self.options, constraints )
         if workingDF is None:
-            workingDF = self.dataHandler.getWorkingPandasDataFrame(xFields, yFields, extraFields = extraFields, aggregation=aggregation, maxRows = maxRows )
+            workingDF = self.dataHandler.getWorkingPandasDataFrame(xFields, yFields, extraFields = extraFields, aggregation=aggregation, maxRows = maxRows, filterOptions=filter_options, isTableRenderer = isTableRenderer)
             WorkingDataCache.putInCache(self.options, workingDF, constraints)
         
         if self.options.get("sortby", None):
@@ -225,6 +238,10 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
     def isMap(self, handlerId):
         return False
 
+    """ Set to true for table rendering """
+    def isTableRenderer(self):
+        return False
+
     def supportsKeyFields(self, handlerId):
         return True
 
@@ -267,7 +284,7 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
         if keyFieldStr is not None:
             keyFields = keyFieldStr.split(",")
             keyFields = [val for val in keyFields if val in fieldNames]
-        if len(keyFields) == 0:
+        if len(keyFields) == 0 and not self.isTableRenderer():
             raise ShowChartOptionDialog()
         else:
             return keyFields
@@ -293,16 +310,34 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
         if valueFieldStr is not None:
             valueFields = valueFieldStr.split(",")
             valueFields = [val for val in valueFields if val in fieldNames]
+
         numericValueFields = []
         for valueField in valueFields:
             if self.dataHandler.isNumericField(valueField) or aggregation == "COUNT":
                 numericValueFields.append(valueField)
-        if len(numericValueFields) == 0:
+
+        if not self.supportsKeyFields(self.handlerId) and len(numericValueFields) == 0 and not self.isTableRenderer():
             raise ShowChartOptionDialog()
-        else:
-            return numericValueFields
-    
+        return numericValueFields
+      
+    def getNonNumericValueFields(self):
+        fieldNames = self.getFieldNames()
+        if len(fieldNames) == 0:
+            return []
+        valueFields = []
+        valueFieldStr = self.options.get("valueFields")
+        if valueFieldStr is not None:
+            valueFields = valueFieldStr.split(",")
+            valueFields = [val for val in valueFields if val in fieldNames]
+        nonNumericValueFields = []
+        for valueField in valueFields:
+            if not self.dataHandler.isNumericField(valueField):
+                nonNumericValueFields.append(valueField)
+        return nonNumericValueFields
+
     def canRenderChart(self):
+        if self.isTableRenderer():
+            return (True, None)
         aggregation = self.getAggregation()
         if (aggregation == "COUNT"):
             return (True, None)
@@ -330,7 +365,7 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
         return (dialogTemplate, dialogOptions)
 
     def getRendererList(self):
-        return PixiedustRenderer.getRendererList(self.options, self.entity)
+        return PixiedustRenderer.getRendererList(self.options, self.entity, self.isStreaming)
 
     @cache(fieldName="aggregation")
     def getAggregation(self):
@@ -349,40 +384,28 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
 
     @cache(fieldName="fieldNamesAndTypes")
     def getFieldNamesAndTypes(self, expandNested=True, sorted=False):
-        fieldNames = self.getFieldNames(True)
-        fieldNamesAndTypes = []
-        for fieldName in fieldNames:
-            fieldType = "unknown/unsupported"
-            if self.dataHandler.isNumericField(fieldName):
-                fieldType = "numeric"
-            elif self.dataHandler.isDateField(fieldName):
-                fieldType = "date/time"
-            elif self.dataHandler.isStringField(fieldName):
-                fieldType = "string"
-            fieldNamesAndTypes.append((fieldName, fieldType))
-        if sorted:
-            fieldNamesAndTypes.sort(key=lambda x: x[0])
-        return fieldNamesAndTypes
+        return self.dataHandler.getFieldNamesAndTypes(expandNested, sorted)
 
     def doRender(self, handlerId):
         self.handlerId = handlerId
         optionsTitle = self.camelCaseSplit(handlerId, True) + " Options"
-        if self.options.get("debug", None):
-            self.logStuff()
 
         # field names
         fieldNames = self.getFieldNames(True)
         (dialogTemplate, dialogOptions) = self.getDialogInfo(handlerId)
 
-        # go
+        keyFields = []
+        valueFields = []
         try:
             self.validateOptions()
+            if self.options.get("debug", None):
+                self.logStuff()
             keyFields = self.getKeyFields()
             valueFields = self.getValueFields()
         except ShowChartOptionDialog:
-            self.dialogBody = self.renderTemplate(dialogTemplate, **dialogOptions)
-            self._addJavascriptTemplate("chartOptions.dialog", optionsDialogBody=self.dialogBody, optionsTitle=optionsTitle, inScript=True)
-            return
+            if self.get_options_dialog_pixieapp() is not None:
+                self._addHTMLTemplate("renderer.html", chartFigure="", optionsTitle=optionsTitle, show_options_dialog=True)
+                return
         
         # render
         try:
@@ -408,7 +431,8 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
             if self.options.get("nostore_figureOnly", None):
                 self._addHTML(chartFigure)
             else:
-                self._addHTMLTemplate("renderer.html", chartFigure=chartFigure, optionsDialogBody=self.dialogBody, optionsTitle=optionsTitle)
+                self._addHTMLTemplate("renderer.html", chartFigure=chartFigure, optionsDialogBody=self.dialogBody, 
+                    optionsTitle=optionsTitle, **dialogOptions)
         except Exception as e:
             self.exception("Unexpected error while trying to render BaseChartDisplay")
             errorHTML = """
@@ -419,7 +443,8 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
             if self.options.get("nostore_figureOnly", None):
                 self._addHTML(errorHTML)
             else:
-                self._addHTMLTemplate("renderer.html", chartFigure=errorHTML, optionsDialogBody=self.dialogBody, optionsTitle=optionsTitle)
+                self._addHTMLTemplate("renderer.html", chartFigure=errorHTML, optionsDialogBody=self.dialogBody, 
+                    optionsTitle=optionsTitle, **dialogOptions)
 
     def logStuff(self):
         try:

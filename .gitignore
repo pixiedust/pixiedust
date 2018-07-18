@@ -113,3 +113,5 @@ scala/.settings
 node/
 
 docs/_sources/
+
+metastore_db

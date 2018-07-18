@@ -1,0 +1,88 @@
+<script>
+$(".gatewayOptions .nav a").on("click", function(){
+   n = $(".gatewayOptions .nav").find(".active");
+   o = $(".gatewayContents").find(".collapse.in");
+   p = $(this).parent();
+   if (n[0] != p[0]){
+       n.removeClass("active");
+       o.removeClass("in")
+       p.addClass("active");
+    }
+});
+</script>
+
+<style type="text/css">
+.gatewayOptions{
+    background-color: #fff;
+    border: 1px solid #d1d5da;
+    border-radius: 3px;
+}
+.gatewayOptions a{
+    text-decoration:none !important;
+}
+
+.gatewayOptions li:not(.active) a{
+    text-decoration:none !important;
+    color: initial !important;
+}
+.gatewayOptions ul{
+    padding-left: 0px !important;
+}
+
+.gatewayContents{
+    padding-left:10px;
+    min-height:200px;
+}
+</style>
+<div style="display: flex;
+    padding-bottom: 8px;
+    margin-bottom: 16px;
+    border-bottom: 1px #e1e4e8 solid;
+    flex-flow: row wrap;">
+    <h2>{{this.title}}</h2>
+</div>
+<div class="container" style="width:inherit">
+    <div class="row">
+        <div class="col-sm-2 gatewayOptions">
+            <div>
+                <ul class="nav nav-pills nav-stacked">
+                    {%for tab in this.tab_definitions%}
+                    <li {%if loop.first%} class="active" {%endif%}>
+                        <a data-toggle="collapse" data-target="#{{tab['id']}}{{prefix}}" href="#">{{tab['name']}}</a>
+                    </li>
+                    {%endfor%}
+                </ul>
+            </div>
+        </div>
+        <div class="col-sm-10 gatewayContents">
+            {%for tab in this.tab_definitions%}
+            <div id="{{tab['id']}}{{prefix}}" class="collapse {%if loop.first%}in{%endif%}">
+                <!--center><h4>{{tab['title']}}</h4></center-->
+                <div>
+                    {{tab['contents']()}}
+                </div>
+            </div>
+            {%endfor%}
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-2">
+        </div>
+        <div class="col-sm-10">
+            <button type="button" data-dismiss="modal" class="btn btn-cancel">Cancel</button>
+            {%for button in this.gateway_buttons%}
+            <button type="button" class="btn btn-primary">
+                <pd_options>
+                {
+                    {%for option in button['options']%}
+                    "gateway_{{option}}": "$val({{option}}{{prefix}})"{%if not loop.last%},{%endif%}
+                    {%endfor%}
+                }
+                </pd_options>
+                {{button['title']}}
+            </button>
+            {%endfor%}
+        </div>
+    </div>
+</div>

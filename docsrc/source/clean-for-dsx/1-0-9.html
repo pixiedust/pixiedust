@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+ <head>
+  <title>
+   PixieDust release notes 1.0.9
+  </title>
+  <meta content="&#xA9;Copyright IBM Corporation 2018" name="copyright"/>
+  <meta content="&#xA9;Copyright IBM Corporation 2018" name="DC.Rights.Owner"/>
+  <meta content="&#xA9; Copyright IBM Corporation 2016, 2017, 2018" name="dcterms.rights"/>
+  <meta content="2018-03-09" name="DC.date"/>
+ </head>
+ <body>
+  <div>
+   <h1>
+    PixieDust release notes 1.0.9
+   </h1>
+   <p>
+    Here's what's new in Release 1.0.9 (4 August 2017):
+   </p>
+   <p>
+    <strong>
+     Bug fixes
+    </strong>
+   </p>
+   <ul>
+    <li>
+     <p>
+      Fixed an error triggered by running a display command on a DataFrame shared from a Scala notebook. PixieDust's
+      <a href="scalabridge.html">
+       scala magic
+      </a>
+      feature allows users to share variables between Python and Scala Notebooks. Now, such shared Scala DataFrames are correctly displayed from within a Python context (
+      <a href="https://github.com/ibm-watson-data-lab/pixiedust/issues/425">
+       #425
+      </a>
+      ).
+     </p>
+    </li>
+    <li>
+     <p>
+      PixieApp chart options are now accepted as JSON. Instead of adapting parameters into HTML-style tag attributes, PixieApp developers can now simply paste valid JSON as the element content of the
+      <code>
+       &lt;pd_options&gt;
+      </code>
+      tag (
+      <a href="https://github.com/ibm-watson-data-lab/pixiedust/issues/423">
+       #423
+      </a>
+      ).
+     </p>
+    </li>
+    <li>
+     <p>
+      Calls to
+      <code>
+       pixiedust.enableJobMonitor()
+      </code>
+      now work properly on Spark 2.1 (
+      <a href="https://github.com/ibm-watson-data-lab/pixiedust/issues/223">
+       #223
+      </a>
+      ).
+     </p>
+    </li>
+    <li>
+     <p>
+      Fixed an issue where, within a PixieApp, the
+      <code>
+       showColumn
+      </code>
+      attribute would actually hide the column (
+      <a href="https://github.com/ibm-watson-data-lab/pixiedust/issues/383">
+       #383
+      </a>
+      ).
+     </p>
+    </li>
+    <li>
+     <p>
+      PixieDust display calls to the map render for Google now work correctly when using Python 3.x (
+      <a href="https://github.com/ibm-watson-data-lab/pixiedust/issues/417">
+       #417
+      </a>
+      ).
+     </p>
+    </li>
+   </ul>
+   <p>
+    <strong>
+     Enhancements
+    </strong>
+   </p>
+   <ul>
+    <li>
+     <p>
+      The local installer experience has been improved. The
+      <code>
+       jupyter pixiedust install
+      </code>
+      command now allows users to more easily install and switch between different versions of the Spark kernel (
+      <a href="https://github.com/ibm-watson-data-lab/pixiedust/issues/348">
+       #348
+      </a>
+      ).
+     </p>
+    </li>
+   </ul>
+   <p>
+    <h3>
+     Return to main topic for:
+    </h3>
+    <ul>
+     <li>
+      <a href="releasenotes.html">
+       PixieDust Release Notes
+      </a>
+     </li>
+    </ul>
+   </p>
+  </div>
+ </body>
+</html>

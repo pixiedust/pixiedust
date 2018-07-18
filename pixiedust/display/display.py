@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------------
-# Copyright IBM Corp. 2017
+# Copyright IBM Corp. 2018
 # 
 # Licensed under the Apache License, Version 2.0 (the 'License');
 # you may not use this file except in compliance with the License.
@@ -14,15 +14,17 @@
 # limitations under the License.
 # -------------------------------------------------------------------------------
 
-from abc import ABCMeta,abstractmethod
+from abc import ABCMeta, abstractmethod
 from IPython.display import display as ipythonDisplay, HTML, Javascript
 from pixiedust.utils import Logger
+from pixiedust.utils.astParse import parse_function_call
 from pixiedust.utils.template import *
 import sys
 import uuid
 from collections import OrderedDict
 import time
 import re
+import six
 import pixiedust
 from six import iteritems, with_metaclass
 from functools import reduce
@@ -197,11 +199,30 @@ class Display(with_metaclass(ABCMeta)):
     def isStreaming(self):
         return self.dataHandler.isStreaming if self.dataHandler is not None else False
 
+    @property
+    def is_running_on_dsx(self):
+        return pixiedust.utils.environment.Environment.isRunningOnDSX
+    
+    @property
+    def is_PY3(self):
+        return six.PY3
+
     def getBooleanOption(self, key, defValue):
         value = self.options.get(key, None)
         if value is None:
             return defValue
         return value == "true"
+
+    @property
+    def is_gateway(self):
+        return "gateway" in self.options
+
+    def get_options_dialog_pixieapp(self):
+        """
+        Return the fully qualified path to a PixieApp used to display the dialog options
+        PixieApp must inherit from pixiedust.display.chart.options.baseOptions.BaseOptions
+        """
+        return "pixiedust.display.chart.options.defaultOptions.DefaultOptions"
 
     def getDPI(self):
         return int(self.options.get("nostore_dpi", 96))
@@ -224,24 +245,53 @@ class Display(with_metaclass(ABCMeta)):
 
     def getPreferredOutputHeight(self):
         ch = self.options.get("nostore_ch", None)
+        vh = self.options.get("nostore_vh", None) # viewport height
+        cappedheight = 500 if vh is None else max(500, float(vh) * 0.5) # capped max height
         if ch is not None:
             return float(ch)
         else:
-            return float(self.getPreferredOutputWidth() * self.getHeightWidthRatio())
+            return min(cappedheight, float(self.getPreferredOutputWidth() * self.getHeightWidthRatio()))
 
+    def get_pd_controls(self, **kwargs):
+        menuInfo = kwargs.pop("menuInfo", None)
+        black_list = kwargs.pop("black_list", [])
+        command = kwargs.pop("command", self._genDisplayScript(menuInfo=menuInfo))
+        parsed_command = parse_function_call(command)
+        controls = {
+            "prefix": kwargs.pop("prefix", self.getPrefix()),
+            "command": "{}({},{})".format(
+                parsed_command['func'],
+                ",".join(parsed_command['args']),
+                ",".join( ["{}='{}'".format(k,v) for k,v in iteritems(parsed_command['kwargs']) if k not in black_list])
+            ),
+            "entity": parsed_command['args'][0],
+            "options": parsed_command['kwargs'],
+            "sniffers": [cb() for cb in CellHandshake.snifferCallbacks],
+            "avoidMetadata": menuInfo is not None,
+            "include_keys": ['filter']
+        }
+        for key,value in iteritems(kwargs):
+            if key in controls and isinstance(controls[key], dict) and isinstance(value, dict):
+                controls[key].update(value)
+            else:
+                controls[key] = value
+
+        for key in black_list:
+            controls["options"].pop(key, None)
+        return controls
 
     def _getTemplateArgs(self, **kwargs):
         args = {
-            "this":self, 
-            "entity":self.entity, 
-            "prefix":self.getPrefix(),
-            "module":self.__module__,
-            "pd_controls": json.dumps({
-                "prefix": self.getPrefix(),
-                "command": self._genDisplayScript(menuInfo=kwargs.get("menuInfo", None) ),
-                "options": self.options,
-                "sniffers": [cb() for cb in CellHandshake.snifferCallbacks]
-            })
+            "this": self, 
+            "entity": self.entity, 
+            "prefix": self.getPrefix(),
+            "module": self.__module__,
+            "gateway": self.options.get("gateway", None),
+            "pd_controls": json.dumps(
+                self.get_pd_controls(
+                    menuInfo=kwargs.get("menuInfo", None)
+                )
+            )
         }
 
         args.update(self.extraTemplateArgs)
@@ -359,7 +409,15 @@ class Display(with_metaclass(ABCMeta)):
         return self.prefix if menuInfo is None else (self.prefix + "-" + menuInfo['id'])
     
     def _getExecutePythonDisplayScript(self, menuInfo=None):
-        return self.renderTemplate('executePythonDisplayScript.js',menuInfo=menuInfo)
+        return self.renderTemplateString("""
+            {% set targetId=divId if divId and divId.startswith("$") else ("'"+divId+"'") if divId else "'wrapperHTML" + prefix + "'" %}
+            function(){
+                pixiedust.executeDisplay(
+                    {{pd_controls}},
+                    {'targetDivId': {{targetId}} }
+                );
+            }
+            """, menuInfo=menuInfo)
         
     def _getMenuHandlerScript(self, menuInfo):
         return """
@@ -384,7 +442,7 @@ class Display(with_metaclass(ABCMeta)):
                 retCommand+= command[k:]
             return retCommand
 
-        command = self.callerText
+        command = self.callerText if hasattr(self, "callerText") else None
         if command is None:
             raise ValueError("command is None")
         if menuInfo:
@@ -450,7 +508,11 @@ class CellHandshake(Display):
     def render(self):
         self._checkPixieDustJS()
         ipythonDisplay(HTML(
-            self.renderTemplate("handshake.html", org_params = ','.join(list(self.options.keys())))
+            self.renderTemplate(
+                "handshake.html", 
+                org_params = ','.join(list(self.options.keys())),
+                pixiedust_js = self.renderTemplate("pixiedust.js")
+            )
         ))
         
     def doRender(self, handlerId):
@@ -469,11 +531,18 @@ class RunInDialog(Display):
         self._checkPixieDustJS()
         self.debug("In RunInDialog")
         # del self.options['runInDialog']
-        ipythonDisplay(Javascript("pixiedust.executeInDialog({0});".format(
+        ipythonDisplay(Javascript("pixiedust.executeInDialog({0},{1});".format(
+            json.dumps(
+                self.get_pd_controls(
+                    prefix = self.options.get("prefix", self.getPrefix()),
+                    black_list = ['runInDialog']
+                )
+            ),
             json.dumps({
-                "prefix": self.getPrefix(),
-                "command": self.callerText.replace(",runInDialog='true'",""),
-                "options": self.options
+                "nostoreMedatadata": True,
+                "options":{
+                    "runInDialog": ""
+                }
             })
         )))
     def doRender(self, handlerId):
@@ -488,9 +557,7 @@ class UnknownEntityMeta(DisplayHandlerMeta):
         
 class UnknownEntityDisplay(Display):
     def render(self):
-        ipythonDisplay(HTML(
-            self.renderTemplate("unknownEntity.html")
-        ))
+        ipythonDisplay(self.entity)
         
     def doRender(self, handlerId):
         pass

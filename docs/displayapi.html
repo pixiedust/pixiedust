@@ -1,17 +1,14 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
     <title>Display Data &#8212; PixieDust Documentation</title>
-    
     <link rel="stylesheet" href="_static/better.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="_static/custom.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
@@ -32,7 +29,7 @@
     <link rel="prev" title="Load Data" href="loaddata.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   </head>
-  <body role="document">
+  <body>
     <header id="pageheader"><h1><a href="index.html ">
         PixieDust Documentation
     </a></h1></header>  
@@ -46,7 +43,7 @@
 <h1>Display Data<a class="headerlink" href="#display-data" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="introduction">
 <h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
-<p>PixieDust lets you visualize your data in just a few clicks. There&#8217;s no need to write the complex code that you used to need to generate notebook graphs. Just call PixieDust&#8217;s <code class="docutils literal"><span class="pre">display()</span></code> API, and any lay person can render and change complex table and chart displays. You can even choose from multiple rendering engines, without needing to know any of the code that makes them run. Watch this video demo:</p>
+<p>PixieDust lets you visualize your data in just a few clicks. There’s no need to write the complex code that you used to need to generate notebook graphs. Just call PixieDust’s <code class="docutils literal"><span class="pre">display()</span></code> API, and any lay person can render and change complex table and chart displays. You can even choose from multiple rendering engines, without needing to know any of the code that makes them run. Watch this video demo:</p>
 <div style="margin-top:10px; margin-bottom:25px;">
   <iframe width="560" height="315" src="https://www.youtube.com/embed/FoOHFlkCaXI" frameborder="0" allowfullscreen></iframe>
 </div><br><div class="admonition note">
@@ -55,13 +52,13 @@
 </div>
 <div class="sidebar">
 <p class="first sidebar-title">Create your own</p>
-<p class="last">PixieDust is extensible. If you don&#8217;t see the display option you want, create it. You can write your own visualization plugin, using HTML, JavaScript, and CSS. <a class="reference external" href="writeviz.html">Read how</a>.</p>
+<p class="last">PixieDust is extensible. If you don’t see the display option you want, create it. You can write your own visualization plugin, using HTML, JavaScript, and CSS. <a class="reference external" href="writeviz.html">Read how</a>.</p>
 </div>
 <p>The <code class="docutils literal"><span class="pre">display()</span></code> API  lets you visualize and chart your data in different ways. You can invoke the display API on any object, like a Spark DataFrame or Pandas DataFrame (support for additional formats is in development). PixieDust <code class="docutils literal"><span class="pre">display()</span></code> then introspects the object, determines what visualizations are capable of handling the data, and makes them available as menus within the output of the cell. If no visualization is found, then PixieDust <code class="docutils literal"><span class="pre">display()</span></code> shows an error message. PixieDust display comes with a set of built-in visualizations like tables, bar charts, line charts, scatter plots, maps, and more.</p>
 </div>
 <div class="section" id="get-started">
 <h2>Get Started<a class="headerlink" href="#get-started" title="Permalink to this headline">¶</a></h2>
-<p>Once you&#8217;ve imported the PixieDust module, start with the data. Here&#8217;s some sample code that creates a data frame:</p>
+<p>Once you’ve imported the PixieDust module, start with the data. Here’s some sample code that creates a data frame:</p>
 <blockquote>
 <div><div class="highlight-default"><div class="highlight"><pre><span></span><span class="c1">#import pixiedust display module</span>
 <span class="kn">from</span> <span class="nn">pixiedust.display</span> <span class="k">import</span> <span class="o">*</span>
@@ -147,7 +144,7 @@
 <p>To set keys and values, drag fields from the <strong>Fields</strong> list on the left and drop them where you want them.</p>
 <div class="sidebar">
 <p class="first sidebar-title">Edit cell metadata directly</p>
-<p class="last">To directly access your option settings, you can edit cell metadata. From the Jupyter menu, choose <strong>View &gt; Cell Toolbar &gt; Edit Metadata</strong>. On the upper right of your <code class="docutils literal"><span class="pre">display()</span></code> cell, click the <strong>Edit Metadata</strong> button. Jupyter shows you the cell&#8217;s JSON, which you can edit and save.</p>
+<p class="last">To directly access your option settings, you can edit cell metadata. From the Jupyter menu, choose <strong>View &gt; Cell Toolbar &gt; Edit Metadata</strong>. On the upper right of your <code class="docutils literal"><span class="pre">display()</span></code> cell, click the <strong>Edit Metadata</strong> button. Jupyter shows you the cell’s JSON, which you can edit and save.</p>
 </div>
 <p>Set these common options for every chart:</p>
 <ul class="simple">
@@ -178,7 +175,7 @@
 <h3>Choose a renderer<a class="headerlink" href="#choose-a-renderer" title="Permalink to this headline">¶</a></h3>
 <p>PixieDust offers several different rendering engines you can use out-of-the-box to display your data.</p>
 <img alt="_images/renderer_menu.png" src="_images/renderer_menu.png" />
-<p>The list of available renderers changes depending upon what chart type you&#8217;re viewing.</p>
+<p>The list of available renderers changes depending upon what chart type you’re viewing.</p>
 <p>The following renderers are currently built-in:</p>
 <div class="sidebar">
 <p class="first sidebar-title">Create your own renderer</p>
@@ -269,7 +266,7 @@
 </div>
 <div class="section" id="id2">
 <h4>Google Maps<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h4>
-<p>In addition to mapping <em>geographic points</em> with Mapbox, Pixiedust also lets you use <a class="reference external" href="https://developers.google.com/chart/interactive/docs/gallery/geochart">Google&#8217;s API</a> to create <em>GeoCharts</em>, which are maps that show region blocks identified in various ways.</p>
+<p>In addition to mapping <em>geographic points</em> with Mapbox, Pixiedust also lets you use <a class="reference external" href="https://developers.google.com/chart/interactive/docs/gallery/geochart">Google’s API</a> to create <em>GeoCharts</em>, which are maps that show region blocks identified in various ways.</p>
 <p>To create a GeoChart in Pixiedust, open <strong>Options</strong> and drag the field that has place names into <strong>Keys</strong>. Then for the <strong>Values</strong> field, choose any numeric field you want to visualize.</p>
 <p>Within the <strong>Display Mode</strong> menu, choose</p>
 <ul class="simple">
@@ -277,14 +274,14 @@
 <li><strong>Markers</strong> to place a circle in the center of the region which is scaled according to the data selected for the <strong>Value</strong> field.</li>
 <li><strong>Text</strong> to label regions with labels like <em>Russia</em> or <em>Asia</em></li>
 </ul>
-<p>Here&#8217;s a geochart (by region) of population by country:</p>
+<p>Here’s a geochart (by region) of population by country:</p>
 <img alt="_images/geochart_region.png" src="_images/geochart_region.png" />
 </div>
 </div>
 <div class="section" id="histogram">
 <h3>Histogram<a class="headerlink" href="#histogram" title="Permalink to this headline">¶</a></h3>
 <p>Use a histogram if the values on your x-axis are numeric, like age or price, and you want to show them in ranges. <a class="reference external" href="https://en.wikipedia.org/wiki/Histogram">More on when to use a histogram</a>.</p>
-<p>For example, here&#8217;s PixieDust&#8217;s Million Dollar Home Sales sample data set displayed in a histogram. Squarefeet ranges appear on the x-axis. The Bokeh renderer lets us show an additional dimension, Property Type, in color-coded bars.</p>
+<p>For example, here’s PixieDust’s Million Dollar Home Sales sample data set displayed in a histogram. Squarefeet ranges appear on the x-axis. The Bokeh renderer lets us show an additional dimension, Property Type, in color-coded bars.</p>
 <img alt="_images/histogram.png" src="_images/histogram.png" />
 <p>In <strong>Options</strong>, choose</p>
 <ul class="simple">
@@ -320,6 +317,7 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="develop.html">Develop for PixieDust</a></li>
 <li class="toctree-l1"><a class="reference internal" href="pixieapps.html">PixieApps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pixiegateway.html">PixieGateway</a></li>
 <li class="toctree-l1"><a class="reference internal" href="releasenotes.html">Release Notes</a></li>
 </ul>
 
@@ -339,7 +337,7 @@
     </div>
   <footer id="pagefooter">&copy; 2017, IBM.
       Created using <a href="http://sphinx-doc.org/">Sphinx</a>
-      1.5.6.
+      1.6.3.
 
   </footer>
 

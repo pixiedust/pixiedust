@@ -3,7 +3,7 @@ Dynamic Values
 
 In some cases, you might want to include values that depend on client-side user input (e.g., write a pd_script that executes a query provided as input by the user). To do that, you can use the ``"$val(<id>)"`` directive, which acts as a macro that will be resolved at the time the kernel request is executed. 
 
-"$val(<id>)" takes one argument that can be one of the following:
+"$val(<id>)" takes one argument that can be one of the following: 
 
 - **html element id:** The macro is replaced by the value of the HTML element specified by the id. For example:
 

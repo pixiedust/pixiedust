@@ -1,0 +1,17 @@
+<div class="form-group">
+    <label for="kernel{{prefix}}" class="control-label">Select a kernel to publish into:</label>
+    <div id="kernel{{prefix}}">
+        <select id="sel_kernel{{prefix}}" class="form-control">
+            {%for kernel, default_value in this.kernels %}
+                <option {%if default_value%}selected{%endif%} value="{{kernel|escape}}">
+                    {{kernel|escape}}
+                </option>
+            {%endfor%}
+        </select>
+    </div>
+</div>
+<div class="form-group">
+    <label>This Notebook Kernel Spec:</label>
+    <div pd_render_onload pd_refresh pd_options="showKernelSpec=true">
+    </div>
+</div>

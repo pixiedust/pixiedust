@@ -35,12 +35,12 @@ class StreamingDataAdapter(with_metaclass(ABCMeta)):
         return {}
 
     def accept(self, handlerId):
-        return False
+        return True
 
     defaultValues = {
         "getFieldNames": lambda expandNested=False: [],
         "schema": PandasDataFrameAdapter(pandas.DataFrame()).schema,
-        "getWorkingPandasDataFrame": lambda xFields, yFields, extraFields=[], aggregation=None, maxRows = 100: pandas.DataFrame()
+        "getWorkingPandasDataFrame": lambda xFields, yFields, extraFields=[], aggregation=None, maxRows = 100, filterOptions={}, isTableRenderer=False: pandas.DataFrame()
     }
 
     def getDisplayDataHandler(self, options, entity):
@@ -58,6 +58,8 @@ class StreamingDataAdapter(with_metaclass(ABCMeta)):
                 raise AttributeError("{0} attribute not found".format(name))
             def accept(self, handlerId):
                 return this.accept(handlerId)
+            def add_numerical_column(self):
+                pass
         return StreamingDisplayDataHandler(options, entity)
 
     @abstractmethod
@@ -68,6 +70,9 @@ class StreamingDataAdapter(with_metaclass(ABCMeta)):
         2. pandas dataframe
         3. y: list/numpy array representing the y axis. In this case, the x axis is automatically created
         4. pandas serie: similar to #3
+        5. json
+        6. geojson
+        7. url with supported payload (json/geojson)
         """
         pass
 

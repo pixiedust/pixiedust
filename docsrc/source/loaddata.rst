@@ -18,16 +18,27 @@ You get a list of the data sets included with PixieDust.
 
 
 .. image:: _images/sample_data_sets.png
+   :height: 522 px
+   :width: 1384 px
+   :scale: 50 %
+   :alt: Screenshot of PixieDust's sampleData() method.
 
+.. raw:: html
 
-.. note:: If you get an error, and you're running Spark 1.6, run the following command to manually install packages missing in 1.6 (You need to do so only once.):
+    <!-- START EXCLUDE -->
+
+.. note::
+   If you get an error, and you're running Spark 1.6, run the following command to manually install packages missing in 1.6 (You need to do so only once.):
 
    ::
 
 
       pixiedust.installPackage("com.databricks:spark-csv_2.10:1.5.0")
       pixiedust.installPackage("org.apache.commons:commons-csv:0")
+      
+.. raw:: html
 
+   <!-- END EXCLUDE -->
 
 To create a pySpark DataFrame for one of the samples, just enter its number in the following command. For example, to load Set 6, Million Dollar Home sales, run the command:
 
@@ -46,6 +57,17 @@ You can also replace the number with a URL. If you have a CSV file online, acces
 
 
   home_df = pixiedust.sampleData("https://openobjectstore.mybluemix.net/misc/milliondollarhomes.csv")     
+
+
+Load data from your local system
+--------------------------------
+
+Loading a CSV from your local file system is equally simple. Drop in the file path, like so:
+
+::
+
+
+  pixiedust.sampleData('file:///Users/bradfordnoble/pixiedust/data/nz.csv')    
 
 
 Other Data Sources

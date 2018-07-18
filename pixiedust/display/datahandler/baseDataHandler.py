@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------------
-# Copyright IBM Corp. 2017
+# Copyright IBM Corp. 2018
 # 
 # Licensed under the Apache License, Version 2.0 (the 'License');
 # you may not use this file except in compliance with the License.
@@ -19,3 +19,28 @@ class BaseDataHandler(object):
         self.options = options
         self.entity = entity
         self.isStreaming = False
+
+    def add_numerical_column(self):
+        raise NotImplementedError()
+
+    def count(self):
+        raise NotImplementedError()
+
+    def getFieldNamesAndTypes(self, expandNested=True, sorted=False):
+        fieldNames = self.getFieldNames(expandNested)
+        fieldNamesAndTypes = []
+        for fieldName in fieldNames:
+            fieldType = "unknown/unsupported"
+            if self.isNumericField(fieldName):
+                fieldType = "numeric"
+            elif self.isDateField(fieldName):
+                fieldType = "date/time"
+            elif self.isStringField(fieldName):
+                fieldType = "string"
+            fieldNamesAndTypes.append((fieldName, fieldType))
+        if sorted:
+            fieldNamesAndTypes.sort(key=lambda x: str(x[0]))
+        return fieldNamesAndTypes
+
+    def get_filtered_dataframe(self, filter_options):
+        return self.entity

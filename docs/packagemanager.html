@@ -1,17 +1,14 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
     <title>Package Manager &#8212; PixieDust Documentation</title>
-    
     <link rel="stylesheet" href="_static/better.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="_static/custom.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
@@ -32,7 +29,7 @@
     <link rel="prev" title="Display Data" href="displayapi.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   </head>
-  <body role="document">
+  <body>
     <header id="pageheader"><h1><a href="index.html ">
         PixieDust Documentation
     </a></h1></header>  
@@ -50,7 +47,7 @@
 uninstall maven packages into your notebook kernel without editing
 configuration files. This component is essential when you run
 notebooks from a hosted cloud environment and do not have access to the configuration files.</p>
-<p>You can use this component in the following ways:</p>
+<!-- START EXCLUDE --><p>You can use this component in the following ways:</p>
 <ul class="simple">
 <li>Install a spark package from spark-packages.org.</li>
 <li>Install from maven search repository.</li>
@@ -104,7 +101,7 @@ used from your Python notebook.</p>
 <p class="first admonition-title">Note</p>
 <p class="last">Some libraries, such as GraphFrames include a python module within it. PixieDust automatically adds the python file into the SparkContext. However, you must explicitly call <strong>pixiedust.installPackage</strong> at the beginning of every kernel session so that the python modules are added to the SparkContext.</p>
 </div>
-</div>
+<!-- END EXCLUDE --></div>
 <div class="section" id="install-from-maven-search-repository">
 <h2>Install from maven search repository<a class="headerlink" href="#install-from-maven-search-repository" title="Permalink to this headline">¶</a></h2>
 <p>Go to the maven search site, <a class="reference external" href="http://search.maven.org/">search.maven.org</a>, and look for the package of your choice, like <strong>org.apache.commons</strong>. In the results page, open the link of the component you want, like <strong>commons-proxy</strong>. You get the group ID, artifact ID, and version number to use with the <strong>pixiedust.installPackage</strong> API.</p>
@@ -158,6 +155,7 @@ used from your Python notebook.</p>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="develop.html">Develop for PixieDust</a></li>
 <li class="toctree-l1"><a class="reference internal" href="pixieapps.html">PixieApps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pixiegateway.html">PixieGateway</a></li>
 <li class="toctree-l1"><a class="reference internal" href="releasenotes.html">Release Notes</a></li>
 </ul>
 
@@ -177,7 +175,7 @@ used from your Python notebook.</p>
     </div>
   <footer id="pagefooter">&copy; 2017, IBM.
       Created using <a href="http://sphinx-doc.org/">Sphinx</a>
-      1.5.6.
+      1.6.3.
 
   </footer>
 

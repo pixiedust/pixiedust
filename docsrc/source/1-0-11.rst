@@ -1,0 +1,16 @@
+1.0.11
+======
+
+Here's what's new in Release 1.0.11 (8 September 2017):          
+
+**Bug fixes**
+
+-  Calls to ``pixiedust.sampleData`` can now be forced to return a pandas DataFrame by supplying the parameter ``forcePandas=True`` (`#441 <https://github.com/ibm-watson-data-lab/pixiedust/issues/441>`_).
+
+- PixieDust's installer now works correctly with Python 3.5 (`#437 <https://github.com/ibm-watson-data-lab/pixiedust/issues/437>`_).
+
+- The "Bin size" label for ``display()`` histogram visualizations has been renamed to more accurately reflect its function. It now reads "Bin Count" (`#185 <https://github.com/ibm-watson-data-lab/pixiedust/issues/185>`_).
+
+**Enhancements**
+
+- The 1.0.11 release introduces an experimental feature for streaming data, with low-level interfaces in place. The feature will be documented in an upcoming 2017 release; however, (`technical examples <https://github.com/ibm-watson-data-lab/pixiedust/tree/master/notebook/pixieapp-streaming>`_) are already available (`#321 <https://github.com/ibm-watson-data-lab/pixiedust/issues/321>`_).

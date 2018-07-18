@@ -1,0 +1,12 @@
+1.1.6
+=====
+
+Here's what's new in Release 1.1.6 (15 January 2018):            
+
+**Bug fixes**
+
+- PixieApps now properly collapse `Bootstrap button dropdowns <https://getbootstrap.com/docs/3.3/components/#btn-dropdowns>`_. The previous behavior forced users to close the menu manually to collapse the dropdown. With this fix, dropdowns now collapse automatically (`#555 <https://github.com/ibm-watson-data-lab/pixiedust/issues/555>`_).
+
+- Saved notebooks now properly preserve charts rendered using PixieDust's Bokeh renderer. Previously, the visualizations would save, but the menu bar would disappear (`#551 <https://github.com/ibm-watson-data-lab/pixiedust/issues/551>`_).
+
+- Addressed a known issue from `release 1.1.5 <1-1-5.html>`_ to update the minimum version of Bokeh.

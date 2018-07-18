@@ -156,7 +156,7 @@ justify-content:center;
             self.streamingData.close()
         Adapter = MessagehubStreamingAdapter
         if useConfluent:
-            from pixiedust.display.streaming.data.messageHubConfluent import *
+            from pixiedust.display.streaming.data.messageHubConfluent import MessagehubStreamingAdapterConfluent
             Adapter = MessagehubStreamingAdapterConfluent
             self.debug("Using Confluent Kafka")
         self.streamingData = Adapter( self.topic, self.credentials["username"], self.credentials["password"], self.credentials.get("prod", True) )

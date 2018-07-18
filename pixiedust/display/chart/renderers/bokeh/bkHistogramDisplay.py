@@ -16,21 +16,16 @@
 
 from pixiedust.display.chart.renderers import PixiedustRenderer
 from pixiedust.display.chart.renderers.baseChartDisplay import commonChartOptions
-from pixiedust.display.chart.colorManager import Colors
-from .bokehBaseDisplay import BokehBaseDisplay
 from pixiedust.utils import Logger
-from bokeh.layouts import row
+from .bokehBaseDisplay import BokehBaseDisplay
+from bokeh.plotting import figure
+import numpy as np
 import math
-
-try:
-    from bkcharts import Histogram, show
-except ImportError:
-    from bokeh.charts import Histogram, show
+import sys
 
 @PixiedustRenderer(id="histogram")
 @Logger()
-class HistogramRenderer(BokehBaseDisplay):
-    
+class BKHistogramRenderer(BokehBaseDisplay):
     def supportsAggregation(self, handlerId):
         return False
 
@@ -66,25 +61,35 @@ class HistogramRenderer(BokehBaseDisplay):
     def getExtraFields(self):
         color = self.options.get("color")
         return [color] if color is not None else []
-    
+
     def createBokehChart(self):
-        plotwidth = int(self.getPreferredOutputWidth()/2)
-        plotheight = int(self.getPreferredOutputHeight() * 0.75)
         defaultbin = math.sqrt(len(self.getWorkingPandasDataFrame().index))
         binsize = int(self.options.get('binsize', defaultbin))
         valueFields = self.getValueFields()
-        histograms = []
-        if len(valueFields) != 1:
-            for i,valueField in enumerate(valueFields):
-                color = self.options.get("color")
-                if color is None:
-                    color = Colors.hexRGB( 1.*i/2 )
-                histograms.append(Histogram(
-                    self.getWorkingPandasDataFrame(), values=valueField, plot_width=plotwidth, plot_height=plotheight,bins=binsize, 
-                    color=color, xgrid=True, ygrid=True, ylabel='Frequency')
-                )
-            return histograms
-        else:
-            return Histogram(self.getWorkingPandasDataFrame(), values=self.getValueFields()[0],
-            bins=binsize, color=self.options.get("color"), 
-            xgrid=True, ygrid=True, ylabel='Frequency')
+        colour = self.options.get("color")
+
+        def histogram(df, vField, color=None, clustered=None):
+            colors = self.colorPalette(len(df.index)) if color is None else color
+
+            p = figure(y_axis_label='Frequency', x_axis_label=vField)
+
+            for j,c in enumerate(list(df[clustered].unique())) if clustered else enumerate([None]):
+                df2 = df[df[clustered] == c] if c else df
+                hist, edges = np.histogram(list(df2[vField]), density=True, bins=binsize)
+                p.quad(top=hist, bottom=0, left=edges[:-1], right=edges[1:], fill_color=colors[j], line_color="#cccccc", fill_alpha=0.8 if clustered else 1, legend=str(c) if clustered else None)
+
+            p.y_range.start=0
+
+            p.legend.location = "top_left"
+            return p
+
+        charts = []
+        wpdf = self.getWorkingPandasDataFrame().copy()
+        colours = self.colorPalette(None if colour is None else len(wpdf[colour].unique()))
+        
+        for i, v in enumerate(valueFields):
+            charts.append(histogram(wpdf, v, color=colours, clustered=colour))
+
+
+        return charts
+

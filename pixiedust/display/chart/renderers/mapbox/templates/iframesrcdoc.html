@@ -49,12 +49,16 @@
   }();
   {%endif%}
 </script>
-<iframe id="mapframe{{prefix}}" style='width:{{prefwidth}}px;height:{{prefheight}}px' srcdoc='{{body|oneline|replace("'","\\'")}}' onload="iframeLoaded(this)"></iframe>
+<iframe id="mapframe{{prefix}}" style='width:{{prefwidth}}px;height:{{prefheight}}px' srcdoc='' onload="iframeLoaded(this)"></iframe>
+<script>
+  var iframe = document.getElementById('mapframe{{prefix}}');
+  iframe.setAttribute('srcdoc', atob('{{body|btoa}}'));
+</script>
 {%if this.isStreaming%}
-<div pd_refresh_rate="{{this.options.get('refresh', 1000)}}">
+<div pd_refresh_rate="{{this.options.get('refresh', 1000)}}" class="no_loading_msg">
     <pd_script>
 from ipykernel.comm import Comm
-from pixiedust.display.streaming.streamingDisplay import *
+from pixiedust.display.streamingDisplay import *
 cellId = "{{this.options["cell_id"]}}"
 entity = activesStreamingEntities[cellId] if cellId in activesStreamingEntities else None
 if entity is not None:

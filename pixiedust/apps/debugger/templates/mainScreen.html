@@ -1,0 +1,444 @@
+<style>
+    .pd-debugger-out {
+        margin-top: 8px;
+        min-height: 48px;
+        overflow: auto;
+        padding: 5px 0px;
+    }
+    .pd-debugger-out .tab-content {
+        border-bottom: 1px solid #ddd;
+        border-left: 1px solid #ddd;
+        border-right: 1px solid #ddd;
+        padding: 0;
+    }
+    .pd-debugger-out .nav-tabs {
+        padding-left: 0 !important;
+    }
+    .pd-debugger-out .nav-tabs > li > a {
+        border-radius: 0;
+        font-weight: 300;
+        color: #333333;
+        padding: 8px 10px;
+        text-decoration: none;
+    }
+    .pd-debugger-out .nav-tabs > li.active > a {
+        font-weight: 500;
+        color: #000000;
+        text-decoration: none;
+    }
+    #variables{{prefix}} {
+        border: 1px solid #dddddd;
+        max-height: 220px;
+        min-height: 100%;
+        overflow: auto;
+        margin-left: 10px;
+        padding: 0;
+        width: calc(100% - 10px);
+    }
+    #value{{prefix}} {
+        background-color: #F9F9F9;
+        border: 1px solid #dddddd;
+        font-size: 14px;
+        height: 40px;
+        overflow: auto;
+        margin-left: 10px;
+        padding: 0 2px;
+        width: calc(100% - 10px);
+    }
+    #code{{prefix}} {
+        border: 1px solid #dddddd;
+        max-height: 275px;
+        min-height: 75px;
+        overflow: auto;
+        position: relative;
+    }
+    .pd-debugger-code {
+        display: flex;
+    }
+    .pd-debugger-code,
+    .pd-debugger-vars {
+        padding: 0;
+    }
+    .pd-debugger-code code,
+    .pd-debugger-vars code {
+        background-color: transparent;
+        padding: 0;
+        white-space: pre;
+    }
+    .pd-debugger-gutter {
+        background-color: #F7F7F7;
+        border-right: 1px solid #dddddd;
+        display: inline-block;
+        padding: 5px 0px;
+        text-align: right;
+    }
+    .pd-debugger-source {
+        display: inline-block;
+        flex: 1;
+        padding: 5px 0px;
+    }
+    .pd-debugger-gutter > div,
+    .pd-debugger-source > div {
+        padding: 0px 8px;
+    }
+    .pd-debugger-source .current-line,
+    .pd-debugger-gutter .current-line:not(.error-line) {
+        background-color: rgba(66, 165, 245, 0.2);
+    }
+    .pd-debugger-source .error-line:not(.current-line),
+    .pd-debugger-gutter .error-line {
+        background-color: #fdaeb7;
+    }
+    .pd-debugger-gutter .fa-bug {
+        color: crimson;
+        cursor: pointer;
+        display: inline;
+        font-size: 12px;
+        padding-right: 5px;
+        opacity: 0;
+    }
+    .pd-debugger-gutter .fa-bug:hover {
+        opacity: 0.45;
+    }
+    .pd-debugger-gutter .breakpoint-line .fa-bug {
+        opacity: 1;
+    }
+    .pd-debugger-gutter > div > code:hover {
+        visibility: hidden;
+    }
+    .pd-debugger-gutter > div > code:hover::after {
+        color: green;
+        cursor: pointer;
+        content: "\f050";
+        font: normal normal normal 12px/1 FontAwesome;
+        margin-left: -14px;
+        visibility: initial;
+    }
+
+    .pd-debugger-vars table {
+        table-layout: auto;
+        border-collapse: collapse;
+        width: 100%;
+    }
+    .pd-debugger-vars table {
+        font-size: 13px;
+        font-weight: 200;
+    }
+    .pd-debugger-vars table thead {
+        border-bottom: 1px solid #ddd;
+    }
+    .pd-debugger-vars table tr {
+        cursor: pointer;
+    }
+    .pd-debugger-vars table th {
+        color: #333333;
+        font-size: small;
+        font-weight: 500;
+        letter-spacing: 0.5px;
+        line-height: normal;
+        padding: 20px 0 0 0;
+    }
+    .pd-debugger-vars table td {
+        padding-top: 2px;
+        padding-bottom: 2px;
+    }
+    .pd-debugger-vars table th:last-child {
+        width: calc(100% - 15px);
+    }
+    .pd-debugger-vars table td:first-child,
+    .pd-debugger-vars table th:first-child {
+        padding-left: 4px;
+        text-align: left;
+    }
+    .pd-debugger-vars table td:last-child,
+    .pd-debugger-vars table th:last-child {
+        padding-right: 4px;
+        text-align: right;
+    }
+    #console_output_{{prefix}} {
+        min-height: 82px;
+        padding: 10px;
+    }
+    #evaluate_{{prefix}},
+    #breakpoints_{{prefix}} {
+        min-height: 48px;
+        padding: 10px;
+        max-height: 200px;
+        overflow: auto;
+    }
+    #breakpoints_{{prefix}} {
+        padding: 10px 0;
+    }
+    #evaluate_output_{{prefix}} input,
+    #breakpoints_output_{{prefix}} input {
+        border-color: #ddd !important;
+        border-bottom: 0 none !important;
+        border-left: 0 none !important;
+        border-radius: 0 !important;
+        box-shadow: initial !important;
+        padding-left: 17px;
+        background-color: #F9F9F9;
+        height: 34px;
+        font-family: monospace;
+    }
+
+    #evaluate_output_{{prefix}} .fa-angle-right,
+    #breakpoints_output_{{prefix}} .fa-angle-right {
+        position: absolute;
+        left: 4px;
+        top: 4px;
+        z-index: 10;
+    }
+    #evaluate_output_{{prefix}} button,
+    #breakpoints_output_{{prefix}} button {
+        border-right: 0 none;
+        border-radius: 0;
+        font-size: 14px;
+    }
+    .pd-remove-bp {
+        border: 0 none;
+        background-color: transparent;
+        color: red;
+        opacity: 0.85;
+    }
+</style>
+<script>
+    var triggerInputOnEnter = function(btnId, elt, evt) {
+        if ((evt.keyCode ? evt.keyCode : evt.which) === 13) {
+            $('#' + btnId).click()
+            $(elt).val('')
+        }
+    }
+    var formatCodeOutput = function(output) {
+        var lines = output.split(/\r?\n/)
+        var gutter = []
+        var source = []
+        for (var i=0; i<lines.length; i++) {
+            var parts = lines[i].match(/(\s*\d+\sB?\s?)(.+)/)
+            var rowclass = ''
+            if (parts) {
+                if (parts[1].indexOf('B') > 0) {
+                    parts[1] = parts[1].replace('B', '')
+                    rowclass += ' breakpoint-line'
+                }
+                if (parts[2].search(/->/) === 0) {
+                    parts[2] = parts[2].replace(/->/, '')
+                    rowclass += ' current-line'
+                }
+                if (parts[2].search(/>>/) === 0) {
+                    parts[2] = parts[2].replace(/>>/, '')
+                    rowclass += ' error-line'
+                }
+                gutter.push('<div data-lineno="' + parts[1].trim() + '" class="' + rowclass + '"><i class="fa fa-bug breakpointgutter"></i><code title="Continue execution until a line with a number greater or equal to this line number is reached.">' + parts[1].trim() + '</code></div>')
+                source.push('<div data-lineno="' + parts[1].trim() + '" class="' + rowclass + '"><code>' + (parts[2].substring(1).replace(/</g, "&lt;") || '&nbsp;') + '</code></div>')
+            }
+        }
+        for (var j=gutter.length; j<5; j++) {
+            gutter.push('<div>&nbsp;</div>')
+            source.push('<div>&nbsp;</div>')
+        }
+        setTimeout(function() {
+            var current = $('#code{{prefix}} .pd-debugger-code .current-line')
+            var codebox = $('#code{{prefix}}')
+            if (current.length && (current.position().top + 25 > codebox.height() || current.position().top < 0)) {
+                codebox.scrollTop(current.position().top < 0 ? 0 : current.position().top)
+            }
+            $('#code{{prefix}} .pd-debugger-gutter code').on('click', function () {
+                var lineno = $(this).text()
+                $('#btn-unt-{{prefix}}')
+                    .attr('pd_options', 'send_input_reply=unt ' + lineno)
+                    .click()
+            })
+            $('#code{{prefix}} .pd-debugger-gutter :not(.breakpoint-line) .breakpointgutter').on('click', function () {
+                var lineno = $(this).parent().attr('data-lineno')
+                $('#btn-unt-{{prefix}}')
+                    .attr('pd_options', 'send_input_reply=b ' + lineno)
+                    .click()
+            })
+        }, 250)
+        return '<div class="pd-debugger-code"><div class="pd-debugger-gutter">' + 
+                gutter.join('') + 
+                '</div><div class="pd-debugger-source">' + 
+                source.join('')  + 
+                '</div><button style="display:none" id="btn-unt-{{prefix}}" pd_target="debugger_refresh"></button></div>'
+    }
+    var truncate = function(s){
+        if (s.length > 20){
+            s = s.substring(0,17) + "...";
+        }
+        return s.replace(/</g,"&lt;").replace(/>/g,"&gt;");
+    }
+    var formatVariablesOutput = function(output) {
+        var variables = "";
+        output = output.trim();
+        try{
+            variables = JSON.parse(output.replace(/'/g, '"')).sort(function (a, b) { return a.localeCompare(b) });
+        }catch(e){
+            if (output[0] == "'"){
+                output = output.substring(1);
+            }
+            if (output[output.length - 1] == "'"){
+                output = output.substring(0, output.length - 1);
+            }
+            output = output.replace(/\\'/g, "'").replace(/\\\\/g,'\\');
+            variables = JSON.parse(output);
+        }
+        for (var i=0; i<variables.length; i++) {
+            var v = variables[i].split(':');
+            variables[i] = '<tr pd_target="value{{prefix}}" pd_options="send_input_reply=pp ' + v[0] + '" value="' + v[0] + '"><td><code>' + truncate(v[0]) + '</code></td><td>' + truncate(v[1]) + '</td></tr>'
+        }
+        return '<div class="pd-debugger-vars"><table role="presentation">' + variables.join('') + '</table></div>'
+    }
+</script>
+<div id="debugger_container_{{prefix}}" style="display:none;margin-bottom:20px;">
+    <div class="no_loading_msg" id="input_reply_{{prefix}}">
+        <pd_script type="process_output">
+            <script type="text/template">
+            return '<div pd_render_onload pd_options="send_input_reply={%if this.is_PY3%}ll{%else%}l{%endif%}" pd_target="code{{prefix}}"></div>'+
+            '<div pd_render_onload pd_target="variables{{prefix}}">'+
+                '<pd_options>'+
+                '{'+
+                    '"send_input_reply": "import json;;p json.dumps([\'{}:{}\'.format(key,value) for key,value in locals().items() if not key.startswith(\'_\') and key not in [\'In\',\'Out\']])"'+
+                '}'+
+                '</pd_options>'+
+            '</div>'+
+            '<div pd_render_onload pd_options="send_input_reply=break" pd_target="breakpoints_{{prefix}}"></div>' +
+            '<div pd_render_onload pd_options="send_input_reply=no_op" pd_target="variables{{prefix}}"></div>';
+            </script>
+        </pd_script>
+    </div>
+    <div class="container no_loading_msg" id="debugger{{prefix}}" style="width:100%">
+        <div class="row" style="margin-top:30px; display: flex;">
+            <div class="col-sm-9">
+                <div class="row" style="margin-bottom:3px;">
+                    <div class="col-sm-12">
+                        {%include resModule + ":toolbar.html"%}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12 no_loading_msg" id="code{{prefix}}">
+                        <pd_script type="process_output">
+                            <script type="text/template">
+                                return formatCodeOutput(output);
+                            </script>
+                        </pd_script>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-3">
+                <div class="row" style="font-weight:500;margin:20px 0 0 10px;">Variables</div>
+                <div class="row" style="height:calc(100% - 80px);margin-bottom:3px;">
+                    <div class="col-sm-12 no_loading_msg" id="variables{{prefix}}">
+                        <pd_script type="process_output">
+                            <script type="text/template">
+                                return formatVariablesOutput(output);
+                            </script>
+                        </pd_script>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12 no_loading_msg no_stream_output" id="value{{prefix}}"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div pd_render_onload pd_target="console_output_{{prefix}}"> 
+    <pd_script run_raw>
+{{this.code}}
+    </pd_script>
+    <target pd_options="send_input_reply=no_op_delay" pd_target="dummy"></target>
+    <target pd_options="send_input_reply=clear;answer_input_reply=yes" pd_target="console_output_{{prefix}}"></target>
+    {%for breakpoint in this.breakpoints%}
+    <target pd_options="send_input_reply=break {{breakpoint}}" pd_target="console_output_{{prefix}}"></target>
+    {%if loop.last%}
+    <target pd_options="send_input_reply=c" pd_target="debugger{{prefix}}"></target>
+    {%endif%}
+    {%endfor%}
+</div>
+<div class="pd-debugger-out">
+    <ul class="nav nav-tabs" role="tablist">
+        <li role="presentation" class="active"><a href="#console_output_{{prefix}}" aria-controls="console_output_{{prefix}}" role="tab" data-toggle="tab">Console</a></li>
+        <li role="presentation"><a href="#evaluate_output_{{prefix}}" aria-controls="evaluate_output_{{prefix}}" role="tab" data-toggle="tab">Evaluate</a></li>
+        <li role="presentation"><a href="#breakpoints_output_{{prefix}}" aria-controls="breakpoints_output_{{prefix}}" role="tab" data-toggle="tab">Breakpoints</a></li>
+    </ul>
+    <div class="tab-content">
+        <div role="tabpanel" class="tab-pane active no_loading_msg use_stream_output" id="console_output_{{prefix}}"> </div>
+        <div role="tabpanel" class="tab-pane" id="evaluate_output_{{prefix}}">
+            <div class="row no_loading_msg" id="evaluate_{{prefix}}"> </div>
+            <div class="row">
+                <div class="col-sm-12">
+                    <i class="fa fa-angle-right fa-2x"></i>
+                    <div class="input-group">
+                        <input id="evaluate_input_{{prefix}}" type="text" class="form-control" onkeypress="triggerInputOnEnter('evaluate_btn_{{prefix}}', this, event)"
+                            placeholder="Enter an expression" style="border-radius: 0;">
+                        <span class="input-group-btn">
+                            <button class="btn btn-primary" type="button" id="evaluate_btn_{{prefix}}"
+                                title="Evaluate the expression in the current context and print its value"
+                                pd_target="evaluate_{{prefix}}"
+                                pd_options="send_input_reply=pp $val(evaluate_input_{{prefix}})">Run</button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div role="tabpanel" class="tab-pane" id="breakpoints_output_{{prefix}}">
+            <div class="row no_loading_msg" id="breakpoints_{{prefix}}"> 
+                <pd_script type="process_output">
+                    <script type="text/template">
+                        var lines = output.split('\n');
+                        var html = '<table width="100%">';
+                        var colsCount = 0;
+                        var btn = ''
+                        for (var i in lines){
+                            var parts = lines[i].split(/\s+/);
+                            if (i == 0){
+                                html += "<thead><tr>";
+                                colsCount = parts.length;
+                                var style='style="width:50px"';
+                                parts.forEach(function(part){
+                                    html += "<th " + style + ">" + part + "</th>";
+                                    style = "";
+                                });
+                                html += "</tr></thead>";
+                            }else if (!isNaN(parseFloat(parts[0])) && isFinite(parts[0])){
+                                if (i == 1){
+                                    html += "<tbody>";
+                                }
+                                html += "<tr>";
+                                if (parts.length > colsCount){
+                                    parts = parts.slice(0, colsCount-1).concat( parts.slice(colsCount-1).join(" "));
+                                }
+                                parts.forEach(function(part, idx){
+                                    btn = idx > 0 ? '' : ('<button title="Clear breakpoint" class="pd-remove-bp" pd_target="debugger_refresh" pd_options="send_input_reply=clear ' + part + '"><i class="fa fa-trash-o"></i></button>')
+                                    html += "<td>" + btn + part.replace("<", "&lt;") + "</td>";
+                                });
+                                html += "</tr>";
+                                if ( i == lines.length - 1){
+                                    html += "</tbody>";
+                                }
+                            }
+                        }
+                        html +="</table>";
+                        return html;
+                    </script>
+                </pd_script>
+            </div>
+            <div class="row">
+                <div class="col-sm-12">
+                    <i class="fa fa-angle-right fa-2x"></i>
+                    <div class="input-group">
+                        <input id="breakpoints_input_{{prefix}}" type="text" class="form-control" onkeypress="triggerInputOnEnter('breakpoints_btn_{{prefix}}', this, event)"
+                            placeholder="Enter a breakpoint (line no or method)" style="border-radius: 0;">
+                        <span class="input-group-btn">
+                            <button class="btn btn-primary" type="button" id="breakpoints_btn_{{prefix}}"
+                                title="Add a breakpoint to the module currently executed"
+                                pd_target="debugger_refresh"
+                                pd_options="send_input_reply=break $val(breakpoints_input_{{prefix}})">Add</button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

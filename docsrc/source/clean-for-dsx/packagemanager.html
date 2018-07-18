@@ -2,17 +2,17 @@
 <html>
  <head>
   <title>
-   Package Manager
+   Use PixieDust to Manage Packages
   </title>
-  <meta content="&#xA9;Copyright IBM Corporation 2017" name="copyright"/>
-  <meta content="&#xA9;Copyright IBM Corporation 2017" name="DC.Rights.Owner"/>
-  <meta content="&#xA9; Copyright IBM Corporation 2016, 2017" name="dcterms.rights"/>
-  <meta content="2017-06-05" name="DC.date"/>
+  <meta content="&#xA9;Copyright IBM Corporation 2018" name="copyright"/>
+  <meta content="&#xA9;Copyright IBM Corporation 2018" name="DC.Rights.Owner"/>
+  <meta content="&#xA9; Copyright IBM Corporation 2016, 2017, 2018" name="dcterms.rights"/>
+  <meta content="2018-03-09" name="DC.date"/>
  </head>
  <body>
   <div>
    <h1>
-    Package Manager
+    Use PixieDust to Manage Packages
    </h1>
    <div>
     <h1>
@@ -24,6 +24,7 @@ uninstall maven packages into your notebook kernel without editing
 configuration files. This component is essential when you run
 notebooks from a hosted cloud environment and do not have access to the configuration files.
     </p>
+    <!-- START EXCLUDE -->
     <p>
      You can use this component in the following ways:
     </p>
@@ -112,10 +113,10 @@ Restart the kernel by using the
 kernel is restarted, the library is added to the classpath and can be
 used from your Python notebook.
     </p>
-    <div>
-     <p>
+    <blockquote>
+     <strong>
       Note
-     </p>
+     </strong>
      <p>
       Some libraries, such as GraphFrames include a python module within it. PixieDust automatically adds the python file into the SparkContext. However, you must explicitly call
       <strong>
@@ -123,7 +124,8 @@ used from your Python notebook.
       </strong>
       at the beginning of every kernel session so that the python modules are added to the SparkContext.
      </p>
-    </div>
+    </blockquote>
+    <!-- END EXCLUDE -->
    </div>
    <div>
     <h1>
@@ -187,6 +189,18 @@ pixiedust.uninstallPackage("&lt;&lt;mypackage&gt;&gt;")</pre>
     <pre>import pixiedust
 pixiedust.printAllPackages()</pre>
    </div>
+   <p>
+    <h3>
+     Return to main topic for:
+    </h3>
+    <ul>
+     <li>
+      <a href="use.html">
+       Use PixieDust
+      </a>
+     </li>
+    </ul>
+   </p>
   </div>
  </body>
 </html>

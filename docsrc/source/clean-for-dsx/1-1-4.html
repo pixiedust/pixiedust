@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+ <head>
+  <title>
+   PixieDust release notes 1.1.4
+  </title>
+  <meta content="&#xA9;Copyright IBM Corporation 2018" name="copyright"/>
+  <meta content="&#xA9;Copyright IBM Corporation 2018" name="DC.Rights.Owner"/>
+  <meta content="&#xA9; Copyright IBM Corporation 2016, 2017, 2018" name="dcterms.rights"/>
+  <meta content="2018-03-09" name="DC.date"/>
+ </head>
+ <body>
+  <div>
+   <h1>
+    PixieDust release notes 1.1.4
+   </h1>
+   <p>
+    Here's what's new in Release 1.1.4 (19 December 2017):
+   </p>
+   <p>
+    <strong>
+     Bug fixes
+    </strong>
+   </p>
+   <ul>
+    <li>
+     <p>
+      PixieDust now properly renders chart dimensions. Previously, in some situations with wide cell lengths, PixieDust would calculate a chart height value that was too tall for certain screen resolutions (
+      <a href="https://github.com/ibm-watson-data-lab/pixiedust/issues/530">
+       #530
+      </a>
+      ).
+     </p>
+    </li>
+    <li>
+     <p>
+      PixieApps, as well as PixieDust's
+      <code>
+       display()
+      </code>
+      function, now properly support the filtering capabilities of Brunel-rendered charts. Previously, in both instances, the Brunel visualizations would render correctly, but filtering data had no effect on the charts (
+      <a href="https://github.com/ibm-watson-data-lab/pixiedust/issues/522">
+       #522
+      </a>
+      ).
+     </p>
+    </li>
+    <li>
+     <p>
+      Newer versions of Bokeh now work correctly in PixieDust. A recent bug surfaced where Bokeh chart rendering broke for Bokeh versions 0.12.7 or newer. The 1.1.4 Release of PixieDust fixes this issue (
+      <a href="https://github.com/ibm-watson-data-lab/pixiedust/issues/523">
+       #523
+      </a>
+      ).
+     </p>
+    </li>
+   </ul>
+   <p>
+    <strong>
+     Enhancements
+    </strong>
+   </p>
+   <ul>
+    <li>
+     <p>
+      PixieApps can now use any third-party plotting library (like Matplotlib) with a route method. By adding a
+      <code>
+       @captureOutput
+      </code>
+      decorator, PixieApp routes can work with libraries that write output directly, instead of only working with libraries that write output as a string.
+      <code>
+       @captureOutput
+      </code>
+      must be declared directly after
+      <code>
+       @route()
+      </code>
+      , and the decorator cannot be used in combination with
+      <code>
+       @templateArgs
+      </code>
+      . See (
+      <a href="https://github.com/ibm-watson-data-lab/pixiedust/issues/532">
+       #532
+      </a>
+      ) for example usage.
+     </p>
+    </li>
+    <li>
+     <p>
+      Developers can now more easily create PixieApp HTML fragments using Jinja. Previously, variables computed locally in the
+      <code>
+       @route()
+      </code>
+      definition were not visible to Jinja without also declaring them as class variables. The addition of a
+      <code>
+       @templateArgs
+      </code>
+      decorator eliminates this need, and must come directly after
+      <code>
+       @route()
+      </code>
+      is declared. See (
+      <a href="https://github.com/ibm-watson-data-lab/pixiedust/issues/516">
+       #516
+      </a>
+      ) for example usage.
+     </p>
+    </li>
+   </ul>
+   <p>
+    <h3>
+     Return to main topic for:
+    </h3>
+    <ul>
+     <li>
+      <a href="releasenotes.html">
+       PixieDust Release Notes
+      </a>
+     </li>
+    </ul>
+   </p>
+  </div>
+ </body>
+</html>

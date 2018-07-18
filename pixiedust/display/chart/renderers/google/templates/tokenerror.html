@@ -1,0 +1,13 @@
+<div>
+    {% if this.response.status_code != 200 %}
+    <h2>{{ this.response.status_code }} Error</h2>
+    <p>
+        Error: {{ this.response.reason }}
+    </p>
+    {% else %}
+    <h2>Google Maps API Key Error</h2>
+    <p>
+        Error: {{ this.response.json()['error_message'] }}
+    </p>
+    {% endif %}
+</div>

@@ -1,0 +1,36 @@
+1.1.5
+=====
+
+Here's what's new in Release 1.1.5 (5 January 2018):             
+
+**Known issues**
+
+- The minimum requirement for Bokeh is 0.12.9. Older versions will experience interactivity problems with charts rendered using Bokeh in PixieDust--most notably lack of zoom controls.
+
+**Bug fixes**
+
+- PixieDust now properly supports Python's string format operator: ``%`` (percent symbol). Previously when publishing PixieApps, Python statements using ``%`` to format strings were not properly resolved (`#510 <https://github.com/ibm-watson-data-lab/pixiedust/issues/510>`_).
+
+**Enhancements**
+
+- PixieApps can now render Markdown syntax using the ``@captureOutput`` decorator (introduced in `release 1.1.4 <1-1-4.html>`_). When defining PixieApp views, users can choose between HTML or Markdown syntax in order to build apps as quickly and as easily as possible (`#542 <https://github.com/ibm-watson-data-lab/pixiedust/pull/542>`_). Example usage for PixieApp Markdown rendering:
+
+::
+
+
+  from pixiedust.display.app import *
+  from IPython.display import display_markdown
+  
+  @PixieApp
+  class TestMarkdown():
+      @route()
+      @captureOutput
+      def main_screen(self):
+              display_markdown("""
+  # Section Header
+  ## Second *bullet*
+  1. item1
+  2. item2
+  3. item3            
+              """, raw=True)        
+  TestMarkdown().run()

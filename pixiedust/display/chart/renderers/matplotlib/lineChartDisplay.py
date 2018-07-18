@@ -43,7 +43,7 @@ class LineChartDisplay(MatplotlibBaseDisplay):
         subplots = self.isSubplot()
         keyFields = self.getKeyFields()
         valueFields = self.getValueFields()
-
+        
         clusterby = self.options.get("clusterby")
         if clusterby is not None and (subplots or len(valueFields)<=1):
             subplots = subplots if len(valueFields)==1 else False

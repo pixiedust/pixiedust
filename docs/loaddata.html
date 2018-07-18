@@ -1,17 +1,14 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
     <title>Load Data &#8212; PixieDust Documentation</title>
-    
     <link rel="stylesheet" href="_static/better.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="_static/custom.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
@@ -32,7 +29,7 @@
     <link rel="prev" title="Install PixieDust" href="install.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   </head>
-  <body role="document">
+  <body>
     <header id="pageheader"><h1><a href="index.html ">
         PixieDust Documentation
     </a></h1></header>  
@@ -52,16 +49,16 @@
 </pre></div>
 </div>
 <p>You get a list of the data sets included with PixieDust.</p>
-<img alt="_images/sample_data_sets.png" src="_images/sample_data_sets.png" />
-<div class="admonition note">
+<a class="reference internal image-reference" href="_images/sample_data_sets.png"><img alt="Screenshot of PixieDust's sampleData() method." src="_images/sample_data_sets.png" style="width: 692.0px; height: 261.0px;" /></a>
+<!-- START EXCLUDE --><div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p>If you get an error, and you&#8217;re running Spark 1.6, run the following command to manually install packages missing in 1.6 (You need to do so only once.):</p>
+<p>If you get an error, and you’re running Spark 1.6, run the following command to manually install packages missing in 1.6 (You need to do so only once.):</p>
 <div class="last highlight-default"><div class="highlight"><pre><span></span><span class="n">pixiedust</span><span class="o">.</span><span class="n">installPackage</span><span class="p">(</span><span class="s2">&quot;com.databricks:spark-csv_2.10:1.5.0&quot;</span><span class="p">)</span>
 <span class="n">pixiedust</span><span class="o">.</span><span class="n">installPackage</span><span class="p">(</span><span class="s2">&quot;org.apache.commons:commons-csv:0&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
-<p>To create a pySpark DataFrame for one of the samples, just enter its number in the following command. For example, to load Set 6, Million Dollar Home sales, run the command:</p>
+<!-- END EXCLUDE --><p>To create a pySpark DataFrame for one of the samples, just enter its number in the following command. For example, to load Set 6, Million Dollar Home sales, run the command:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">home_df</span> <span class="o">=</span> <span class="n">pixiedust</span><span class="o">.</span><span class="n">sampleData</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -70,6 +67,13 @@
 <h2>Load a CSV using its URL<a class="headerlink" href="#load-a-csv-using-its-url" title="Permalink to this headline">¶</a></h2>
 <p>You can also replace the number with a URL. If you have a CSV file online, access it by entering the URL in the parentheses, like this:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">home_df</span> <span class="o">=</span> <span class="n">pixiedust</span><span class="o">.</span><span class="n">sampleData</span><span class="p">(</span><span class="s2">&quot;https://openobjectstore.mybluemix.net/misc/milliondollarhomes.csv&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="load-data-from-your-local-system">
+<h2>Load data from your local system<a class="headerlink" href="#load-data-from-your-local-system" title="Permalink to this headline">¶</a></h2>
+<p>Loading a CSV from your local file system is equally simple. Drop in the file path, like so:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">pixiedust</span><span class="o">.</span><span class="n">sampleData</span><span class="p">(</span><span class="s1">&#39;file:///Users/bradfordnoble/pixiedust/data/nz.csv&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -100,6 +104,7 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="develop.html">Develop for PixieDust</a></li>
 <li class="toctree-l1"><a class="reference internal" href="pixieapps.html">PixieApps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pixiegateway.html">PixieGateway</a></li>
 <li class="toctree-l1"><a class="reference internal" href="releasenotes.html">Release Notes</a></li>
 </ul>
 
@@ -119,7 +124,7 @@
     </div>
   <footer id="pagefooter">&copy; 2017, IBM.
       Created using <a href="http://sphinx-doc.org/">Sphinx</a>
-      1.5.6.
+      1.6.3.
 
   </footer>
 

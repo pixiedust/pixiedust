@@ -1,0 +1,22 @@
+1.1.2
+=====
+
+Here's what's new in Release 1.1.2 (8 November 2017):          
+
+**Bug fixes**
+
+- Fixed an issue with duplicate requests when running the StockViewer sample PixieApp as a web application (`#483 <https://github.com/ibm-watson-data-lab/pixiedust/issues/483>`_).
+
+- PixieDust can now run the same code in multiple notebooks locally with Spark. Previously, running the same code across multiple notebooks locally, such as PixieDust's ``sampleData()`` API, generated an error (`#496 <https://github.com/ibm-watson-data-lab/pixiedust/issues/496>`_).
+
+- Refactored PixieGateway into `its own GitHub repo <https://github.com/ibm-watson-data-lab/pixiegateway>`_ to run in IBM's Data Science Experience environment and `updated PixieGateway documentation <pixiegateway.html>`_ (`#498 <https://github.com/ibm-watson-data-lab/pixiedust/issues/498>`_ and `#495 <https://github.com/ibm-watson-data-lab/pixiedust/issues/495>`_).
+
+**Enhancements**
+
+- Released alpha version of PixieGateway admin dashboard, with a streamlined UI. DevOps users of PixieGateway can now access a list of PixieApps deployed to the gateway and a list of running kernels with real-time statistics (`#487 <https://github.com/ibm-watson-data-lab/pixiedust/issues/487>`_ and `#501 <https://github.com/ibm-watson-data-lab/pixiedust/issues/501>`_).
+
+- Added the ability to ``display()`` JSON directly. PixieDust now supports native rendering of data dictionaries, or an array of dictionaries, without having to first convert them into Pandas DataFrames (`#489 <https://github.com/ibm-watson-data-lab/pixiedust/issues/489>`_).
+
+- Added functionality to embed PixieDust charts into a regular web application, such as a web app that was not generated via PixieApp web publishing (`#493 <https://github.com/ibm-watson-data-lab/pixiedust/issues/493>`_).
+
+- Improved PixieApp web publishing to allow developers to publish to a specific kernel. Previously, all PixieApps were published into the default Python kernel (`#486 <https://github.com/ibm-watson-data-lab/pixiedust/issues/486>`_).

@@ -14,10 +14,10 @@
 # limitations under the License.
 # -------------------------------------------------------------------------------
 
-from ..display import Display
 import pixiedust.utils.dataFrameMisc as dataFrameMisc
-from pixiedust.utils import cache
+from pixiedust.utils.dataFrameAdapter import createDataframeAdapter
 from six import PY2
+from ..display import Display
     
 class ChartDisplay(Display):
     def __init__(self, options, entity, dataHandler=None):
@@ -37,6 +37,10 @@ class ChartDisplay(Display):
     #option helpers
     def showLegend(self):
         return self.options.get("legend", "true") != "false"
+    
+    @property
+    def count(self):
+        return self.dataHandler.count() if self.dataHandler is not None else createDataframeAdapter(self.entity).count()
 
     # numerical used as a boolean flag for truth table
     def sampleColumn(self, numerical):
