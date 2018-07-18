@@ -15,14 +15,31 @@
 # -------------------------------------------------------------------------------
 from pixiedust.display.app import *
 import requests
+import six
 
 @PixieApp
 class MapboxBase():
+    def setup(self):
+        self.layers = []
+
     def setLayers(self, layers):
         self.layers = layers
 
+    def add_layer(self, layer):
+        self.layers.append(layer)
+        return len(self.layers) - 1
+
+    def get_layer_index(self, name, layer=None):
+        for i, layer2 in enumerate(self.layers):
+            if layer2["name"] == name:
+                return i
+        if layer is not None:
+            return self.add_layer(layer)
+        return None
+
     def getStyleTypeFromGeoJSON(self, layerDef, geoJSON):
-        styleType = geoJSON['features'][0]['geometry']['type']
+        geometry = geoJSON['geometry'] if 'geometry' in geoJSON else geoJSON['features'][0]['geometry']
+        styleType = geometry['type']
         if styleType == "Point":
             userStyleType = layerDef.get("type", "circle")
             if userStyleType == "symbol":
@@ -75,14 +92,18 @@ class MapboxBase():
         if hasattr(self, fieldName) and getattr(self, fieldName) is not None:
             setattr(self, fieldName, None)
         else:
-            setattr(self, fieldName, self.createMapboxGeoJSON(index+2, self.layers[index], self.loadGeoJSON( self.layers[index]["url"] ) ))        
+            geojson = self.layers[index].get("geojson", None)
+            if geojson is None and "url" in self.layers[index]:
+                geojson = self.loadGeoJSON( self.layers[index]["url"] )
+            if geojson is not None:
+                setattr(self, fieldName, self.createMapboxGeoJSON(index+2, self.layers[index], geojson ))
         
     def loadGeoJSON(self, url):
         def filterFeature(f):
             for key,value in iteritems(f):
-                if value is None or "'" in value:
+                if value is None or (isinstance(value, six.string_types ) and "'" in value):
                     return True
             return False
         payload = requests.get(url).json()
-        payload['features'] = [f for f in payload['features'] if not filterFeature(f['properties'])]
+        payload['features'] = [f for f in payload['features'] if not filterFeature(f['properties'])] if 'features' in payload else []
         return payload

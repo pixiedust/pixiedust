@@ -15,12 +15,14 @@
         </div>
     </div>
     <div class="form-group col-sm-2 rendererOpts">
+        {% if not show_options_dialog %}
         {% if this.getChartOptions()|length > 0 %}<div><strong>{{optionsTitle}}</strong></div>{% endif %}
         {%for option in this.getChartOptions() %}
             {% if optTypes.update({option.metadata.type: True}) %} {% endif %}
             {% if option.metadata.type == 'slider' %}
                 <div class="rendererOpt">
                     <label class="field">{{option.description or option.name}}: <span id="slideval{{option.name}}{{prefix}}">{{this.options.get(option.name,None) or option.metadata.default}}</span></label>
+                    {% if option.tooltip %}<i class="fa fa-info-circle" style="color:orange" data-toggle="pd-tooltip" title="{{option.tooltip}}"></i>{% endif %}
                     <div id="slider{{option.name}}{{prefix}}"
                         name="{{option.name}}"
                         data-min={{option.metadata.min}}
@@ -32,6 +34,7 @@
             {% if option.metadata.type == 'dropdown' %}
                 <div class="rendererOpt">
                     <label class="field">{{option.description or option.name}}:</label>
+                    {% if option.tooltip %}<i class="fa fa-info-circle" style="color:orange" data-toggle="pd-tooltip" title="{{option.tooltip}}"></i>{% endif %}
                     <select class="form-control" id="optionselect{{option.name}}{{prefix}}" name="{{option.name}}" r="{{'t' if option.refresh else 'f'}}" style="margin-left: 0px;">
                         {% for value in option.metadata['values'] %}
                             <option value="{{value}}" {{'selected' if value==this.options.get(option.name,None) or value==option.metadata.default else ''}}>{{value}}</option>
@@ -44,9 +47,22 @@
                     <input id="optionchecked{{option.name}}{{prefix}}" r="{{'t' if option.refresh else 'f'}}" type="checkbox" name="{{option.name}}"
                                 {{'checked' if this.options.get(option.name, option.metadata.default or "true")=="true" else ''}}>
                     <label for="optionchecked{{option.name}}{{prefix}}">{{option.description or option.name}}</label>
+                    {% if option.tooltip %}<i class="fa fa-info-circle" style="color:orange" data-toggle="pd-tooltip" title="{{option.tooltip}}"></i>{% endif %}
+                </div>
+            {%endif%}
+            {% if option.metadata.type == 'button' %}
+                <div class="rendererOpt">
+                    <button pd_app="{{option.metadata.pd_app}}"
+                        class="btn btn-default no_loading_msg"
+                        pd_options="runInDialog=true"
+                        id="{{option.name}}_btn_{{prefix}}">
+                            <pd_event_handler pd_source="{{option.name}}_btn_{{prefix}}" pd_script="ShellAccess[eventInfo['entity']].on_ok()"></pd_event_handler>
+                            {{option.description}}
+                    </button>
                 </div>
             {%endif%}
         {%endfor%}
+        {%endif%}
     </div>
 </div>
 
@@ -118,4 +134,5 @@ $("[id^=slider][id$={{prefix}}]").each(function() {
     });
 })
 {%endif%}
+$(document).ready(function(){ $('[data-toggle="pd-tooltip"]').tooltip(); });
 </script>

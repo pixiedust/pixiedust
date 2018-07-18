@@ -76,7 +76,7 @@ Return True if spark type is a date
 def isDateType(type):
     if checkIfDataType(type):
         return isDateType( type.__class__.__name__)
-    return (type =="DateType")
+    return type == "DateType" or type == "TimestampType"
 
 """
 Return True is field represented by fieldName is Numeric
@@ -121,7 +121,7 @@ def isDateField(entity, fieldName):
     def isDateFieldRecurse(field, targetName):
         if field.name == targetName:
             return isDateType(field.dataType)
-        elif checkIfDataType(field.dataType) and targetName.startswith(field.name + "."):
+        elif checkIfDataType(field.dataType) and targetName.startswith(str(field.name) + "."):
             nestedFieldName = targetName[len(field.name)+1:]
             for f in field.dataType.fields:
                 if isDateFieldRecurse(f, nestedFieldName):

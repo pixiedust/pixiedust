@@ -1,0 +1,115 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>1.0.9 &#8212; PixieDust Documentation</title>
+    <link rel="stylesheet" href="_static/better.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="shortcut icon" href="_static/pd_icon.ico"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="1.0.10" href="1-0-10.html" />
+    <link rel="prev" title="1.0.8" href="1-0-8.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  </head>
+  <body>
+    <header id="pageheader"><h1><a href="index.html ">
+        PixieDust Documentation
+    </a></h1></header>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="id1">
+<h1>1.0.9<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h1>
+<p>Here’s what’s new in Release 1.0.9 (4 August 2017):</p>
+<p><strong>Bug fixes</strong></p>
+<ul class="simple">
+<li>Fixed an error triggered by running a display command on a DataFrame shared from a Scala notebook. PixieDust’s <a class="reference external" href="scalabridge.html">scala magic</a> feature allows users to share variables between Python and Scala Notebooks. Now, such shared Scala DataFrames are correctly displayed from within a Python context (<a class="reference external" href="https://github.com/ibm-watson-data-lab/pixiedust/issues/425">#425</a>).</li>
+<li>PixieApp chart options are now accepted as JSON. Instead of adapting parameters into HTML-style tag attributes, PixieApp developers can now simply paste valid JSON as the element content of the <code class="docutils literal"><span class="pre">&lt;pd_options&gt;</span></code> tag (<a class="reference external" href="https://github.com/ibm-watson-data-lab/pixiedust/issues/423">#423</a>).</li>
+<li>Calls to <code class="docutils literal"><span class="pre">pixiedust.enableJobMonitor()</span></code> now work properly on Spark 2.1 (<a class="reference external" href="https://github.com/ibm-watson-data-lab/pixiedust/issues/223">#223</a>).</li>
+<li>Fixed an issue where, within a PixieApp, the <code class="docutils literal"><span class="pre">showColumn</span></code> attribute would actually hide the column (<a class="reference external" href="https://github.com/ibm-watson-data-lab/pixiedust/issues/383">#383</a>).</li>
+<li>PixieDust display calls to the map render for Google now work correctly when using Python 3.x (<a class="reference external" href="https://github.com/ibm-watson-data-lab/pixiedust/issues/417">#417</a>).</li>
+</ul>
+<p><strong>Enhancements</strong></p>
+<ul class="simple">
+<li>The local installer experience has been improved. The <code class="docutils literal"><span class="pre">jupyter</span> <span class="pre">pixiedust</span> <span class="pre">install</span></code> command now allows users to more easily install and switch between different versions of the Spark kernel (<a class="reference external" href="https://github.com/ibm-watson-data-lab/pixiedust/issues/348">#348</a>).</li>
+</ul>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="index.html">Table Of Contents</a></h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="use.html">Use PixieDust</a></li>
+<li class="toctree-l1"><a class="reference internal" href="develop.html">Develop for PixieDust</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pixieapps.html">PixieApps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pixiegateway.html">PixieGateway</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="releasenotes.html">Release Notes</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="1-0-4.html">1.0.4</a></li>
+<li class="toctree-l2"><a class="reference internal" href="1-0-5.html">1.0.5</a></li>
+<li class="toctree-l2"><a class="reference internal" href="1-0-6.html">1.0.6</a></li>
+<li class="toctree-l2"><a class="reference internal" href="1-0-7.html">1.0.7</a></li>
+<li class="toctree-l2"><a class="reference internal" href="1-0-8.html">1.0.8</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">1.0.9</a></li>
+<li class="toctree-l2"><a class="reference internal" href="1-0-10.html">1.0.10</a></li>
+<li class="toctree-l2"><a class="reference internal" href="1-0-11.html">1.0.11</a></li>
+<li class="toctree-l2"><a class="reference internal" href="1-1.html">1.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="1-1-1.html">1.1.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="1-1-2.html">1.1.2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="1-1-3.html">1.1.3</a></li>
+<li class="toctree-l2"><a class="reference internal" href="1-1-4.html">1.1.4</a></li>
+<li class="toctree-l2"><a class="reference internal" href="1-1-5.html">1.1.5</a></li>
+<li class="toctree-l2"><a class="reference internal" href="1-1-6.html">1.1.6</a></li>
+<li class="toctree-l2"><a class="reference internal" href="1-1-7.html">1.1.7</a></li>
+<li class="toctree-l2"><a class="reference internal" href="1-1-8.html">1.1.8</a></li>
+</ul>
+</li>
+</ul>
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+  <footer id="pagefooter">&copy; 2017, IBM.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a>
+      1.6.3.
+
+  </footer>
+
+  
+  </body>
+</html>

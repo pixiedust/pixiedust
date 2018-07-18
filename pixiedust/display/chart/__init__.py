@@ -17,33 +17,44 @@
 from ..display import *
 from pixiedust.utils.dataFrameAdapter import *
 from pixiedust.display.chart.renderers import PixiedustRenderer
+from pixiedust.display.streaming import StreamingDataAdapter
 import pixiedust
 
 myLogger = pixiedust.getLogger(__name__ )
 
 #bootstrap all the renderers
-renderers = ["matplotlib", "bokeh", "seaborn", "google", "mapbox"]
+renderers = ["matplotlib", "bokeh", "seaborn", "mapbox", "google", "brunel", "table"]
 
 for renderer in renderers:
     try:
         __import__("pixiedust.display.chart.renderers." + renderer)
-    except ImportError as e:
-        myLogger.warn("Unable to import renderer {0}: {1}".format(renderer, str(e)))
+    except Exception as exc:
+        myLogger.warn("Unable to import renderer {0}: {1}".format(renderer, str(exc)))
 
 @PixiedustDisplayMeta()
 class ChartDisplayMeta(DisplayHandlerMeta):
     @addId
     def getMenuInfo(self, entity, dataHandler):
         if dataHandler is not None:
-            return [
+            # first item in this array will be the default renderer (if no metadata exists)
+            infos = [
+                {"categoryId": "Table", "title": "Table.Next", "icon": "fa-table", "id": "tableView"},
                 {"categoryId": "Chart", "title": "Bar Chart", "icon": "fa-bar-chart", "id": "barChart"},
                 {"categoryId": "Chart", "title": "Line Chart", "icon": "fa-line-chart", "id": "lineChart"},
                 {"categoryId": "Chart", "title": "Scatter Plot", "icon": "fa-circle", "id": "scatterPlot"},
                 {"categoryId": "Chart", "title": "Pie Chart", "icon": "fa-pie-chart", "id": "pieChart"},
                 {"categoryId": "Chart", "title": "Map", "icon": "fa-globe", "id": "mapView"},
-                {"categoryId": "Chart", "title": "Histogram", "icon": "fa-table", "id": "histogram"}
+                {"categoryId": "Chart", "title": "Histogram", "icon": "fa-area-chart", "id": "histogram"}
             ]
+
+            infos = [info for info in infos if info["id"] in PixiedustRenderer.getHandlerIdList(dataHandler.isStreaming)]
+            accept = getattr(dataHandler, "accept", lambda id: True)
+            if not callable(accept):
+                accept = lambda id:True
+            
+            return [info for info in infos if accept(info["id"]) is True]
+
         return []
 
-    def newDisplayHandler(self, options, entity):
-        return PixiedustRenderer.getRenderer(options, entity)
+    def newDisplayHandler(self, options, entity, dataHandler):
+        return PixiedustRenderer.getRenderer(options, entity, dataHandler.isStreaming)

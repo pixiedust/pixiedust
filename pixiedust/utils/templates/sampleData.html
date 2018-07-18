@@ -9,12 +9,14 @@
   </thead>
   <tbody>
   {% for key,dataDef in dataDefs %}
+    {%if "transient" not in dataDef%}
     <tr>
         <td>{{key}}</td>
         <td>{{dataDef["displayName"]}}</td>
         <td>{{dataDef["topic"]}}</td>
         <td>{{dataDef["publisher"]}}</td>
     </tr>
+    {%endif%}
   {% endfor %}
   </tbody>
 </table>

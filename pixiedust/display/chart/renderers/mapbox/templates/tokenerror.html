@@ -1,0 +1,13 @@
+<div>
+    {% if this.response.status_code != 200 %}
+    <h2>{{ this.response.status_code }} Error</h2>
+    <p>
+        Error: {{ this.response.reason }}
+    </p>
+    {% else %}
+    <h2>Mapbox Access Token Error</h2>
+    <p>
+        Error: {{ this.response.json()['code'] }}
+    </p>
+    {% endif %}
+</div>

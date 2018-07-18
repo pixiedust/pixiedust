@@ -1,12 +1,12 @@
 # -------------------------------------------------------------------------------
 # Copyright IBM Corp. 2017
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the 'License');
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 # http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an 'AS IS' BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,6 +15,8 @@
 # -------------------------------------------------------------------------------
 from six import iteritems
 import pixiedust
+import ast
+import zipfile
 from pixiedust.utils.shellAccess import ShellAccess
 from pixiedust.utils.template import PixiedustTemplateEnvironment
 from pixiedust.utils.environment import Environment,scalaGateway
@@ -23,6 +25,9 @@ import uuid
 import tempfile
 from collections import OrderedDict
 from IPython.display import display, HTML, Javascript
+import json
+import requests
+from pandas.io.json import json_normalize
 try:
     from urllib.request import Request, urlopen, URLError, HTTPError
 except ImportError:
@@ -30,45 +35,45 @@ except ImportError:
 
 dataDefs = OrderedDict([
     ("1", {
-        "displayName": "Car performance data", 
+        "displayName": "Car performance data",
         "url": "https://github.com/ibm-watson-data-lab/open-data/raw/master/cars/cars.csv",
-        "topic": "transportation",
+        "topic": "Transportation",
         "publisher": "IBM",
         "schema2": [('mpg','int'),('cylinders','int'),('engine','double'),('horsepower','int'),('weight','int'),
             ('acceleration','double'),('year','int'),('origin','string'),('name','string')]
     }),
     ("2", {
-        "displayName": "Sample retail sales transactions, January 2009", 
+        "displayName": "Sample retail sales transactions, January 2009",
         "url": "https://raw.githubusercontent.com/ibm-watson-data-lab/open-data/master/salesjan2009/salesjan2009.csv",
         "topic": "Economy & Business",
         "publisher": "IBM Cloud Data Services"
     }),
     ("3", {
-        "displayName": "Total population by country", 
+        "displayName": "Total population by country",
         "url": "https://apsportal.ibm.com/exchange-api/v1/entries/889ca053a19986a4445839358a91963e/data?accessKey=657b130d504ab539947e51b50f0e338e",
         "topic": "Society",
         "publisher": "IBM Cloud Data Services"
     }),
     ("4", {
-        "displayName": "GoSales Transactions for Naive Bayes Model", 
+        "displayName": "GoSales Transactions for Naive Bayes Model",
         "url": "https://apsportal.ibm.com/exchange-api/v1/entries/8044492073eb964f46597b4be06ff5ea/data?accessKey=bec2ed69d9c84bed53826348cdc5690b",
         "topic": "Leisure",
         "publisher": "IBM"
     }),
     ("5", {
-        "displayName": "Election results by County", 
-        "url": "https://openobjectstore.mybluemix.net/Election/county_election_results.csv",
+        "displayName": "Election results by County",
+        "url": "https://raw.githubusercontent.com/ibm-watson-data-lab/open-data/master/election2016/county_election_results.csv",
         "topic": "Society",
         "publisher": "IBM"
     }),
     ("6", {
-        "displayName": "Million dollar home sales in NE Mass late 2016", 
-        "url": "https://openobjectstore.mybluemix.net/misc/milliondollarhomes.csv",
+        "displayName": "Million dollar home sales in Massachusetts, USA Feb 2017 through Jan 2018",
+        "url": "https://raw.githubusercontent.com/ibm-watson-data-lab/open-data/master/homesales/milliondollarhomes.csv",
         "topic": "Economy & Business",
         "publisher": "Redfin.com"
     }),
     ("7", {
-        "displayName": "Boston Crime data, 2-week sample", 
+        "displayName": "Boston Crime data, 2-week sample",
         "url": "https://raw.githubusercontent.com/ibm-watson-data-lab/open-data/master/crime/boston_crime_sample.csv",
         "topic": "Society",
         "publisher": "City of Boston"
@@ -76,30 +81,34 @@ dataDefs = OrderedDict([
 ])
 
 @scalaGateway
-def sampleData(dataId=None):
+def sampleData(dataId=None, type='csv', forcePandas=False):
     global dataDefs
-    return SampleData(dataDefs).sampleData(dataId)
+    return SampleData(dataDefs, forcePandas).sampleData(dataId, type)
 
 class SampleData(object):
     env = PixiedustTemplateEnvironment()
-    def __init__(self, dataDefs):
+    def __init__(self, dataDefs, forcePandas):
         self.dataDefs = dataDefs
+        self.forcePandas = forcePandas
+        self.url = ""
 
-    def sampleData(self, dataId = None):
+    def sampleData(self, dataId = None, type='csv'):
         if dataId is None:
             self.printSampleDataList()
         elif str(dataId) in dataDefs:
             return self.loadSparkDataFrameFromSampleData(dataDefs[str(dataId)])
         elif "https://" in str(dataId) or "http://" in str(dataId) or "file://" in str(dataId):
-            return self.loadSparkDataFrameFromUrl(str(dataId))
+            if type is 'json':
+                self.url = str(dataId)
+                return self.JSONloadSparkDataFrameFromUrl(str(dataId))
+            else:
+                return self.loadSparkDataFrameFromUrl(str(dataId))
         else:
             print("Unknown sample data identifier. Please choose an id from the list below")
             self.printSampleDataList()
 
     def printSampleDataList(self):
         display( HTML( self.env.getTemplate("sampleData.html").render( dataDefs = iteritems(self.dataDefs) ) ))
-        #for key, val in iteritems(self.dataDefs):
-        #    print("{0}: {1}".format(key, val["displayName"]))
 
     def dataLoader(self, path, schema=None):
         if schema is not None and Environment.hasSpark:
@@ -112,25 +121,73 @@ class SampleData(object):
                 else:
                     return StringType()
 
-        if Environment.sparkVersion == 1:
-            print("Loading file using 'com.databricks.spark.csv'")
-            load = ShellAccess.sqlContext.read.format('com.databricks.spark.csv')
-            if schema is not None:
-                return load.options(header='true', mode="DROPMALFORMED").load(path, schema=StructType([StructField(item[0], getType(item[1]), True) for item in schema]))
+        if Environment.hasSpark and not self.forcePandas:
+            if Environment.sparkVersion == 1:
+                print("Loading file using 'com.databricks.spark.csv'")
+                load = ShellAccess.sqlContext.read.format('com.databricks.spark.csv')
+                if schema is not None:
+                    return load.options(header='true', mode="DROPMALFORMED").load(path, schema=StructType([StructField(item[0], getType(item[1]), True) for item in schema]))
+                else:
+                    return load.options(header='true', mode="DROPMALFORMED", inferschema='true').load(path)
             else:
-                return load.options(header='true', mode="DROPMALFORMED", inferschema='true').load(path)
-        elif Environment.sparkVersion == 2:
-            print("Loading file using 'SparkSession'")
-            if schema is not None:
-                return ShellAccess.SparkSession.builder.getOrCreate().read.csv(path, header=True, mode="DROPMALFORMED", schema=StructType([StructField(item[0], getType(item[1]), True) for item in schema]))
-            else:
-                return ShellAccess.SparkSession.builder.getOrCreate().read.csv(path, header=True, mode="DROPMALFORMED", inferSchema='true')
+                print("Loading file using 'SparkSession'")
+                csvload = ShellAccess.SparkSession.builder.getOrCreate() \
+                    .read \
+                    .format("org.apache.spark.sql.execution.datasources.csv.CSVFileFormat") \
+                    .option("header", "true") \
+                    .option("mode", "DROPMALFORMED")
+                if schema is not None:
+                    return csvload.schema(StructType([StructField(item[0], getType(item[1]), True) for item in schema])).load(path)
+                else:
+                    return csvload.option("inferSchema", "true").load(path)
         else:
             print("Loading file using 'pandas'")
-            return pd.read_csv(path)
+            try:
+                return pd.read_csv(path)
+            except UnicodeDecodeError:
+                #Try ISO-8859-1
+                return pd.read_csv(path, encoding = "ISO-8859-1")
+
+    def JSONdataLoader(self, path, schema=None):
+        if schema is not None and Environment.hasSpark:
+            from pyspark.sql.types import StructType,StructField,IntegerType,DoubleType,StringType
+            def getType(t):
+                if t == 'int':
+                    return IntegerType()
+                elif t == 'double':
+                    return DoubleType()
+                else:
+                    return StringType()
+
+        res = open(path, 'r').read()
+        if Environment.hasSpark and not self.forcePandas:
+            if Environment.sparkVersion == 1:
+                print("Loading file using a pySpark DataFrame for Spark 1")
+                dataRDD = ShellAccess.sc.parallelize([res])
+                return ShellAccess.sqlContext.jsonRDD(dataRDD)
+            else:
+                print("Loading file using a pySpark DataFrame for Spark 2")
+                dataRDD = ShellAccess.sc.parallelize([res])
+                return ShellAccess.spark.read.json(dataRDD)
+        else:
+            print("Loading file using 'pandas'")
+            def load_json(text, stop = False):
+                try:
+                    return json.loads(text)
+                except json.JSONDecodeError:
+                    try:
+                        return ast.literal_eval(text)
+                    except SyntaxError:
+                        if stop:
+                            raise
+                        return load_json("[" + ",".join(text.strip().split("\n")) + "]", True)
+
+            data = load_json(res)
+            df = json_normalize(data)
+            return df
 
     def loadSparkDataFrameFromSampleData(self, dataDef):
-        return Downloader(dataDef).download(self.dataLoader)
+        return Downloader(dataDef, self.forcePandas).download(self.dataLoader)
 
     def loadSparkDataFrameFromUrl(self, dataUrl):
         i = dataUrl.rfind('/')
@@ -139,16 +196,28 @@ class SampleData(object):
             "displayName": dataUrl,
             "url": dataUrl
         }
-        return Downloader(dataDef).download(self.dataLoader)
 
-#Use of progress Monitor doesn't render correctly when previewed a saved notebook, turning it off until solution is found
+        return Downloader(dataDef, self.forcePandas).download(self.dataLoader)
+
+    def JSONloadSparkDataFrameFromUrl(self, dataUrl):
+        i = dataUrl.rfind('/')
+        dataName = dataUrl[(i+1):]
+        dataDef = {
+            "displayName": dataUrl,
+            "url": dataUrl
+        }
+
+        return Downloader(dataDef, self.forcePandas).download(self.JSONdataLoader)
+
+# Use of progress Monitor doesn't render correctly when previewed a saved notebook, turning it off until solution is found
 useProgressMonitor = False
 class Downloader(object):
-    def __init__(self, dataDef):
+    def __init__(self, dataDef, forcePandas):
         self.dataDef = dataDef
+        self.forcePandas = forcePandas
         self.headers = {"User-Agent": "PixieDust Sample Data Downloader/1.0"}
         self.prefix = str(uuid.uuid4())[:8]
-    
+
     def download(self, dataLoader):
         displayName = self.dataDef["displayName"]
         bytesDownloaded = 0
@@ -160,17 +229,43 @@ class Downloader(object):
             print("Downloading '{0}' from {1}".format(displayName, url))
             with tempfile.NamedTemporaryFile(delete=False) as f:
                 bytesDownloaded = self.write(urlopen(req), f)
-                path = f.name
-                self.dataDef["path"] = path = f.name
+                path = f.name   
+            if url.endswith(".zip") or zipfile.is_zipfile(path):
+                #unzip first and get the first file in it
+                print("Extracting first item in zip file...")
+                import shutil
+                zfile = zipfile.ZipFile(path, 'r')
+                if len(zfile.filelist)==0:
+                    raise(Exception("Error: zip file is empty"))
+                with tempfile.NamedTemporaryFile(delete=False) as zf:
+                    with zfile.open( zfile.filelist[0], 'r') as first_file:
+                        print("File extracted: {}".format(first_file.name))
+                        shutil.copyfileobj( first_file, zf)
+                    path = zf.name
+            elif url.endswith(".gz"):
+                import gzip
+                import shutil
+                with tempfile.NamedTemporaryFile(delete=False) as zf:
+                    with gzip.open(path, 'rb') as first_file:
+                        print("File extracted: {}".format(first_file.name))
+                        shutil.copyfileobj( first_file, zf)
+                    path = zf.name
+
+            self.dataDef["path"] = path
+            self.dataDef["transient"] = True
+            global dataDefs
+            dataDefs[url] = self.dataDef
         if path:
             try:
                 if bytesDownloaded > 0:
-                    print("Downloaded {} bytes".format(bytesDownloaded))
-                print("Creating {1} DataFrame for '{0}'. Please wait...".format(displayName, 'pySpark' if Environment.hasSpark else 'pandas'))
+                   print("Downloaded {} bytes".format(bytesDownloaded))
+                print("Creating {1} DataFrame for '{0}'. Please wait...".\
+                    format(displayName, 'pySpark' if Environment.hasSpark and not self.forcePandas else 'pandas'))
                 return dataLoader(path, self.dataDef.get("schema", None))
             finally:
-                print("Successfully created {1} DataFrame for '{0}'".format(displayName, 'pySpark' if Environment.hasSpark else 'pandas'))
-            
+                print("Successfully created {1} DataFrame for '{0}'".\
+                    format(displayName, 'pySpark' if Environment.hasSpark and not self.forcePandas else 'pandas'))
+
     def report(self, bytes_so_far, chunk_size, total_size):
         if useProgressMonitor:
             if bytes_so_far == 0:
@@ -203,7 +298,7 @@ class Downloader(object):
             bytes_so_far += len(chunk)
             if not chunk:
                 break
-            file.write(chunk)             
+            file.write(chunk)
             total_size = bytes_so_far if bytes_so_far > total_size else total_size
             self.report(bytes_so_far, chunk_size, total_size)
 

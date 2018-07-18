@@ -2,17 +2,17 @@
 <html>
  <head>
   <title>
-   Hello World with Data
+   Hello World PixieApp with Data
   </title>
-  <meta content="&#xA9;Copyright IBM Corporation 2017" name="copyright"/>
-  <meta content="&#xA9;Copyright IBM Corporation 2017" name="DC.Rights.Owner"/>
-  <meta content="&#xA9; Copyright IBM Corporation 2016, 2017" name="dcterms.rights"/>
-  <meta content="2017-06-05" name="DC.date"/>
+  <meta content="&#xA9;Copyright IBM Corporation 2018" name="copyright"/>
+  <meta content="&#xA9;Copyright IBM Corporation 2018" name="DC.Rights.Owner"/>
+  <meta content="&#xA9; Copyright IBM Corporation 2016, 2017, 2018" name="dcterms.rights"/>
+  <meta content="2018-03-09" name="DC.date"/>
  </head>
  <body>
   <div>
    <h1>
-    Hello World with Data
+    Hello World PixieApp with Data
    </h1>
    <p>
     The following sample PixieApp simplifies the mechanics of loading and visualizing data. When run successfully, you'll see a preview button appear in the same area as your Jupyter input cell. Clicking the button will display the data as a table.
@@ -30,7 +30,7 @@ class HelloWorldPixieAppWithData:
                      pd_target="target{{prefix}}"
                      type="button" value="Preview Data"&gt;
            &lt;/div&gt;
-           &lt;div class="col-sm-10" id="target{{prefix}}"/&gt;
+           &lt;div class="col-sm-10" id="target{{prefix}}"&gt;&lt;/div&gt;
         &lt;/div&gt;
         """
 #Create dataframe
@@ -46,6 +46,18 @@ df = SQLContext(sc).createDataFrame(
 
 #run the app
 HelloWorldPixieAppWithData().run(df, runInDialog='false')</pre>
+   <p>
+    <h3>
+     Return to main topic for:
+    </h3>
+    <ul>
+     <li>
+      <a href="pixieapps.html">
+       PixieApps: Use PixieDust to Generate UI Elements
+      </a>
+     </li>
+    </ul>
+   </p>
   </div>
  </body>
 </html>

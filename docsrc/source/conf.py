@@ -14,6 +14,7 @@
 
 import sys
 import os
+import subprocess
 from better import better_theme_path
 import sphinxmark
 
@@ -108,7 +109,6 @@ pygments_style = 'sphinx'
 # If true, `todo` and `todoList` produce output, else they produce nothing.
 todo_include_todos = False
 
-
 # -- Options for HTML output ----------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
@@ -148,12 +148,12 @@ html_title = 'PixieDust Documentation'
 # The name of an image file (within the static path) to use as favicon of the
 # docs.  This file should be a Windows icon file (.ico) being 16x16 or 32x32
 # pixels large.
-html_favicon = 'pd_icon.ico'
+html_favicon = "_static/pd_icon.ico"
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['.static']
+html_static_path = []
 
 # Add any extra paths that contain custom files (such as robots.txt or
 # .htaccess) here, relative to this directory. These files are copied
@@ -305,5 +305,7 @@ watermark_debug = False
 
 html_sidebars = { '**': ['globaltoc.html', 'searchbox.html'], }
 
-
+# Find currently-running script and kick off the clean DSX HTML generation for their separate docs site -Broberg
+current_dir = os.path.dirname(__file__)
+subprocess.call(['python', os.path.join(current_dir, 'htmlFragments.py')])
 

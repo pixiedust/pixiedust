@@ -4,9 +4,9 @@ Contribute
 PixieDust is under active development and welcomes contributions and participations from all individuals regardless of skill level. Whether you like to review documentation or implement new features, there's a lot you can do.
 
 Create an Issue
------------------
+---------------
 
-Create an issue if you find: 
+Create an issue if you find:  
 
 - any problems that you are unable to fix 
 - documentation that's hard to follow

@@ -2,17 +2,17 @@
 <html>
  <head>
   <title>
-   Load Data
+   Load Data with PixieDust
   </title>
-  <meta content="&#xA9;Copyright IBM Corporation 2017" name="copyright"/>
-  <meta content="&#xA9;Copyright IBM Corporation 2017" name="DC.Rights.Owner"/>
-  <meta content="&#xA9; Copyright IBM Corporation 2016, 2017" name="dcterms.rights"/>
-  <meta content="2017-06-05" name="DC.date"/>
+  <meta content="&#xA9;Copyright IBM Corporation 2018" name="copyright"/>
+  <meta content="&#xA9;Copyright IBM Corporation 2018" name="DC.Rights.Owner"/>
+  <meta content="&#xA9; Copyright IBM Corporation 2016, 2017, 2018" name="dcterms.rights"/>
+  <meta content="2018-03-09" name="DC.date"/>
  </head>
  <body>
   <div>
    <h1>
-    Load Data
+    Load Data with PixieDust
    </h1>
    <div>
     <h1>
@@ -28,17 +28,19 @@
     <p>
      You get a list of the data sets included with PixieDust.
     </p>
-    <img alt="_images/sample_data_sets.png" src="https://raw.githubusercontent.com/ibm-cds-labs/pixiedust/master/docs/_images/sample_data_sets.png"/>
-    <div>
-     <p>
+    <img alt="Screenshot of PixieDust's sampleData() method." src="https://raw.githubusercontent.com/ibm-watson-data-lab/pixiedust/master/docs/_images/sample_data_sets.png"/>
+    <!-- START EXCLUDE -->
+    <blockquote>
+     <strong>
       Note
-     </p>
+     </strong>
      <p>
       If you get an error, and you're running Spark 1.6, run the following command to manually install packages missing in 1.6 (You need to do so only once.):
      </p>
      <pre>pixiedust.installPackage("com.databricks:spark-csv_2.10:1.5.0")
 pixiedust.installPackage("org.apache.commons:commons-csv:0")</pre>
-    </div>
+    </blockquote>
+    <!-- END EXCLUDE -->
     <p>
      To create a pySpark DataFrame for one of the samples, just enter its number in the following command. For example, to load Set 6, Million Dollar Home sales, run the command:
     </p>
@@ -55,6 +57,15 @@ pixiedust.installPackage("org.apache.commons:commons-csv:0")</pre>
    </div>
    <div>
     <h1>
+     Load data from your local system
+    </h1>
+    <p>
+     Loading a CSV from your local file system is equally simple. Drop in the file path, like so:
+    </p>
+    <pre>pixiedust.sampleData('file:///Users/bradfordnoble/pixiedust/data/nz.csv')</pre>
+   </div>
+   <div>
+    <h1>
      Other Data Sources
     </h1>
     <p>
@@ -68,6 +79,18 @@ pixiedust.installPackage("org.apache.commons:commons-csv:0")</pre>
      </a>
     </p>
    </div>
+   <p>
+    <h3>
+     Return to main topic for:
+    </h3>
+    <ul>
+     <li>
+      <a href="use.html">
+       Use PixieDust
+      </a>
+     </li>
+    </ul>
+   </p>
   </div>
  </body>
 </html>

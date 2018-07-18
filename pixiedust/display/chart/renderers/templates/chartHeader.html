@@ -2,31 +2,45 @@
 {% set flags={} %}
 <div class="row chart-button-group">
     <div class="form-group col-sm-9" style="padding-right:10px;">
-        <button id="mapOptions{{prefix}}" class="btn btn-default">Options</button>
+        {% if this.get_options_dialog_pixieapp() %}
+        <button pd_app="{{this.get_options_dialog_pixieapp()}}" 
+            class="btn btn-default no_loading_msg"
+            pd_options="runInDialog=true"
+            id="option_btn_{{prefix}}">
+            <pd_event_handler pd_source="option_btn_{{prefix}}" pd_script="ShellAccess[eventInfo['entity']].on_ok()"></pd_event_handler>
+            Options
+        </button>
+        {%if show_options_dialog%}
+        <script>
+            $("#option_btn_{{prefix}}").click();
+        </script>
+        {%endif%}
+        {%endif%}
         {% if this.options.get('mpld3') == 'true' %}
             {% if flags.update({'downloadSVG': True}) %} {% endif %}
             <button id="downloadSVG{{prefix}}" class="btn btn-default">Download SVG</button>
         {% endif %}
+        <button pd_app="pixiedust.apps.gateway.share.ShareChartApp" 
+                pd_options="runInDialog=true;title=Share Chart" 
+                class="btn btn-default no_loading_msg">
+            Share
+        </button>
     </div>
     {% if this.getRendererList() and this._rendererId %}
     <div class="form-group col-sm-3">
+        {% if this.getRendererList() | length > 1 %}
         <label class="field">Renderer:</label>
         <select class="form-control" id="renderer{{prefix}}" style="margin:0; display:inline-block; width:70%;">
             {% for renderer in this.getRendererList() %}
                 <option value="{{renderer._rendererId}}" {{'selected' if this._rendererId==renderer._rendererId else ''}}>{{renderer._rendererId}}</option>
             {% endfor %}
         </select>
+        {% endif %}
     </div>
     {% endif %}
 </div>
 
 <script>
-$("#mapOptions{{prefix}}").click(function(){
-    {% with inScript = True %}
-    {%include resModule + ":chartOptions.dialog" %}
-    {% endwith %}
-});
-
 {%if flags.get("downloadSVG",False)%}
 setTimeout(function(){
     mpld3Node = $("#wrapperHTML{{prefix}} svg.mpld3-figure");

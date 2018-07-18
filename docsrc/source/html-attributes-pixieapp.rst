@@ -1,7 +1,7 @@
 Custom HTML Attributes
 ======================
 
-The PixieDust JS runtime listens to click events on any HTML element that has one or more of the custom attributes below, and then transforms the attribute values into a kernel request. The following section describes all the custom attributes available, and how they affect the kernel request executed when a click event is received. 
+The PixieDust JS runtime listens to click events on any HTML element that has one or more of the custom attributes below, and then transforms the attribute values into a kernel request. The following section describes all the custom attributes available, and how they affect the kernel request executed when a click event is received.  
 
 pd_options
 **********
@@ -11,6 +11,26 @@ List of key-value pairs that define transient states for the kernel request, acc
 
 .. Note:: To build the pd_options value for display(), use the display() API in a separate cell. When the correct chart is created, simply copy the options from the cell metadata. (You'll need to use the *View/Cell Toolbar/Edit Metadata* menu to show the "edit metadata" button.) You will also need to transform the JSON to the pd_options attribute format, e.g., no quote in the value, semi-colon separator, and "key=value" format.
 
+
+You can now alternatively use JSON notation to configure pd_options. To do so, simply create a pd_options child element and directly store the JSON options as text. For example:
+
+::
+
+  <div id="map{{prefix}}" pd_entity>
+      <pd_options>
+      {          
+          "mapboxtoken": "XXXXX",
+          "chartsize": "90",          
+          "aggregation": "SUM",
+          "rowCount": "500",
+          "handlerId": "mapView",
+          "rendererId": "mapbox",
+          "valueFields": "IncidntNum",
+          "keyFields": "X,Y",
+          "basemap": "light-v9"
+      }
+      </pd_options>
+  </div>
 
 pd_entity
 *********
@@ -24,7 +44,7 @@ By default, the output of a kernel request takes over the entire UI--or output c
 
 ::
   
-      <div id="myTarget{{prefix}}"/>
+      <div id="myTarget{{prefix}}"></div>
       <input type="button" pd_options="handlerId=dataframe" pd_entity pd_target="myTarget{{prefix}}" value="click me"/>
 
 In the example above, we define a placeholder div with id ``"myTarget{{prefix}}"`` and use it as a target in the input button.
@@ -39,7 +59,7 @@ PixieDust lets you run arbitrary Python code using the ``pd_script`` attribute. 
 
 ::
   
-      <div id="myTarget{{prefix}}"/>
+      <div id="myTarget{{prefix}}"></div>
       <input type="button" pd_options="handlerId=dataframe" pd_entity="filteredDataFrame" pd_script="self.filteredDataFrame=self.createFilteredDataFrame()" pd_target="myTarget{{prefix}}" value="click me"/>
 
 .. Note:: You can use the ``self`` keyword, which points at the current PixieApp instance.
@@ -82,10 +102,22 @@ There are two ways of using the ``pd_refresh`` attribute:
         def mainScreen(self):
             return """
             <input type="button" pd_refresh="counter{{prefix}}" value="Refresh Counter">
-            <div id="counter{{prefix}}" pd_script="self.incrCounter()"/>
+            <div id="counter{{prefix}}" pd_script="self.incrCounter()"></div>
             """
     Refresh().run()
 
 pd_norefresh
 ************
 Similar to pd_refresh, ``pd_norefresh`` forces PixieDust to not refresh the current output target.
+
+pd_stop_propagation
+*******************
+Use the ``pd_stop_propagation`` attribute to tell PixieDust that in the case where it couldn't find anything to execute in the current element, to stop searching parent elements. This can be useful when the content of an element is dynamically generated via a route which has no execution info and you want to prevent accidental execution of a parent element configuration.
+
+pd_refresh_rate
+***************
+Use the ``pd_refresh_rate`` attribute to repeat the execution at a specified interval expressed in milliseconds. This is useful for when you want to poll the state of a particular variable and show the result in the UI. For example:
+
+::
+
+  <div pd_refresh_rate="3000" pd_script="print(self.get_status())"></div>

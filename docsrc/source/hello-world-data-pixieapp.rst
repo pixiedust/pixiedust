@@ -1,7 +1,7 @@
 Hello World with Data
 =====================
 
-The following sample PixieApp simplifies the mechanics of loading and visualizing data. When run successfully, you'll see a preview button appear in the same area as your Jupyter input cell. Clicking the button will display the data as a table.
+The following sample PixieApp simplifies the mechanics of loading and visualizing data. When run successfully, you'll see a preview button appear in the same area as your Jupyter input cell. Clicking the button will display the data as a table.  
 
 ::
 
@@ -18,7 +18,7 @@ The following sample PixieApp simplifies the mechanics of loading and visualizin
                        pd_target="target{{prefix}}" 
                        type="button" value="Preview Data">
              </div>
-             <div class="col-sm-10" id="target{{prefix}}"/>
+             <div class="col-sm-10" id="target{{prefix}}"></div>
           </div>
           """
   #Create dataframe

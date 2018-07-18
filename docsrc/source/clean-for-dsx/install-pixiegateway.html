@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html>
+ <head>
+  <title>
+   Install PixieGateway
+  </title>
+  <meta content="&#xA9;Copyright IBM Corporation 2018" name="copyright"/>
+  <meta content="&#xA9;Copyright IBM Corporation 2018" name="DC.Rights.Owner"/>
+  <meta content="&#xA9; Copyright IBM Corporation 2016, 2017, 2018" name="dcterms.rights"/>
+  <meta content="2018-03-09" name="DC.date"/>
+ </head>
+ <body>
+  <div>
+   <h1>
+    Install PixieGateway
+   </h1>
+   <div>
+    <h1>
+     Local Install
+    </h1>
+    <p>
+     If you want to demo PixieApp publishing locally, follow these instructions. If you’d rather deploy your application to the cloud, see the section below on using Kubernetes on Bluemix.
+    </p>
+    <p>
+     To start, install the pixiegateway package from PyPi. On the command line, run the following: (Note: PixieGateway supports both Python 2.7 and 3.x)
+    </p>
+    <pre>pip install pixiegateway</pre>
+    <p>
+     Then you can start the PixieGateway with a simple command:
+    </p>
+    <pre>jupyter pixiegateway --port &lt;portnumber&gt;</pre>
+    <p>
+     Example output:
+    </p>
+    <pre>dtaieb$ jupyter pixiegateway --port 8899
+[PixieGatewayApp] Kernel started: b5be0b3b-a018–4ace-95d1-d94b556a0bfe
+kernel client initialized
+[PixieGatewayApp] Jupyter Kernel Gateway at http://127.0.0.1:8899</pre>
+    <p>
+     Now, go to
+     <code>
+      <span>
+       http://localhost:&lt;portnumber&gt;/pixieapps
+      </span>
+     </code>
+     to review and use your apps.
+    </p>
+   </div>
+   <div>
+    <h1>
+     [optional] Running PixieGateway in Kubernetes on IBM Bluemix
+    </h1>
+    <p>
+     If you’re new to Kubernetes on the IBM Bluemix container service,
+     <a href="https://medium.com/ibm-watson-data-lab/zero-to-kubernetes-on-the-ibm-bluemix-container-service-fd104fd193c1">
+      read this intro article
+     </a>
+     that explains the basics of using the service with the
+     <code>
+      bx
+     </code>
+     and
+     <code>
+      kubectl
+     </code>
+     command-line tools.
+    </p>
+    <p>
+     Here are the steps to install PixieGateway using Kubernetes on Bluemix:
+    </p>
+    <ol>
+     <li>
+      <p>
+       Download the
+       <a href="https://kubernetes.io/docs/tasks/tools/install-kubectl/">
+        Kubernetes CLI
+       </a>
+       and the
+       <a href="https://console.bluemix.net/docs/cli/reference/bluemix_cli/get_started.html#getting-started">
+        Bluemix CLI
+       </a>
+       .
+      </p>
+     </li>
+     <li>
+      <p>
+       <code>
+        bx login
+        <span>
+         [-sso]
+        </span>
+        <span>
+         -a
+        </span>
+        <span>
+         https://api.ng.bluemix.net
+        </span>
+       </code>
+      </p>
+     </li>
+     <li>
+      <p>
+       <code>
+        bx target
+        <span>
+         -o
+        </span>
+        &lt;YOUR_ORG&gt;
+        <span>
+         -s
+        </span>
+        &lt;YOUR_SPACE&gt;
+       </code>
+      </p>
+     </li>
+     <li>
+      <p>
+       <code>
+        bx plugin install
+        <span>
+         container-service
+        </span>
+        <span>
+         -r
+        </span>
+        Bluemix
+       </code>
+      </p>
+     </li>
+     <li>
+      <p>
+       <code>
+        bx cs init
+       </code>
+      </p>
+     </li>
+     <li>
+      <p>
+       If not already done, create a cluster:
+       <code>
+        bx cs
+        <span>
+         cluster-create
+        </span>
+        <span>
+         --name
+        </span>
+        <span>
+         my-cluster
+        </span>
+       </code>
+      </p>
+     </li>
+     <li>
+      <p>
+       Verify that the cluster is correctly created (this may take a few minutes):
+       <code>
+        bx cs clusters
+       </code>
+      </p>
+     </li>
+     <li>
+      <p>
+       Download the cluster config:
+       <code>
+        bx cs
+        <span>
+         cluster-config
+        </span>
+        <span>
+         my-cluster
+        </span>
+       </code>
+      </p>
+     </li>
+     <li>
+      <p>
+       Run the export command returned by the command above, e.g.,
+       <code>
+        export
+        <span>
+         KUBECONFIG=/Users/dtaieb/.bluemix/plugins/container-service/clusters/davidcluster/kube-config-hou02-davidcluster.yml
+        </span>
+       </code>
+      </p>
+     </li>
+     <li>
+      <p>
+       Create the deployment:
+       <code>
+        kubectl create
+        <span>
+         -f
+        </span>
+        <span>
+         https://github.com/ibm-watson-data-lab/pixiegateway/raw/master/etc/deployment.yml
+        </span>
+       </code>
+      </p>
+     </li>
+     <li>
+      <p>
+       Create the service:
+       <code>
+        kubectl create
+        <span>
+         -f
+        </span>
+        <span>
+         https://github.com/ibm-watson-data-lab/pixiegateway/raw/master/etc/service.yml
+        </span>
+       </code>
+      </p>
+     </li>
+     <li>
+      <p>
+       Verify the pods:
+       <code>
+        kubectl get pods
+       </code>
+      </p>
+     </li>
+     <li>
+      <p>
+       Verify the nodes:
+       <code>
+        kubectl get nodes
+       </code>
+      </p>
+     </li>
+     <li>
+      <p>
+       Verify the services:
+       <code>
+        kubectl get services
+       </code>
+      </p>
+     </li>
+     <li>
+      <p>
+       Finally, you can get the public ip address of the server:
+       <code>
+        bx cs workers
+        <span>
+         my-cluster
+        </span>
+       </code>
+      </p>
+     </li>
+    </ol>
+    <img alt="_images/bx-cs-workers.png" src="https://raw.githubusercontent.com/ibm-watson-data-lab/pixiedust/master/docs/_images/bx-cs-workers.png"/>
+    <ol>
+     <li>
+      <p>
+       To check that the install worked, enter the following URL in your browser:
+       <code>
+        <span>
+         http://&lt;publicIP&gt;:32222/pixieapps
+        </span>
+       </code>
+       . You’ll be able to interact with your PixieApp-published web apps from there.
+      </p>
+     </li>
+    </ol>
+    <img alt="_images/pixiegateway-list.png" src="https://raw.githubusercontent.com/ibm-watson-data-lab/pixiedust/master/docs/_images/pixiegateway-list.png"/>
+    <ol>
+     <li>
+      <p>
+       <strong>
+        Optional:
+       </strong>
+       In the future, if you need to update the PixieGateway version, you do not have to retrace the previous steps. Instead, simply delete the Kubernetes pod, which will cause Docker to restart and automatically pull down a new version of PixieDust, like so:
+       <code>
+        kubectl delete pod &lt;name&gt;
+       </code>
+       . Here,
+       <code>
+        &lt;name&gt;
+       </code>
+       is the pod’s name obtained with the command:
+       <code>
+        kubectl get pods
+       </code>
+       .
+      </p>
+     </li>
+    </ol>
+    <blockquote>
+     <strong>
+      Note
+     </strong>
+     <p>
+      The deployed PixieApps are not stored in a persisted volume, so deleting the pod will also delete them, and you’ll have to re-publish.
+     </p>
+    </blockquote>
+   </div>
+   <p>
+    <h3>
+     Return to main topic for:
+    </h3>
+    <ul>
+     <li>
+      <a href="pixiegateway.html">
+       PixieGateway: A Web Server for PixieApps and PixieDust Charts
+      </a>
+     </li>
+    </ul>
+   </p>
+  </div>
+ </body>
+</html>

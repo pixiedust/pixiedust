@@ -3,7 +3,7 @@ Reference
 
 @PixieApp
 *********
-Python class annotation to denote that a class is a PixieApp.   
+Python class annotation to denote that a class is a PixieApp.    
 
 @route
 ******

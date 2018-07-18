@@ -77,7 +77,6 @@ if ( connectionName ){
     var script = "from pixiedust.services.serviceManager import getConnection\\n"+
         "import json\\n"+
         "print( json.dumps( getConnection(\\\"cloudant\\\",\\\"" + connectionName + "\\\", raw=False)))";
-    debugger;
     pixiedust.executeDisplay({{pd_controls}}, {
         'targetDivId': "connTextArea{{prefix}}",
         'script': script,
@@ -85,7 +84,6 @@ if ( connectionName ){
             $("#connection-error").text(error);
         },
         'onSuccess': function(results){
-            debugger;
             createEditor(toJson(results));
         }
     })
@@ -103,7 +101,6 @@ if ( connectionName ){
 }
         """
         jsOK = """
-debugger;
 try {
     var connInfo = JSON.parse(global.editor.getValue());
     var script = "from pixiedust.services.serviceManager import addConnection\\n"+
@@ -174,6 +171,7 @@ try {
     @route(widget="DataSourcesList")
     def dataSourcesList(self):
         num_connections = len(self.getConnections())
+        self.debug('num connections = {}'.format(num_connections));
         select_conn_script = ' pd_script="self.selectedConnection ='
         if num_connections > 0:
             select_conn_script += "'$val(connection{{prefix}})'\""
@@ -196,17 +194,17 @@ try {
 """
         if num_connections > 0:
             output += """
-            <button type="button" class="btn btn-default">Go</button>'
-            <button type="button" class="btn btn-default" pixiedust pd_options="dialog=true;editConnection=true">
+            <button type="button" class="btn btn-default" pd_refresh>Go</button>'
+            <button type="button" class="btn btn-default" pd_options="dialog=true;editConnection=true">
                 <i class="fa fa-pencil-square-o"/>
             </button>"""
         output += """
-            <button type="button" class="btn btn-default" pixiedust pd_options="dialog=true;newConnection=true">
+            <button type="button" class="btn btn-default" pd_options="dialog=true;newConnection=true">
                 <i class="fa fa-plus"/>
             </button>"""
         if num_connections > 0:
             output += """
-            <button type="button" class="btn btn-default" pixiedust>
+            <button type="button" class="btn btn-default" pd_refresh>
                 <pd_script type="preRun">
                     return confirm("Delete " + $("#connection{{prefix}}").val() + "?");
                 </pd_script>

@@ -23,16 +23,27 @@ Sample use:
     ShellAccess.myVar = "Hello" => set a new variable called myVar in the user namespace
 '''
 class ShellAccess(with_metaclass( 
-        type("",(type,),{
-            "__getitem__":lambda cls, key: get_ipython().user_ns.get(key),
-            "__setitem__":lambda cls, key,val: get_ipython().user_ns.update({key:val}),
-            "__getattr__":lambda cls, key: get_ipython().user_ns.get(key),
+        type("", (type,), {
+            "__getitem__":lambda cls, key: cls.do_get_item(key),
+            "__setitem__":lambda cls, key, val: get_ipython().user_ns.update({key:val}),
+            "__getattr__":lambda cls, key: cls.do_get_item(key),
             "__setattr__":lambda cls, key, val: get_ipython().user_ns.update({key:val}),
-            "__iter__": lambda cls: iter(get_ipython().user_ns.keys())
+            "__delitem__":lambda cls, key: get_ipython().user_ns.pop(key, None),
+            "__iter__": lambda cls: iter(get_ipython().user_ns.keys()),
+            "keys": lambda cls: get_ipython().user_ns.keys()
         }), object
     )):
 
     @staticmethod
+    def do_get_item(key):
+        parts = key.split(".")
+        obj = get_ipython().user_ns.get(parts[0])
+        for p in parts[1:]:
+            if obj is not None:
+                obj = getattr(obj, p, None)
+        return obj
+
+    @staticmethod
     def update(**kwargs):
-        for key,val in iteritems(kwargs):
-            ShellAccess[key]=val
+        for key, val in iteritems(kwargs):
+            ShellAccess[key] = val

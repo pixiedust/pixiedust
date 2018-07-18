@@ -1,4 +1,4 @@
-pd_script,pd_dialog,pd_options,pd_target{
+pd_script,pd_dialog,pd_options,pd_target,pd_event_payload{
     display:none
 }
 
@@ -225,6 +225,14 @@ pd_script,pd_dialog,pd_options,pd_target{
 .pixiedust-app [pixiedust]:not(.pixiedust) {
     height: 100%;
     position: relative;
+}
+.pixiedust-app.pixiedust-default-dialog .modal-dialog {
+  max-width: 1000px !important;
+  min-width: 600px !important;
+  width: 50% !important;
+}
+.pixiedust-app.pixiedust-default-dialog .modal-dialog .pixiedust {
+  height: auto !important;
 }
 .pixiedust-app.pixiedust-maximize.modal {
     border: 0 none;

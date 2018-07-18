@@ -1,17 +1,14 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
     <title>Custom HTML Attributes &#8212; PixieDust Documentation</title>
-    
     <link rel="stylesheet" href="_static/better.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="_static/custom.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
@@ -32,7 +29,7 @@
     <link rel="prev" title="Reference" href="reference-pixieapp.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   </head>
-  <body role="document">
+  <body>
     <header id="pageheader"><h1><a href="index.html ">
         PixieDust Documentation
     </a></h1></header>  
@@ -54,7 +51,25 @@
 </div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">To build the pd_options value for display(), use the display() API in a separate cell. When the correct chart is created, simply copy the options from the cell metadata. (You&#8217;ll need to use the <em>View/Cell Toolbar/Edit Metadata</em> menu to show the &#8220;edit metadata&#8221; button.) You will also need to transform the JSON to the pd_options attribute format, e.g., no quote in the value, semi-colon separator, and &#8220;key=value&#8221; format.</p>
+<p class="last">To build the pd_options value for display(), use the display() API in a separate cell. When the correct chart is created, simply copy the options from the cell metadata. (You’ll need to use the <em>View/Cell Toolbar/Edit Metadata</em> menu to show the “edit metadata” button.) You will also need to transform the JSON to the pd_options attribute format, e.g., no quote in the value, semi-colon separator, and “key=value” format.</p>
+</div>
+<p>You can now alternatively use JSON notation to configure pd_options. To do so, simply create a pd_options child element and directly store the JSON options as text. For example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">div</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;map{{prefix}}&quot;</span> <span class="n">pd_entity</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="n">pd_options</span><span class="o">&gt;</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;mapboxtoken&quot;</span><span class="p">:</span> <span class="s2">&quot;XXXXX&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;chartsize&quot;</span><span class="p">:</span> <span class="s2">&quot;90&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;aggregation&quot;</span><span class="p">:</span> <span class="s2">&quot;SUM&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;rowCount&quot;</span><span class="p">:</span> <span class="s2">&quot;500&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;handlerId&quot;</span><span class="p">:</span> <span class="s2">&quot;mapView&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;rendererId&quot;</span><span class="p">:</span> <span class="s2">&quot;mapbox&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;valueFields&quot;</span><span class="p">:</span> <span class="s2">&quot;IncidntNum&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;keyFields&quot;</span><span class="p">:</span> <span class="s2">&quot;X,Y&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;basemap&quot;</span><span class="p">:</span> <span class="s2">&quot;light-v9&quot;</span>
+    <span class="p">}</span>
+    <span class="o">&lt;/</span><span class="n">pd_options</span><span class="o">&gt;</span>
+<span class="o">&lt;/</span><span class="n">div</span><span class="o">&gt;</span>
+</pre></div>
 </div>
 </div>
 <div class="section" id="pd-entity">
@@ -67,25 +82,25 @@
 </div>
 <div class="section" id="pd-target">
 <h2>pd_target<a class="headerlink" href="#pd-target" title="Permalink to this headline">¶</a></h2>
-<p>By default, the output of a kernel request takes over the entire UI&#8211;or output cell or dialog depending on the <code class="docutils literal"><span class="pre">runInDialog</span></code> option). However, you can use <code class="docutils literal"><span class="pre">pd_target=&quot;elementId&quot;</span></code> to specify a target element that will receive the output. (Of course the elementId must exist in the current view.) For example:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">div</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;myTarget{{prefix}}&quot;</span><span class="o">/&gt;</span>
+<p>By default, the output of a kernel request takes over the entire UI–or output cell or dialog depending on the <code class="docutils literal"><span class="pre">runInDialog</span></code> option). However, you can use <code class="docutils literal"><span class="pre">pd_target=&quot;elementId&quot;</span></code> to specify a target element that will receive the output. (Of course the elementId must exist in the current view.) For example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">div</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;myTarget{{prefix}}&quot;</span><span class="o">&gt;&lt;/</span><span class="n">div</span><span class="o">&gt;</span>
 <span class="o">&lt;</span><span class="nb">input</span> <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;button&quot;</span> <span class="n">pd_options</span><span class="o">=</span><span class="s2">&quot;handlerId=dataframe&quot;</span> <span class="n">pd_entity</span> <span class="n">pd_target</span><span class="o">=</span><span class="s2">&quot;myTarget{{prefix}}&quot;</span> <span class="n">value</span><span class="o">=</span><span class="s2">&quot;click me&quot;</span><span class="o">/&gt;</span>
 </pre></div>
 </div>
 <p>In the example above, we define a placeholder div with id <code class="docutils literal"><span class="pre">&quot;myTarget{{prefix}}&quot;</span></code> and use it as a target in the input button.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last"><code class="docutils literal"><span class="pre">{{prefix}}</span></code> is a Jinja2 notation that means &#8220;use the value of the prefix variable, which PixieDust automatically creates to provide a unique id.&#8221; We need this value to avoid a conflict in case a user calls the PixieApp multiple times within the same notebook.</p>
+<p class="last"><code class="docutils literal"><span class="pre">{{prefix}}</span></code> is a Jinja2 notation that means “use the value of the prefix variable, which PixieDust automatically creates to provide a unique id.” We need this value to avoid a conflict in case a user calls the PixieApp multiple times within the same notebook.</p>
 </div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">You can define multiple targets for a particular kernel request. In this case, you&#8217;ll want to create one or more <code class="docutils literal"><span class="pre">&lt;target&gt;</span></code> elements as children (see the <strong>Custom PixieApp Elements</strong> section for more info).</p>
+<p class="last">You can define multiple targets for a particular kernel request. In this case, you’ll want to create one or more <code class="docutils literal"><span class="pre">&lt;target&gt;</span></code> elements as children (see the <strong>Custom PixieApp Elements</strong> section for more info).</p>
 </div>
 </div>
 <div class="section" id="pd-script">
 <h2>pd_script<a class="headerlink" href="#pd-script" title="Permalink to this headline">¶</a></h2>
 <p>PixieDust lets you run arbitrary Python code using the <code class="docutils literal"><span class="pre">pd_script</span></code> attribute. For example: <code class="docutils literal"><span class="pre">pd_script=&quot;self.filteredDataFrame=self.createFilteredDataFrame()&quot;</span></code>. pd_script can be used even if pd_entity is used. In this case, the Python script will be executed before the display() call. This behavior can be useful, for example, in creating a sub entity that will be used in the display() call. For example:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">div</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;myTarget{{prefix}}&quot;</span><span class="o">/&gt;</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">div</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;myTarget{{prefix}}&quot;</span><span class="o">&gt;&lt;/</span><span class="n">div</span><span class="o">&gt;</span>
 <span class="o">&lt;</span><span class="nb">input</span> <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;button&quot;</span> <span class="n">pd_options</span><span class="o">=</span><span class="s2">&quot;handlerId=dataframe&quot;</span> <span class="n">pd_entity</span><span class="o">=</span><span class="s2">&quot;filteredDataFrame&quot;</span> <span class="n">pd_script</span><span class="o">=</span><span class="s2">&quot;self.filteredDataFrame=self.createFilteredDataFrame()&quot;</span> <span class="n">pd_target</span><span class="o">=</span><span class="s2">&quot;myTarget{{prefix}}&quot;</span> <span class="n">value</span><span class="o">=</span><span class="s2">&quot;click me&quot;</span><span class="o">/&gt;</span>
 </pre></div>
 </div>
@@ -95,7 +110,7 @@
 </div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">You can only use one-line Python code (similar to Python lambda). If you need to run more than one line of code, then you&#8217;ll need to use the pd_script element as a child (see the Custom PixieApp Elements section for more info).</p>
+<p class="last">You can only use one-line Python code (similar to Python lambda). If you need to run more than one line of code, then you’ll need to use the pd_script element as a child (see the Custom PixieApp Elements section for more info).</p>
 </div>
 </div>
 <div class="section" id="pd-render-onload">
@@ -131,7 +146,7 @@
     <span class="k">def</span> <span class="nf">mainScreen</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">        &lt;input type=&quot;button&quot; pd_refresh=&quot;counter{{prefix}}&quot; value=&quot;Refresh Counter&quot;&gt;</span>
-<span class="s2">        &lt;div id=&quot;counter{{prefix}}&quot; pd_script=&quot;self.incrCounter()&quot;/&gt;</span>
+<span class="s2">        &lt;div id=&quot;counter{{prefix}}&quot; pd_script=&quot;self.incrCounter()&quot;&gt;&lt;/div&gt;</span>
 <span class="s2">        &quot;&quot;&quot;</span>
 <span class="n">Refresh</span><span class="p">()</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
 </pre></div>
@@ -140,6 +155,17 @@
 <div class="section" id="pd-norefresh">
 <h2>pd_norefresh<a class="headerlink" href="#pd-norefresh" title="Permalink to this headline">¶</a></h2>
 <p>Similar to pd_refresh, <code class="docutils literal"><span class="pre">pd_norefresh</span></code> forces PixieDust to not refresh the current output target.</p>
+</div>
+<div class="section" id="pd-stop-propagation">
+<h2>pd_stop_propagation<a class="headerlink" href="#pd-stop-propagation" title="Permalink to this headline">¶</a></h2>
+<p>Use the <code class="docutils literal"><span class="pre">pd_stop_propagation</span></code> attribute to tell PixieDust that in the case where it couldn’t find anything to execute in the current element, to stop searching parent elements. This can be useful when the content of an element is dynamically generated via a route which has no execution info and you want to prevent accidental execution of a parent element configuration.</p>
+</div>
+<div class="section" id="pd-refresh-rate">
+<h2>pd_refresh_rate<a class="headerlink" href="#pd-refresh-rate" title="Permalink to this headline">¶</a></h2>
+<p>Use the <code class="docutils literal"><span class="pre">pd_refresh_rate</span></code> attribute to repeat the execution at a specified interval expressed in milliseconds. This is useful for when you want to poll the state of a particular variable and show the result in the UI. For example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">div</span> <span class="n">pd_refresh_rate</span><span class="o">=</span><span class="s2">&quot;3000&quot;</span> <span class="n">pd_script</span><span class="o">=</span><span class="s2">&quot;print(self.get_status())&quot;</span><span class="o">&gt;&lt;/</span><span class="n">div</span><span class="o">&gt;</span>
+</pre></div>
+</div>
 </div>
 </div>
 
@@ -163,6 +189,7 @@
 <li class="toctree-l2"><a class="reference internal" href="hello-world-data-pixieapp.html">Hello World with Data</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="pixiegateway.html">PixieGateway</a></li>
 <li class="toctree-l1"><a class="reference internal" href="releasenotes.html">Release Notes</a></li>
 </ul>
 
@@ -182,7 +209,7 @@
     </div>
   <footer id="pagefooter">&copy; 2017, IBM.
       Created using <a href="http://sphinx-doc.org/">Sphinx</a>
-      1.5.6.
+      1.6.3.
 
   </footer>
 

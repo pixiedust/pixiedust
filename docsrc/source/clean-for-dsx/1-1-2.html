@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+ <head>
+  <title>
+   PixieDust release notes 1.1.2
+  </title>
+  <meta content="&#xA9;Copyright IBM Corporation 2018" name="copyright"/>
+  <meta content="&#xA9;Copyright IBM Corporation 2018" name="DC.Rights.Owner"/>
+  <meta content="&#xA9; Copyright IBM Corporation 2016, 2017, 2018" name="dcterms.rights"/>
+  <meta content="2018-03-09" name="DC.date"/>
+ </head>
+ <body>
+  <div>
+   <h1>
+    PixieDust release notes 1.1.2
+   </h1>
+   <p>
+    Here's what's new in Release 1.1.2 (8 November 2017):
+   </p>
+   <p>
+    <strong>
+     Bug fixes
+    </strong>
+   </p>
+   <ul>
+    <li>
+     <p>
+      Fixed an issue with duplicate requests when running the StockViewer sample PixieApp as a web application (
+      <a href="https://github.com/ibm-watson-data-lab/pixiedust/issues/483">
+       #483
+      </a>
+      ).
+     </p>
+    </li>
+    <li>
+     <p>
+      PixieDust can now run the same code in multiple notebooks locally with Spark. Previously, running the same code across multiple notebooks locally, such as PixieDust's
+      <code>
+       sampleData()
+      </code>
+      API, generated an error (
+      <a href="https://github.com/ibm-watson-data-lab/pixiedust/issues/496">
+       #496
+      </a>
+      ).
+     </p>
+    </li>
+    <li>
+     <p>
+      Refactored PixieGateway into
+      <a href="https://github.com/ibm-watson-data-lab/pixiegateway">
+       its own GitHub repo
+      </a>
+      to run in IBM's Data Science Experience environment and
+      <a href="pixiegateway.html">
+       updated PixieGateway documentation
+      </a>
+      (
+      <a href="https://github.com/ibm-watson-data-lab/pixiedust/issues/498">
+       #498
+      </a>
+      and
+      <a href="https://github.com/ibm-watson-data-lab/pixiedust/issues/495">
+       #495
+      </a>
+      ).
+     </p>
+    </li>
+   </ul>
+   <p>
+    <strong>
+     Enhancements
+    </strong>
+   </p>
+   <ul>
+    <li>
+     <p>
+      Released alpha version of PixieGateway admin dashboard, with a streamlined UI. DevOps users of PixieGateway can now access a list of PixieApps deployed to the gateway and a list of running kernels with real-time statistics (
+      <a href="https://github.com/ibm-watson-data-lab/pixiedust/issues/487">
+       #487
+      </a>
+      and
+      <a href="https://github.com/ibm-watson-data-lab/pixiedust/issues/501">
+       #501
+      </a>
+      ).
+     </p>
+    </li>
+    <li>
+     <p>
+      Added the ability to
+      <code>
+       display()
+      </code>
+      JSON directly. PixieDust now supports native rendering of data dictionaries, or an array of dictionaries, without having to first convert them into Pandas DataFrames (
+      <a href="https://github.com/ibm-watson-data-lab/pixiedust/issues/489">
+       #489
+      </a>
+      ).
+     </p>
+    </li>
+    <li>
+     <p>
+      Added functionality to embed PixieDust charts into a regular web application, such as a web app that was not generated via PixieApp web publishing (
+      <a href="https://github.com/ibm-watson-data-lab/pixiedust/issues/493">
+       #493
+      </a>
+      ).
+     </p>
+    </li>
+    <li>
+     <p>
+      Improved PixieApp web publishing to allow developers to publish to a specific kernel. Previously, all PixieApps were published into the default Python kernel (
+      <a href="https://github.com/ibm-watson-data-lab/pixiedust/issues/486">
+       #486
+      </a>
+      ).
+     </p>
+    </li>
+   </ul>
+   <p>
+    <h3>
+     Return to main topic for:
+    </h3>
+    <ul>
+     <li>
+      <a href="releasenotes.html">
+       PixieDust Release Notes
+      </a>
+     </li>
+    </ul>
+   </p>
+  </div>
+ </body>
+</html>

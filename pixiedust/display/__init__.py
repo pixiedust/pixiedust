@@ -13,10 +13,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # -------------------------------------------------------------------------------
-
+import inspect
 import warnings
 from IPython.core.getipython import get_ipython
 from pixiedust.utils.environment import Environment as PD_Environment
+from pixiedust.utils.astParse import get_caller_text
 
 __all__ = ['addDisplayRunListener', 'display']
 
@@ -39,7 +40,7 @@ from .display import *
 from .chart import *
 if PD_Environment.hasSpark:
     from .graph import *
-from .table import *
+# from .table import * (commenting this out gets rid of the old table renderer)
 from .download import *
 from .datahandler import getDataHandler
 from pixiedust.utils.printEx import *
@@ -72,9 +73,12 @@ def display(entity, **kwargs):
 
             return entity
 
-        callerText = traceback.extract_stack(limit=2)[0][3]
-        if (callerText is None or callerText == "") and 'pixiedust_display_callerText' in globals():
+        if 'pixiedust_display_callerText' in globals():
             callerText = globals()['pixiedust_display_callerText']
+        else:
+            callerText = get_caller_text(inspect.currentframe())
+        if callerText is None or callerText == "":
+            raise Exception("Unable to get caller text")
 
         pr = None
         try:
@@ -116,7 +120,10 @@ def display(entity, **kwargs):
                 progressMonitor.onDisplayRun(kwargs.get("cell_id"))
             
             myLogger.debug("Creating a new display handler with options {0}: {1}".format(kwargs, selectedHandler))
-            displayHandler = selectedHandler.newDisplayHandler(kwargs,entity)
+            try:
+                displayHandler = selectedHandler.newDisplayHandler(kwargs,entity, dataHandler)
+            except TypeError:
+                displayHandler = selectedHandler.newDisplayHandler(kwargs, entity )
             if displayHandler is None:
                 printEx("Unable to obtain handler")
                 return

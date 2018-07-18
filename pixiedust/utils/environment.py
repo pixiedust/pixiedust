@@ -13,12 +13,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # -------------------------------------------------------------------------------
-from six import with_metaclass
-from . import *
-from .shellAccess import ShellAccess
 import os
 import re
 import subprocess
+from six import with_metaclass
+from . import *
+from .shellAccess import ShellAccess
 
 class Environment(with_metaclass( 
         type("",(type,),{
@@ -49,6 +49,8 @@ class Environment(with_metaclass(
         @property
         @cache(fieldName="_javaClassPath")
         def javaClassPath(self):
+            if not self.hasSpark:
+                return None
             from pixiedust.utils.javaBridge import JavaWrapper
             return JavaWrapper("java.lang.System").getProperty("java.class.path")
 
@@ -68,7 +70,7 @@ class Environment(with_metaclass(
         def hasSpark(self):
             try:
                 from pyspark import SparkContext
-                return True
+                return ShellAccess["sc"] is not None or ShellAccess["spark"] is not None
             except ImportError:
                 return False
 
@@ -77,11 +79,17 @@ class Environment(with_metaclass(
         def sparkVersion(self):
             if not self.hasSpark:
                 return None
-            version = ShellAccess["sc"].version
-            if version.startswith('1.'):
-                return 1
-            elif version.startswith('2.'):
-                return 2
+            try:
+                spark_handle = ShellAccess["sc"] if "sc" in ShellAccess else ShellAccess["spark"]
+                if spark_handle is None:
+                    return None
+                version = spark_handle.version
+                if version.startswith('1.'):
+                    return 1
+                elif version.startswith('2.'):
+                    return 2
+            except Exception as exc:
+                raise Exception("Unable to read spark Version, please check your install {}".format(exc))
             return None
 
     env = _Environment()

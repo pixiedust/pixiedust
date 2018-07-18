@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------------
-# Copyright IBM Corp. 2017
+# Copyright IBM Corp. 2018
 # 
 # Licensed under the Apache License, Version 2.0 (the 'License');
 # you may not use this file except in compliance with the License.
@@ -15,21 +15,23 @@
 # -------------------------------------------------------------------------------
 import pixiedust.utils.dataFrameMisc as dataFrameMisc
 from pyspark.sql import functions as F
-from pyspark.sql.types import DecimalType
+from pyspark.sql.functions import lit
+from pyspark.sql.types import DecimalType, DateType
 import time
 import pandas as pd
 from pixiedust.utils import Logger
+from .baseDataHandler import BaseDataHandler
 
 @Logger()
-class PySparkDataFrameDataHandler(object):
-    def __init__(self, options, entity):
-        self.options = options
-        self.entity = entity
+class PySparkDataFrameDataHandler(BaseDataHandler):
 
     def __getattr__(self, name):
         if hasattr(self.entity, name):
             return self.entity.__getattribute__(name)
         raise AttributeError("{0} attribute not found".format(name))
+
+    def count(self):
+        return self.entity.count()
 
     def getFieldNames(self, expandNested=False):
         return dataFrameMisc.getFieldNames(self.entity, expandNested)
@@ -56,7 +58,7 @@ class PySparkDataFrameDataHandler(object):
         if len(fieldNames) == 0:
             return []
         numericKeyField = False
-        if len(keyFields) == 1 and self.isNumericField(fieldNames[0]):
+        if len(fieldNames) == 1 and self.isNumericField(fieldNames[0]):
             numericKeyField = True
         df = self.entity.groupBy(fieldNames).count().dropna()
         for fieldName in fieldNames:
@@ -72,18 +74,67 @@ class PySparkDataFrameDataHandler(object):
                 values.append(i)
         return values
 
+    def add_numerical_column(self):
+        """
+        Add a dummy numerical column to the underlying dataframe
+        """
+        self.entity = self.entity.withColumn("pd_count", lit(1))
+        return "pd_count"
+
+    def get_filtered_dataframe(self, filter_options):
+        df = self.entity
+        if filter_options is not None:
+            field = filter_options['field'] if 'field' in filter_options else ''
+            constraint = filter_options['constraint'] if 'constraint' in filter_options else ''
+            val = filter_options['value'] if 'value' in filter_options else ''
+            regex = filter_options['regex'].lower() == "true" if 'regex' in filter_options else False
+            casematters = filter_options['case_matter'].lower() == "true" if 'case_matter' in filter_options else False
+
+            if field and val and field in self.getFieldNames():
+                if val == 'None':
+                    df = df.where(df[field].isNull())
+                elif not self.isNumericField(field):
+                    val = val if regex else ".*" + val + ".*"
+                    val = val if casematters else "(?i)" + val
+                    df = df.filter(df[field].rlike(val))
+                else: # a numeric SQL query
+                    c = "=="
+                    if constraint == "less_than":
+                        c = "<"
+                    if constraint == "greater_than":
+                        c = ">"
+                    filterStr = field + " " + c + " " + val
+                    if " " in field:
+                        filterStr = "`" + field + "` " + c + " " + val
+                    df = df.filter(filterStr)
+        return df
+
     """
         Return a cleaned up Pandas Dataframe that will be used as working input to the chart
     """
-    def getWorkingPandasDataFrame(self, xFields, yFields, extraFields=[], aggregation=None, maxRows = 100):
+    def getWorkingPandasDataFrame(self, xFields, yFields, extraFields=[], aggregation=None, maxRows = 100, filterOptions={}, isTableRenderer=False):
+        filteredDF = self.get_filtered_dataframe(filterOptions)
+
         if xFields is None or len(xFields)==0:
             #swap the yFields with xFields
             xFields = yFields
             yFields = []
             aggregation = None
 
-        extraFields = [a for a in extraFields if a not in xFields]
-        workingDF = self.entity.select(xFields + extraFields + yFields)
+        allFields = self.getFieldNames()
+        myFieldsOrdered = []
+        if isTableRenderer:
+            if len(extraFields) < 1:
+                workingDF = filteredDF
+            else:
+                for f in allFields:
+                    if f in extraFields:
+                        myFieldsOrdered.append(f)
+                workingDF = filteredDF.select(myFieldsOrdered)
+        else:
+            extraFields = [a for a in extraFields if a not in xFields]
+            workingDF = filteredDF.select(xFields + extraFields + yFields)
+
         if aggregation and len(yFields)>0:
             aggMapper = {"SUM":"sum", "AVG": "avg", "MIN": "min", "MAX": "max"}
             aggregation = aggMapper.get(aggregation, "count")
@@ -92,11 +143,15 @@ class PySparkDataFrameDataHandler(object):
             for yField in yFields:
                 workingDF = workingDF.withColumnRenamed("{0}({1})".format(aggregation,yField), yField)
 
-        workingDF = workingDF.dropna()
+        if not isTableRenderer:
+            workingDF = workingDF.dropna()
         count = workingDF.count()
         if count > maxRows:
-            workingDF = workingDF.sample(False, (float(maxRows) / float(count)))
+            pct = (float(maxRows) / float(count)) + 0.02
+            workingDF = workingDF.sample(False, pct)
         pdf = self.toPandas(workingDF)
+        if pdf.shape[0] > maxRows:
+            pdf = pdf.head(maxRows)
 
         #check if the user wants timeseries
         if len(xFields) == 1 and self.options.get("timeseries", 'false') == 'true':
@@ -106,14 +161,15 @@ class PySparkDataFrameDataHandler(object):
             except:
                 self.exception("Unable to convert field {} to datetime".format(field))
 
-        #sort by xFields
-        pdf.sort_values(xFields + extraFields, inplace=True)
+        if not isTableRenderer:
+            #sort by xFields
+            pdf.sort_values(xFields + extraFields, inplace=True)
         return pdf
 
     """
-    Custom implementation of toPandas. It checks the spark type of each column in the dataframe for DecimalType. If any are found, it check the 
-    corresponding pandas dataframe column to make sure it's not a python object type (which would cause issue during plotting). If that's the case, 
-    it cast them as float
+    Custom implementation of toPandas. It checks the spark type of each column in the dataframe for DecimalType. If any are found, it checks the 
+    corresponding pandas dataframe column to make sure it's not a python object type (which would cause an issue during plotting). If that's the case, 
+    it casts them as float
     """
     def toPandas(self, workingDF):        
         decimals = []
@@ -121,11 +177,16 @@ class PySparkDataFrameDataHandler(object):
             if f.dataType.__class__ == DecimalType:
                 decimals.append(f.name)
 
+        schema_types = {f.name: type(f.dataType) for f in workingDF.schema.fields}
+
         pdf = workingDF.toPandas()
         for y in pdf.columns:
-            if pdf[y].dtype.name == "object" and y in decimals:
-                #spark converts Decimal type to object during toPandas, cast it as float
-                pdf[y] = pdf[y].astype(float)
+            if pdf[y].dtype.name == "object":
+                if y in decimals:
+                    #spark converts Decimal type to object during toPandas, cast it as float
+                    pdf[y] = pdf[y].astype(float)
+                elif schema_types.get(y, None) == DateType:
+                    pdf[y] = pd.to_datetime(pdf[y])
 
         return pdf
 

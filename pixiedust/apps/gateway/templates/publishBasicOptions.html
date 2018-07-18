@@ -1,0 +1,34 @@
+<script>
+function getNotebookJSON(){
+    return {
+        "name": IPython.notebook.notebook_name,
+        "notebook": IPython.notebook.toJSON()
+    }
+}
+</script>
+<div class="form-horizontal">
+    <div class="form-group">
+        <div class="col-sm-6">
+            <label for="server{{prefix}}">PixieGateway Server:</label>
+            <input type="text" class="form-control" id="server{{prefix}}" name="server" pd_target="server_validation_{{prefix}}"
+                pd_refresh="kernel{{prefix}}"
+                value="{{this.server}}" pd_script="self.set_gateway_server('$val(server{{prefix}})')">
+        </div>
+        <div class="col-sm-6" id="server_validation_{{prefix}}" style="min-height:50px">
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="title{{prefix}}">Page Title:</label>
+        <input type="text" class="form-control" id="title{{prefix}}" name="title" value="">
+    </div>
+    {#
+    <div class="form-group">
+        <label for="icon{{prefix}}">Page Icon:</label>
+        <input type="text" class="form-control" id="icon{{prefix}}" name="icon" value="">
+    </div>
+    <div>
+        <input type="checkbox" id="run{{prefix}}" name="run" value="1">
+        <label for="run{{prefix}}">Run application in dedicated kernel</label>
+    </div>
+    #}
+</div>
