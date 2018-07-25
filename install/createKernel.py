@@ -255,7 +255,7 @@ class PixiedustInstall(InstallKernelSpec):
         if download_scala:
             self.download_scala(scala_version)
 
-        self.kernelName = "Python with Pixiedust (Spark {}.{})".format(spark_version[0], spark_version[1])
+        self.kernelName = "Python-with-Pixiedust_Spark-{}.{}".format(spark_version[0], spark_version[1])
         if silent:
             answer = 'y'
         else:
