@@ -144,8 +144,8 @@
       <select id="lon-select-{{prefix}}" pd_script="self.options_callback('lonField', '$val(updateSelectedLonField)')">
         <option value="-">-----</option>
         {% for field in this.fieldNamesAndTypes %}
-          {% if field[0] in this.fieldNames %}
-          <option value="{{field.0}}" {% if field.0 == this.lonField %}selected{% endif %}>{{field.0}}</option>
+          {% if field[0] in this.fieldNames and field[1] == 'numeric' %}
+            <option value="{{field.0}}" {% if field.0 == this.lonField %}selected{% endif %}>{{field.0}}</option>
           {% endif %}
         {% endfor %}  
       </select>
@@ -156,15 +156,15 @@
       <select id="lat-select-{{prefix}}" pd_script="self.options_callback('latField', '$val(updateSelectedLatField)')">
         <option value="-">-----</option>
         {% for field in this.fieldNamesAndTypes %}
-          {% if field[0] in this.fieldNames %}
-          <option value="{{field.0}}" {% if field.0 == this.latField %}selected{% endif %}>{{field.0}}</option>
+          {% if field[0] in this.fieldNames and field[1] == 'numeric' %}
+            <option value="{{field.0}}" {% if field.0 == this.latField %}selected{% endif %}>{{field.0}}</option>
           {% endif %}
         {% endfor %}  
       </select>
     </div>
       
     <div id="value-field-{{prefix}}">
-      <label for="value-select-{{prefix}}">Mapping field: <i class="fa fa-question-circle" title="The column to be symbolized on the map. Must be a numeric field."></i></label>
+      <label for="value-select-{{prefix}}">Value field: <i class="fa fa-question-circle" title="The column to be symbolized on the map. Must be a numeric field."></i></label>
       <select id="value-select-{{prefix}}" pd_script="self.options_callback('valueFields', '$val(updateSelectedValuesFields)')">
         <option value="-">-----</option>
         {% for field in this.fieldNamesAndTypes %}

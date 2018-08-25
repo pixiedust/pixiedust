@@ -34,11 +34,8 @@ def defaultJSONEncoding(o):
 @PixiedustRenderer(id="mapView")
 @Logger()
 class MapViewDisplay(MapBoxBaseDisplay):
-    def isMap(self):
+    def isMap(self, handlerId):
         return True
-
-    def supportsKeyFields(self, handlerId):
-        return False
 
     def supportsAggregation(self, handlerId):
         return False
@@ -47,18 +44,22 @@ class MapViewDisplay(MapBoxBaseDisplay):
         return True
 
     def getPreferredDefaultKeyFieldCount(self, handlerId):
-        return 0
+        return 2
 
     def getPreferredDefaultValueFieldCount(self, handlerId):
         return 1
 
     def canRenderChart(self):
-        lonf = self.options.get("lonField")
-        latf = self.options.get("latField")
-        if lonf is None or latf is None:
-            return (False, "Required location fields not found ('latitude'/'longitude', 'lat/lon', 'y/x').<br>Use the Chart Options dialog to specify location fields.")
-        return (True, None)
+        keyFields = self.getKeyFields()
+        if len(self.getFieldNames()) == 0 or (keyFields is not None and len(keyFields) > 0) or len(self._getDefaultKeyFields()) > 0:
+            return (True, None)
+        else:
+            return (False, "No location field found ('latitude'/'longitude', 'lat/lon', 'y/x').<br>Use the Chart Options dialog to specify location fields.")
 
+    def getChartContext(self, handlerId):
+        diagTemplate = MapBoxBaseDisplay.__module__ + ":mapViewOptionsDialogBody.html"
+        return (diagTemplate, {})
+    
     def doRenderChart(self):
         mbtoken = self.options.get("mapboxtoken")
         if not mbtoken:
@@ -76,62 +77,56 @@ class MapViewDisplay(MapBoxBaseDisplay):
 
         return self.renderTemplate("iframesrcdoc.html", body=body, prefwidth=self.getPreferredOutputWidth(), prefheight=self.getPreferredOutputHeight())
 
-    ## overrides empty method in baseChartDisplay
+    # override the default so that the non-numeric fields are collected as extra fields
     def getExtraFields(self):
-        fieldNames = self.getFieldNames()
-        if len(fieldNames) == 0:
-            return []
-        extraFields = []
-        extraFieldStr = self.options.get("extraFields")
-        if extraFieldStr is not None:
-            extraFields = extraFieldStr.split(",")
-            extraFields = [val for val in extraFields if val in fieldNames]
-        return extraFields
+        return self.getNonNumericValueFields()
 
     def renderMapView(self, mbtoken):
 
         # generate a working pandas data frame using the fields we need
         df = self.getWorkingPandasDataFrame()
-        lonField = self.getLonField()
-        latField = self.getLatField()
+        keyFields = self.getKeyFields()
 
         # geomType can be either 0: (Multi)Point, 1: (Multi)LineString, 2: (Multi)Polygon
         geomType = 0
         bins = []
 
-        # cast to double just in case the fields are strings
-        min = [ numpy.double(df[lonField]).min(), numpy.double(df[latField]).min() ]
-        max = [ numpy.double(df[lonField]).max(), numpy.double(df[latField]).max() ]
-        self.options["mapBounds"] = json.dumps([min,max], default=defaultJSONEncoding)
+        if len(keyFields)>0:
+            if len(keyFields)==1:
+                geomType = -1 #unknown as of yet
+            else:
+                lonFieldIdx = 0
+                latFieldIdx = 1
+                if keyFields[0] == self.getLatField(): 
+                    lonFieldIdx = 1
+                    latFieldIdx = 0
+                min = [df[keyFields[lonFieldIdx]].min(), df[keyFields[latFieldIdx]].min()]
+                max = [df[keyFields[lonFieldIdx]].max(), df[keyFields[latFieldIdx]].max()]
+                self.options["mapBounds"] = json.dumps([min,max], default=defaultJSONEncoding)
 
         valueFields = self.getValueFields()
         
-        #check if we have a extra fields for get info clicks
-        extraFields = self.options.get("extraFields", None)
-        if extraFields is not None and len(extraFields) < 1:
-            extraFields = None
-        extraFields = [a for a in extraFields.split(",") if a not in valueFields] if extraFields is not None else []
-
-        # calculate indexes of all fields
-        valueFieldIdxs = []
-        allProps = valueFields + extraFields
-        for j, valueField in enumerate( allProps ):
-            valueFieldIdxs.append(df.columns.get_loc(valueField))
+        #check if we have a preserveCols
+        preserveCols = self.options.get("preserveCols", None)
+        preserveCols = [a for a in preserveCols.split(",") if a not in keyFields and a not in valueFields] if preserveCols is not None else []
 
         # Transform the data into GeoJSON for use in the Mapbox client API
+        allProps = valueFields + preserveCols + self.getExtraFields()
         features = []
-        for index,row in df.iterrows():
+        for rowidx, row in df.iterrows():
             feature = {'type':'Feature',
                         'properties':{},
                         'geometry':{'type':'Point',
                                     'coordinates':[]}}
             
             if geomType == 0:
-                feature['geometry']['coordinates'] = [row[lonField], row[latField]]
-            # only points are supported
+                feature['geometry']['coordinates'] = [row[keyFields[lonFieldIdx]], row[keyFields[latFieldIdx]]]
+            else:
+                geomIdx = df.columns.get_loc(keyFields[0])+1
+                feature['geometry'] = json.loads(row[geomIdx])
                 
-            for idx, valueFieldIdx in enumerate(valueFieldIdxs):
-                feature['properties'][allProps[idx]] = row[valueFieldIdx]
+            for fld in allProps:
+                feature['properties'][fld] = row[fld]
             features.append(feature)
 
         if len(features)>0:
@@ -158,13 +153,13 @@ class MapViewDisplay(MapBoxBaseDisplay):
                     paint['line-opacity'] = float(self.options.get("coloropacity")) / 100
             elif geomType == 2:
                 paint['fill-color'] = '#ff0000'
-                paint['fill-opacity'] = 0.50
+                paint['fill-opacity'] = 0.8
                 if self.options.get("coloropacity"):
                     paint['fill-opacity'] = float(self.options.get("coloropacity")) / 100
             else:
                 paint['circle-radius'] = 12
                 paint['circle-color'] = '#ff0000'
-                paint['circle-opacity'] = 0.50
+                paint['circle-opacity'] = 0.25
                 if self.options.get("coloropacity"):
                     paint['circle-opacity'] = float(self.options.get("coloropacity")) / 100
                 if (self.options.get("kind") and self.options.get("kind").find("cluster") >= 0):
@@ -256,24 +251,44 @@ class MapViewDisplay(MapBoxBaseDisplay):
 
     def isLatLonChart(self):
         llnames = ['lat','latitude','y','lon','long','longitude','x']
-        if self.getLonField() is None or self.getLonField() not in llnames or self.getLatField() is None or self.getLatField() not in llnames:
-            return False
-        return True;
+        isll = True;
+        keyFields = self.getKeyFields()
+        if ((keyFields is not None) and len(keyFields) == 2):
+            for field in keyFields:
+                if field.lower() not in llnames:
+                    isll = False
+        return isll;
 
-    # def getLatField(self):
-    #     names = ['lat','latitude','y']
-    #     keyFields = self.getKeyFields()
-    #     if (keyFields is not None):
-    #         for field in keyFields:
-    #             if field.lower() in names:
-    #                 return field
-    #     return None;
+    def getLatField(self):
+        names = ['lat','latitude','y']
+        keyFields = self.getKeyFields()
+        if (keyFields is not None):
+            for field in keyFields:
+                if field.lower() in names:
+                    return field
+        return None;
 
-    # def getLonField(self):
-    #     names = ['lon','long','longitude','x']
-    #     keyFields = self.getKeyFields()
-    #     if (keyFields is not None):
-    #         for field in keyFields:
-    #             if field.lower() in names:
-    #                 return field
-    #     return None;
+    def getLonField(self):
+        names = ['lon','long','longitude','x']
+        keyFields = self.getKeyFields()
+        if (keyFields is not None):
+            for field in keyFields:
+                if field.lower() in names:
+                    return field
+        return None;
+
+    def _getDefaultKeyFields(self):
+        # check for lat/long
+        latLongFields = []
+        for field in self.getFieldNames():
+            if field.name.lower() == 'lat' or field.name.lower() == 'latitude' or field.name.lower() == 'y':
+                latLongFields.append(field.name)
+            elif field.name.lower() == 'lon' or field.name.lower() == 'long' or field.name.lower() == 'longitude' or field.name.lower() == 'x':
+                latLongFields.append(field.name)
+        if (len(latLongFields) == 2):
+            return latLongFields
+        # if we get here, look for an address field
+        for field in self.getFieldNames():
+            if field.name.lower() == 'address':
+                return latLongFields.append(field.name)
+        return []

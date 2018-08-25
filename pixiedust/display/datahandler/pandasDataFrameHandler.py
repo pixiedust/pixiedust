@@ -105,9 +105,9 @@ class PandasDataFrameDataHandler(BaseDataHandler):
         else:
             extraFields = [a for a in extraFields if a not in xFields and a not in yFields]
             if isMap:
-                if lonField is not None and len(lonField) > 0 and lonField not in extraFields:
+                if lonField is not None and len(lonField) > 0 and lonField not in extraFields and lonField not in xFields:
                     extraFields.append(lonField)
-                if latField is not None and len(latField) > 0 and latField not in extraFields:
+                if latField is not None and len(latField) > 0 and latField not in extraFields and latField not in xFields:
                     extraFields.append(latField)
             workingDF = filteredDF[xFields + extraFields + yFields]
 
