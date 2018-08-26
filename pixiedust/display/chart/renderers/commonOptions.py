@@ -137,7 +137,7 @@ def lineChart(displayObject):
         'description': 'Show legend',
         'metadata': {
             'type': 'checkbox',
-            'default': "false"
+            'default': "true"
         }
     })
 
