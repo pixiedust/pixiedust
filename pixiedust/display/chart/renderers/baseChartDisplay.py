@@ -415,6 +415,8 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
         fieldNames = self.getFieldNames(True)
         (dialogTemplate, dialogOptions) = self.getDialogInfo(handlerId)
 
+        keyFields = []
+        valueFields = []
         try:
             self.validateOptions()
             if self.options.get("debug", None):
@@ -422,8 +424,9 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
             keyFields = self.getKeyFields()
             valueFields = self.getValueFields()
         except ShowChartOptionDialog:
-            self._addHTMLTemplate("renderer.html", chartFigure="", optionsTitle=optionsTitle, show_options_dialog=True)
-            return
+            if self.get_options_dialog_pixieapp() is not None:
+                self._addHTMLTemplate("renderer.html", chartFigure="", optionsTitle=optionsTitle, show_options_dialog=True)
+                return
         
         # render
         try:

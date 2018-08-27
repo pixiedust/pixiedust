@@ -17,3 +17,4 @@
 from .KeyValueSelector import KeyValueSelector
 from .AggregationSelector import AggregationSelector
 from .RowCount import RowCount
+from .BinQuantiles import BinQuantiles

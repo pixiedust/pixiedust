@@ -29,6 +29,9 @@ class PandasDataFrameDataHandler(BaseDataHandler):
     def getFieldNames(self, expandNested=False):
         return dataFrameMisc.getFieldNames(PandasDataFrameAdapter(self.entity), expandNested)
 
+    def count(self):
+        return len(self.entity.index)
+
     def isNumericField(self, fieldName):
         for y in self.entity.columns:
             if y == fieldName:
@@ -73,7 +76,9 @@ class PandasDataFrameDataHandler(BaseDataHandler):
             casematters = filter_options['case_matter'].lower() == "true" if 'case_matter' in filter_options else False
 
             if field and val and field in self.getFieldNames():
-                if not self.isNumericField(field):
+                if val == 'None':
+                    df = df.loc[df[field].isna() if hasattr(df[field], 'isna') else df[field].isnull()]
+                elif not self.isNumericField(field):
                     val = val if regex else ".*" + val + ".*"
                     flags = 0 if casematters else re.IGNORECASE
                     df = df[df[field].str.contains(val, flags=flags)]
@@ -97,11 +102,16 @@ class PandasDataFrameDataHandler(BaseDataHandler):
             yFields = []
             aggregation = None
 
+        allFields = self.getFieldNames()
+        myFieldsOrdered = []
         if isTableRenderer:
             if len(extraFields) < 1:
                 workingDF = filteredDF
             else:
-                workingDF = filteredDF[extraFields]
+                for f in allFields:
+                    if f in extraFields:
+                        myFieldsOrdered.append(f)
+                workingDF = filteredDF[myFieldsOrdered]
         else:
             extraFields = [a for a in extraFields if a not in xFields and a not in yFields]
             if isMap:
@@ -120,7 +130,7 @@ class PandasDataFrameDataHandler(BaseDataHandler):
             workingDF = workingDF.dropna()
         count = len(workingDF.index)
         if count > maxRows:
-            workingDF = workingDF.sample(frac=(float(maxRows) / float(count)),replace=False)
+            workingDF = workingDF.sample(n=int(maxRows),replace=False)
 
         #NOTE: preserveCols is deprecated. This functionality doesn't exist in the pySparkDataFrameHandler so don't use it!!!
         #check if the caller want to preserve some columns

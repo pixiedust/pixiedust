@@ -313,20 +313,20 @@ class FilterApp(BaseOptions):
             return '<div class="row">' + controls + manualvalue + submit + clear + stats + '<script>' + script + '</script></div>'
 
     @route(field="*", constraint="*", casematters="*")
-    def noqueryvalue(field, constraint, casematters): 
+    def noqueryvalue(self, field, constraint, casematters): 
         # called when user submits without entering anything in the query <input>
-        return "<h4>A value is required</h4>"
+        return self.compute(field, constraint, '', casematters, 'false')
 
     @route(field="*", constraint="*", val="*", casematters="*", regex="*")
     def compute(self, field, constraint, val, casematters, regex):
         isNumericField = self.dfh.isNumericField(field)
+        if not val or not val.strip() or val.strip() == 'None':
+            val = 'None'
 
         if isNumericField and constraint not in ['less_than', 'greater_than', 'equal_to']:
             return "<h4>A constraint is required</h4>"
-        elif isNumericField and not val.replace('.','',1).replace('-','',1).isdigit():
+        elif isNumericField and val != 'None' and not val.replace('.','',1).replace('-','',1).isdigit():
             return "<h4>A numeric value is required</h4>"
-        elif not val.strip():
-            return "<h4>A value is required</h4>"
         else:
             self.filter_options = {
                 "field": field,
@@ -343,29 +343,8 @@ class FilterApp(BaseOptions):
         self.summary_stats = []
         self.quantiles = []
         self.frequents = []
-
-        if isPandasDataFrame(self.df):
-            statsdf = self.df[field].describe([.02, .09, .25, .50, .75, .91, .98])
-            lbls = ['count','mean','std','min','max']
-
-            for i in range(0,len(lbls)):
-                if i == 0:
-                    self.summary_stats.append((lbls[i], "{:.0f}".format(statsdf[i])))
-                else:
-                    self.summary_stats.append((lbls[i], "{:.2f}".format(statsdf[lbls[i]])))
-
-            lbls = ['2%','9%','25%','50%','75%','91%','98%']
-            for i in range(0,len(lbls)):
-                self.quantiles.append((lbls[i] + "ile", "{:.2f}".format(statsdf[lbls[i]])))
-
-            freqseries = self.df[field].value_counts()
-            stop = 5
-            for ix in freqseries.index:
-                if stop > 0:
-                    self.frequents.append(str(ix))
-                stop = stop - 1
         
-        else: #isPySparkDataFrame(self.df):
+        if isPySparkDataFrame(self.df):
             statsdf = self.df.describe(field)
             lbls = ['count','mean','std','min','max']
 
@@ -388,6 +367,29 @@ class FilterApp(BaseOptions):
                 if stop > 0:
                     self.frequents.append(str(i))
                 stop = stop - 1
+        else:
+            if not isPandasDataFrame(self.df):
+                self.df = self.data_handler.entity
+            if isPandasDataFrame(self.df):
+                statsdf = self.df[field].describe([.02, .09, .25, .50, .75, .91, .98])
+                lbls = ['count','mean','std','min','max']
+
+                for i in range(0,len(lbls)):
+                    if i == 0:
+                        self.summary_stats.append((lbls[i], "{:.0f}".format(statsdf[i])))
+                    else:
+                        self.summary_stats.append((lbls[i], "{:.2f}".format(statsdf[lbls[i]])))
+
+                lbls = ['2%','9%','25%','50%','75%','91%','98%']
+                for i in range(0,len(lbls)):
+                    self.quantiles.append((lbls[i] + "ile", "{:.2f}".format(statsdf[lbls[i]])))
+
+                freqseries = self.df[field].value_counts()
+                stop = 5
+                for ix in freqseries.index:
+                    if stop > 0:
+                        self.frequents.append(str(ix))
+                    stop = stop - 1
                 
         summaryname = '<br>'.join(s[0] for s in self.summary_stats)
         summaryvalue = '<br>'.join(s[1] for s in self.summary_stats)

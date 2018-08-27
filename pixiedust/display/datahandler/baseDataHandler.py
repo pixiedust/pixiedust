@@ -23,6 +23,9 @@ class BaseDataHandler(object):
     def add_numerical_column(self):
         raise NotImplementedError()
 
+    def count(self):
+        raise NotImplementedError()
+
     def getFieldNamesAndTypes(self, expandNested=True, sorted=False):
         fieldNames = self.getFieldNames(expandNested)
         fieldNamesAndTypes = []
@@ -36,7 +39,7 @@ class BaseDataHandler(object):
                 fieldType = "string"
             fieldNamesAndTypes.append((fieldName, fieldType))
         if sorted:
-            fieldNamesAndTypes.sort(key=lambda x: x[0])
+            fieldNamesAndTypes.sort(key=lambda x: str(x[0]))
         return fieldNamesAndTypes
 
     def get_filtered_dataframe(self, filter_options):

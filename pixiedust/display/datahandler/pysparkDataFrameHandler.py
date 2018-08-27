@@ -16,7 +16,7 @@
 import pixiedust.utils.dataFrameMisc as dataFrameMisc
 from pyspark.sql import functions as F
 from pyspark.sql.functions import lit
-from pyspark.sql.types import DecimalType
+from pyspark.sql.types import DecimalType, DateType
 import time
 import pandas as pd
 from pixiedust.utils import Logger
@@ -29,6 +29,9 @@ class PySparkDataFrameDataHandler(BaseDataHandler):
         if hasattr(self.entity, name):
             return self.entity.__getattribute__(name)
         raise AttributeError("{0} attribute not found".format(name))
+
+    def count(self):
+        return self.entity.count()
 
     def getFieldNames(self, expandNested=False):
         return dataFrameMisc.getFieldNames(self.entity, expandNested)
@@ -88,7 +91,9 @@ class PySparkDataFrameDataHandler(BaseDataHandler):
             casematters = filter_options['case_matter'].lower() == "true" if 'case_matter' in filter_options else False
 
             if field and val and field in self.getFieldNames():
-                if not self.isNumericField(field):
+                if val == 'None':
+                    df = df.where(df[field].isNull())
+                elif not self.isNumericField(field):
                     val = val if regex else ".*" + val + ".*"
                     val = val if casematters else "(?i)" + val
                     df = df.filter(df[field].rlike(val))
@@ -98,7 +103,10 @@ class PySparkDataFrameDataHandler(BaseDataHandler):
                         c = "<"
                     if constraint == "greater_than":
                         c = ">"
-                    df = df.filter(field + " " + c + " " + val)
+                    filterStr = field + " " + c + " " + val
+                    if " " in field:
+                        filterStr = "`" + field + "` " + c + " " + val
+                    df = df.filter(filterStr)
         return df
 
     """
@@ -113,11 +121,16 @@ class PySparkDataFrameDataHandler(BaseDataHandler):
             yFields = []
             aggregation = None
 
+        allFields = self.getFieldNames()
+        myFieldsOrdered = []
         if isTableRenderer:
             if len(extraFields) < 1:
                 workingDF = filteredDF
             else:
-                workingDF = filteredDF.select(extraFields)
+                for f in allFields:
+                    if f in extraFields:
+                        myFieldsOrdered.append(f)
+                workingDF = filteredDF.select(myFieldsOrdered)
         else:
             extraFields = [a for a in extraFields if a not in xFields]
             if isMap:
@@ -139,8 +152,11 @@ class PySparkDataFrameDataHandler(BaseDataHandler):
             workingDF = workingDF.dropna()
         count = workingDF.count()
         if count > maxRows:
-            workingDF = workingDF.sample(False, (float(maxRows) / float(count)))
+            pct = (float(maxRows) / float(count)) + 0.02
+            workingDF = workingDF.sample(False, pct)
         pdf = self.toPandas(workingDF)
+        if pdf.shape[0] > maxRows:
+            pdf = pdf.head(maxRows)
 
         #check if the user wants timeseries
         if len(xFields) == 1 and self.options.get("timeseries", 'false') == 'true':
@@ -166,11 +182,16 @@ class PySparkDataFrameDataHandler(BaseDataHandler):
             if f.dataType.__class__ == DecimalType:
                 decimals.append(f.name)
 
+        schema_types = {f.name: type(f.dataType) for f in workingDF.schema.fields}
+
         pdf = workingDF.toPandas()
         for y in pdf.columns:
-            if pdf[y].dtype.name == "object" and y in decimals:
-                #spark converts Decimal type to object during toPandas, cast it as float
-                pdf[y] = pdf[y].astype(float)
+            if pdf[y].dtype.name == "object":
+                if y in decimals:
+                    #spark converts Decimal type to object during toPandas, cast it as float
+                    pdf[y] = pdf[y].astype(float)
+                elif schema_types.get(y, None) == DateType:
+                    pdf[y] = pd.to_datetime(pdf[y])
 
         return pdf
 

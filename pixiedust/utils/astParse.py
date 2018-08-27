@@ -65,3 +65,30 @@ def parse_function_call(expression):
     walker = Walker()
     walker.visit(ast.parse(expression))
     return walker.results
+
+def get_matches_lineno(code, fn_name):
+    "Return a list of line number corresponding to the definition of function with the name fn_name"
+    class Walker(ast.NodeVisitor):
+        def __init__(self):
+            self._hits = set()
+
+        #pylint: disable=E0213,E1102    
+        def onvisit(fn):
+            def wrap(self, node):
+                fn(self,node)
+                super(Walker, self).generic_visit(node)
+            return wrap
+        
+        @onvisit
+        def visit_FunctionDef(self, node):
+            if node.name == fn_name:
+                self._hits.add(node)
+            return node
+        
+        @property
+        def hits(self):
+            return list(sorted([n.lineno + 1 for n in self._hits]))
+    
+    walker = Walker()
+    walker.visit(ast.parse(code))
+    return walker.hits

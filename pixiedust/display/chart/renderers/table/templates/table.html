@@ -157,7 +157,7 @@
           {% endif %}
           <div>
             {% if table_nocount != 'true' %}
-            <span class="df-table-search-count">Showing {{wpdf.index|length}} of {{wpdf.index|length}} rows</span>
+            <span class="df-table-search-count">Showing {{wpdf.index|length}} of {{this.count}} rows</span>
             {% endif %}
           </div>
           <!-- fixed header for when dataframe table scrolls -->

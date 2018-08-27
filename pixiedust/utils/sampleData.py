@@ -16,6 +16,7 @@
 from six import iteritems
 import pixiedust
 import ast
+import zipfile
 from pixiedust.utils.shellAccess import ShellAccess
 from pixiedust.utils.template import PixiedustTemplateEnvironment
 from pixiedust.utils.environment import Environment,scalaGateway
@@ -66,7 +67,7 @@ dataDefs = OrderedDict([
         "publisher": "IBM"
     }),
     ("6", {
-        "displayName": "Million dollar home sales in NE Mass late 2016",
+        "displayName": "Million dollar home sales in Massachusetts, USA Feb 2017 through Jan 2018",
         "url": "https://raw.githubusercontent.com/ibm-watson-data-lab/open-data/master/homesales/milliondollarhomes.csv",
         "topic": "Economy & Business",
         "publisher": "Redfin.com"
@@ -141,7 +142,11 @@ class SampleData(object):
                     return csvload.option("inferSchema", "true").load(path)
         else:
             print("Loading file using 'pandas'")
-            return pd.read_csv(path)
+            try:
+                return pd.read_csv(path)
+            except UnicodeDecodeError:
+                #Try ISO-8859-1
+                return pd.read_csv(path, encoding = "ISO-8859-1")
 
     def JSONdataLoader(self, path, schema=None):
         if schema is not None and Environment.hasSpark:
@@ -225,10 +230,9 @@ class Downloader(object):
             with tempfile.NamedTemporaryFile(delete=False) as f:
                 bytesDownloaded = self.write(urlopen(req), f)
                 path = f.name   
-            if url.endswith(".zip"):
+            if url.endswith(".zip") or zipfile.is_zipfile(path):
                 #unzip first and get the first file in it
                 print("Extracting first item in zip file...")
-                import zipfile
                 import shutil
                 zfile = zipfile.ZipFile(path, 'r')
                 if len(zfile.filelist)==0:

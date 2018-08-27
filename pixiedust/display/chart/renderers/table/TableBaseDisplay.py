@@ -16,12 +16,8 @@
 
 from abc import ABCMeta
 from six import with_metaclass
-from pixiedust.utils import Logger
-import pixiedust
 from pixiedust.display.chart.renderers import PixiedustRenderer
-from pixiedust.display.chart.renderers.baseChartDisplay import BaseChartDisplay,commonChartOptions
-
-myLogger = pixiedust.getLogger(__name__)
+from pixiedust.display.chart.renderers.baseChartDisplay import BaseChartDisplay, commonChartOptions
 
 @PixiedustRenderer(rendererId="table")
 class TableBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
@@ -90,6 +86,16 @@ class TableBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
                 'metadata': {
                     'type': 'checkbox',
                     'default': "false"
+                }
+            },
+            {
+                'name': 'table_showrows',
+                'description': 'Show Rows',
+                'tooltip': 'Warning: this filter only applies to the sampled data and not the original data set',
+                'metadata': {
+                    'type': 'dropdown',
+                    'values': ['All', 'Missing values', 'Not missing values'],
+                    'default': "All"
                 }
             }
         ]

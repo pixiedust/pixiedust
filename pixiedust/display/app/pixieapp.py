@@ -23,6 +23,7 @@ import base64
 import inspect
 import sys
 from functools import partial
+from jinja2 import Template
 from IPython.utils.io import capture_output
 
 def route(**kw):
@@ -87,9 +88,13 @@ class captureOutput(object):
         return wrapper_fn
 
     def wrapper(self, instance, *args, **kwargs):
+        ret_html = None
         with capture_output() as buf:
-            self.fn(instance, *args, **kwargs)
-        return "\n".join([self.convert_html(output) for output in buf.outputs])
+            ret_html = self.fn(instance, *args, **kwargs)
+        captured_output = "\n".join([self.convert_html(output) for output in buf.outputs])
+        if ret_html is not None:
+            captured_output += "\n" + ret_html
+        return captured_output
 
 class templateArgs(object):
     """
@@ -132,7 +137,9 @@ class templateArgs(object):
 pixieAppRunCustomizer = None
 
 def runPixieApp(app, parent_pixieapp=None, entity=None, **kwargs):
-    kwargs.get("options", {}).pop("prefix", None)  #child pixieapp should have its own prefix
+    options = kwargs.get("options", {})
+    if options.pop("new_parent_prefix", "true") == "true":
+        options.pop("prefix", None)  #child pixieapp should have its own prefix
     if isinstance(app, PixieDustApp):
         app.run(entity, **kwargs)
     elif isinstance(app, string_types):
@@ -143,12 +150,16 @@ def runPixieApp(app, parent_pixieapp=None, entity=None, **kwargs):
         else:
             instance_app = ShellAccess[parts[-1]]()
         if parent_pixieapp is not None:
-            instance_app.parent_pixieapp = ShellAccess[parent_pixieapp]
+            instance_app.parent_pixieapp = parent_pixieapp if isinstance(parent_pixieapp, PixieDustApp) else ShellAccess[parent_pixieapp]
             instance_app.parent_pixieapp.add_child(instance_app)
         kwargs["is_running_child_pixieapp"] = True
         instance_app.run(entity, **kwargs)
     else:
         raise ValueError("Invalid argument to runPixieApp. Only PixieApp or String allowed")
+
+class RunInPixieDebugger(Exception):
+    "Marker exception to start the PixieDebugger"
+    pass
 
 @Logger()
 class PixieDustApp(Display):
@@ -157,7 +168,9 @@ class PixieDustApp(Display):
 
     def __init__(self, options=None, entity=None, dataHandler=None):
         super(PixieDustApp, self).__init__(options, entity, dataHandler)
-        self.parent_pixieapp = None
+        if not hasattr(self, "parent_pixieapp"):
+            self.parent_pixieapp = None
+        self.exceptions = {}
         if not hasattr(self, "metadata"):
             self.metadata = None
             self.empty_metadata = False
@@ -196,19 +209,19 @@ class PixieDustApp(Display):
             method = method.org_fn
         return getattr(method, "persist_args", None) is not None
 
-    def injectArgs(self, method, route):
+    def injectArgs(self, method, **kwargs):
         if isinstance(method, partial) and hasattr(method, "org_fn"):
             method = method.org_fn
         argspec = inspect.getargspec(method)
         args = argspec.args
         if len(args) > 0:
             args = args[1:] if hasattr(method, "__self__") or args[0] == 'self' else args
-        return OrderedDict(zip([a for a in args], [self.getOptionValue(arg) for arg in args]))
+        return OrderedDict(zip([a for a in args], [self.getOptionValue(arg) or kwargs.get(arg, None) for arg in args]))
 
     def invoke_route(self, class_method, **kwargs):
         "Programmatically invoke a route from arguments"
         try:
-            injectedArgs = kwargs
+            injectedArgs = self.injectArgs(class_method, **kwargs)
             retValue = class_method(*list(injectedArgs.values()))
         finally:
             if isinstance(retValue, templateArgs.TemplateRetValue):
@@ -238,6 +251,19 @@ class PixieDustApp(Display):
         try:
             display_pub.register_hook(self.hook_msg)      
             super(PixieDustApp, self).render()
+        except RunInPixieDebugger:
+            self.options.pop("handlerId")
+            self.options['new_parent_prefix'] = False
+            entity={
+                "breakpoints": ["{}.{}".format(self.__pixieapp_class_name__, self.breakpoints)],
+                "code": self.get_pd_controls()["command"]
+            }
+            self.breakpoints = None
+            runPixieApp(
+                "pixiedust.apps.debugger.PixieDebugger", 
+                parent_pixieapp=self, 
+                entity=entity,
+                **{"options":self.options})
         finally:
             display_pub.unregister_hook(self.hook_msg)
 
@@ -252,16 +278,32 @@ class PixieDustApp(Display):
                     if not t[0]:
                         defRoute = t[1]
                     elif self.matchRoute(t[0]):
+                        if self.breakpoints == t[1]:
+                            self.debug("Breakpoint matched, Invoking PixieDebugger")
+                            raise RunInPixieDebugger()
                         self.debug("match found: {}".format(t[0]))
                         meth = getattr(self, t[1])
-                        injectedArgs = self.injectArgs(meth, t[0])
+                        injectedArgs = self.injectArgs(meth)
                         self.debug("Injected args: {}".format(injectedArgs))
                         if self.metadata is None and self.has_persist_args(meth):
                             self.metadata = {key:self.getOptionValue(key) for key,_ in iteritems(t[0])}
-                        retValue = meth(*list(injectedArgs.values()))
+                        try:
+                            self.exceptions.pop(t[1], None)
+                            retValue = meth(*list(injectedArgs.values()))
+                        except:
+                            self.exceptions[t[1]] = self.get_pd_controls()["command"]
+                            raise
                         return
                 if defRoute:
-                    retValue = getattr(self, defRoute)()
+                    if self.breakpoints == defRoute:
+                        self.debug("Breakpoint matched, Invoking PixieDebugger")
+                        raise RunInPixieDebugger()
+                    try:
+                        self.exceptions.pop(defRoute, None)
+                        retValue = getattr(self, defRoute)()
+                    except:
+                        self.exceptions[defRoute] = self.get_pd_controls()["command"]
+                        raise
                     return
             finally:
                 if isinstance(retValue, templateArgs.TemplateRetValue):
@@ -270,8 +312,16 @@ class PixieDustApp(Display):
                 if isinstance(retValue, string_types):
                     if self.getBooleanOption("nostore_isrunningchildpixieapp", False):
                         self.options.pop("nostore_isrunningchildpixieapp", None)
-                        retValue = """<div id="wrapperHTML{{prefix}}" pixiedust="{{pd_controls|htmlAttribute}}">""" + retValue + """</div>"""
+                        retValue = """<div id="wrapperHTML{{prefix}}" pixiedust="{{this.get_pd_controls(black_list=['nostore_isrunningchildpixieapp'])|tojson|htmlAttribute}}">""" + retValue + """</div>"""
                     self._addHTMLTemplateString(retValue, **injectedArgs)
+                elif isinstance(retValue, Template):
+                    self._addHTML(
+                        retValue.render(self._getTemplateArgs(
+                                resModule=".".join(type(self).__name__.split(".")[:-1]), 
+                                **injectedArgs
+                            )
+                        )
+                    )
                 elif isinstance(retValue, dict):
                     body = self.renderTemplateString(retValue.get("body", ""))
                     jsOnLoad = self.renderTemplateString(retValue.get("jsOnLoad", ""))
@@ -353,19 +403,30 @@ def PixieApp(cls):
                     f(instance)
 
     def run(self, entity=None, **kwargs):
+        self.breakpoints = kwargs.pop("debug_route", "")
         is_running_child_pixieapp = kwargs.pop("is_running_child_pixieapp", False)
         for key, value in iteritems(kwargs):
             setattr(self, key, value)
-        if entity is not None:
-            self.pixieapp_entity = entity
+        self.pixieapp_entity = entity
         var = None
         if self.parent_pixieapp is not None:
-            parent_key = None
-            for key in ShellAccess.keys():
-                notebook_var = ShellAccess[key]
-                if notebook_var is self.parent_pixieapp and key != "self":
-                    parent_key = key
-                    break
+            def find_child_var(parent, child):
+                for c in dir(parent):
+                    if getattr(parent, c) == child:
+                        return c
+            def find_notebook_var(parent):
+                for key in ShellAccess.keys():
+                    notebook_var = ShellAccess[key]
+                    if notebook_var is parent and key != "self" and not key.startswith("_"):
+                        return key, notebook_var
+                # we didn't find it, maybe it's nested
+                if parent.parent_pixieapp is not None:
+                    key, notebook_var = find_notebook_var(parent.parent_pixieapp)
+                    if key is not None:
+                        # find the current object by name and append it to the key         
+                        return (key + "." + find_child_var(parent.parent_pixieapp, parent), notebook_var)
+                return None,None
+            parent_key, notebook_var = find_notebook_var(self.parent_pixieapp)
             for child_key, child in iteritems(notebook_var.pixieapp_children):
                 if child is self:
                     var = "{}.{}".format(parent_key, child_key)
@@ -415,6 +476,7 @@ def PixieApp(cls):
 
         opts = [(k, str(v).lower() if isinstance(v, bool) else v) for (k,v) in iteritems(options) if v is not None]
         s = "display({}{})".format(var, reduce(lambda k,v: k + "," + v[0] + "='" + str(v[1]) + "'", opts, ""))
+
         try:
             sys.modules['pixiedust.display'].pixiedust_display_callerText = s
             self._app_starting = True   #App lifecycle flag
@@ -429,7 +491,8 @@ def PixieApp(cls):
     displayClass = type( decoName(cls, "Display"), (cls,PixieDustApp, ),{
         "__init__": __init__, 
         "run": run, 
-        "getPixieAppEntity":getPixieAppEntity
+        "getPixieAppEntity":getPixieAppEntity,
+        "__pixieapp_class_name__": cls.__name__
     })
     ShellAccess["newDisplayClass"] = displayClass
 

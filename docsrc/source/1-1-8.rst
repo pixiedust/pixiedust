@@ -1,0 +1,27 @@
+1.1.8
+=====
+
+Here's what's new in Release 1.1.8 (9 March 2018):            
+
+**Bug fixes**
+
+- Resolved an issue with displaying tables. The ``display()`` function's table visualization now properly shows the correct number of rows and honors the max rows constraint set by users (`#601 <https://github.com/ibm-watson-data-lab/pixiedust/issues/601/>`_).
+
+- Fixed a problem with filtering. Previously when using PySpark with PixieDust, filtering by a column name containing a space would fail (`#621 <https://github.com/ibm-watson-data-lab/pixiedust/issues/621/>`_).
+
+**Enhancements**
+
+- The 1.1.8 release introduces a visual Python debugger for Jupyter Notebooks: **PixieDebugger**. It is built as a `PixieApp <pixieapps.html>`_, and includes a source editor, local variable inspector, console output, the ability to evaluate Python expressions in the current context, breakpoints management, and a toolbar for controlling code execution. In addition to debugging traditional notebook cells, PixieDebugger also works to debug PixieApps, which is especially useful when troubleshooting issues with routes. See this `blog post for usage examples <https://medium.com/ibm-watson-data-lab/the-visual-python-debugger-for-jupyter-notebooks-youve-always-wanted-761713babc62>`_. More documentation on PixieDebugger will be added to this site soon (`#623 <https://github.com/ibm-watson-data-lab/pixiedust/issues/623/>`_). Example usage to invoke PixieDebugger to break at the first executable line of cell code:
+
+::
+
+
+  %%pixie_debugger
+  import random
+  def find_max (values):
+      max = 0
+      for val in values:
+          if val > max:
+              max = val
+      return max
+  find_max(random.sample(range(100), 10))

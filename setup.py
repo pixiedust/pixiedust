@@ -1,9 +1,9 @@
 from setuptools import setup, find_packages
 setup(name='pixiedust',
-      version='1.1.7.1',
+      version='1.1.12',
       description='Productivity library for Jupyter Notebook',
-      url='https://github.com/ibm-watson-data-lab/pixiedust',
-      install_requires=['mpld3', 'lxml', 'geojson', 'astunparse', 'markdown'],
+      url='https://github.com/pixiedust/pixiedust',
+      install_requires=['mpld3', 'lxml', 'geojson', 'astunparse', 'markdown', 'colour'],
       author='David Taieb',
       author_email='david_taieb@us.ibm.com',
       license='Apache 2.0',
