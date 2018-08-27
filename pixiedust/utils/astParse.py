@@ -28,7 +28,7 @@ def get_caller_text(frame):
         for chd in ast.iter_child_nodes(node):
             if getattr(chd, "lineno", 0) > frame.f_back.f_lineno:
                 break
-            match_node = node if isinstance(chd, ast.Name) and isinstance(node, ast.Call) and chd.id == frame.f_code.co_name else match_node
+            match_node = node if isinstance(chd, ast.Name) and isinstance(node, ast.Call) else match_node
             match_node = find_match_node(chd) or match_node
         return match_node
     lines, _ = inspect.findsource(frame.f_back.f_code)
@@ -55,13 +55,22 @@ def parse_function_call(expression):
         def __init__(self):
             self.results = {'func': None, 'args': [], 'kwargs': {}}
 
+        def resolveName(self, node):
+            if isinstance(node, ast.Name):
+                self.results['func'] += node.id
+            elif isinstance(node, ast.Attribute):
+                self.resolveName(node.value)
+                self.results['func'] += "." + node.attr
+
         def visit_Call(self, node):
             "Visit the first call function"
             if self.results['func'] is not None:
                 return
-            self.results['func'] = node.func.id
+            self.results['func'] = ""
+            self.resolveName(node.func)
             self.results['args'] = [unparse(arg).strip() for arg in node.args]
             self.results['kwargs'] = {kw.arg:unparse(kw.value).strip().strip('\'"') for kw in node.keywords}
+
     walker = Walker()
     walker.visit(ast.parse(expression))
     return walker.results
