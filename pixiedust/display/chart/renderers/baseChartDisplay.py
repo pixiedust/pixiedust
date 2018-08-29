@@ -238,7 +238,7 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
     def doRenderChart(self):
         pass
 
-    def isMap(self):
+    def isMap(self, handlerId):
         return False
 
     """ Set to true for table rendering """
