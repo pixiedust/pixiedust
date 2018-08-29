@@ -34,7 +34,7 @@ def defaultJSONEncoding(o):
 @PixiedustRenderer(id="mapView")
 @Logger()
 class MapViewDisplay(MapBoxBaseDisplay):
-    def isMap(self):
+    def isMap(self, handlerId):
         return True
 
     def supportsAggregation(self, handlerId):
@@ -49,32 +49,6 @@ class MapViewDisplay(MapBoxBaseDisplay):
     def getPreferredDefaultValueFieldCount(self, handlerId):
         return 1
 
-    def getLatField(self):
-        latf = self.options.get("latField")
-        if latf is not None:
-            return latf
-        # @deprecated support for old metadata
-        names = ['lat','latitude','y']
-        keyFields = self.getKeyFields()
-        if (keyFields is not None):
-            for field in keyFields:
-                if field.lower() in names:
-                    return field
-        return None;
-
-    def getLonField(self):
-        lonf = self.options.get("lonField")
-        if lonf is not None:
-            return lonf
-        # @deprecated support for old metadata
-        names = ['lon','long','longitude','x']
-        keyFields = self.getKeyFields()
-        if (keyFields is not None):
-            for field in keyFields:
-                if field.lower() in names:
-                    return field
-        return None;
-
     def canRenderChart(self):
         lonf = self.getLonField()
         latf = self.getLatField()
@@ -82,6 +56,10 @@ class MapViewDisplay(MapBoxBaseDisplay):
             return (False, "Required location fields not found ('latitude'/'longitude', 'lat/lon', 'y/x').<br>Use the Chart Options dialog to specify location fields.")
         return (True, None)
 
+    def getChartContext(self, handlerId):
+        diagTemplate = MapBoxBaseDisplay.__module__ + ":mapViewOptionsDialogBody.html"
+        return (diagTemplate, {})
+    
     def doRenderChart(self):
         mbtoken = self.options.get("mapboxtoken")
         if not mbtoken:
@@ -202,12 +180,25 @@ class MapViewDisplay(MapBoxBaseDisplay):
 
             # if there's a numeric value field and type is not 'simple', paint the data as a choropleth map
             if self.options.get("kind") and self.options.get("kind").find("simple") < 0 and len(valueFields) > 0:
+                # get value from the "Number of Bins" slider
+                numBins = int(self.options.get("numbins", 5))
+
+                # custom index, uses "Custom Base Color" hex value in options menu.
+                customBaseColor = self.options.get("custombasecolor", "#ff0000")
+
+                # custom index, uses "Secondary Custom Base Color" hex value in options menu.
+                secondaryCustomBaseColor = self.options.get("custombasecolorsecondary", "#ff0000")
+
                 # color options
                 bincolors = []
-                bincolors.append(['#ffffcc','#a1dab4','#41b6c4','#2c7fb8','#253494']) #yellow to blue
-                bincolors.append(['#fee5d9','#fcae91','#fb6a4a','#de2d26','#a50f15']) #reds
-                bincolors.append(['#f7f7f7','#cccccc','#969696','#636363','#252525']) #grayscale
-                bincolors.append(['#e66101','#fdb863','#f7f7f7','#b2abd2','#5e3c99']) #orange to purple (diverging values)
+                bincolors.append(self._getColorList('#ffffcc', '#253494', numBins)) #yellow to blue
+                bincolors.append(self._getMonochromeLight('#de2d26', numBins)) # reds monochrome light
+                bincolors.append(self._getMonochromeDark('#f7f7f7', numBins)) # grayscale monochrome dark
+                bincolors.append(self._getColorList('#e66101', '#5e3c99', numBins)) # orange to purple
+                bincolors.append(self._getColorList('#3E9E7A', '#0F091D', numBins)) # green to purple
+                bincolors.append(self._getMonochromeLight(customBaseColor, numBins)) # custom monochrome light (saturation)
+                bincolors.append(self._getMonochromeDark(customBaseColor, numBins)) # custom monochrome dark (value)
+                bincolors.append(self._getColorList(customBaseColor, secondaryCustomBaseColor, numBins)) # custom range (value)
 
                 bincolorsIdx = 0
                 if self.options.get("colorrampname"):
@@ -217,14 +208,26 @@ class MapViewDisplay(MapBoxBaseDisplay):
                         bincolorsIdx = 2
                     if self.options.get("colorrampname") == "Orange to Purple":
                         bincolorsIdx = 3
+                    if self.options.get("colorrampname") == "Green to Purple":
+                        bincolorsIdx = 4
+                    if self.options.get("colorrampname") == "Custom Monochrome Light":
+                        bincolorsIdx = 5
+                    if self.options.get("colorrampname") == "Custom Monochrome Dark":
+                        bincolorsIdx = 6
+                    if self.options.get("colorrampname") == "Custom Color Range":
+                        bincolorsIdx = 7
 
-                minval = df[valueFields[0]].min()
-                maxval = df[valueFields[0]].max()
-                bins.append((minval,bincolors[bincolorsIdx][0]))
-                bins.append((df[valueFields[0]].quantile(0.25),bincolors[bincolorsIdx][1]))
-                bins.append((df[valueFields[0]].quantile(0.5),bincolors[bincolorsIdx][2]))
-                bins.append((df[valueFields[0]].quantile(0.75),bincolors[bincolorsIdx][3]))
-                bins.append((maxval,bincolors[bincolorsIdx][4]))
+                # only use list of quantiles if it matches the number of bins
+                if self.options.get("quantiles") and len(self.options.get("quantiles").split(",")) == numBins:
+                    quantileFloats = [float(x) for x in self.options.get("quantiles").split(",")]
+                    self.debug("Using quantileFloats: %s" % quantileFloats)
+                    for i in range(numBins):
+                        bins.append((df[valueFields[0]].quantile(quantileFloats[i]),bincolors[bincolorsIdx][i%len(bincolors[bincolorsIdx])]))
+                else:
+                    # default, equal-size bins based on numBins (if cannot find quantiles array in options)
+                    self.debug("Using equal-size bins based on numBins: %s" % numBins)
+                    for i in range(numBins):
+                        bins.append((df[valueFields[0]].quantile(float(i)/(numBins-1.0)),bincolors[bincolorsIdx][i%len(bincolors[bincolorsIdx])]))
 
                 if geomType == 1:
                     # paint['line-opacity'] = 0.65
@@ -282,3 +285,86 @@ class MapViewDisplay(MapBoxBaseDisplay):
         if self.getLonField() is None or self.getLonField() not in llnames or self.getLatField() is None or self.getLatField() not in llnames:
             return False
         return True;
+
+    def getLatField(self):
+        latf = self.options.get("latField")
+        if latf is not None:
+            return latf
+        # @deprecated support for old metadata
+        names = ['lat','latitude','y']
+        keyFields = self.getKeyFields()
+        if (keyFields is not None):
+            for field in keyFields:
+                if field.lower() in names:
+                    return field
+        return None;
+
+    def getLonField(self):
+        lonf = self.options.get("lonField")
+        if lonf is not None:
+            return lonf
+        # @deprecated support for old metadata
+        names = ['lon','long','longitude','x']
+        keyFields = self.getKeyFields()
+        if (keyFields is not None):
+            for field in keyFields:
+                if field.lower() in names:
+                    return field
+        return None;
+
+    def _getDefaultKeyFields(self):
+        # check for lat/long
+        latLongFields = []
+        for field in self.getFieldNames():
+            if field.name.lower() == 'lat' or field.name.lower() == 'latitude' or field.name.lower() == 'y':
+                latLongFields.append(field.name)
+            elif field.name.lower() == 'lon' or field.name.lower() == 'long' or field.name.lower() == 'longitude' or field.name.lower() == 'x':
+                latLongFields.append(field.name)
+        if (len(latLongFields) == 2):
+            return latLongFields
+        # if we get here, look for an address field
+        for field in self.getFieldNames():
+            if field.name.lower() == 'address':
+                return latLongFields.append(field.name)
+        return []
+
+    def _getColorList(self, color1, color2, nColors):
+        colorList = []
+        colorRange = Color(color1).range_to(Color(color2), nColors)
+        for color in list(colorRange):
+            colorList.append(color.hex_l)
+        return colorList
+
+    def _getMonochromeLight(self, customBaseColor, nColors):
+        # HEX -> RGB
+        customBaseColor = customBaseColor.lstrip("#")
+        customBaseColorRGB = tuple(int(customBaseColor[i:i+2], 16) for i in (0, 2 ,4))
+        # RGB -> HSV
+        customBaseColorHSV = colorsys.rgb_to_hsv(customBaseColorRGB[0]/float(255), customBaseColorRGB[1]/float(255), customBaseColorRGB[2]/float(255))
+        h, s, v = customBaseColorHSV
+        increment = float(s) / float(nColors)
+        customColorsArr = []
+        for i in range(nColors):
+            # HSV -> RGB
+            customColorRGB = colorsys.hsv_to_rgb(h, s - (increment * (nColors - i)), v)
+            # RGB -> HEX
+            customColor = "#{:02x}{:02x}{:02x}".format( int(customColorRGB[0] * 255), int(customColorRGB[1] * 255), int(customColorRGB[2] * 255) )
+            customColorsArr.append(customColor)
+        return customColorsArr
+
+    def _getMonochromeDark(self, customBaseColor, nColors):
+        # HEX -> RGB
+        customBaseColor = customBaseColor.lstrip("#")
+        customBaseColorRGB = tuple(int(customBaseColor[i:i+2], 16) for i in (0, 2 ,4))
+        # RGB -> HSV
+        customBaseColorHSV = colorsys.rgb_to_hsv(customBaseColorRGB[0]/float(255), customBaseColorRGB[1]/float(255), customBaseColorRGB[2]/float(255))
+        h, s, v = customBaseColorHSV
+        increment = float(v) / float(nColors)
+        customColorsArr = []
+        for i in range(nColors):
+            # HSV -> RGB
+            customColorRGB = colorsys.hsv_to_rgb(h, s, v - (increment * i))
+            # RGB -> HEX
+            customColor = "#{:02x}{:02x}{:02x}".format( int(customColorRGB[0] * 255), int(customColorRGB[1] * 255), int(customColorRGB[2] * 255) )
+            customColorsArr.append(customColor)
+        return customColorsArr
