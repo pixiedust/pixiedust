@@ -20,11 +20,13 @@ from pixiedust.utils import cache
 from pixiedust.utils import Logger
 from pixiedust.utils.shellAccess import ShellAccess
 from pixiedust.display.streamingDisplay import *
+from colour import Color
 import json
 import numpy
 import geojson
 import uuid
 import requests
+import colorsys
 
 def defaultJSONEncoding(o):
     if isinstance(o, numpy.integer): 
@@ -34,7 +36,7 @@ def defaultJSONEncoding(o):
 @PixiedustRenderer(id="mapView")
 @Logger()
 class MapViewDisplay(MapBoxBaseDisplay):
-    def isMap(self, handlerId):
+    def isMap(self):
         return True
 
     def supportsAggregation(self, handlerId):
