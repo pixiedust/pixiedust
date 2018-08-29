@@ -36,7 +36,7 @@ def defaultJSONEncoding(o):
 @PixiedustRenderer(id="mapView")
 @Logger()
 class MapViewDisplay(MapBoxBaseDisplay):
-    def isMap(self):
+    def isMap(self, handlerId):
         return True
 
     def supportsAggregation(self, handlerId):
