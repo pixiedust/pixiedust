@@ -106,7 +106,7 @@ class MapboxOptions(OptionsShell, GeoSelector, AggregationSelector, RowCount, Ma
         if option is 'latField' or option is 'lonField':
           if 'keyFields' not in self.new_options or len(self.new_options['keyFields']) == 0:
               self.new_options['keyFields'] = value  
-          elif option not in self.new_options['keyFields']:
+          elif value not in self.new_options['keyFields']:
               self.new_options['keyFields'] += ',' + value
 
     def aggregation_supported(self):
