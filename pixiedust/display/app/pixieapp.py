@@ -475,8 +475,7 @@ def PixieApp(cls):
             pixieAppRunCustomizer.customizeOptions(options)
 
         opts = [(k, str(v).lower() if isinstance(v, bool) else v) for (k,v) in iteritems(options) if v is not None]
-        display_call = "display" if ShellAccess['display'] is not None and ShellAccess['display'].__module__ == "pixiedust.display" else "pixiedust.display"
-        s = "{}({}{})".format(display_call, var, reduce(lambda k,v: k + "," + v[0] + "='" + str(v[1]) + "'", opts, ""))
+        s = "display({}{})".format(var, reduce(lambda k,v: k + "," + v[0] + "='" + str(v[1]) + "'", opts, ""))
 
         try:
             sys.modules['pixiedust.display'].pixiedust_display_callerText = s

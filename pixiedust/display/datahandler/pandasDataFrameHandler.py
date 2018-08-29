@@ -93,7 +93,7 @@ class PandasDataFrameDataHandler(BaseDataHandler):
     """
         Return a cleaned up Pandas Dataframe that will be used as working input to the chart
     """
-    def getWorkingPandasDataFrame(self, xFields, yFields, extraFields=[], aggregation=None, maxRows = 100, filterOptions={}, isTableRenderer=False):
+    def getWorkingPandasDataFrame(self, xFields, yFields, extraFields=[], aggregation=None, maxRows = 100, filterOptions={}, isTableRenderer=False, lonField=None, latField=None, isMap=False):
         filteredDF = self.get_filtered_dataframe(filterOptions)
 
         if xFields is None or len(xFields)==0:
@@ -114,6 +114,11 @@ class PandasDataFrameDataHandler(BaseDataHandler):
                 workingDF = filteredDF[myFieldsOrdered]
         else:
             extraFields = [a for a in extraFields if a not in xFields and a not in yFields]
+            if isMap:
+                if lonField is not None and len(lonField) > 0 and lonField not in extraFields and lonField not in xFields:
+                    extraFields.append(lonField)
+                if latField is not None and len(latField) > 0 and latField not in extraFields and latField not in xFields:
+                    extraFields.append(latField)
             workingDF = filteredDF[xFields + extraFields + yFields]
 
         if aggregation and len(yFields)>0:
@@ -127,6 +132,7 @@ class PandasDataFrameDataHandler(BaseDataHandler):
         if count > maxRows:
             workingDF = workingDF.sample(n=int(maxRows),replace=False)
 
+        #NOTE: preserveCols is deprecated. This functionality doesn't exist in the pySparkDataFrameHandler so don't use it!!!
         #check if the caller want to preserve some columns
         preserveCols = self.options.get("preserveCols", None)
         if preserveCols is not None:

@@ -21,18 +21,41 @@ from pixiedust.display.chart.options.optionsShell import OptionsShell
 from pixiedust.display.chart.options.components.BinQuantiles import BinQuantiles
 
 @Logger()
+class GeoSelector(object):
+    @route(widget="pdGeoSelector")
+    def chart_option_geo_widget(self, optid, lonField, latField, valueFields, extraFields):
+        self.lonField = lonField
+        self.latField = latField
+        self.lonFieldNames = ["x","lon","long","longitude"]
+        self.latFieldNames = ["y","lat","latitude"]
+        self.valueFields = valueFields.split(",") if isinstance(valueFields, six.string_types) and valueFields else valueFields or []
+        self.extraFields = extraFields.split(",") if isinstance(extraFields, six.string_types) and extraFields else extraFields or []
+        self.valueFieldsType = self.value_fields_type()
+        self.extraFieldsType = self.extra_fields_type()
+        self._addHTMLTemplate("geoselector.html")
+
+    def key_fields_supported(self):
+        return self.get_renderer.supportsKeyFields(self.parsed_command['kwargs']['handlerId'])
+
+    def value_fields_type(self):
+        return ['numeric']
+
+    def extra_fields_type(self):
+        return ['numeric','string']
+
+@Logger()
 class MapboxAccessToken(object):
     @route(widget="mapboxAccessToken")
     def mapbox_access_token_widget(self, optid, mapboxtoken):
         return """
-<div class="form-group">
-  <label for="mapboxoption{{optid}}{{prefix}}">
-    <a href="https://www.mapbox.com/help/create-api-access-token/" target="_mapboxwin">Mapbox Access Token</a>: <i class="fa fa-question-circle" title="Get a Mapbox access token by creating a free account at mapbox.com"></i>
-  </label>
-  <input type="text" class="form-control" id="mapboxoption{{optid}}{{prefix}}" name="{{optid}}" value="{{mapboxtoken}}"
-      pd_script="self.options_callback('{{optid}}', '$val(mapboxoption{{optid}}{{prefix}})')" onkeyup="$(this).trigger('click');">
-</div>
-"""
+            <div class="form-group">
+            <label for="mapboxoption{{optid}}{{prefix}}">
+                <a href="https://www.mapbox.com/help/create-api-access-token/" target="_mapboxwin">Mapbox Access Token</a>: <i class="fa fa-question-circle" title="Get a Mapbox access token by creating a free account at mapbox.com"></i>
+            </label>
+            <input type="text" class="form-control" id="mapboxoption{{optid}}{{prefix}}" name="{{optid}}" value="{{mapboxtoken}}"
+                pd_script="self.options_callback('{{optid}}', '$val(mapboxoption{{optid}}{{prefix}})')" onkeyup="$(this).trigger('click');">
+            </div>
+            """
 
 class MapboxCustomBaseColor(object):
     @route(widget="mapboxCustomBaseColor")
@@ -47,18 +70,21 @@ class MapboxCustomBaseColor(object):
 
 @PixieApp
 @Logger()
-class MapboxOptions(DefaultOptions, MapboxAccessToken, MapboxCustomBaseColor):
+class MapboxOptions(DefaultOptions, GeoSelector, MapboxAccessToken, MapboxCustomBaseColor):
 
     mapbox_default_token = "pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4M29iazA2Z2gycXA4N2pmbDZmangifQ.-g_vE53SD2WrJ6tFX7QHmA"
 
     def setup(self):
-        DefaultOptions.setup(self)
+        OptionsShell.setup(self)
 
         self.chart_options.append({
-            "optid": "mapboxtoken",
-            "classname": "field-width-50",
-            "mapboxtoken": lambda: self.run_options.get("mapboxtoken") or self.mapbox_default_token,
-            "widget": "mapboxAccessToken"
+            "optid": "keyvalue",
+            "classname": "no_loading_msg",
+            "lonField": lambda: self.run_options.get("lonField") or "",
+            "latField": lambda: self.run_options.get("latField") or "",
+            "valueFields": lambda: self.run_options.get("valueFields") or "",
+            "extraFields": lambda: self.run_options.get("extraFields") or "",
+            "widget": "pdGeoSelector"
         })
 
         self.chart_options.append({
@@ -77,12 +103,30 @@ class MapboxOptions(DefaultOptions, MapboxAccessToken, MapboxCustomBaseColor):
             "widget": "mapboxCustomBaseColor"
         })
 
+        self.chart_options.append({
+            "optid": "mapboxtoken",
+            "classname": "field-width-50",
+            "mapboxtoken": lambda: self.run_options.get("mapboxtoken") or self.mapbox_default_token,
+            "widget": "mapboxAccessToken"
+        })
+
         self.new_options["mapboxtoken"] = self.run_options.get("mapboxtoken") or self.mapbox_default_token
 
-    def key_fields_type(self):
-        return ['string', 'numeric']
+    def options_callback(self, option, value):
+        self.new_options[option] = value
+        if option is 'latField' or option is 'lonField':
+          if 'keyFields' not in self.new_options or len(self.new_options['keyFields']) == 0:
+              self.new_options['keyFields'] = value  
+          elif value not in self.new_options['keyFields']:
+              self.new_options['keyFields'] += ',' + value
+
+    def aggregation_supported(self):
+        return self.get_renderer.supportsAggregation(self.parsed_command['kwargs']['handlerId'])
 
     def value_fields_type(self):
+        return ['any']
+
+    def extra_fields_type(self):
         return ['any']
 
 @PixieApp

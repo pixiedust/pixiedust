@@ -36,7 +36,7 @@ def defaultJSONEncoding(o):
 @PixiedustRenderer(id="mapView")
 @Logger()
 class MapViewDisplay(MapBoxBaseDisplay):
-    def isMap(self, handlerId):
+    def isMap(self):
         return True
 
     def supportsAggregation(self, handlerId):
@@ -52,11 +52,11 @@ class MapViewDisplay(MapBoxBaseDisplay):
         return 1
 
     def canRenderChart(self):
-        keyFields = self.getKeyFields()
-        if len(self.getFieldNames()) == 0 or (keyFields is not None and len(keyFields) > 0) or len(self._getDefaultKeyFields()) > 0:
-            return (True, None)
-        else:
-            return (False, "No location field found ('latitude'/'longitude', 'lat/lon', 'y/x').<br>Use the Chart Options dialog to specify location fields.")
+        lonf = self.getLonField()
+        latf = self.getLatField()
+        if lonf is None or latf is None:
+            return (False, "Required location fields not found ('latitude'/'longitude', 'lat/lon', 'y/x').<br>Use the Chart Options dialog to specify location fields.")
+        return (True, None)
 
     def getChartContext(self, handlerId):
         diagTemplate = MapBoxBaseDisplay.__module__ + ":mapViewOptionsDialogBody.html"
@@ -79,61 +79,62 @@ class MapViewDisplay(MapBoxBaseDisplay):
 
         return self.renderTemplate("iframesrcdoc.html", body=body, prefwidth=self.getPreferredOutputWidth(), prefheight=self.getPreferredOutputHeight())
 
-    # override the default so that the non-numeric fields are collected as extra fields
+    ## overrides empty method in baseChartDisplay
     def getExtraFields(self):
-        return self.getNonNumericValueFields()
+        fieldNames = self.getFieldNames()
+        if len(fieldNames) == 0:
+            return []
+        extraFields = []
+        extraFieldStr = self.options.get("extraFields")
+        if extraFieldStr is not None:
+            extraFields = extraFieldStr.split(",")
+            extraFields = [val for val in extraFields if val in fieldNames]
+        return extraFields
 
     def renderMapView(self, mbtoken):
 
         # generate a working pandas data frame using the fields we need
         df = self.getWorkingPandasDataFrame()
-        keyFields = self.getKeyFields()
+        lonField = self.getLonField()
+        latField = self.getLatField()
 
         # geomType can be either 0: (Multi)Point, 1: (Multi)LineString, 2: (Multi)Polygon
         geomType = 0
         bins = []
 
-        if len(keyFields)>0:
-            if len(keyFields)==1:
-                geomType = -1 #unknown as of yet
-            else:
-                lonFieldIdx = 0
-                latFieldIdx = 1
-                if keyFields[0] == self.getLatField(): 
-                    lonFieldIdx = 1
-                    latFieldIdx = 0
-                min = [df[keyFields[lonFieldIdx]].min(), df[keyFields[latFieldIdx]].min()]
-                max = [df[keyFields[lonFieldIdx]].max(), df[keyFields[latFieldIdx]].max()]
-                self.options["mapBounds"] = json.dumps([min,max], default=defaultJSONEncoding)
+        # cast to double just in case the fields are strings
+        min = [ numpy.double(df[lonField]).min(), numpy.double(df[latField]).min() ]
+        max = [ numpy.double(df[lonField]).max(), numpy.double(df[latField]).max() ]
+        self.options["mapBounds"] = json.dumps([min,max], default=defaultJSONEncoding)
 
         valueFields = self.getValueFields()
         
-        #check if we have a preserveCols
-        preserveCols = self.options.get("preserveCols", None)
-        preserveCols = [a for a in preserveCols.split(",") if a not in keyFields and a not in valueFields] if preserveCols is not None else []
+        #check if we have a extra fields for get info clicks
+        extraFields = self.options.get("extraFields", None)
+        if extraFields is not None and len(extraFields) < 1:
+            extraFields = None
+        extraFields = [a for a in extraFields.split(",") if a not in valueFields] if extraFields is not None else []
 
-        # calculate indexes of all fiels
+        # calculate indexes of all fields
         valueFieldIdxs = []
-        allProps = valueFields + preserveCols + self.getExtraFields()
+        allProps = valueFields + extraFields
         for j, valueField in enumerate( allProps ):
             valueFieldIdxs.append(df.columns.get_loc(valueField))
 
         # Transform the data into GeoJSON for use in the Mapbox client API
         features = []
-        for row in df.itertuples():
+        for index,row in df.iterrows():
             feature = {'type':'Feature',
                         'properties':{},
                         'geometry':{'type':'Point',
                                     'coordinates':[]}}
             
             if geomType == 0:
-                feature['geometry']['coordinates'] = [row[lonFieldIdx+1], row[latFieldIdx+1]]
-            else:
-                geomIdx = df.columns.get_loc(keyFields[0])+1
-                feature['geometry'] = json.loads(row[geomIdx])
+                feature['geometry']['coordinates'] = [ row[lonField], row[latField] ]
+            # only points are supported
                 
             for idx, valueFieldIdx in enumerate(valueFieldIdxs):
-                feature['properties'][allProps[idx]] = row[valueFieldIdx+1]
+                feature['properties'][allProps[idx]] = row[valueFieldIdx]
             features.append(feature)
 
         if len(features)>0:
@@ -160,13 +161,13 @@ class MapViewDisplay(MapBoxBaseDisplay):
                     paint['line-opacity'] = float(self.options.get("coloropacity")) / 100
             elif geomType == 2:
                 paint['fill-color'] = '#ff0000'
-                paint['fill-opacity'] = 0.8
+                paint['fill-opacity'] = 0.50
                 if self.options.get("coloropacity"):
                     paint['fill-opacity'] = float(self.options.get("coloropacity")) / 100
             else:
                 paint['circle-radius'] = 12
                 paint['circle-color'] = '#ff0000'
-                paint['circle-opacity'] = 0.25
+                paint['circle-opacity'] = 0.50
                 if self.options.get("coloropacity"):
                     paint['circle-opacity'] = float(self.options.get("coloropacity")) / 100
                 if (self.options.get("kind") and self.options.get("kind").find("cluster") >= 0):
@@ -283,15 +284,15 @@ class MapViewDisplay(MapBoxBaseDisplay):
 
     def isLatLonChart(self):
         llnames = ['lat','latitude','y','lon','long','longitude','x']
-        isll = True;
-        keyFields = self.getKeyFields()
-        if ((keyFields is not None) and len(keyFields) == 2):
-            for field in keyFields:
-                if field.lower() not in llnames:
-                    isll = False
-        return isll;
+        if self.getLonField() is None or self.getLonField() not in llnames or self.getLatField() is None or self.getLatField() not in llnames:
+            return False
+        return True;
 
     def getLatField(self):
+        latf = self.options.get("latField")
+        if latf is not None:
+            return latf
+        # @deprecated support for old metadata
         names = ['lat','latitude','y']
         keyFields = self.getKeyFields()
         if (keyFields is not None):
@@ -301,6 +302,10 @@ class MapViewDisplay(MapBoxBaseDisplay):
         return None;
 
     def getLonField(self):
+        lonf = self.options.get("lonField")
+        if lonf is not None:
+            return lonf
+        # @deprecated support for old metadata
         names = ['lon','long','longitude','x']
         keyFields = self.getKeyFields()
         if (keyFields is not None):
