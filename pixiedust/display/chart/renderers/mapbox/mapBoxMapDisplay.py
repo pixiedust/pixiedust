@@ -112,28 +112,23 @@ class MapViewDisplay(MapBoxBaseDisplay):
         preserveCols = self.options.get("preserveCols", None)
         preserveCols = [a for a in preserveCols.split(",") if a not in keyFields and a not in valueFields] if preserveCols is not None else []
 
-        # calculate indexes of all fiels
-        valueFieldIdxs = []
-        allProps = valueFields + preserveCols + self.getExtraFields()
-        for j, valueField in enumerate( allProps ):
-            valueFieldIdxs.append(df.columns.get_loc(valueField))
-
         # Transform the data into GeoJSON for use in the Mapbox client API
+        allProps = valueFields + preserveCols + self.getExtraFields()
         features = []
-        for row in df.itertuples():
+        for rowidx, row in df.iterrows():
             feature = {'type':'Feature',
                         'properties':{},
                         'geometry':{'type':'Point',
                                     'coordinates':[]}}
             
             if geomType == 0:
-                feature['geometry']['coordinates'] = [row[lonFieldIdx+1], row[latFieldIdx+1]]
+                feature['geometry']['coordinates'] = [row[keyFields[lonFieldIdx]], row[keyFields[latFieldIdx]]]
             else:
                 geomIdx = df.columns.get_loc(keyFields[0])+1
                 feature['geometry'] = json.loads(row[geomIdx])
                 
-            for idx, valueFieldIdx in enumerate(valueFieldIdxs):
-                feature['properties'][allProps[idx]] = row[valueFieldIdx+1]
+            for fld in allProps:
+                feature['properties'][fld] = row[fld]
             features.append(feature)
 
         if len(features)>0:
