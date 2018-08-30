@@ -26,7 +26,7 @@ import time
 import re
 import six
 import pixiedust
-from six import iteritems, with_metaclass
+from six import iteritems, with_metaclass, string_types, text_type
 from functools import reduce
 import json
 
@@ -365,10 +365,10 @@ class Display(with_metaclass(ABCMeta)):
         self._addJavascript(self.renderTemplate(templateName, **kwargs))
     
     def _safeString(self, s):
-        if not isinstance(s, str if sys.version >= '3' else basestring):
+        if not isinstance(s, string_types):
             return str(s)
         else:
-            return s.encode('ascii', 'ignore')
+            return text_type(s.encode('ascii', 'ignore'), 'ascii')
         
     #def _addD3Script2(self):
     #    print("Adding d3")
