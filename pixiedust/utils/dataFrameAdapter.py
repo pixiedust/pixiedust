@@ -78,6 +78,13 @@ class PandasDataFrameAdapter(object):
         else:
             return len(self.entity.index)
 
+    def show(self,num):
+        if self.sparkDF:
+            return self.entity.show(num)
+        else:
+            dfshow = self.entity.head(num)
+            return dfshow.to_string()
+
     def take(self,num):
         if self.sparkDF:
             return self.entity.take(num)
