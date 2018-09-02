@@ -18,6 +18,7 @@ from pixiedust.display.chart.renderers import PixiedustRenderer
 from .bokehBaseDisplay import BokehBaseDisplay
 from pixiedust.utils import Logger
 from bokeh.plotting import figure
+from bokeh.models import HoverTool
 import sys
 
 
@@ -71,6 +72,11 @@ class BKLineChartRenderer(BokehBaseDisplay):
                     p.line(x, y, line_width=2, color=colors[i], legend=v if self.showLegend() else None)
 
             p.legend.location = "top_left"
+
+            hover = HoverTool()
+            hover.tooltips = [(xlabel, '@x'), (ylabel, '@y{0.00}'), ('x', '$x'), ('y', '$y')]
+            p.tools = [hover]
+
             return p
 
         charts = []

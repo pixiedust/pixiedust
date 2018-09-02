@@ -19,6 +19,7 @@ from pixiedust.display.chart.renderers.baseChartDisplay import commonChartOption
 from pixiedust.utils import Logger
 from .bokehBaseDisplay import BokehBaseDisplay
 from bokeh.plotting import figure
+from bokeh.models import HoverTool
 import numpy as np
 import math
 import sys
@@ -81,6 +82,11 @@ class BKHistogramRenderer(BokehBaseDisplay):
             p.y_range.start=0
 
             p.legend.location = "top_left"
+
+            hover = HoverTool()
+            hover.tooltips = [('Frequency', '@top{0.00}'), ('Interval', '@left - @right')]
+            p.tools = [hover]
+
             return p
 
         charts = []

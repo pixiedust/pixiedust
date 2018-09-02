@@ -19,7 +19,7 @@ from .bokehBaseDisplay import BokehBaseDisplay
 from pixiedust.utils import Logger
 import numpy as np
 from bokeh.plotting import figure
-from bokeh.models import ColumnDataSource, FactorRange
+from bokeh.models import ColumnDataSource, FactorRange, HoverTool
 from bokeh.core.properties import value as bk_value
 from bokeh.transform import factor_cmap
 import sys
@@ -94,6 +94,10 @@ class BKBarChartRenderer(BokehBaseDisplay):
             p.xgrid.grid_line_color = None
             p.legend.location = "top_left"
 
+            hover = HoverTool()
+            hover.tooltips = [(d if d is not 'pd_stacked_col' else xlabel, '@' + d + '{0.00}') for d in data]
+            p.tools = [hover]
+
             return p
 
         def groupedBar(df, xlabel, vFields, color=None, clustered=False, title=None):
@@ -126,6 +130,10 @@ class BKBarChartRenderer(BokehBaseDisplay):
             p.xaxis.major_tick_line_color = None
             p.xgrid.grid_line_color = None
             p.legend.location = "top_left"
+
+            hover = HoverTool()
+            hover.tooltips = [(xlabel, '@x'), (ylabel, '@counts{0.00}')]
+            p.tools = [hover]
 
             return p
 
