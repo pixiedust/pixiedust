@@ -13,8 +13,8 @@
       margin: 0px 5px 5px 5px;
       padding: 5px;
       border: 1px solid #ccc;
-      border-radius: 5px;
-      background-color: #daffff;
+      background-color: lightcyan;
+      overflow: hidden;
       width: auto;
       min-width: 150px;
     }
@@ -24,7 +24,7 @@
     }
     .fields-container.field-drag .keys-fields:not(.field-drag-acceptable) > ul,
     .fields-container.field-drag .values-fields:not(.field-drag-acceptable) > ul {
-      opacity: 0.5;
+      opacity: 0.35;
     }
     .fields-container.field-drag .keys-fields:not(.field-drag-acceptable) > label:first-child,
     .fields-container.field-drag .values-fields:not(.field-drag-acceptable) > label:first-child {
@@ -65,8 +65,19 @@
     .fieldslist-allfields.numeric-only > [data-field-type="string"] {
       display: none;
     }
-    .fieldslist-wrapper .ui-draggable-dragging {
-      width: 90%;
+    .fields-container .ui-draggable-dragging {
+      background-color: paleturquoise;
+      width: 75%;
+    }
+    .fields-container .ui-draggable-dragging a {
+      display: none;
+    }
+    .fields-container .ui-draggable-dragging span {
+      display: inline;
+    }
+    .field-drop-hover.ui-droppable {
+      background-color: ghostwhite;
+      border-color: gray;
     }
     .field-remove {
       color: #777;
@@ -89,7 +100,8 @@
       height: 147px;
     }
     .keys-fields .field-type,
-    .values-fields .field-type {
+    .values-fields .field-type,
+    .fieldslist-wrapper .field-remove {
       display: none;
     }
     .keys-fields {
@@ -113,14 +125,22 @@
   <div class="col-sm-6" style="padding: 0px 5px 0px 0px; height: 365px;">
     <div class="fieldslist-wrapper" style="height:100%">
       <label>Fields:</label>
-      <span class="fieldslist-showlink">Show only numeric columns</span>
+      <span class="fieldslist-showlink" role="button">Show only numeric columns</span>
       <input type="text" class="fieldslist-filter form-control input-sm" placeholder="Search/Filter Fields">
-      <ul class="fieldslist-allfields">
+      <ul class="fieldslist-allfields all-fields-drop-{{prefix}}">
       {% for field in this.fieldNamesAndTypes %}
         {% if field[0] in this.fieldNames %}
-        <li id="fieldslist{{prefix}}-{{this.fieldNames.index(field.0)+1}}" class="fieldslist-field-{{prefix}}" data-field="{{field.0}}" data-field-type="{{field.1}}">
+        <li class="fieldslist-field-{{prefix}}" data-field="{{field.0}}" data-field-type="{{field.1}}">
           <span class="field-name">{{field.0}}</span>
           <span class="field-type">{{field.1}}</span>
+          <a class="field-remove">
+            <pd_script>
+if '{{field.0}}' in self.keyFields:
+  self.keyFields.remove('{{field.0}}')
+elif '{{field.0}}' in self.valueFields:
+  self.valueFields.remove('{{field.0}}')
+            </pd_script>
+          </a>
         </li>
         {% endif %}
         {% endfor %}
@@ -133,12 +153,20 @@
       <label>Keys: <i class="fa fa-question-circle" title="Controls the X-Axis of the chart. Rows will be grouped by Key columns. Columns may be {% for kf in this.keyFieldsType %}{% if this.keyFieldsType|length > 1%}{% if loop.last %}or {% endif %}{% endif %}{{kf}}{% if not loop.last %}, {% endif %}{% endfor %}."></i></label>
       <label>Keys: Only {% for kf in this.keyFieldsType %}{% if this.keyFieldsType|length > 1%}{% if loop.last %}or {% endif %}{% endif %}{{kf}}{% if not loop.last %}, {% endif %}{% endfor %} columns are supported <i class="fa fa-warning"></i></label>
       <label>Keys: Adding the same Field to Keys and Values is not supported. <i class="fa fa-warning"></i></label>
-      <ul id="keys-fields-{{prefix}}" class="field-drop" style="height:calc(100% - 30px);" pd_script="self.options_callback('keyFields', '$val(updateSelectedKeysFields)')">
-      {% for fieldName in this.keyFields %}
-        {% if fieldName in this.fieldNames %}
-        <li id="fieldslist{{prefix}}-{{this.fieldNames.index(fieldName)+1}}-keys-fields-{{prefix}}" data-field="{{fieldName}}">
-          {{fieldName}}
-          <a class="field-remove" pd_script="if '{{fieldName}}' in self.keyFields: self.keyFields.remove('{{fieldName}}')"></a>
+      <ul id="keys-fields-{{prefix}}" class="field-drop key-field-drop-{{prefix}}" style="height:calc(100% - 30px);" pd_script="self.options_callback('keyFields', '$val(updateSelectedKeysFields)')">
+      {% for field in this.fieldNamesAndTypes %}
+        {% if field[0] in this.keyFields and field[0] in this.fieldNames %}
+        <li class="fieldslist-field-{{prefix}}" data-field="{{field.0}}" data-field-type="{{field.1}}">
+          <span class="field-name">{{field.0}}</span>
+          <span class="field-type">{{field.1}}</span>
+          <a class="field-remove">
+            <pd_script>
+if '{{field.0}}' in self.keyFields:
+  self.keyFields.remove('{{field.0}}')
+elif '{{field.0}}' in self.valueFields:
+  self.valueFields.remove('{{field.0}}')
+            </pd_script>
+          </a>
         </li>
         {% endif %}
       {% endfor %}
@@ -149,12 +177,20 @@
       <label>Values: <i class="fa fa-question-circle" title="Controls the Y-Axis of the chart. Values must be {% for vf in this.valueFieldsType %}{% if this.valueFieldsType|length > 1%}{% if loop.last %}or {% endif %}{% endif %}{{vf}}{% if not loop.last %}, {% endif %}{% endfor %} columns."></i></label>
       <label>Values: Only {% for vf in this.valueFieldsType %}{% if this.valueFieldsType|length > 1%}{% if loop.last %}or {% endif %}{% endif %}{{vf}}{% if not loop.last %}, {% endif %}{% endfor %} columns are supported <i class="fa fa-warning"></i></label>
       <label>Values: Adding the same Field to Keys and Values is not supported. <i class="fa fa-warning"></i></label>
-      <ul id="values-fields-{{prefix}}" class="field-drop" style="height:calc(100% - 30px);" pd_script="self.options_callback('valueFields', '$val(updateSelectedValuesFields)')">
-      {% for fieldName in this.valueFields %}
-        {% if fieldName in this.fieldNames %}
-        <li id="fieldslist{{prefix}}-{{this.fieldNames.index(fieldName)+1}}-values-fields-{{prefix}}" data-field="{{fieldName}}">
-          {{fieldName}}
-          <a class="field-remove" pd_script="if '{{fieldName}}' in self.valueFields: self.valueFields.remove('{{fieldName}}')"></a>
+      <ul id="values-fields-{{prefix}}" class="field-drop value-field-drop-{{prefix}}" style="height:calc(100% - 30px);" pd_script="self.options_callback('valueFields', '$val(updateSelectedValuesFields)')">
+      {% for field in this.fieldNamesAndTypes %}
+        {% if field[0] in this.valueFields and field[0] in this.fieldNames %}
+        <li class="fieldslist-field-{{prefix}}" data-field="{{field.0}}" data-field-type="{{field.1}}">
+          <span class="field-name">{{field.0}}</span>
+          <span class="field-type">{{field.1}}</span>
+          <a class="field-remove">
+            <pd_script>
+if '{{field.0}}' in self.keyFields:
+  self.keyFields.remove('{{field.0}}')
+elif '{{field.0}}' in self.valueFields:
+  self.valueFields.remove('{{field.0}}')
+            </pd_script>
+          </a>
         </li>
         {% endif %}
       {% endfor %}
@@ -187,7 +223,7 @@
     }
   })
 
-  var rows = $('.fieldslist-field-{{prefix}}')
+  var rows = $('.fieldslist-wrapper .fieldslist-field-{{prefix}}')
   $('.fieldslist-filter').keyup(function() {
     var val = '^(?=.*\\b' + $.trim($(this).val()).split(/\s+/).join('\\b)(?=.*\\b') + ').*$'
     var reg = RegExp(val, 'i')
@@ -202,35 +238,20 @@
     })
   })
 
-  $('.fieldslist-field-{{prefix}}').draggable({
-    helper:"clone",
-    containment:"document",
-    start: function(event, ui) {
-      $('.fields-container').addClass('field-drag')
-    },
-    stop: function(event, ui) {
-      $('.fields-container')
-        .removeClass('field-drag')
-        .find('.keys-fields, .values-fields')
-        .removeClass('field-drag-acceptable')
-        .removeClass('field-drag-no')
-    }
-  })
-
-  $('.field-drop').droppable({
+  $('.key-field-drop-{{prefix}}, .value-field-drop-{{prefix}}, .all-fields-drop-{{prefix}}').droppable({
+    tolerance: 'pointer',
+    hoverClass: 'field-drop-hover',
     accept: function(d) {
-      if ($(this).parent().hasClass('keys-fields')) {
-        var sv = selectedFieldsListStr('values-fields-{{prefix}}').split(',')
-        return (keyFieldsType.indexOf(d.data("fieldType")) >= 0 || keyFieldsType.indexOf('any') >= 0)
-          && (sv.indexOf(d.data("field")) === -1 || $(this).parent().addClass('field-drag-no').hasClass('return-false'))
-      }
-      else if ($(this).parent().hasClass('values-fields')) {
-        var sk = selectedFieldsListStr('keys-fields-{{prefix}}').split(',')
-        return (valueFieldsType.indexOf(d.data("fieldType")) >= 0 || valueFieldsType.indexOf('any') >= 0)
-          && (sk.indexOf(d.data("field")) === -1 || $(this).parent().addClass('field-drag-no').hasClass('return-false'))
-      }
-      else {
-        return false
+      if ($(this).hasClass('all-fields-drop-{{prefix}}')) {
+        return true
+      } else {
+        var selected = []
+        var fieldtype = $(this).hasClass('key-field-drop-{{prefix}}') ? keyFieldsType : valueFieldsType
+        if (d.parent().hasClass('fieldslist-allfields')) {
+          selected = ($(this).hasClass('key-field-drop-{{prefix}}') ? selectedFieldsListStr('values-fields-{{prefix}}') : selectedFieldsListStr('keys-fields-{{prefix}}')).split(',')
+        }
+        return (fieldtype.indexOf(d.data('fieldType')) >= 0 || fieldtype.indexOf('any') >= 0)
+          && (selected.indexOf(d.data('field')) === -1 || $(this).parent().addClass('field-drag-no').hasClass('return-false'))
       }
     },
     activate: function(event, ui) {
@@ -240,34 +261,54 @@
       $(this).parent().removeClass('field-drag-acceptable')
     },
     drop:function(event, ui) {
-      var newId = ui.draggable.attr('id') + '-' + $(this).attr('id')
       var fieldName = ui.draggable.attr('data-field')
-      if ( $('#'+newId).length === 0) {
-        var el = ui.draggable.clone(true, true)
-        el.attr("id", newId)
-        var ar = $('<a class="field-remove" pd_script="if \'' + fieldName + '\' in self.selected_fields: self.selected_fields.remove(\'' + fieldName + '\')">')
-        ar.click(function(e) {
-          e.preventDefault()
-          var drop = $(this).closest('.field-drop')
-          $(this).parent().remove()
-          drop.click()
-          return false
-        });
-        el.append(ar)
-        el.appendTo($(this))
-        $(this).click()
+      if ($(this).find('[data-field="' + fieldName + '"]').length === 0) {
+        var el = ui.draggable.clone()
+        if (!ui.draggable.parent().hasClass('fieldslist-allfields')) {
+          ui.draggable.find('a').click()
+        }
+        makeRemoveable(el.find('a'))
+        makeDraggable(el)
+        $(this).append(el).click()
+      } else if (!$(this).is(ui.draggable.parent())) {
+        ui.draggable.find('a').click()
       }
     }
-  });
+  })
 
-  $('#keys-fields-{{prefix}} .field-remove, #values-fields-{{prefix}} .field-remove').click(function(e) {
-    e.preventDefault()
-    var drop = $(this).closest('.field-drop')
-    $(this).parent().remove()
-    drop.click()
-    return false
-  });
+  makeDraggable($('.fieldslist-field-{{prefix}}'))
+  makeRemoveable($('.key-field-drop-{{prefix}} .field-remove'))
+  makeRemoveable($('.value-field-drop-{{prefix}} .field-remove'))
 
+  function makeRemoveable(nodes) {
+    nodes.click(function(e) {
+      e.preventDefault()
+      var drop = $(this).closest('.field-drop')
+      $(this).parent().remove()
+      setTimeout(function () {
+        drop.click()
+      }, 300)
+      return false
+    })
+  }
+  function makeDraggable(nodes) {
+    nodes.draggable({
+      helper: 'clone',
+      zIndex: 500,
+      cursor: 'grab',
+      containment: 'document',
+      start: function(event, ui) {
+        $('.fields-container').addClass('field-drag')
+      },
+      stop: function(event, ui) {
+        $('.fields-container')
+          .removeClass('field-drag')
+          .find('.keys-fields, .values-fields')
+          .removeClass('field-drag-acceptable')
+          .removeClass('field-drag-no')
+      }
+    })
+  }
   function selectedFieldsListStr(fieldid) {
     var selected = []
     $('#' + fieldid + ' li')
