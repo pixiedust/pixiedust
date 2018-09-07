@@ -59,8 +59,8 @@ class BarChartRenderer(MatplotlibBaseDisplay):
                 pivot.index.name=keyFields[0]
 
                 # sort order is lost after pivot
-                if self.options.get("sortby", None):
-                    sortby = self.options.get("sortby", None)
+                sortby = self.options.get("sortby", None)
+                if sortby:
                     if sortby == 'Keys ASC':
                         pivot = pivot.sort_values(keyFields, ascending=True)
                     elif sortby == 'Keys DESC':
@@ -76,7 +76,7 @@ class BarChartRenderer(MatplotlibBaseDisplay):
                 thisAx = pivot.plot(kind=kind, stacked=stacked, ax=self.getAxItem(ax, j), sharex=True, legend=self.showLegend(), 
                     label=None if subplots else valueField, subplots=subplots,colormap = Colors.colormap)
 
-                if isinstance(thisAx, (list,np.ndarray)):
+                if isinstance(thisAx, (list, np.ndarray)):
                     if kind == 'barh':
                         for plotaxis in thisAx:
                             plotaxis.invert_yaxis()
@@ -89,9 +89,13 @@ class BarChartRenderer(MatplotlibBaseDisplay):
 
                 return thisAx
         else:
-            plotaxis = self.getWorkingPandasDataFrame().plot(kind=kind, stacked=stacked, ax=ax, x=keyFields[0], legend=self.showLegend(), subplots=subplots,colormap = Colors.colormap)
+            thisAx = self.getWorkingPandasDataFrame().plot(kind=kind, stacked=stacked, ax=ax, x=keyFields[0], legend=self.showLegend(), subplots=subplots,colormap = Colors.colormap)
             if kind == 'barh':
-                plotaxis.invert_yaxis()
+                if isinstance(thisAx, (list, np.ndarray)):
+                    for plotaxis in thisAx:
+                        plotaxis.invert_yaxis()
+                else:
+                    thisAx.invert_yaxis()
 
             if clusterby is not None:
                 self.addMessage("Warning: 'Cluster By' ignored when you have multiple Value Fields but subplots option is not selected")
