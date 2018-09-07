@@ -20,6 +20,7 @@ from pixiedust.utils import Logger
 
 from .bokehBaseDisplay import BokehBaseDisplay
 from bokeh.plotting import figure
+from bokeh.models import HoverTool
 import sys
 
 
@@ -80,6 +81,10 @@ class BKScatterPlotRenderer(BokehBaseDisplay):
         p.xaxis.axis_label = xlabel
         p.yaxis.axis_label = ylabel
         p.legend.location = "top_left"
+
+        hover = HoverTool()
+        hover.tooltips = [(xlabel, '@x'), (ylabel, '@y')]
+        p.tools = [hover]
 
         return p
 

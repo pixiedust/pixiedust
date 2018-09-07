@@ -122,6 +122,7 @@ class MapViewDisplay(MapBoxBaseDisplay):
             valueFieldIdxs.append(df.columns.get_loc(valueField))
 
         # Transform the data into GeoJSON for use in the Mapbox client API
+        allProps = valueFields + preserveCols + self.getExtraFields()
         features = []
         for index,row in df.iterrows():
             feature = {'type':'Feature',

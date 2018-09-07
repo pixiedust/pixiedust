@@ -17,6 +17,8 @@
 from ..display import Display
 from functools import reduce
 import time
+import numpy as np
+from six import integer_types
 
 DELIMITER="@#$DELIMITER@#$"
 
@@ -113,7 +115,9 @@ class DownloadFileHandler(Display):
             print("[")
             for count, row in enumerate(entity.take(doDownloadCount), start=1):
                 print(" {")
-                print(reduce(lambda s,f: s+(",\n  " if s!="" else "  ")+"\""+self._safeString(f.name)+"\":"+(str(row[f.name]) if isinstance(row[f.name],(int,long, float)) else self._safeString("\""+("" if row[f.name] is None else row[f.name])+"\"")), schema.fields, ""))
+                # numeric types: python2 (int, long, float, complex), python3 (int, float, complex)
+                # in some builds `np.intXX` does not descend from `int`: https://stackoverflow.com/a/48467599
+                print(reduce(lambda s,f: s+(",\n  " if s!="" else "  ")+"\""+self._safeString(f.name)+"\":"+(str(row[f.name]) if isinstance(row[f.name], integer_types + (float, np.number)) else self._safeString("\""+("" if row[f.name] is None else row[f.name])+"\"")), schema.fields, ""))
                 print(" }," if count != doDownloadCount else " }")
             print("]")
             print(DELIMITER)

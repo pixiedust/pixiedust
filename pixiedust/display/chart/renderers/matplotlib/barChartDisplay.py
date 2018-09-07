@@ -57,17 +57,45 @@ class BarChartRenderer(MatplotlibBaseDisplay):
                     index=keyFields[0], columns=clusterby, values=valueField
                 )
                 pivot.index.name=keyFields[0]
+
+                # sort order is lost after pivot
+                sortby = self.options.get("sortby", None)
+                if sortby:
+                    if sortby == 'Keys ASC':
+                        pivot = pivot.sort_values(keyFields, ascending=True)
+                    elif sortby == 'Keys DESC':
+                        pivot = pivot.sort_values(keyFields, ascending=False)
+                    else:
+                        pivot[valueFields[0]] = pivot.sum(axis=1)
+                        if sortby == 'Values ASC':
+                            pivot = pivot.sort_values(valueFields[0], ascending=True)
+                        elif sortby == 'Values DESC':
+                            pivot = pivot.sort_values(valueFields[0], ascending=False)
+                        pivot.drop(valueFields[0], axis=1, inplace=True)
+
                 thisAx = pivot.plot(kind=kind, stacked=stacked, ax=self.getAxItem(ax, j), sharex=True, legend=self.showLegend(), 
                     label=None if subplots else valueField, subplots=subplots,colormap = Colors.colormap)
 
-                if len(valueFields)==1 and subplots:
-                    if isinstance(thisAx, (list,np.ndarray)):
+                if isinstance(thisAx, (list, np.ndarray)):
+                    if kind == 'barh':
+                        for plotaxis in thisAx:
+                            plotaxis.invert_yaxis()
+                    if len(valueFields)==1 and subplots:
                         #resize the figure
                         figw = fig.get_size_inches()[0]
                         fig.set_size_inches( figw, (figw * 0.5)*min( len(thisAx), 10 ))
-                    return thisAx      
+                elif kind == 'barh':
+                    thisAx.invert_yaxis()
+
+                return thisAx
         else:
-            self.getWorkingPandasDataFrame().plot(kind=kind, stacked=stacked, ax=ax, x=keyFields[0], legend=self.showLegend(), subplots=subplots,colormap = Colors.colormap)
+            thisAx = self.getWorkingPandasDataFrame().plot(kind=kind, stacked=stacked, ax=ax, x=keyFields[0], legend=self.showLegend(), subplots=subplots,colormap = Colors.colormap)
+            if kind == 'barh':
+                if isinstance(thisAx, (list, np.ndarray)):
+                    for plotaxis in thisAx:
+                        plotaxis.invert_yaxis()
+                else:
+                    thisAx.invert_yaxis()
 
             if clusterby is not None:
                 self.addMessage("Warning: 'Cluster By' ignored when you have multiple Value Fields but subplots option is not selected")
