@@ -190,6 +190,16 @@ def histogram(displayObject):
 def pieChart(displayObject):
     options = []
     options.append(chartSize())
+
+    options.append({
+        'name': 'ylabel',
+        'description': 'Show y label',
+        'metadata': {
+            'type': 'checkbox',
+            'default': "true"
+        }
+    })
+
     return options
 
 def scatterPlot(displayObject):
