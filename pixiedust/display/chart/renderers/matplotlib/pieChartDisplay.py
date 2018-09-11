@@ -32,9 +32,6 @@ class PieChartDisplay(MatplotlibBaseDisplay):
     def getPreferredDefaultValueFieldCount(self, handlerId):
         return 1
 
-    def getDefaultAggregation(self, handlerId):
-        return "COUNT"
-
     def canStretch(self):
         return False
 
