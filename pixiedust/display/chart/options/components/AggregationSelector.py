@@ -23,6 +23,9 @@ class AggregationSelector(object):
     def chart_option_aggregation_widget(self, optid, aggregation):
         self.aggOpts = self.aggregation_options()
         self.aggOpts.sort()
+        if not aggregation:
+            aggregation = self.aggregation_default()
+        self.selectedAgg = aggregation
         return """
 <div class="form-group">
     <label class="field">Aggregation:</label>
@@ -30,7 +33,7 @@ class AggregationSelector(object):
         onchange="$(this).find('> option:selected').trigger('click')"
         pd_script="self.options_callback('{{optid}}','$val(chartoption{{optid}}{{prefix}})')">
         {% for aggOpt in this.aggOpts %}
-        <option value="{{aggOpt}}" {{'selected' if aggregation == aggOpt}}>{{aggOpt}}</option>
+        <option value="{{aggOpt}}" {{'selected' if this.selectedAgg == aggOpt}}>{{aggOpt}}</option>
         {% endfor %}
     </select>
 </div>
@@ -38,4 +41,7 @@ class AggregationSelector(object):
 
     def aggregation_options(self):
         return ["SUM","AVG","MIN","MAX","COUNT"]
+
+    def aggregation_default(self):
+        return self.get_renderer.getDefaultAggregation(self.parsed_command['kwargs']['handlerId'])
 
