@@ -228,7 +228,7 @@ class Downloader(object):
             url = self.dataDef["url"]
             req = Request(url, None, self.headers)
             print("Downloading '{0}' from {1}".format(displayName, url))
-            tdir = '/home/spark/shared' if Environment.hasSpark and not self.forcePandas and os.path.exists('/home/spark/shared') else '/tmp'
+            tdir = '/home/spark/shared' if Environment.hasSpark and not self.forcePandas and os.path.exists('/home/spark/shared') else tempfile.gettempdir()
             with tempfile.NamedTemporaryFile(delete=False, dir=tdir) as f:
                 bytesDownloaded = self.write(urlopen(req), f)
                 path = f.name   
