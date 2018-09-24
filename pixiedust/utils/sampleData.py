@@ -28,6 +28,7 @@ from IPython.display import display, HTML, Javascript
 import json
 import requests
 from pandas.io.json import json_normalize
+import os
 try:
     from urllib.request import Request, urlopen, URLError, HTTPError
 except ImportError:
@@ -227,7 +228,8 @@ class Downloader(object):
             url = self.dataDef["url"]
             req = Request(url, None, self.headers)
             print("Downloading '{0}' from {1}".format(displayName, url))
-            with tempfile.NamedTemporaryFile(delete=False) as f:
+            tdir = '/home/spark/shared' if Environment.hasSpark and not self.forcePandas and os.path.exists('/home/spark/shared') else tempfile.gettempdir()
+            with tempfile.NamedTemporaryFile(delete=False, dir=tdir) as f:
                 bytesDownloaded = self.write(urlopen(req), f)
                 path = f.name   
             if url.endswith(".zip") or zipfile.is_zipfile(path):
@@ -237,7 +239,7 @@ class Downloader(object):
                 zfile = zipfile.ZipFile(path, 'r')
                 if len(zfile.filelist)==0:
                     raise(Exception("Error: zip file is empty"))
-                with tempfile.NamedTemporaryFile(delete=False) as zf:
+                with tempfile.NamedTemporaryFile(delete=False, dir=tdir) as zf:
                     with zfile.open( zfile.filelist[0], 'r') as first_file:
                         print("File extracted: {}".format(first_file.name))
                         shutil.copyfileobj( first_file, zf)
@@ -245,7 +247,7 @@ class Downloader(object):
             elif url.endswith(".gz"):
                 import gzip
                 import shutil
-                with tempfile.NamedTemporaryFile(delete=False) as zf:
+                with tempfile.NamedTemporaryFile(delete=False, dir=tdir) as zf:
                     with gzip.open(path, 'rb') as first_file:
                         print("File extracted: {}".format(first_file.name))
                         shutil.copyfileobj( first_file, zf)
