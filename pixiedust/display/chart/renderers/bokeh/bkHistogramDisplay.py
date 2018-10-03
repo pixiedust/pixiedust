@@ -72,10 +72,7 @@ class BKHistogramRenderer(BokehBaseDisplay):
         def histogram(df, vField, color=None, clustered=None):
             colors = self.colorPalette(len(df.index)) if color is None else color
 
-            hover = HoverTool()
-            hover.tooltips = [('Frequency', '@top{0.00}'), ('Interval', '@left - @right')]
-
-            p = figure(y_axis_label='Frequency', x_axis_label=vField, tools=[hover])
+            p = figure(y_axis_label='Frequency', x_axis_label=vField)
 
             for j,c in enumerate(list(df[clustered].unique())) if clustered else enumerate([None]):
                 df2 = df[df[clustered] == c] if c else df
@@ -85,6 +82,10 @@ class BKHistogramRenderer(BokehBaseDisplay):
             p.y_range.start=0
 
             p.legend.location = "top_left"
+
+            hover = HoverTool()
+            hover.tooltips = [('Frequency', '@top{0.00}'), ('Interval', '@left - @right')]
+            p.tools = [hover]
 
             return p
 

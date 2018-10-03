@@ -46,14 +46,10 @@ class BKLineChartRenderer(BokehBaseDisplay):
         def lineChart(df, xlabel, vFields, color=None, clustered=None, title=None):
             ylabel = ','.join(v for v in vFields)
             x = list(df[xlabel].values)
-
-            hover = HoverTool()
-            hover.tooltips = [(xlabel, '@x'), (ylabel, '@y{0.00}'), ('x', '$x'), ('y', '$y')]
-
             if df[xlabel].dtype == object:
-                p = figure(y_axis_label=ylabel, x_axis_label=xlabel, title=title, x_range=x, **self.get_common_figure_options(), tools=[hover])
+                p = figure(y_axis_label=ylabel, x_axis_label=xlabel, title=title, x_range=x, **self.get_common_figure_options())
             else:
-                p = figure(y_axis_label=ylabel, x_axis_label=xlabel, title=title, **self.get_common_figure_options(), tools=[hover])
+                p = figure(y_axis_label=ylabel, x_axis_label=xlabel, title=title, **self.get_common_figure_options())
 
             if clustered is not None:
                 colors = self.colorPalette(len(df[clustered].unique())) if color is None else color
@@ -76,6 +72,10 @@ class BKLineChartRenderer(BokehBaseDisplay):
                     p.line(x, y, line_width=2, color=colors[i], legend=v if self.showLegend() else None)
 
             p.legend.location = "top_left"
+
+            hover = HoverTool()
+            hover.tooltips = [(xlabel, '@x'), (ylabel, '@y{0.00}'), ('x', '$x'), ('y', '$y')]
+            p.tools = [hover]
 
             return p
 

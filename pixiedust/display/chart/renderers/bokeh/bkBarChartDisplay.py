@@ -83,10 +83,7 @@ class BKBarChartRenderer(BokehBaseDisplay):
             src = ColumnDataSource(data)
             colors = self.colorPalette(len(factors)) if color is None else color
 
-            hover = HoverTool()
-            hover.tooltips = [(d if d is not 'pd_stacked_col' else xlabel, '@' + d + '{0.00}') for d in data]
-
-            p = figure(x_range=data['pd_stacked_col'], y_axis_label=ylabel, x_axis_label=xlabel, title=title, tools=[hover])
+            p = figure(x_range=data['pd_stacked_col'], y_axis_label=ylabel, x_axis_label=xlabel, title=title)
             p.vbar_stack(factors, x='pd_stacked_col', width=0.9, source=src, legend=l if self.showLegend() else None, color=colors)
 
             p.y_range.start = ystart
@@ -96,6 +93,10 @@ class BKBarChartRenderer(BokehBaseDisplay):
             p.xaxis.major_label_orientation = 1
             p.xgrid.grid_line_color = None
             p.legend.location = "top_left"
+
+            hover = HoverTool()
+            hover.tooltips = [(d if d is not 'pd_stacked_col' else xlabel, '@' + d + '{0.00}') for d in data]
+            p.tools = [hover]
 
             return p
 
@@ -116,10 +117,7 @@ class BKBarChartRenderer(BokehBaseDisplay):
             src = ColumnDataSource(data=dict(x=x, counts=counts, l=l))
             colors = self.colorPalette(len(factors)) if color is None else color
 
-            hover = HoverTool()
-            hover.tooltips = [(xlabel, '@x'), (ylabel, '@counts{0.00}')]
-
-            p = figure(x_range=FactorRange(*x), y_axis_label=ylabel, x_axis_label=xlabel, title=title, tools=[hover])
+            p = figure(x_range=FactorRange(*x), y_axis_label=ylabel, x_axis_label=xlabel, title=title)
             p.vbar(x='x', top='counts', width=0.925, source=src, legend='l' if self.showLegend() else None, color=factor_cmap('x', palette=colors, factors=factors, start=1, end=2))
 
             p.y_range.start = 0 if not counts else min(0, min(counts))
@@ -132,6 +130,10 @@ class BKBarChartRenderer(BokehBaseDisplay):
             p.xaxis.major_tick_line_color = None
             p.xgrid.grid_line_color = None
             p.legend.location = "top_left"
+
+            hover = HoverTool()
+            hover.tooltips = [(xlabel, '@x'), (ylabel, '@counts{0.00}')]
+            p.tools = [hover]
 
             return p
 
