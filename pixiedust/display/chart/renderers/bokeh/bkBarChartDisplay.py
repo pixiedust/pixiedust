@@ -96,7 +96,7 @@ class BKBarChartRenderer(BokehBaseDisplay):
 
             hover = HoverTool()
             hover.tooltips = [(d if d is not 'pd_stacked_col' else xlabel, '@' + d + '{0.00}') for d in data]
-            p.tools = [hover]
+            p.add_tools(hover)
 
             return p
 
@@ -133,7 +133,7 @@ class BKBarChartRenderer(BokehBaseDisplay):
 
             hover = HoverTool()
             hover.tooltips = [(xlabel, '@x'), (ylabel, '@counts{0.00}')]
-            p.tools = [hover]
+            p.add_tools(hover)
 
             return p
 

@@ -84,7 +84,7 @@ class BKScatterPlotRenderer(BokehBaseDisplay):
 
         hover = HoverTool()
         hover.tooltips = [(xlabel, '@x'), (ylabel, '@y')]
-        p.tools = [hover]
+        p.add_tools(hover)
 
         return p
 

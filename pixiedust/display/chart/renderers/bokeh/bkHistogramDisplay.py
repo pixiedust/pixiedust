@@ -85,7 +85,7 @@ class BKHistogramRenderer(BokehBaseDisplay):
 
             hover = HoverTool()
             hover.tooltips = [('Frequency', '@top{0.00}'), ('Interval', '@left - @right')]
-            p.tools = [hover]
+            p.add_tools(hover)
 
             return p
 
