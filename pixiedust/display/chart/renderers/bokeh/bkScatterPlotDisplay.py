@@ -71,7 +71,10 @@ class BKScatterPlotRenderer(BokehBaseDisplay):
         wpdf = self.getWorkingPandasDataFrame().copy()
         colors = self.colorPalette(None if color is None else len(wpdf[color].unique()))
         
-        p = figure(y_axis_label=ylabel, x_axis_label=xlabel)
+        hover = HoverTool()
+        hover.tooltips = [(xlabel, '@x'), (ylabel, '@y')]
+
+        p = figure(y_axis_label=ylabel, x_axis_label=xlabel, tools=[hover])
 
         for i,c in enumerate(list(wpdf[color].unique())) if color else enumerate([None]):
             wpdf2 = wpdf[wpdf[color] == c] if c else wpdf
@@ -81,10 +84,6 @@ class BKScatterPlotRenderer(BokehBaseDisplay):
         p.xaxis.axis_label = xlabel
         p.yaxis.axis_label = ylabel
         p.legend.location = "top_left"
-
-        hover = HoverTool()
-        hover.tooltips = [(xlabel, '@x'), (ylabel, '@y')]
-        p.tools = [hover]
 
         return p
 
