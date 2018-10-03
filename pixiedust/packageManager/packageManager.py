@@ -46,11 +46,11 @@ packageStorage = __PackageStorage()
 
 class PackageManager(object):
     if "PIXIEDUST_HOME" in os.environ:
-        DOWNLOAD_DIR=os.environ.get("PIXIEDUST_HOME") + "/data/libs"
+        DOWNLOAD_DIR=os.environ.get('PIXIEDUST_HOME') + "/data/libs"
     elif "PIXIEDUST_LIBS_PATH" in os.environ:
-        DOWNLOAD_DIR=os.environ.get("PIXIEDUST_LIBS_PATH")
+        DOWNLOAD_DIR=os.environ.get('PIXIEDUST_LIBS_PATH')
     else:
-        DOWNLOAD_DIR=os.environ.get("HOME") + "/data/libs"
+        DOWNLOAD_DIR=os.environ.get('HOME') + "/data/libs"
 
 
     # Issue 492: https://github.com/ibm-watson-data-lab/pixiedust/issues/492
