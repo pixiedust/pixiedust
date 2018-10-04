@@ -45,7 +45,13 @@ class __PackageStorage(Storage):
 packageStorage = __PackageStorage()
 
 class PackageManager(object):
-    DOWNLOAD_DIR=os.environ.get("PIXIEDUST_HOME", os.path.expanduser('~')) + "/data/libs"
+    if "PIXIEDUST_HOME" in os.environ:
+        DOWNLOAD_DIR=os.environ.get('PIXIEDUST_HOME') + "/data/libs"
+    elif "PIXIEDUST_LIBS_PATH" in os.environ:
+        DOWNLOAD_DIR=os.environ.get('PIXIEDUST_LIBS_PATH')
+    else:
+        DOWNLOAD_DIR=os.environ.get('HOME') + "/data/libs"
+
 
     # Issue 492: https://github.com/ibm-watson-data-lab/pixiedust/issues/492
     # Make sure that DOWNLOAD_DIR is in the java classpath
