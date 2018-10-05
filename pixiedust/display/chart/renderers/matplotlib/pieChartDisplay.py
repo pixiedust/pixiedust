@@ -19,6 +19,7 @@ from pixiedust.display.chart.renderers.baseChartDisplay import commonChartOption
 from .matplotlibBaseDisplay import MatplotlibBaseDisplay
 from pixiedust.utils import Logger
 import matplotlib.pyplot as plt
+from matplotlib import cm
 import mpld3
 import numpy as np
 
@@ -80,6 +81,14 @@ class PieChartDisplay(MatplotlibBaseDisplay):
     def isStretchingOn(self):
         return True
 
+    def get_colormap(self, cm_name):
+        try:
+            cm.get_cmap(cm_name)
+            return cm_name
+        except:
+            return None
+
+
     def matplotlibRender(self, fig, ax):
         numRows = len(self.getWorkingPandasDataFrame().index)
         if numRows > 20:
@@ -92,7 +101,7 @@ class PieChartDisplay(MatplotlibBaseDisplay):
             pdf = self.getWorkingPandasDataFrame().sort_values(valueField).head(20)
             labels=[ "-".join(map(str, a)) for a in pdf[keyFields].values.tolist() ]
             plotaxis = pdf.plot(
-                kind="pie", y = valueField, ax=ax.item(i), labels=labels, colormap='tab20',
+                kind="pie", y = valueField, ax=ax.item(i), labels=labels, colormap=self.get_colormap('tab20'),
                 autopct='%1.0f%%', subplots=False, legend = self.showLegend()
             )
             if self.options.get("ylabel", "true") == "false":
