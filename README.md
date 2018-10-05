@@ -8,6 +8,11 @@ PixieDust is a productivity tool for Python or Scala notebooks, which lets a dev
 ## New Book now available: Thoughtful Data Science
 This [book](https://www.packtpub.com/big-data-and-business-intelligence/thoughtful-data-science) published by [Packt Publishing](https://www.packtpub.com) is the user and developer reference for using PixieDust
 
+## Pixiedust developer community
+
+Wait! There is a developer community? 
+Yes there is! If you already are a member, [login](https://pixiedust-dev.slack.com). If you would like to contribute please [join us](http://bit.ly/join_pixiedust_community). 
+
 ## Why you need it
 
 Notebooks are a powerful tool for fast and flexible data analysis. But the learning curve is steep.
