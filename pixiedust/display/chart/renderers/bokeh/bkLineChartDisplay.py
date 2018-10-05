@@ -75,7 +75,7 @@ class BKLineChartRenderer(BokehBaseDisplay):
 
             hover = HoverTool()
             hover.tooltips = [(xlabel, '@x'), (ylabel, '@y{0.00}'), ('x', '$x'), ('y', '$y')]
-            p.tools = [hover]
+            p.add_tools(hover)
 
             return p
 
