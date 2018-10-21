@@ -34,7 +34,7 @@ if "PIXIEDUST_HOME" in os.environ:
 elif "PIXIEDUST_LIBS_PATH" in os.environ:
     jarDirPath=os.environ.get('PIXIEDUST_LIBS_PATH')
 else:
-    jarDirPath=os.environ.get('HOME') + "/data/libs/"
+    jarDirPath=os.environ.get('HOME', os.path.expanduser('~')) + "/data/libs/"
 
 jarFilePath = jarDirPath + "pixiedust.jar"
 
