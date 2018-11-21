@@ -82,9 +82,9 @@ dataDefs = OrderedDict([
 ])
 
 @scalaGateway
-def sampleData(dataId=None, type='csv', forcePandas=False):
+def sampleData(dataId=None, type='csv', forcePandas=False, delimiter=','):
     global dataDefs
-    return SampleData(dataDefs, forcePandas).sampleData(dataId, type)
+    return SampleData(dataDefs, forcePandas).sampleData(dataId, type, delimiter)
 
 class SampleData(object):
     env = PixiedustTemplateEnvironment()
@@ -93,7 +93,8 @@ class SampleData(object):
         self.forcePandas = forcePandas
         self.url = ""
 
-    def sampleData(self, dataId = None, type='csv'):
+    def sampleData(self, dataId = None, type='csv', delimiter=','):
+        self.delimiter = delimiter
         if dataId is None:
             self.printSampleDataList()
         elif str(dataId) in dataDefs:
@@ -111,7 +112,7 @@ class SampleData(object):
     def printSampleDataList(self):
         display( HTML( self.env.getTemplate("sampleData.html").render( dataDefs = iteritems(self.dataDefs) ) ))
 
-    def dataLoader(self, path, schema=None):
+    def dataLoader(self, path, schema=None, delimiter=','):
         if schema is not None and Environment.hasSpark:
             from pyspark.sql.types import StructType,StructField,IntegerType,DoubleType,StringType
             def getType(t):
@@ -136,6 +137,7 @@ class SampleData(object):
                     .read \
                     .format("org.apache.spark.sql.execution.datasources.csv.CSVFileFormat") \
                     .option("header", "true") \
+                    .option("delimiter", delimiter) \
                     .option("mode", "DROPMALFORMED")
                 if schema is not None:
                     return csvload.schema(StructType([StructField(item[0], getType(item[1]), True) for item in schema])).load(path)
@@ -144,7 +146,7 @@ class SampleData(object):
         else:
             print("Loading file using 'pandas'")
             try:
-                return pd.read_csv(path)
+                return pd.read_csv(path, sep=delimiter)
             except UnicodeDecodeError:
                 #Try ISO-8859-1
                 return pd.read_csv(path, encoding = "ISO-8859-1")
@@ -188,7 +190,7 @@ class SampleData(object):
             return df
 
     def loadSparkDataFrameFromSampleData(self, dataDef):
-        return Downloader(dataDef, self.forcePandas).download(self.dataLoader)
+        return Downloader(dataDef, self.forcePandas, self.delimiter).download(self.dataLoader)
 
     def loadSparkDataFrameFromUrl(self, dataUrl):
         i = dataUrl.rfind('/')
@@ -197,8 +199,7 @@ class SampleData(object):
             "displayName": dataUrl,
             "url": dataUrl
         }
-
-        return Downloader(dataDef, self.forcePandas).download(self.dataLoader)
+        return Downloader(dataDef, self.forcePandas, self.delimiter).download(self.dataLoader)
 
     def JSONloadSparkDataFrameFromUrl(self, dataUrl):
         i = dataUrl.rfind('/')
@@ -208,16 +209,17 @@ class SampleData(object):
             "url": dataUrl
         }
 
-        return Downloader(dataDef, self.forcePandas).download(self.JSONdataLoader)
+        return Downloader(dataDef, self.forcePandas, self.delimiter).download(self.JSONdataLoader)
 
 # Use of progress Monitor doesn't render correctly when previewed a saved notebook, turning it off until solution is found
 useProgressMonitor = False
 class Downloader(object):
-    def __init__(self, dataDef, forcePandas):
+    def __init__(self, dataDef, forcePandas, delimiter):
         self.dataDef = dataDef
         self.forcePandas = forcePandas
         self.headers = {"User-Agent": "PixieDust Sample Data Downloader/1.0"}
         self.prefix = str(uuid.uuid4())[:8]
+        self.delimiter = delimiter
 
     def download(self, dataLoader):
         displayName = self.dataDef["displayName"]
@@ -263,7 +265,7 @@ class Downloader(object):
                    print("Downloaded {} bytes".format(bytesDownloaded))
                 print("Creating {1} DataFrame for '{0}'. Please wait...".\
                     format(displayName, 'pySpark' if Environment.hasSpark and not self.forcePandas else 'pandas'))
-                return dataLoader(path, self.dataDef.get("schema", None))
+                return dataLoader(path, self.dataDef.get("schema", None), self.delimiter)
             finally:
                 print("Successfully created {1} DataFrame for '{0}'".\
                     format(displayName, 'pySpark' if Environment.hasSpark and not self.forcePandas else 'pandas'))
