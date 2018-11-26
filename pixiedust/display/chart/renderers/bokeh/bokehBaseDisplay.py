@@ -157,7 +157,7 @@ class BokehBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
                 chart.plot_width = int(w - 5)
                 chart.plot_height = int (h - 5)
 
-            return genMarkup(notebook_div(gridplot(charts, ncols=ncols, nrows=nrows)))
+            return genMarkup(notebook_div(gridplot(charts, ncols=ncols)))
 
 
     # no longer part of bokeh
