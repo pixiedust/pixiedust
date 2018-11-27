@@ -82,16 +82,17 @@ dataDefs = OrderedDict([
 ])
 
 @scalaGateway
-def sampleData(dataId=None, type='csv', forcePandas=False):
+def sampleData(dataId=None, type='csv', forcePandas=False, delimiter=','):
     global dataDefs
-    return SampleData(dataDefs, forcePandas).sampleData(dataId, type)
+    return SampleData(dataDefs, forcePandas, delimiter).sampleData(dataId, type)
 
 class SampleData(object):
     env = PixiedustTemplateEnvironment()
-    def __init__(self, dataDefs, forcePandas):
+    def __init__(self, dataDefs, forcePandas, delimiter):
         self.dataDefs = dataDefs
         self.forcePandas = forcePandas
         self.url = ""
+        self.delimiter = delimiter
 
     def sampleData(self, dataId = None, type='csv'):
         if dataId is None:
@@ -127,15 +128,16 @@ class SampleData(object):
                 print("Loading file using 'com.databricks.spark.csv'")
                 load = ShellAccess.sqlContext.read.format('com.databricks.spark.csv')
                 if schema is not None:
-                    return load.options(header='true', mode="DROPMALFORMED").load(path, schema=StructType([StructField(item[0], getType(item[1]), True) for item in schema]))
+                    return load.options(header='true', mode="DROPMALFORMED", delimiter=self.delimiter).load(path, schema=StructType([StructField(item[0], getType(item[1]), True) for item in schema]))
                 else:
-                    return load.options(header='true', mode="DROPMALFORMED", inferschema='true').load(path)
+                    return load.options(header='true', mode="DROPMALFORMED", inferschema='true', delimiter=self.delimiter).load(path)
             else:
                 print("Loading file using 'SparkSession'")
                 csvload = ShellAccess.SparkSession.builder.getOrCreate() \
                     .read \
                     .format("org.apache.spark.sql.execution.datasources.csv.CSVFileFormat") \
                     .option("header", "true") \
+                    .option("sep", self.delimiter) \
                     .option("mode", "DROPMALFORMED")
                 if schema is not None:
                     return csvload.schema(StructType([StructField(item[0], getType(item[1]), True) for item in schema])).load(path)
@@ -144,10 +146,10 @@ class SampleData(object):
         else:
             print("Loading file using 'pandas'")
             try:
-                return pd.read_csv(path)
+                return pd.read_csv(path, sep=self.delimiter)
             except UnicodeDecodeError:
                 #Try ISO-8859-1
-                return pd.read_csv(path, encoding = "ISO-8859-1")
+                return pd.read_csv(path, sep=self.delimiter, encoding = "ISO-8859-1")
 
     def JSONdataLoader(self, path, schema=None):
         if schema is not None and Environment.hasSpark:
