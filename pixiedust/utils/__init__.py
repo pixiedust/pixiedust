@@ -20,6 +20,7 @@ import pkg_resources
 import binascii
 import shutil
 from . import pdLogging
+from pixiedust.utils.printEx import *
 
 storage._initStorage()
 
@@ -46,7 +47,7 @@ def installPixiedustJar():
     with pkg_resources.resource_stream(__name__, "resources/pixiedust.jar") as resJar:
         with open( jarFilePath, 'wb+' ) as installedJar:
             shutil.copyfileobj(resJar, installedJar)
-            print("Pixiedust runtime updated. Please restart kernel")
+            printEx("Pixiedust runtime updated. Please restart kernel",PrintColors.RED)
 
 copyFile = True
 if os.path.isfile(jarFilePath):
