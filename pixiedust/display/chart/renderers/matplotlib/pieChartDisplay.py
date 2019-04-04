@@ -102,7 +102,7 @@ class PieChartDisplay(MatplotlibBaseDisplay):
             labels=[ "-".join(map(str, a)) for a in pdf[keyFields].values.tolist() ]
             plotaxis = pdf.plot(
                 kind="pie", y = valueField, ax=ax.item(i), labels=labels, colormap=self.get_colormap('tab20'),
-                autopct='%1.0f%%', subplots=False, legend = self.showLegend()
+                autopct='%1.0f%%', subplots=False, legend = self.showLegend(), textprops={'fontproperties': self.font_prop}
             )
             if self.options.get("ylabel", "true") == "false":
                 plotaxis.set_ylabel('')

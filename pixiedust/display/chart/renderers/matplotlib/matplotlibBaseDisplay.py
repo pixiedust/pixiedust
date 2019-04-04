@@ -20,6 +20,7 @@ from pixiedust.utils import Logger
 from ..baseChartDisplay import BaseChartDisplay
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
+from matplotlib import font_manager as fm
 from six import with_metaclass
 from abc import abstractmethod, ABCMeta
 import numpy as np
@@ -42,6 +43,12 @@ class MatplotlibBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
 
     def __init__(self, options, entity, dataHandler=None):
         super(MatplotlibBaseDisplay,self).__init__(options,entity,dataHandler)
+
+        self.font_prop = fm.FontProperties()
+        font_path = self.getFontPath()
+        if font_path is not None:
+            self.font_prop.set_file(font_path)
+
         self.needsStretching = False
 
     @abstractmethod
@@ -109,6 +116,8 @@ class MatplotlibBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
                 plt.xticks(rotation=30)
         else:
             plt.xticks(rotation=0)
+        plt.xticks(fontproperties=self.font_prop)
+        plt.yticks(fontproperties=self.font_prop)
 
     def setLegend(self, fig, ax):
         if ax.get_legend() is not None:
@@ -116,7 +125,7 @@ class MatplotlibBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
             nCol = int(min(max(math.sqrt( numLabels ), 3), 6))
             nRows = int(numLabels/nCol)
             bboxPos = max(1.15, 1.0 + ((float(nRows)/2)/10.0))
-            ax.legend(loc='upper center', bbox_to_anchor=(0.5, bboxPos),ncol=nCol, fancybox=True, shadow=True)
+            ax.legend(loc='upper center', bbox_to_anchor=(0.5, bboxPos),ncol=nCol, fancybox=True, shadow=True, prop=self.font_prop)
 
     def getNumFigures(self):
         return 1    #default, subclasses can override

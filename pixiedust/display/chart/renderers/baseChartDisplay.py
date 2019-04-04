@@ -260,6 +260,10 @@ class BaseChartDisplay(with_metaclass(ABCMeta, ChartDisplay)):
     def getPreferredDefaultKeyFieldCount(self, handlerId):
         return 1
 
+    @cache(fieldName="font_path")
+    def getFontPath(self):
+        return self.options.get('font_path', None)
+
     @cache(fieldName="keyFields")
     def getKeyFields(self):
         """ Get the dataframe field names from metadata (usually specified by the user 
