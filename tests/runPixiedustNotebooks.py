@@ -17,6 +17,7 @@ import os
 import sys
 import nbformat
 import re
+import glob
 from nbconvert.preprocessors import ExecutePreprocessor
 from nbconvert.preprocessors.execute import CellExecutionError
 import logging
@@ -40,6 +41,13 @@ if "compareratio" in os.environ:
 else:
     compareRatio = 0.98
 
+def getPyJ(sparkHome):
+    pyjs = glob.glob('{0}/python/lib/py4j-*.zip'.format(sparkHome))
+    if not pyjs:
+        return '{0}/python/lib/py4j-0.9-src.zip'.format(sparkHome)
+    else:
+        return pyjs[0]
+
 def createKernelSpecIfNeeded(kernelName, useSpark):
     try:
         km = KernelManager(kernel_name=kernelName)
@@ -60,7 +68,7 @@ def createKernelSpecIfNeeded(kernelName, useSpark):
                 "env": {
                     "SCALA_HOME": "{0}".format(os.environ["SCALA_HOME"]),
                     "SPARK_HOME": "{0}".format(sparkHome),
-                    "PYTHONPATH": "{0}/python/:{0}/python/lib/py4j-0.9-src.zip".format(sparkHome),
+                    "PYTHONPATH": "{0}/python/:{1}".format(sparkHome, getPyJ(sparkHome)),
                     "PYTHONSTARTUP": "{0}/python/pyspark/shell.py".format(sparkHome),
                     "PYSPARK_SUBMIT_ARGS": "--driver-class-path {0}/data/libs/* --master local[10] pyspark-shell".format(os.environ.get("PIXIEDUST_HOME", os.path.expanduser('~'))),
                     "SPARK_DRIVER_MEMORY":"10G",
