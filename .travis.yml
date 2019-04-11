@@ -16,9 +16,11 @@ before_install:
 - tar -xvf scala-2.10.4.tgz
 - export SCALA_HOME=~/scala-2.10.4
 - echo Installing Spark
-- wget http://d3kbcqa49mib13.cloudfront.net/spark-2.2.0-bin-hadoop2.7.tgz
-- tar -xvf spark-2.2.0-bin-hadoop2.7.tgz
-- export SPARK_HOME=~/spark-2.2.0-bin-hadoop2.7
+- if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then wget http://d3kbcqa49mib13.cloudfront.net/spark-1.6.0-bin-hadoop2.6.tgz
+  -O spark-hadoop.tgz; else wget http://d3kbcqa49mib13.cloudfront.net/spark-2.2.0-bin-hadoop2.7.tgz
+  -O spark-hadoop.tgz; fi
+- tar -xvf spark-hadoop.tgz
+- if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then export SPARK_HOME=~/spark-1.6.0-bin-hadoop2.6; else export SPARK_HOME=~/spark-2.2.0-bin-hadoop2.7; fi
 - export PIXIEDUST_HOME=~/pixiedust-test-$TRAVIS_PYTHON_VERSION
 install:
 - conda create -y -q -n pixiedust-travis-test python=$TRAVIS_PYTHON_VERSION
