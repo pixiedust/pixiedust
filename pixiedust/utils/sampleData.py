@@ -231,7 +231,9 @@ class Downloader(object):
             req = Request(url, None, self.headers)
             print("Downloading '{0}' from {1}".format(displayName, url))
             tdir = '/home/spark/shared' if Environment.hasSpark and not self.forcePandas and os.path.exists('/home/spark/shared') else tempfile.gettempdir()
+            print("va // tdir: {}".format(tdir))
             with tempfile.NamedTemporaryFile(delete=False, dir=tdir) as f:
+                print("va // tempfile: {}".format(f))
                 bytesDownloaded = self.write(urlopen(req), f)
                 path = f.name   
             if url.endswith(".zip") or zipfile.is_zipfile(path):
@@ -262,7 +264,7 @@ class Downloader(object):
         if path:
             try:
                 if bytesDownloaded > 0:
-                   print("Downloaded {} bytes".format(bytesDownloaded))
+                   print("Downloaded {} bytes to {}".format(bytesDownloaded, path))
                 print("Creating {1} DataFrame for '{0}'. Please wait...".\
                     format(displayName, 'pySpark' if Environment.hasSpark and not self.forcePandas else 'pandas'))
                 return dataLoader(path, self.dataDef.get("schema", None))
