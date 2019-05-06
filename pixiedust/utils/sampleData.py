@@ -236,9 +236,11 @@ class Downloader(object):
                 fsUri = Environment.isRunningOnAE
                 if fsUri:
                     import subprocess
-                    print(f.name)
+                    print(f.name, fsUri)
                     subprocess.getoutput("hadoop fs -copyFromLocal -f {0} {1}".format(f.name, fsUri))
-                path = f.name   
+                    path = "{}/{}".format(f.name, fsUri)
+                else:
+                    path = f.name
             if url.endswith(".zip") or zipfile.is_zipfile(path):
                 #unzip first and get the first file in it
                 print("Extracting first item in zip file...")
