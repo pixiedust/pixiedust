@@ -235,8 +235,8 @@ class Downloader(object):
                 bytesDownloaded = self.write(urlopen(req), f)
                 if Environment.isRunningOnAE:
                     import subprocess
-                    print(f.name)
-                    subprocess.getoutput("hadoop fs -copyFromLocal {}".format(f.name))
+                    print(tempfile.NamedTemporaryFile(delete=False, dir=tdir))
+                    subprocess.getoutput("hadoop fs -copyFromLocal {}".format(tempfile.NamedTemporaryFile(delete=False, dir=tdir)))
                 path = f.name   
             if url.endswith(".zip") or zipfile.is_zipfile(path):
                 #unzip first and get the first file in it
