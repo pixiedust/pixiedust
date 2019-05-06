@@ -238,7 +238,7 @@ class Downloader(object):
                     import subprocess
                     print(f.name, fsUri)
                     subprocess.getoutput("hadoop fs -copyFromLocal -f {0} {1}".format(f.name, fsUri))
-                    path = "{}/{}".format(f.name, fsUri)
+                    path = "{}/{}".format(fsUri, f.name)
                 else:
                     path = f.name
             if url.endswith(".zip") or zipfile.is_zipfile(path):
