@@ -66,8 +66,8 @@ class Environment(with_metaclass(
             try:
                 from pyspark import SparkContext
                 hconf = ShellAccess["sc._jsc.hadoopConfiguration()"]
-                print("hconf : " + str(hconf))
-                print("defaultfs : " + str(hconf.get("fs.defaultFS")))
+                print("hconf : " + str(hconf()))
+                print("defaultfs : " + str(hconf().get("fs.defaultFS")))
                 return ShellAccess["sc._jsc.hadoopConfiguration().get(\"fs.defaultFS\")"] is not None
             except ImportError:
                 return False
