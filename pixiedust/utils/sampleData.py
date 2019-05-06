@@ -235,7 +235,6 @@ class Downloader(object):
                 bytesDownloaded = self.write(urlopen(req), f)
                 fsUri = Environment.isRunningOnAE
                 if fsUri:
-                    import os
                     os.system("hadoop fs -copyFromLocal -f {0} {1}".format(f.name, fsUri))
                     userAE = Environment.userAE
                     path = "{}/user/{}/{}".format(fsUri, userAE, f.name.split("/")[-1])
