@@ -236,13 +236,9 @@ class Downloader(object):
                 fsUri = Environment.isRunningOnAE
                 if fsUri:
                     import subprocess
-                    cmd = subprocess.Popen(['hadoop', 'fs', '-copyFromLocal', '-f', '{}'.format(f.name), '{}'.format(fsUri)],
-                         stdout=subprocess.PIPE,
-                         stderr=subprocess.STDOUT)
-                    stdout,stderr = cmd.communicate()
-                    if stderr is None:
-                        userAE = Environment.userAE
-                        path = "{}/user/{}/{}".format(fsUri, userAE, f.name.split("/")[-1])
+                    subprocess.call("hadoop fs -copyFromLocal -f {0} {1}".format(f.name, fsUri))
+                    userAE = Environment.userAE
+                    path = "{}/user/{}/{}".format(fsUri, userAE, f.name.split("/")[-1])
                 else:
                     path = f.name
             if url.endswith(".zip") or zipfile.is_zipfile(path):
