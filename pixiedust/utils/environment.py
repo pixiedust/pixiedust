@@ -62,7 +62,7 @@ class Environment(with_metaclass(
 
         @property
         @cache(fieldName="_isRunningOnAE")
-        def _isRunningOnAE(self):
+        def isRunningOnAE(self):
             try:
                 return ShellAccess.sc._jsc.hadoopConfiguration().get("fs.defaultFS") is not None
             except ValueError:
