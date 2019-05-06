@@ -233,6 +233,9 @@ class Downloader(object):
             tdir = '/home/spark/shared' if Environment.hasSpark and not self.forcePandas and os.path.exists('/home/spark/shared') else tempfile.gettempdir()
             with tempfile.NamedTemporaryFile(delete=False, dir=tdir) as f:
                 bytesDownloaded = self.write(urlopen(req), f)
+                if Environment.isRunningOnAE:
+                    import subprocess
+                    subprocess.getoutput("hadoop fs -copyFromLocal {0}/{1}".format(tdir, f))
                 path = f.name   
             if url.endswith(".zip") or zipfile.is_zipfile(path):
                 #unzip first and get the first file in it

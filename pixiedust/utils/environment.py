@@ -61,6 +61,15 @@ class Environment(with_metaclass(
             return envVar is not None and envVar.startswith("bluemix/")
 
         @property
+        @cache(fieldName="_isRunningOnAE")
+        def isRunningOnAE(self):
+            try:
+                from pyspark import SparkContext
+                return ShellAccess["sc._jsc.hadoopConfiguration().get(\"fs.defaultFS\")"] is not None
+            except ImportError:
+                return False
+
+        @property
         @cache(fieldName="_pixiedustHome")
         def pixiedustHome(self):
             return os.environ.get("PIXIEDUST_HOME", os.path.expanduser('~'))
