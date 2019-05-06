@@ -266,6 +266,7 @@ class Downloader(object):
         if path:
             try:
                 if bytesDownloaded > 0:
+                   print(result)
                    print("Downloaded {} bytes".format(bytesDownloaded))
                 print("Creating {1} DataFrame for '{0}'. Please wait...".\
                     format(displayName, 'pySpark' if Environment.hasSpark and not self.forcePandas else 'pandas'))
