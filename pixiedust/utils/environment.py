@@ -65,7 +65,7 @@ class Environment(with_metaclass(
         def isRunningOnAE(self):
             try:
                 fsUri = ShellAccess.sc._jsc.hadoopConfiguration().get("fs.defaultFS")
-                if fsUri is not None:
+                if "hdfs" in fsUri:
                     return fsUri
             except EnvironmentError:
                 return False
