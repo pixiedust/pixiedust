@@ -64,7 +64,9 @@ class Environment(with_metaclass(
         @cache(fieldName="_isRunningOnAE")
         def isRunningOnAE(self):
             try:
-                return ShellAccess.sc._jsc.hadoopConfiguration().get("fs.defaultFS") is not None
+                fsUri = ShellAccess.sc._jsc.hadoopConfiguration().get("fs.defaultFS")
+                if fsUri is not None:
+                    return fsUri
             except EnvironmentError:
                 return False
 
