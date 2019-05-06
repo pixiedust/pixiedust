@@ -68,7 +68,7 @@ class Environment(with_metaclass(
                 if fsUri is not None:
                     return fsUri
             except EnvironmentError:
-                return False
+                return None
 
         @property
         @cache(fieldName="_userAE")

@@ -234,9 +234,8 @@ class Downloader(object):
             with tempfile.NamedTemporaryFile(delete=False, dir=tdir) as f:
                 bytesDownloaded = self.write(urlopen(req), f)
                 fsUri = Environment.isRunningOnAE
-                if fsUri:
+                if fsUri is not None:
                     import subprocess
-                    print(f.name, fsUri)
                     subprocess.getoutput("hadoop fs -copyFromLocal -f {0} {1}".format(f.name, fsUri))
                     userAE = Environment.userAE
                     path = "{}/user/{}/{}".format(fsUri, userAE, f.name.split("/")[-1])
