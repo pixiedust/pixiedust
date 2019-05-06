@@ -67,8 +67,10 @@ class Environment(with_metaclass(
                 fsUri = ShellAccess.sc._jsc.hadoopConfiguration().get("fs.defaultFS")
                 if fsUri is not None:
                     return fsUri
+                else:
+                    return None
             except EnvironmentError:
-                return None
+                return False
 
         @property
         @cache(fieldName="_userAE")
