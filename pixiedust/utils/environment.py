@@ -65,7 +65,9 @@ class Environment(with_metaclass(
         def isRunningOnAE(self):
             try:
                 from pyspark import SparkContext
-                print(ShellAccess["sc._jsc.hadoopConfiguration().get(\"fs.defaultFS\")"])
+                hconf = ShellAccess["sc._jsc.hadoopConfiguration()"]
+                print("hconf : " + str(hconf))
+                print("defaultfs : " + str(hconf.get("fs.defaultFS")))
                 return ShellAccess["sc._jsc.hadoopConfiguration().get(\"fs.defaultFS\")"] is not None
             except ImportError:
                 return False
