@@ -71,6 +71,11 @@ class Environment(with_metaclass(
                 return False
 
         @property
+        @cache(fieldName="_userAE")
+        def userAE(self):
+            return os.environ.get("KERNEL_USERNAME")
+
+        @property
         @cache(fieldName="_pixiedustHome")
         def pixiedustHome(self):
             return os.environ.get("PIXIEDUST_HOME", os.path.expanduser('~'))
