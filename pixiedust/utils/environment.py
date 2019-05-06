@@ -64,10 +64,8 @@ class Environment(with_metaclass(
         @cache(fieldName="_isRunningOnAE")
         def isRunningOnAE(self):
             try:
-                x = ShellAccess.sc._jsc.hadoopConfiguration().get("fs.defaultFS")
-                print(x)
                 return ShellAccess.sc._jsc.hadoopConfiguration().get("fs.defaultFS") is not None
-            except ImportError:
+            except EnvironmentError:
                 return False
 
         @property
