@@ -61,6 +61,21 @@ class Environment(with_metaclass(
             return envVar is not None and envVar.startswith("bluemix/")
 
         @property
+        @cache(fieldName="_isRunningOnAE")
+        def isRunningOnAE(self):
+            try:
+                fsUri = ShellAccess.sc._jsc.hadoopConfiguration().get("fs.defaultFS")
+                if "hdfs://" in fsUri:
+                    return fsUri
+            except EnvironmentError:
+                return False
+
+        @property
+        @cache(fieldName="_userAE")
+        def userAE(self):
+            return os.environ.get("KERNEL_USERNAME")
+
+        @property
         @cache(fieldName="_pixiedustHome")
         def pixiedustHome(self):
             return os.environ.get("PIXIEDUST_HOME", os.path.expanduser('~'))
