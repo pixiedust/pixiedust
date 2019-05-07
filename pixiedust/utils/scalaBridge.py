@@ -119,7 +119,10 @@ class PixiedustScalaMagics(Magics):
                 clazz = "org.apache.spark.sql.DataFrame"
 
             if clazz == "org.apache.spark.sql.DataFrame":
-                return DataFrame(stuff, SQLContext(SparkContext.getOrCreate(), stuff.sqlContext()))
+                if Environment.sparkVersion == 1:
+                    return DataFrame(stuff, SQLContext(SparkContext.getOrCreate(), stuff.sqlContext()))
+                else:
+                    return DataFrame(stuff, ShellAccess.SparkSession.builder.getOrCreate()._wrapped)
             elif clazz == "org.apache.spark.sql.SQLContext":
                 return SQLContext(SparkContext.getOrCreate(),stuff)
         return stuff
