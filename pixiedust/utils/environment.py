@@ -63,6 +63,8 @@ class Environment(with_metaclass(
         @property
         @cache(fieldName="_isRunningOnAE")
         def isRunningOnAE(self):
+            if not self.hasSpark:
+                return False
             try:
                 fsUri = ShellAccess.sc._jsc.hadoopConfiguration().get("fs.defaultFS")
                 if "hdfs://" in fsUri:
