@@ -22,6 +22,7 @@ from bokeh.plotting import figure
 from bokeh.models import ColumnDataSource, FactorRange, HoverTool
 from bokeh.core.properties import value as bk_value
 from bokeh.transform import factor_cmap
+from bokeh.models.callbacks import CustomJS
 import sys
 
 
@@ -97,6 +98,19 @@ class BKBarChartRenderer(BokehBaseDisplay):
             hover = HoverTool()
             hover.tooltips = [(d if d is not 'pd_stacked_col' else xlabel, '@' + d + '{0.00}') for d in data]
             p.add_tools(hover)
+
+            code="""
+            $(document).trigger('pd_event',{{
+                type:'select', 
+                targetDivId: '{}',
+                labels:xrange,
+                x:cb_obj['x'],
+                y:cb_obj['y']
+            }});
+            """.format(self.options.get("targetDivId","")).replace('\n','')
+
+            callback = CustomJS(args=dict(xrange=data['pd_stacked_col'], source=src),code=code)
+            p.js_on_event('tap', callback)
 
             return p
 

@@ -120,13 +120,14 @@
   </style>
   
   {% set fieldNames = wpdf.columns %}
-  <div class="df-table-wrapper df-table-wrapper-{{prefix}} panel-group pd_save">
+  {% set table_row_value = this.options.get("table_row_value", None) %}
+  <div class="df-table-wrapper df-table-wrapper-{{targetDivId}}{{prefix}} panel-group pd_save">
     <!-- dataframe schema -->
     {% if table_noschema != 'true' %}
     <div class="panel panel-default">
       <div class="panel-heading">
         <h4 class="panel-title" style="margin: 0px;">
-          <a data-toggle="collapse" href="#df-schema-{{prefix}}" data-parent="#df-table-wrapper-{{prefix}}">Schema</a>
+          <a data-toggle="collapse" href="#df-schema-{{prefix}}" data-parent="#df-table-wrapper-{{targetDivId}}{{prefix}}">Schema</a>
         </h4>
       </div>
       <div id="df-schema-{{prefix}}" class="panel-collapse collapse">
@@ -146,7 +147,7 @@
       {% if table_noschema != 'true' %}
       <div class="panel-heading">
         <h4 class="panel-title" style="margin: 0px;">
-          <a data-toggle="collapse" href="#df-table-{{prefix}}" data-parent="#df-table-wrapper-{{prefix}}">{{this.options.get("title","")}} Table</a>
+          <a data-toggle="collapse" href="#df-table-{{prefix}}" data-parent="#df-table-wrapper-{{targetDivId}}{{prefix}}">{{this.options.get("title","")}} Table</a>
         </h4>
       </div>
       {% endif %}
@@ -164,8 +165,8 @@
           <div class="fixed-header-container">
             <div class="fixed-header">
               <div class="fixed-row">
-                {% for field in fieldNames %}
-                <div class="fixed-cell">{{field | decodeUTF8 }}</div>
+                {% for field in fieldNames%}
+                <div class="fixed-cell" {{'style="display:none"' if field==table_row_value else ''}}>{{field | decodeUTF8 }}</div>
                 {% endfor %}
               </div>
             </div>
@@ -174,8 +175,8 @@
             <table class="df-table">
               <thead>
                 <tr>
-                  {% for field in fieldNames %}
-                  <th><div>{{field | decodeUTF8 }}</div></th>
+                  {% for field in fieldNames%}
+                  <th {{'style="display:none"' if field==table_row_value else ''}}><div>{{field | decodeUTF8 }}</div></th>
                   {% endfor %}
                 </tr>
               </thead>
@@ -183,7 +184,7 @@
                 {% for rowindex, row in wpdf.iterrows() %}
                 <tr>
                   {% for field in fieldNames %}
-                  <td>{{row[field]}}</td>
+                  <td {{'style="display:none"' if field==table_row_value else ''}}>{{row[field]}}</td>
                   {% endfor %}
                 </tr>
                 {% endfor %}
@@ -197,7 +198,7 @@
   
   <script class="pd_save">
     $(function() {
-      var tableWrapper = $('.df-table-wrapper-{{prefix}}');
+      var tableWrapper = $('.df-table-wrapper-{{targetDivId}}{{prefix}}');
       var fixedHeader = $('.fixed-header', tableWrapper);
       var tableContainer = $('.df-table-container', tableWrapper);
       var table = $('.df-table', tableContainer);
@@ -208,7 +209,7 @@
         .css('width', table.width())
         .find('.fixed-cell')
         .each(function(i, e) {
-          $(this).css('width', $('.df-table-wrapper-{{prefix}} th:nth-child(' + (i+1) + ')').css('width'));
+          $(this).css('width', $('.df-table-wrapper-{{targetDivId}}{{prefix}} th:nth-child(' + (i+1) + ')').css('width'));
         });
   
       tableContainer.scroll(function() {
@@ -216,8 +217,9 @@
       });
   
       rows.on("click", function(e){
-          var txt = e.delegateTarget.innerText;
-          var splits = txt.split("\t");
+          // var txt = e.delegateTarget.innerText;
+          var splits = $(e.delegateTarget).text().trim().replace(/[\n\r]/g, '\t').split("\t").map(function(item){return item.trim()}).filter(function(item){return item!=""});
+          // var splits = txt.split("\t");
           var len = splits.length;
           var hdrs = $(fixedHeader).find(".fixed-cell");
           // Add all cells in the selected row as a map to be consumed by the target as needed

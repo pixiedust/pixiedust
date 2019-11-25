@@ -30,6 +30,7 @@ class MapRenderer(BrunelBaseDisplay):
             ('Heat Map', {'handler': self.compute_for_heatmap}),
             ('Tree Map', {'handler': self.compute_for_treemap}),
             ('Chord', {'handler': self.compute_for_chord}),
+            ('bubble', {'handler': self.compute_for_bubble}),
         ])
 
     @commonChartOptions
@@ -77,6 +78,17 @@ class MapRenderer(BrunelBaseDisplay):
         parts = ['chord']
         parts.append("x({})".format(",".join(self.getKeyFields())))
         parts.append("y({})".format(",".join(self.getValueFields())))
+        parts.append("color(#count)")
+        parts.append("tooltip(#all)")
+        return parts 
+
+    def compute_for_bubble(self):
+        parts = ['bubble']
+        parts.append("x({})".format(",".join(self.getKeyFields())))
+        parts.append("y({})".format(",".join(self.getValueFields())))
+        parts.append("size({})".format(",".join(self.getValueFields())))
+        parts.append("label({})".format(",".join(self.getValueFields())))
+        parts.append("interaction(call:linkPackage:click)")
         parts.append("color(#count)")
         parts.append("tooltip(#all)")
         return parts 
