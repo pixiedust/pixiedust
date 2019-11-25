@@ -103,14 +103,6 @@ class BrunelBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
                 self.debug("Running brunel with magic {}".format(magic))
                 data = get_ipython().run_line_magic('brunel', magic)
                 if data is not None:
-                    ipythonDisplay(Javascript("""
-                        window.linkpackage = function(item){
-                            var parts = item.parent.data.key.split('|');
-                            if ( parts.length >= 3){
-                                window.open("https://code.amazon.com/packages/" + parts[2],'_blank');
-                            }
-                        }
-                    """))
                     ipythonDisplay(data)
             brunel_html = "\n".join([self.convert_html(output) for output in buf.outputs])
             return brunel_html
