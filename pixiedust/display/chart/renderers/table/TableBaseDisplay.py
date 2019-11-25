@@ -41,6 +41,9 @@ class TableBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
         else:
             tableFields = tableFieldStr.split(",")
             tableFields = [val for val in tableFields if val in fieldNames]
+            table_row_value = self.options.get("table_row_value", None)
+            if table_row_value is not None and table_row_value not in tableFields:
+                tableFields.append(table_row_value)
         return tableFields
 
     def canRenderChart(self):

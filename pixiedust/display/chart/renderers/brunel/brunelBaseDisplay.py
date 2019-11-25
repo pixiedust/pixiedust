@@ -20,7 +20,7 @@ from pixiedust.display.chart.renderers.baseChartDisplay import commonChartOption
 from pixiedust.utils import Logger
 from pixiedust.utils.shellAccess import ShellAccess
 from six import with_metaclass
-from IPython.display import display as ipythonDisplay, HTML
+from IPython.display import display as ipythonDisplay, HTML, Javascript
 from IPython.utils.io import capture_output
 from IPython.core.getipython import get_ipython
 from ..baseChartDisplay import BaseChartDisplay
@@ -103,6 +103,14 @@ class BrunelBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
                 self.debug("Running brunel with magic {}".format(magic))
                 data = get_ipython().run_line_magic('brunel', magic)
                 if data is not None:
+                    ipythonDisplay(Javascript("""
+                        window.linkpackage = function(item){
+                            var parts = item.parent.data.key.split('|');
+                            if ( parts.length >= 3){
+                                window.open("https://code.amazon.com/packages/" + parts[2],'_blank');
+                            }
+                        }
+                    """))
                     ipythonDisplay(data)
             brunel_html = "\n".join([self.convert_html(output) for output in buf.outputs])
             return brunel_html

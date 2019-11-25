@@ -745,10 +745,7 @@ $(document).on("pd_event", function(event, eventInfo){
             if (source == "*" || source == targetDivId || source == eventInfo.type){
                 return true;
             }
-            {#Find a parent with pd_target attribute#}
-            return $(this).parents("[pd_target]").filter(function(){
-                return this.getAttribute("pd_target") == targetDivId;
-            }).length > 0;
+            return false;
         });
         eventHandlers.each(function(){
             execQueue = runElement(this, false);
@@ -760,6 +757,10 @@ $(document).on("pd_event", function(event, eventInfo){
                     {#Inject eventInfo#}
                     if (value.script){
                         value.script = "true=True\nfalse=False\neventInfo="+JSON.stringify(eventInfo) + "\n" + value.script;
+                    }
+
+                    if (eventInfo.runScript){
+                        value.script += "\n" + eventInfo.runScript;
                     }
                     value.execute();
                 }
@@ -786,7 +787,7 @@ $(document).on("pd_event", function(event, eventInfo){
                         refreshRate = loadingDiv.getAttribute("pd_refresh_rate");
                         if (refreshRate){
                             var ival = setInterval(function(){
-                                if ($('#' + thisId).length == 0){
+                                if ($('#' + thisId).length == 0 || !$('#' + thisId).attr("pd_refresh_rate")){
                                     console.log("Clearing refresh timer", ival);
                                     clearInterval(ival);
                                     return;

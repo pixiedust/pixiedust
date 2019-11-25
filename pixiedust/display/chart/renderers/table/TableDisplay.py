@@ -19,4 +19,6 @@ class TableDisplay(TableBaseDisplay):
         return self.renderTemplate("table.html", wpdf=wpdf,
             table_noschema=self.options.get("table_noschema", "false"),
             table_nocount=self.options.get("table_nocount", "false"),
-            table_nosearch=self.options.get("table_nosearch", "false"))
+            table_nosearch=self.options.get("table_nosearch", "false"),
+            targetDivId=self.options.get("targetDivId", "")
+        )
