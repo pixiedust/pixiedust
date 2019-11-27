@@ -37,6 +37,11 @@ systemHandlers=[]
 defaultHandler=None
 globalMenuInfos={}
 
+if six.PY2:
+    perf_counter = time.clock
+else:
+    perf_counter = time.perf_counter
+
 """
 Registry of Action categories
 """
@@ -332,9 +337,9 @@ class Display(with_metaclass(ABCMeta)):
                     </script>
                 """.format(self._getExecutePythonDisplayScript(menuInfo)))
         else:
-            start = time.clock()
+            start = perf_counter()
             self.doRender(handlerId)
-            self.executionTime = time.clock() - start
+            self.executionTime = perf_counter() - start
 
         #generate final HTML
         ipythonDisplay(HTML(self._wrapBeforeHtml() + self.html + self._wrapAfterHtml()))
