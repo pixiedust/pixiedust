@@ -218,7 +218,10 @@ if __name__ == '__main__':
     kernelPath = createKernelSpecIfNeeded(__TEST_KERNEL_NAME__, useSpark)
     try:
         inputDir = os.environ.get("PIXIEDUST_TEST_INPUT", './tests')
-        for path in os.listdir( inputDir ):
+        print("Processing notebooks from directory {0}:".format(inputDir))
+        nb_paths = sorted(os.listdir( inputDir ))
+        print(nb_paths)
+        for path in nb_paths:
             if path.endswith(".ipynb"):
                 print("Processing notebook {0}".format(path))
                 processed = False
