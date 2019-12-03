@@ -71,7 +71,7 @@ def createKernelSpecIfNeeded(kernelName, useSpark):
                     "PYTHONPATH": "{0}/python/:{1}".format(sparkHome, getPyJ(sparkHome)),
                     "PYTHONSTARTUP": "{0}/python/pyspark/shell.py".format(sparkHome),
                     "PYSPARK_SUBMIT_ARGS": "--driver-class-path {0}/data/libs/* --master local[10] pyspark-shell".format(os.environ.get("PIXIEDUST_HOME", os.path.expanduser('~'))),
-                    "SPARK_DRIVER_MEMORY":"10G",
+                    "SPARK_DRIVER_MEMORY":"8G",
                     "SPARK_LOCAL_IP":"127.0.0.1"
                 }
             }
@@ -218,7 +218,10 @@ if __name__ == '__main__':
     kernelPath = createKernelSpecIfNeeded(__TEST_KERNEL_NAME__, useSpark)
     try:
         inputDir = os.environ.get("PIXIEDUST_TEST_INPUT", './tests')
-        for path in os.listdir( inputDir ):
+        print("Processing notebooks from directory {0}:".format(inputDir))
+        nb_paths = sorted(os.listdir( inputDir ))
+        print(nb_paths)
+        for path in nb_paths:
             if path.endswith(".ipynb"):
                 print("Processing notebook {0}".format(path))
                 processed = False

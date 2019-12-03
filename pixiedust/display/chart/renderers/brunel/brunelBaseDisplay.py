@@ -20,7 +20,7 @@ from pixiedust.display.chart.renderers.baseChartDisplay import commonChartOption
 from pixiedust.utils import Logger
 from pixiedust.utils.shellAccess import ShellAccess
 from six import with_metaclass
-from IPython.display import display as ipythonDisplay, HTML
+from IPython.display import display as ipythonDisplay, HTML, Javascript
 from IPython.utils.io import capture_output
 from IPython.core.getipython import get_ipython
 from ..baseChartDisplay import BaseChartDisplay
