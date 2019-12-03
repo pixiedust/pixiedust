@@ -71,7 +71,7 @@ def createKernelSpecIfNeeded(kernelName, useSpark):
                     "PYTHONPATH": "{0}/python/:{1}".format(sparkHome, getPyJ(sparkHome)),
                     "PYTHONSTARTUP": "{0}/python/pyspark/shell.py".format(sparkHome),
                     "PYSPARK_SUBMIT_ARGS": "--driver-class-path {0}/data/libs/* --master local[10] pyspark-shell".format(os.environ.get("PIXIEDUST_HOME", os.path.expanduser('~'))),
-                    "SPARK_DRIVER_MEMORY":"4G",
+                    "SPARK_DRIVER_MEMORY":"8G",
                     "SPARK_LOCAL_IP":"127.0.0.1"
                 }
             }
