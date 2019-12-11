@@ -77,7 +77,7 @@ class BKHistogramRenderer(BokehBaseDisplay):
             for j,c in enumerate(list(df[clustered].unique())) if clustered else enumerate([None]):
                 df2 = df[df[clustered] == c] if c else df
                 hist, edges = np.histogram(list(df2[vField]), density=True, bins=binsize)
-                p.quad(top=hist, bottom=0, left=edges[:-1], right=edges[1:], fill_color=colors[j], line_color="#cccccc", fill_alpha=0.8 if clustered else 1, legend=str(c) if clustered else None)
+                p.quad(top=hist, bottom=0, left=edges[:-1], right=edges[1:], fill_color=colors[j], line_color="#cccccc", fill_alpha=0.8 if clustered else 1, **self.get_legend_kwarg(str(c) if clustered else None))
 
             p.y_range.start=0
 

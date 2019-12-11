@@ -184,3 +184,12 @@ class BokehBaseDisplay(with_metaclass(ABCMeta, BaseChartDisplay)):
         )
     
         return js
+
+    def get_legend_kwarg(self, label=None, arg_label='legend_label'):
+        legend_kwarg = {}
+        if label:
+            if BokehBaseDisplay.bokeh_version > (1,3,4):
+                legend_kwarg[arg_label] = label
+            else:
+                legend_kwarg['legend'] = label
+        return legend_kwarg

@@ -75,7 +75,7 @@ class BKScatterPlotRenderer(BokehBaseDisplay):
 
         for i,c in enumerate(list(wpdf[color].unique())) if color else enumerate([None]):
             wpdf2 = wpdf[wpdf[color] == c] if c else wpdf
-            p.circle(list(wpdf2[xlabel]), list(wpdf2[ylabel]), color=colors[i], legend=str(c) if c and self.showLegend() else None, fill_alpha=0.5, size=8)
+            p.circle(list(wpdf2[xlabel]), list(wpdf2[ylabel]), color=colors[i], **self.get_legend_kwarg(str(c) if c and self.showLegend() else None), fill_alpha=0.5, size=8)
 
 
         p.xaxis.axis_label = xlabel
