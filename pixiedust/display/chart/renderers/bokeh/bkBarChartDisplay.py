@@ -88,7 +88,7 @@ class BKBarChartRenderer(BokehBaseDisplay):
                 l = factors
 
             p = figure(x_range=data['pd_stacked_col'], y_axis_label=ylabel, x_axis_label=xlabel, title=title)
-            p.vbar_stack(factors, x='pd_stacked_col', width=0.9, source=src, **self.get_legend_kwarg(l if self.showLegend() else None), color=colors)
+            p.vbar_stack(factors, x='pd_stacked_col', width=0.9, source=src, color=colors, **self.get_legend_kwarg(l if self.showLegend() else None))
 
             p.y_range.start = ystart
             p.axis.minor_tick_line_color = None
@@ -135,7 +135,7 @@ class BKBarChartRenderer(BokehBaseDisplay):
             colors = self.colorPalette(len(factors)) if color is None else color
 
             p = figure(x_range=FactorRange(*x), y_axis_label=ylabel, x_axis_label=xlabel, title=title)
-            p.vbar(x='x', top='counts', width=0.925, source=src, **self.get_legend_kwarg('l' if self.showLegend() else None, arg_label='legend_group'), color=factor_cmap('x', palette=colors, factors=factors, start=1, end=2))
+            p.vbar(x='x', top='counts', width=0.925, source=src, color=factor_cmap('x', palette=colors, factors=factors, start=1, end=2), **self.get_legend_kwarg('l' if self.showLegend() else None, arg_label='legend_group'))
 
             p.y_range.start = 0 if not counts else min(0, min(counts))
             p.axis.minor_tick_line_color = None
