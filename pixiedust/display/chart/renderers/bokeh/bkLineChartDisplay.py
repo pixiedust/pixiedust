@@ -62,14 +62,14 @@ class BKLineChartRenderer(BokehBaseDisplay):
                     for i,v in enumerate(vFields):
                         y = list(df2[v].values)
                         l = v if self.isSubplot() else c
-                        p.line(x, y, line_width=2, color=colors[i] if self.isSubplot() else colors[j], legend=l if self.showLegend() else None)
+                        p.line(x, y, line_width=2, color=colors[i] if self.isSubplot() else colors[j], **self.get_legend_kwarg(l if self.showLegend() else None))
             else:
                 colors = self.colorPalette(len(vFields)) if color is None else color
                 
 
                 for i,v in enumerate(vFields):
                     y = list(df[v].values)
-                    p.line(x, y, line_width=2, color=colors[i], legend=v if self.showLegend() else None)
+                    p.line(x, y, line_width=2, color=colors[i], **self.get_legend_kwarg(v if self.showLegend() else None))
 
             p.legend.location = "top_left"
 
