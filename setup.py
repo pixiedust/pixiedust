@@ -1,11 +1,13 @@
 from setuptools import setup, find_packages
+
 setup(name='pixiedust',
-      version='1.1.18',
+      version='1.1.19',
       description='Productivity library for Jupyter Notebook',
       url='https://github.com/pixiedust/pixiedust',
-      install_requires=['mpld3', 'lxml', 'geojson', 'astunparse', 'markdown', 'colour', 'requests', 'matplotlib', 'pandas'],
       author='David Taieb',
-      author_email='david_taieb@us.ibm.com',
+      author_email='data38777@gmail.com',
+      install_requires=['geojson', 'astunparse', 'markdown', 'colour', 'requests', 'matplotlib',
+                        'pandas'],
       license='Apache 2.0',
       packages=find_packages(exclude=('tests', 'tests.*')),
       include_package_data=True,
@@ -15,4 +17,4 @@ setup(name='pixiedust',
               'jupyter-pixiedust = install.pixiedustapp:main'
           ]
       }
-     )
+      )
